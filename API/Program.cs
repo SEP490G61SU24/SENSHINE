@@ -29,6 +29,7 @@ namespace API
             builder.Services.AddScoped<ISpaService, SpaService>();
             builder.Services.AddScoped<INewsService, NewsService>();
             builder.Services.AddScoped<ICardService, CardService>();
+            builder.Services.AddScoped<IComboService, ComboServicee>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddScoped<ISystemSettingService, SystemSettingService>();
