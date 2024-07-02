@@ -32,6 +32,7 @@ namespace API
             builder.Services.AddScoped<IComboService, ComboServicee>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<IAppointmentService, AppointmentService>();
             builder.Services.AddScoped<ISystemSettingService, SystemSettingService>();
             builder.Services.AddScoped<IPromotionService, PromotionService>();
             builder.Services.AddAutoMapper(typeof(NewMapper));
