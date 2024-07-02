@@ -31,6 +31,7 @@ namespace API
             builder.Services.AddScoped<ICardService, CardService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<ISystemSettingService, SystemSettingService>();
             builder.Services.AddScoped<IPromotionService, PromotionService>();
             builder.Services.AddAutoMapper(typeof(NewMapper));
             builder.Services.AddAutoMapper(typeof(ProductMapper));
