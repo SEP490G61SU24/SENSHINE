@@ -30,6 +30,8 @@ namespace API
             builder.Services.AddScoped<INewsService, NewsService>();
             builder.Services.AddScoped<ICardService, CardService>();
 
+            builder.Services.AddScoped<ISystemSettingService, SystemSettingService>();
+
             builder.Services.AddScoped<IPromotionService, PromotionService>();
             builder.Services.AddAutoMapper(typeof(NewMapper));
 
