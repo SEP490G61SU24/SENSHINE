@@ -35,15 +35,15 @@ namespace API.Controllers
 
         //Lay ra thong tin service cu the
         [HttpGet]
-        public async Task<IActionResult> GetByID(int IdSer)
+        public async Task<IActionResult> GetByID(int Id)
         {
-            if (IdSer < 1)
+            if (Id < 1)
             {
                 return BadRequest("ID Service không tồn tại");
             }
             else
             {
-                var service = await spaService.FindServiceWithItsId(IdSer);
+                var service = await spaService.FindServiceWithItsId(Id);
                 if (service == null)
                 {
                     return NotFound("Service không tồn tại");
@@ -73,7 +73,7 @@ namespace API.Controllers
                 };
 
                 var createdService = await spaService.CreateServiceAsync(newService);
-                return Ok($"Tạo mới {createdService.ServiceName} thành công");
+                return Ok($"Tạo mới dịch vụ {createdService.ServiceName} thành công");
             }
             catch (Exception ex)
             {
@@ -139,7 +139,7 @@ namespace API.Controllers
                 {
                     return NotFound("Không tìm thấy dịch vụ để xóa");
                 }
-                return Ok($"Đã xóa dịch vụ có ID {deletedService.Id}");
+                return Ok($"Đã xóa dịch vụ có ID {deletedService.Id} thành công!");
             }
             catch (Exception ex)
             {

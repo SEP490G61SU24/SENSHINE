@@ -1,8 +1,9 @@
-﻿@model Web.Models.ServiceViewModel
+﻿@model IEnumerable<Web.Models.ServiceViewModel>
 
 @{
-    ViewData["Title"] = "Create Service";
+    ViewData["Title"] = "List Service";
 }
+
 <link rel="icon" href="../assets/images/favicon.png" type="image/x-icon">
 <link rel="shortcut icon" href="../assets/images/favicon.png" type="image/x-icon">
 <title>Riho - Premium Admin Template</title>
@@ -35,43 +36,66 @@
 <!-- Responsive css-->
 <link rel="stylesheet" type="text/css" href="../assets/css/responsive.css">
 
-<h1>Add New Service</h1>
+<div>
+    <p>
+        <a href="@Url.Action("CreateService", "Service")">Add New Service</a>
+    </p>
 
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="CreateService">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div>
+        <form asp-action="ListService" method="get">
             <div class="form-group">
-                <label asp-for="ServiceName" class="control-label"></label>
-                <input asp-for="ServiceName" class="form-control" />
-                <span asp-validation-for="ServiceName" class="text-danger"></span>
+                <input type="text" name="searchString" class="form-control" placeholder="Nhập dịch vụ cần tìm kiếm...">
             </div>
-            <div class="form-group">
-                <label asp-for="Amount" class="control-label"></label>
-                <input asp-for="Amount" class="form-control" />
-                <span asp-validation-for="Amount" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
         </form>
     </div>
-</div>
 
-<div>
-    <a asp-action="ListService">Back to List</a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Id)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ServiceName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Amount)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Description)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ServiceName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Amount)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Description)
+                    </td>
+                    <td>
+                        @Html.ActionLink("Edit", "EditService", new { id = item.Id }) |
+                        @Html.ActionLink("Details", "DetailService", new { id = item.Id }) |
+                        <form asp-action="DeleteService1" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Are you sure you want to delete this service?');">
+                            <button type="submit" class="btn-link">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
 <script src="../assets/js/jquery.min.js"></script>
 <!-- Bootstrap js-->
 <script src="../assets/js/bootstrap/bootstrap.bundle.min.js"></script>
