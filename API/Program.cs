@@ -6,6 +6,7 @@ using API.Services.Impl;
 using API.Services;
 using API.Models;
 using API.Mapping;
+using System.Text.Json.Serialization;
 
 namespace API
 {
@@ -41,6 +42,7 @@ namespace API
             builder.Services.AddAutoMapper(typeof(NewMapper));
             builder.Services.AddAutoMapper(typeof(ProductMapper));
             builder.Services.AddAutoMapper(typeof(PromotionMapper));
+
             // Configure JWT authentication
             builder.Services.AddAuthentication(options =>
             {

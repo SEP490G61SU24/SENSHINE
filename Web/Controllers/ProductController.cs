@@ -20,7 +20,7 @@ namespace Web.Controllers
         public async Task<IActionResult> ProductList()
         {
             List<ProductViewModel> viewList = new List<ProductViewModel>();
-            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/ListAllProducts");
+            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/ListAllProduct");
 
             if (response.IsSuccessStatusCode)
             {
