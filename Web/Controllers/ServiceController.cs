@@ -100,7 +100,7 @@ namespace Web.Controllers
 
             return View(service);
         }
-
+        //Edit Service
         [HttpGet]
         public async Task<IActionResult> EditService(int id)
         {
@@ -152,7 +152,7 @@ namespace Web.Controllers
 
         // POST: Service/DeleteService/{id}
         [HttpPost]
-        public async Task<IActionResult> DeleteService(int id)
+        public async Task<IActionResult> DeleteService1(int id)
         {
             if (id <= 0)
             {

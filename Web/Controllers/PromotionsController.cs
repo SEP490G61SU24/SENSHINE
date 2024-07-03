@@ -24,6 +24,9 @@ namespace Web.Controllers
                 string data = await response.Content.ReadAsStringAsync();
                 viewList = JsonConvert.DeserializeObject<List<PromotionViewModel>>(data);
             }
+            
+                ViewData["Title"] = "ListPromotion";
+            
             return View(viewList);
         }
         public IActionResult Add()
