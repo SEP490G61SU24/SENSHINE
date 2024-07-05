@@ -38,6 +38,7 @@ namespace API
             builder.Services.AddScoped<IBedService, BedService>();
             builder.Services.AddScoped<IRoomService, RoomService>();
             builder.Services.AddScoped<IPromotionService, PromotionService>();
+            builder.Services.AddScoped<IReviewService, ReviewService>();
             builder.Services.AddAutoMapper(typeof(NewMapper));
             builder.Services.AddAutoMapper(typeof(ProductMapper));
             builder.Services.AddAutoMapper(typeof(PromotionMapper));

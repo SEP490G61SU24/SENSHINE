@@ -9,11 +9,11 @@ namespace API.Services
 
         //tim kiem Review theo id
         Task<Review> FindReviewWithItsId(int Id);
-        //them 1 service moi
-        Task<Review> CreateReviewAsync(Service services);
-        //edit 1 service 
-        Task<Review> EditReviewAsync(int Id, Service services);
-        //xoa 1 service
+        //them 1 Review moi
+        Task<Review> CreateReviewAsync(Review review);
+        //edit 1 Review 
+        Task<Review> EditReviewAsync(int Id, Review review);
+        //xoa 1 Review
         Task<Review> DeleteReviewAsync(int Id);
     }
 }
