@@ -38,9 +38,15 @@ namespace API
             builder.Services.AddScoped<IBedService, BedService>();
             builder.Services.AddScoped<IRoomService, RoomService>();
             builder.Services.AddScoped<IPromotionService, PromotionService>();
+            builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+            builder.Services.AddScoped<IBranchService, BranchService>();
             builder.Services.AddAutoMapper(typeof(NewMapper));
             builder.Services.AddAutoMapper(typeof(ProductMapper));
             builder.Services.AddAutoMapper(typeof(PromotionMapper));
+            builder.Services.AddAutoMapper(typeof(CardMapper));
+            builder.Services.AddAutoMapper(typeof(EmployeeMapper));
+            builder.Services.AddAutoMapper(typeof(BranchMapper));
+
             // Configure JWT authentication
             builder.Services.AddAuthentication(options =>
             {
