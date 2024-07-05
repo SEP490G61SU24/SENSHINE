@@ -14,8 +14,4 @@
 		<ProjectReference Include="..\API\API.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Views\Review\" />
-	</ItemGroup>
-
 </Project>
