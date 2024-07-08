@@ -38,14 +38,14 @@ namespace API.Controllers
         {
             if (IdCombo < 1)
             {
-                return BadRequest("ID Service không tồn tại");
+                return BadRequest("ID Combo không tồn tại");
             }
             else
             {
                 var combo = await comboService.FindComboWithItsId(IdCombo);
                 if (combo == null)
                 {
-                    return NotFound("Service không tồn tại");
+                    return NotFound("Combo không tồn tại");
                 }
                 return Ok(combo);
             }
