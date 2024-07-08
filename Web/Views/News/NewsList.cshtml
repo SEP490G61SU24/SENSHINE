@@ -79,7 +79,7 @@
                             <td>@item.PublishedDate.ToString("dd/MM/yyyy")</td>
                             <td>
                                 <div class="product-action">
-                                    <a href="Edit/@item.IdNew" class="btn btn-primary">Edit</a>
+                                    <a href="@Url.Action("EditNews", "News", new { id = item.IdNew })" class="btn btn-primary">Edit</a>
                                     <a href="javascript:void(0);" class="btn btn-secondary" onclick="confirmDelete('@item.IdNew')">Delete</a>
                                 </div>
                             </td>
