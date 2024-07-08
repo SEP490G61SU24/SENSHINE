@@ -1,0 +1,53 @@
+﻿@model Web.Models.BranchViewModel
+
+@{
+    ViewData["Title"] = "UpdateBranch";
+}
+
+<h1>UpdateBranch</h1>
+
+<h4>BranchViewModel</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="UpdateBranch">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Id" class="control-label"></label>
+                <input asp-for="Id" class="form-control" />
+                <span asp-validation-for="Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SpaName" class="control-label"></label>
+                <input asp-for="SpaName" class="form-control" />
+                <span asp-validation-for="SpaName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ProvinceCode" class="control-label"></label>
+                <input asp-for="ProvinceCode" class="form-control" />
+                <span asp-validation-for="ProvinceCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DistrictCode" class="control-label"></label>
+                <input asp-for="DistrictCode" class="form-control" />
+                <span asp-validation-for="DistrictCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="WardCode" class="control-label"></label>
+                <input asp-for="WardCode" class="form-control" />
+                <span asp-validation-for="WardCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="ListBranch">Back to List</a>
+</div>
+
+@* @section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+} *@
