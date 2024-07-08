@@ -41,8 +41,8 @@
                 <label asp-for="ComboId">Combo IDs:</label>
                 <select asp-for="ComboId" class="form-control" multiple>
                     <option value="1">Combo 1</option>
-                    <option value="2">Combo 2</option>
-                    <option value="2">Combo 3</option>
+                    <option value="3">Combo 3</option>
+                    <option value="4">Combo 4</option>
                 </select>
                 <span asp-validation-for="ComboId" class="text-danger"></span>
             </div>
@@ -57,6 +57,6 @@
     <a asp-action="ListCard">Back to List</a>
 </div>
 
-@section Scripts {
+@* @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+} *@
