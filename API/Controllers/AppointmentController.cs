@@ -18,6 +18,7 @@ namespace API.Controllers
             _appointmentService = appointmentService;
         }
 
+        //Lay ra tat ca danh sach cuoc hen
         [HttpGet]
         public async Task<IActionResult> GetAllAppointments()
         {
@@ -42,6 +43,24 @@ namespace API.Controllers
             }
 
             return Ok(appointment);
+        }
+
+        [HttpGet("{customerId}")]
+        public async Task<IActionResult> GetAppointmentsByCustomerId(int customerId) // tim kiem theo customer id
+        {
+            try
+            {
+                var appointments = await _appointmentService.GetAppointmentsByCustomerIdAsync(customerId);
+                if (appointments == null || appointments.Count == 0)
+                {
+                    return NotFound("No appointments found for this customer.");
+                }
+                return Ok(appointments);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error retrieving appointments: {ex.Message}");
+            }
         }
 
         [HttpPost]
