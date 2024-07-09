@@ -8,6 +8,7 @@ namespace API.Services
     {
         Task<List<Appointment>> GetAllAppointmentsAsync();
         Task<Appointment> GetAppointmentByIdAsync(int id);
+        Task<List<Appointment>> GetAppointmentsByCustomerIdAsync(int customerId);
         Task<Appointment> CreateAppointmentAsync(Appointment appointment);
         Task<Appointment> UpdateAppointmentAsync(int id, Appointment appointment);
         Task<Appointment> DeleteAppointmentAsync(int id);
