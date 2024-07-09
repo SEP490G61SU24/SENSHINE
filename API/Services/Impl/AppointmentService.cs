@@ -24,6 +24,11 @@ namespace API.Services.Impl
             return await _dbContext.Appointments.FirstOrDefaultAsync(x => x.Id == id);
         }
 
+        public async Task<List<Appointment>> GetAppointmentsByCustomerIdAsync(int customerId)
+        {
+            return await _dbContext.Appointments.Where(a => a.CustomerId == customerId).ToListAsync();
+        }
+
         public async Task<Appointment> CreateAppointmentAsync(Appointment appointment)
         {
             await _dbContext.Appointments.AddAsync(appointment);
