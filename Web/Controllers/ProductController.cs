@@ -7,20 +7,21 @@ namespace Web.Controllers
 {
     public class ProductController : Controller
     {
-        Uri baseAddress = new Uri("http://localhost:5297/api");
         private readonly HttpClient _httpClient;
+        private readonly IConfiguration _configuration;
 
-        public ProductController()
+        public ProductController(IConfiguration configuration)
         {
-            _httpClient = new HttpClient();
-            _httpClient.BaseAddress = baseAddress;
+            _configuration = configuration;
+            var apiUrl = _configuration.GetValue<string>("ApiUrl");
+            _httpClient = new HttpClient { BaseAddress = new Uri(apiUrl) };
         }
 
         [HttpGet]
         public async Task<IActionResult> ProductList()
         {
             List<ProductViewModel> viewList = new List<ProductViewModel>();
-            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/ListAllProduct");
+            HttpResponseMessage response = await _httpClient.GetAsync("/api/ListAllProduct");
 
             if (response.IsSuccessStatusCode)
             {
