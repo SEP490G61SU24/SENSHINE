@@ -1,6 +1,9 @@
-﻿using API.Models;
+﻿using API.Dtos;
+using API.Models;
+using API.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace API.Controllers
 {
@@ -8,53 +11,94 @@ namespace API.Controllers
     [ApiController]
     public class AppointmentController : Controller
     {
-        private readonly SenShineSpaContext _dbContext;
-        public AppointmentController(SenShineSpaContext dbContext)
+        private readonly IAppointmentService _appointmentService;
+
+        public AppointmentController(IAppointmentService appointmentService)
         {
-            this._dbContext = dbContext;
+            _appointmentService = appointmentService;
         }
-        // //       GET: api/AllApointment
-        //           [HttpGet]
-        //            public async Task<ActionResult<IEnumerable<Appointment>>> GetAll()
-        //        {
-        //            try
-        //            {
-        //                var appointments = await _dbContext.Appointments.ToListAsync();
-        //                return Ok(appointments);
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                return BadRequest($"Failed to retrieve appointments: {ex.Message}");
-        //            }
-        //        }
-        //        // GET: api/GetByAppointmentID lay ra danh sach cuoc hen theo ID
-        //        [HttpGet("{id}")]
-        //        public async Task<ActionResult<Appointment>> GetAppointmentById(int IdAppointment)
-        //        {
-        //            var appointments = await _dbContext.Appointments.FindAsync(IdAppointment);
 
-        //            if (appointments == null)
-        //            {
-        //                return NotFound();
-        //            }
+        [HttpGet]
+        public async Task<IActionResult> GetAllAppointments()
+        {
+            try
+            {
+                var appointments = await _appointmentService.GetAllAppointmentsAsync();
+                return Ok(appointments);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error retrieving appointments: {ex.Message}");
+            }
+        }
 
-        //            return appointments;
-        //        }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetAppointmentById(int id)
+        {
+            var appointment = await _appointmentService.GetAppointmentByIdAsync(id);
+            if (appointment == null)
+            {
+                return NotFound("Appointment not found");
+            }
 
-        //        // DELETE: api/Appoitnment xoa cuoc hen theo id 
-        //        [HttpDelete("{id}")]
-        //        public async Task<IActionResult> DeleteAppointment(int IdAppointment)
-        //        {
-        //            var appointments = await _dbContext.Appointments.FindAsync(IdAppointment);
-        //            if (appointments == null)
-        //            {
-        //                return NotFound();
-        //            }
+            return Ok(appointment);
+        }
 
-        //            _dbContext.Appointments.Remove(appointments);
-        //            await _dbContext.SaveChangesAsync();
+        [HttpPost]
+        public async Task<IActionResult> CreateAppointment([FromBody] AppointmentDTO appointmentDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-        //            return NoContent();
-        //        }
+            var appointment = new Appointment
+            {
+                CustomerId = appointmentDTO.CustomerId ?? 0,
+                EmployeeId = appointmentDTO.EmployeeId ?? 0,
+                AppointmentDate = appointmentDTO.AppointmentDate ?? DateTime.Now,
+                Status = appointmentDTO.Status?.ToLower() == "true"
+            };
+
+            var createdAppointment = await _appointmentService.CreateAppointmentAsync(appointment);
+            return Ok(createdAppointment);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateAppointment(int id, [FromBody] AppointmentDTO appointmentDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var appointment = new Appointment
+            {
+                CustomerId = appointmentDTO.CustomerId ?? 0,
+                EmployeeId = appointmentDTO.EmployeeId ?? 0,
+                AppointmentDate = appointmentDTO.AppointmentDate ?? DateTime.Now,
+                Status = appointmentDTO.Status?.ToLower() == "true"
+            };
+
+            var updatedAppointment = await _appointmentService.UpdateAppointmentAsync(id, appointment);
+            if (updatedAppointment == null)
+            {
+                return NotFound("Appointment not found");
+            }
+
+            return Ok(updatedAppointment);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAppointment(int id)
+        {
+            var appointment = await _appointmentService.DeleteAppointmentAsync(id);
+            if (appointment == null)
+            {
+                return NotFound("Appointment not found");
+            }
+
+            return Ok($"Deleted appointment with ID {appointment.Id}");
+        }
     }
 }
