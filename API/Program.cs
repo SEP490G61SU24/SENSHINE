@@ -29,9 +29,24 @@ namespace API
             builder.Services.AddScoped<ISpaService, SpaService>();
             builder.Services.AddScoped<INewsService, NewsService>();
             builder.Services.AddScoped<ICardService, CardService>();
-
+            builder.Services.AddScoped<IComboService, ComboServicee>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+            builder.Services.AddScoped<IWorkScheduleService, WorkScheduleService>();
+            builder.Services.AddScoped<ISystemSettingService, SystemSettingService>();
+            builder.Services.AddScoped<IBedService, BedService>();
+            builder.Services.AddScoped<IRoomService, RoomService>();
             builder.Services.AddScoped<IPromotionService, PromotionService>();
+            builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+            builder.Services.AddScoped<IBranchService, BranchService>();
+            builder.Services.AddScoped<IReviewService, ReviewService>();
             builder.Services.AddAutoMapper(typeof(NewMapper));
+            builder.Services.AddAutoMapper(typeof(ProductMapper));
+            builder.Services.AddAutoMapper(typeof(PromotionMapper));
+            builder.Services.AddAutoMapper(typeof(CardMapper));
+            builder.Services.AddAutoMapper(typeof(EmployeeMapper));
+            builder.Services.AddAutoMapper(typeof(BranchMapper));
 
             // Configure JWT authentication
             builder.Services.AddAuthentication(options =>

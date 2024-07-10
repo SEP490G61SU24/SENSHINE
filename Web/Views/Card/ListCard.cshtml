@@ -4,13 +4,13 @@
     ViewData["Title"] = "card management";
 }
 
-<form method="get" asp-action="Index">
+<form method="get" asp-action="ListCard">
     <label for="searchInput">Search:</label>
     <input type="text" id="searchInput" name="searchInput" />
     <button type="submit">Search</button>
 </form>
 
-<form method="get" asp-action="Index">
+<form method="get" asp-action="ListCard">
     <div class="filter-container">
         <label for="sort">Sort By Date:</label>
 
@@ -25,8 +25,9 @@
 </form>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a href="CreateCard">Create New</a>
 </p>
+
 <table class="table">
     <thead>
         <tr>
@@ -34,13 +35,10 @@
                 @Html.DisplayNameFor(model => model.CardNumber)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CustomerName)
+                @Html.DisplayNameFor(model => model.CustomerId)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Phone)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ComboName)
+                @Html.DisplayNameFor(model => model.ComboId)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.CreateDate)
@@ -64,13 +62,10 @@
                         @Html.DisplayFor(modelItem => item.CardNumber)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.CustomerName)
+                        @Html.DisplayFor(modelItem => item.CustomerId)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Phone)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ComboName)
+                        @Html.DisplayFor(modelItem => item.ComboId)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.CreateDate)
@@ -82,9 +77,10 @@
                         @Html.DisplayFor(modelItem => item.TotalPrice)
                     </td>
                     <td>
-                        @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                        @Html.ActionLink("Update", "UpdateCard", new { id = item.Id }, new { @href = "http://localhost:5129/Card/UpdateCard?id=" + item.Id }) |
                         @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                        @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                        @Html.ActionLink("Change State", "ChangeStateCard", new { id = item.Id }, new { @onclick = "return confirmChangeState(" + item.Id + ")" })
+
                     </td>
                 </tr>
             }
@@ -95,3 +91,15 @@
         <p>No cards found matching your search criteria.</p>
     }
 </table>
+
+<script>
+    function confirmChangeState(id) {
+        if (confirm("Are you sure you want to change the state of this card?")) {
+            // Submit the form using the original ActionLink (no further action needed)
+            return true;
+        } else {
+            // User canceled, prevent default action (optional)
+            return false;
+        }
+    }
+</script>

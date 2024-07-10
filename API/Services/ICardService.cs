@@ -5,14 +5,16 @@ namespace API.Services
 {
     public interface ICardService
     {
+        Task<Card> CreateCard(Card card);
         ICollection<Card> GetCards();
         Card GetCard(int id);
-        ICollection<CardDTO> GetCardNumNamePhone(string input);
+        ICollection<Card> GetCardByNumNamePhone(string input);
         ICollection<Card> SortCardByDate(string dateFrom, string dateTo);
+        Combo GetCombo(int id);
+        Task<Card> UpdateCard(int id, Card card);
+        Task<Card> ActiveDeactiveCard(int id);
         bool CardExist(int id);
-        bool CardExistNumNamePhone(string input);
+        bool CardExistByNumNamePhone(string input);
         bool CardExistByDate(string dateFrom, string dateTo);
-        bool CreateCard(int CustomerId, ICollection<int> ComboId, Card card);
-        bool Save();
     }
 }
