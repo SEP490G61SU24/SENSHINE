@@ -6,18 +6,20 @@ namespace Web.Controllers
 {
     public class PromotionsController : Controller
     {
-        Uri baseAddress = new Uri("http://localhost:5297/api");
         private readonly HttpClient _httpClient;
-        public PromotionsController()
+        private readonly IConfiguration _configuration;
+
+        public PromotionsController(IConfiguration configuration)
         {
-            _httpClient = new HttpClient();
-            _httpClient.BaseAddress = baseAddress;
+            _configuration = configuration;
+            var apiUrl = _configuration.GetValue<string>("ApiUrl");
+            _httpClient = new HttpClient { BaseAddress = new Uri(apiUrl) };
         }
         [HttpGet]
         public async Task<IActionResult> ListPromotion()
         {
             List<PromotionViewModel> viewList = new List<PromotionViewModel>();
-            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/ListAllPromotion");
+            HttpResponseMessage response = await _httpClient.GetAsync("/api/ListAllPromotion");
 
             if (response.IsSuccessStatusCode)
             {
