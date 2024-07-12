@@ -119,5 +119,12 @@ namespace API.Services.Impl
         {
             return await _context.Users.FindAsync(id);
         }
+
+        public async Task<User> GetByUserName(string username)
+        {
+            return await _context.Users
+                                .Include(u => u.Roles)
+                                .SingleOrDefaultAsync(u => u.UserName == username);
+        }
     }
 }

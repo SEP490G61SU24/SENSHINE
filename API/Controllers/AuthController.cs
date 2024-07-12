@@ -30,7 +30,13 @@ namespace API.Controllers
                 return Unauthorized();
 
             var tokenString = GenerateJwtToken(user);
-            return Ok(new { Token = tokenString });
+            return Ok(
+                new { 
+                        token = tokenString,
+                        username = user.UserName,
+                        id = user.Id
+                    }
+                );
         }
 
         [HttpPost("register")]

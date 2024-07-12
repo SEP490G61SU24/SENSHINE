@@ -1,6 +1,7 @@
 ﻿using API.Dtos;
 using API.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace API.Controllers
 {
@@ -13,6 +14,40 @@ namespace API.Controllers
         public UsersController(IUserService userService)
         {
             _userService = userService;
+        }
+
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfile()
+        {
+
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized();
+            }
+
+            var userName = userIdClaim.Value;
+            var user = await _userService.GetByUserName(userName);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var userProfile = new UserListDto
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                FirstName = user.FirstName,
+                MidName = user.MidName,
+                LastName = user.LastName,
+                Phone = user.Phone,
+                BirthDate = user.BirthDate,
+                ProvinceCode = user.ProvinceCode,
+                DistrictCode = user.DistrictCode,
+                WardCode = user.WardCode,
+            };
+
+            return Ok(userProfile);
         }
 
         [HttpPost("add")]

@@ -11,6 +11,7 @@ namespace API.Services
         Task<bool> DeleteUser(int id);
         Task<IEnumerable<User>> GetAll();
         Task<User> GetById(int id);
+        Task<User> GetByUserName(string username);
         Task<IEnumerable<User>> GetUsersByRole(int roleId);
     }
 }
