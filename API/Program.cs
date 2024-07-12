@@ -42,15 +42,13 @@ namespace API
             builder.Services.AddScoped<IEmployeeService, EmployeeService>();
             builder.Services.AddScoped<IBranchService, BranchService>();
             builder.Services.AddScoped<IReviewService, ReviewService>();
+
             builder.Services.AddAutoMapper(typeof(NewMapper));
             builder.Services.AddAutoMapper(typeof(ProductMapper));
             builder.Services.AddAutoMapper(typeof(PromotionMapper));
-<<<<<<< HEAD
-=======
             builder.Services.AddAutoMapper(typeof(CardMapper));
             builder.Services.AddAutoMapper(typeof(EmployeeMapper));
             builder.Services.AddAutoMapper(typeof(BranchMapper));
->>>>>>> 6092d6b338fa976535aef1de83e4da8d0dc48f26
 
             // Configure JWT authentication
             builder.Services.AddAuthentication(options =>
