@@ -42,6 +42,9 @@ namespace API
             builder.Services.AddScoped<IEmployeeService, EmployeeService>();
             builder.Services.AddScoped<IBranchService, BranchService>();
             builder.Services.AddScoped<IReviewService, ReviewService>();
+            builder.Services.AddScoped<IWardService, WardService>();
+            builder.Services.AddScoped<IDistrictService, DistrictService>();
+            builder.Services.AddScoped<IProvinceService, ProvinceService>();
 
             builder.Services.AddAutoMapper(typeof(NewMapper));
             builder.Services.AddAutoMapper(typeof(ProductMapper));
