@@ -1,3 +1,6 @@
+@{
+    var userProfile = ViewData["UserProfile"] as UserViewModel;
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -62,7 +65,11 @@
                     <div>
                         <a class="toggle-sidebar" href="buttons-edge.html#"> <i class="iconly-Category icli"> </i></a>
                         <div class="d-flex align-items-center gap-2 ">
-                            <h4 class="f-w-600">Welcome Alex</h4><img class="mt-0" src="~/assets/images/hand.gif" alt="hand-gif">
+                            @if (userProfile != null)
+                            {
+                                <h4 class="f-w-600">Welcome @userProfile.UserName</h4>
+                            }
+                            <img class="mt-0" src="~/assets/images/hand.gif" alt="hand-gif">
                         </div>
                     </div>
                     <div class="welcome-content d-xl-block d-none"><span class="text-truncate col-12">Here’s what’s happening with your store today. </span></div>
@@ -342,11 +349,37 @@
                                     <h6>Pinned</h6>
                                 </div>
                             </li>
+
                             <li class="sidebar-main-title">
                                 <div>
-                                    <h6 class="lan-1">General</h6>
+                                    <h6 class="lan-1">Quản lý người dùng</h6>
                                 </div>
                             </li>
+
+                            <li class="sidebar-list">
+                                <i class="fa fa-thumb-tack"></i>
+                                <a class="sidebar-link sidebar-title link-nav" href="/user/index">
+                                    <svg class="stroke-icon">
+                                        <use href="~/assets/svg/icon-sprite.svg#stroke-file"></use>
+                                    </svg>
+                                    <svg class="fill-icon">
+                                        <use href="~/assets/svg/icon-sprite.svg#fill-file"></use>
+                                    </svg><span>Danh sách</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-list">
+                                <i class="fa fa-thumb-tack"></i>
+                                <a class="sidebar-link sidebar-title link-nav" href="/user/add">
+                                    <svg class="stroke-icon">
+                                        <use href="~/assets/svg/icon-sprite.svg#stroke-file"></use>
+                                    </svg>
+                                    <svg class="fill-icon">
+                                        <use href="~/assets/svg/icon-sprite.svg#fill-file"></use>
+                                    </svg><span>Thêm mới</span>
+                                </a>
+                            </li>
+
+
                             <li class="sidebar-list">
                                 <i class="fa fa-thumb-tack"> </i><a class="sidebar-link sidebar-title" href="buttons-edge.html#">
                                     <svg class="stroke-icon">
@@ -1082,5 +1115,7 @@
         </div>
     </div>
 
+
+    @RenderSection("Scripts", required: false)
 </body>
 </html>
