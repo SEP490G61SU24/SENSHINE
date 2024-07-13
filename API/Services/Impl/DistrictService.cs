@@ -21,5 +21,10 @@ namespace API.Services.Impl
         {
             return await _context.Districts.ToListAsync();
         }
+
+        public async Task<IEnumerable<District>> GetDistrictsByProvinceCode(string provinceCode)
+        {
+            return await _context.Districts.Where(d => d.ProvinceCode == provinceCode).ToListAsync();
+        }
     }
 }

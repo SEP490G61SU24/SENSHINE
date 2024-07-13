@@ -82,6 +82,18 @@ namespace API
                 options.AddPolicy("RequireStaff", policy => policy.RequireRole("STAFF"));
             });
 
+            // Configure CORS policy
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigins",
+                    builder =>
+                    {
+                        builder.WithOrigins("http://localhost:5129")
+                               .AllowAnyHeader()
+                               .AllowAnyMethod();
+                    });
+            });
+
             var app = builder.Build();
           
             if (app.Environment.IsDevelopment())
@@ -93,7 +105,7 @@ namespace API
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
-
+            app.UseCors("AllowSpecificOrigins");
 
             app.MapControllers();
 

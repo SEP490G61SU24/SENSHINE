@@ -21,5 +21,10 @@ namespace API.Services.Impl
         {
             return await _context.Wards.ToListAsync();
         }
+
+        public async Task<IEnumerable<Ward>> GetWardsByDistrictCode(string districtCode)
+        {
+            return await _context.Wards.Where(w => w.DistrictCode == districtCode).ToListAsync();
+        }
     }
 }

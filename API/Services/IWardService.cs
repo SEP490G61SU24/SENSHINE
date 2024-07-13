@@ -6,5 +6,6 @@ namespace API.Services
     {
         Task<Ward> GetWardByCode(string code);
         Task<IEnumerable<Ward>> GetAllWards();
+        Task<IEnumerable<Ward>> GetWardsByDistrictCode(string districtCode);
     }
 }

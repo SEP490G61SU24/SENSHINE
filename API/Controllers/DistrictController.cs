@@ -33,5 +33,12 @@ namespace API.Controllers
             var districts = await _districtService.GetAllDistricts();
             return Ok(districts);
         }
+
+        [HttpGet("by-province/{provinceCode}")]
+        public async Task<IActionResult> GetDistrictsByProvinceCode(string provinceCode)
+        {
+            var districts = await _districtService.GetDistrictsByProvinceCode(provinceCode);
+            return Ok(districts);
+        }
     }
 }
