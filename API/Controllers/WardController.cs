@@ -33,5 +33,13 @@ namespace API.Controllers
             var wards = await _wardService.GetAllWards();
             return Ok(wards);
         }
+
+        [HttpGet("by-district/{districtCode}")]
+        public async Task<IActionResult> GetWardsByDistrictCode(string districtCode)
+        {
+            var wards = await _wardService.GetWardsByDistrictCode(districtCode);
+            return Ok(wards);
+        }
+
     }
 }

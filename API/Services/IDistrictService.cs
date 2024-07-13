@@ -6,5 +6,7 @@ namespace API.Services
     {
         Task<District> GetDistrictByCode(string code);
         Task<IEnumerable<District>> GetAllDistricts();
+        Task<IEnumerable<District>> GetDistrictsByProvinceCode(string provinceCode);
+
     }
 }

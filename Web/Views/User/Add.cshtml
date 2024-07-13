@@ -1,9 +1,4 @@
-﻿@model IEnumerable<Web.Controllers.UserDto>
-
-@{
-    ViewData["Title"] = "Thêm Nhân Viên";
-    var usersJson = System.Text.Json.JsonSerializer.Serialize(Model);
-}
+﻿@model Web.Models.UserViewModel
 
 @section Styles {
     <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
@@ -32,51 +27,51 @@
 
 <div class="card">
     <div class="card-body">
-        <form class="row g-3 needs-validation custom-input" novalidate="">
+        <form method="post" action="/user/add" class="row g-3 needs-validation custom-input" novalidate="">
             <div class="col-md-6 position-relative">
-                <label class="form-label" for="validationTooltip01">Họ và Tên</label>
-                <input class="form-control" id="validationTooltip01" type="text"
+                <label class="form-label" for="FullName">Họ và Tên</label>
+                <input class="form-control" name="FullName" id="FullName" type="text"
                        placeholder="Nguyễn Quang Trường" required="">
                 <div class="invalid-tooltip">Điền tên đầy đủ!</div>
             </div>
             <div class="col-md-6 position-relative">
-                <label class="form-label" for="validationTooltip012">Số Điện Thoại</label>
-                <input class="form-control" id="validationTooltip012" type="text"
+                <label class="form-label" for="Phone">Số Điện Thoại</label>
+                <input class="form-control" name="Phone" id="Phone" type="text"
                        placeholder="0987654321" required="">
                 <div class="invalid-tooltip">Điền số điện thoại!</div>
             </div>
             <div class="col-md-6 position-relative">
-                <label class="form-label" for="validationTooltip011">Ngày Sinh</label>
-                <input class="form-control digits" id="validationTooltip011" type="date"
+                <label class="form-label" for="BirthDate">Ngày Sinh</label>
+                <input class="form-control digits" name="BirthDate" id="BirthDate" type="date"
                        value="2024-05-01">
                 <div class="invalid-tooltip">Nhập ngày sinh!</div>
             </div>
             <div class="col-md-6 position-relative">
-                <label class="form-label" for="validationTooltip04">Chức Vụ</label>
-                <select class="form-select" id="validationTooltip04" required="">
-                    <option selected value="STAFF">STAFF (Nhân Viên)</option>
-                    <option value="RECEPTIONS">RECEPTIONS (Lễ Tân)</option>
-                    <option value="MANAGER">MANAGER (Quản Lý)</option>
+                <label class="form-label" for="RoleId">Chức Vụ</label>
+                <select class="form-select" name="RoleId" id="RoleId" required="">
+                    <option selected value="4">STAFF (Nhân Viên)</option>
+                    <option value="3">RECEPTIONS (Lễ Tân)</option>
+                    <option value="2">MANAGER (Quản Lý)</option>
                 </select>
                 <div class="invalid-tooltip">Chọn chức vụ.</div>
             </div>
             <div class="col-md-3 position-relative">
-                <label class="form-label" for="validationTooltip03">Tỉnh/Thành Phố</label>
-                <select class="form-select" id="validationTooltip03" required="">
+                <label class="form-label" for="provinceDropdown">Tỉnh/Thành Phố</label>
+                <select class="form-select" name="ProvinceCode" id="provinceDropdown" required="">
                     <option selected="" disabled="" value="">Chọn...</option>
                 </select>
                 <div class="invalid-tooltip">Chọn tỉnh, thành phố.</div>
             </div>
             <div class="col-md-3 position-relative">
-                <label class="form-label" for="validationTooltip04">Quận/Huyện</label>
-                <select class="form-select" id="validationTooltip04" required="">
+                <label class="form-label" for="districtDropdown">Quận/Huyện</label>
+                <select class="form-select" name="DistrictCode" id="districtDropdown" required="">
                     <option selected="" disabled="" value="">Chọn...</option>
                 </select>
                 <div class="invalid-tooltip">Chọn quận, huyện.</div>
             </div>
             <div class="col-md-3 position-relative">
-                <label class="form-label" for="validationTooltip04">Phường/Xã</label>
-                <select class="form-select" id="validationTooltip04" required="">
+                <label class="form-label" for="wardDropdown">Phường/Xã</label>
+                <select class="form-select" name="WardCode" id="wardDropdown" required="">
                     <option selected="" disabled="" value="">Chọn...</option>
                 </select>
                 <div class="invalid-tooltip">Chọn phường, xã.</div>
@@ -113,4 +108,59 @@
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: 'http://localhost:5297/api/provinces',
+                type: 'GET',
+                success: function (provinces) {
+                    provinces.forEach(province => {
+                        $('#provinceDropdown').append(new Option(province.name, province.code));
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error("Failed to load provinces:", error);
+                }
+            });
+
+            $('#provinceDropdown').change(function () {
+                var provinceCode = $(this).val();
+                if (provinceCode) {
+                    $.ajax({
+                        url: `http://localhost:5297/api/districts/by-province/${provinceCode}`,
+                        type: 'GET',
+                        success: function (districts) {
+                            $('#districtDropdown').empty().append('<option selected disabled value="">Chọn...</option>');
+                            districts.forEach(district => {
+                                $('#districtDropdown').append(new Option(district.name, district.code));
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Failed to load districts:", error);
+                        }
+                    });
+                }
+            });
+
+            $('#districtDropdown').change(function () {
+                var districtCode = $(this).val();
+                if (districtCode) {
+                    $.ajax({
+                        url: `http://localhost:5297/api/wards/by-district/${districtCode}`,
+                        type: 'GET',
+                        success: function (wards) {
+                            $('#wardDropdown').empty().append('<option selected disabled value="">Chọn...</option>');
+                            wards.forEach(ward => {
+                                $('#wardDropdown').append(new Option(ward.name, ward.code));
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Failed to load wards:", error);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 }

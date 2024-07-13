@@ -8,6 +8,8 @@ using System.Configuration;
 using Web.Models;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using System.Text;
+using System;
 
 namespace Web.Controllers
 {
@@ -25,51 +27,14 @@ namespace Web.Controllers
             _logger = logger;
         }
 
-        public async Task<UserViewModel> GetUserProfileAsync(string token)
-        {
-            try
-            {
-                var apiUrl = _configuration["ApiUrl"];
-
-                using var client = _clientFactory.CreateClient();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-                var response = await client.GetAsync($"{apiUrl}/user/profile");
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var jsonString = await response.Content.ReadAsStringAsync();
-                    var userProfile = JsonSerializer.Deserialize<UserViewModel>(jsonString);
-
-                    //var userViewModel = new UserViewModel
-                    //{
-                    //    UserId = userProfile.UserId,
-                    //    Username = userProfile.Username,
-                    //};
-
-                    return userProfile;
-                }
-                else
-                {
-                    _logger.LogError($"Failed to fetch user profile. Status code: {response.StatusCode}");
-                    return null; // or throw new custom exception if needed
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error during get profile");
-                ViewData["Error"] = "An error occurred"; // Example: Set ViewData for error message
-                return null; // or throw a custom exception if needed
-            }
-        }
-
         public async Task<IActionResult> Index()
         {
+            var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
-            var response = await client.GetAsync("http://localhost:5297/api/user/all");
+            var response = await client.GetAsync($"{apiUrl}/user/all");
             if (response.IsSuccessStatusCode)
             {
-                var users = await response.Content.ReadFromJsonAsync<IEnumerable<UserDto>>();
+                var users = await response.Content.ReadFromJsonAsync<IEnumerable<UserViewModel>>();
                 return View(users);
             }
             else
@@ -82,20 +47,104 @@ namespace Web.Controllers
         {
             return View();
         }
-    }
 
-    public class UserDto
-    {
-        public int Id { get; set; }
-        public string UserName { get; set; }
-        public string Password { get; set; }
-        public string? FirstName { get; set; }
-        public string? MidName { get; set; }
-        public string? LastName { get; set; }
-        public string? Phone { get; set; }
-        public DateTime? BirthDate { get; set; }
-        public string? ProvinceCode { get; set; }
-        public string? DistrictCode { get; set; }
-        public string? WardCode { get; set; }
+        [HttpPost]
+        public async Task<IActionResult> Add(UserViewModel user)
+        {
+            try
+            {
+                user.Password = "123456";
+
+                string[] nameArr = user.FullName.Split(" ");
+
+                if (nameArr.Length < 2)
+                {
+                    user.FirstName = null;
+                    user.MidName = null;
+                    user.LastName = nameArr[0];
+                }
+                else if (nameArr.Length < 3)
+                {
+                    user.FirstName = nameArr[0];
+                    user.MidName = null;
+                    user.LastName = nameArr[1];
+                }
+                else
+                {
+                    user.FirstName = nameArr[0];
+                    user.MidName = nameArr[1];
+                    user.LastName = nameArr[nameArr.Length - 1];
+                }
+
+                user.UserName = (user.LastName + user.ProvinceCode + GenerateRandomString(4)).ToLower();
+
+                var apiUrl = _configuration["ApiUrl"];
+
+                var json = JsonSerializer.Serialize(user);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                using var client = _clientFactory.CreateClient();
+                var response = await client.PostAsync($"{apiUrl}/user/add", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    var responseData = JsonSerializer.Deserialize<UserViewModel>(responseString);
+
+                    return RedirectToAction("Index", "User");
+                }
+                else
+                {
+                    ViewData["Error"] = "Có lỗi xảy ra!";
+                    return View();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during login");
+                ViewData["Error"] = "An error occurred";
+                return View();
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            try
+            {
+                var apiUrl = _configuration["ApiUrl"];
+                var client = _clientFactory.CreateClient();
+                var response = await client.GetAsync($"{apiUrl}/user/{id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var user = await response.Content.ReadFromJsonAsync<UserViewModel>();
+                    user.FullName = string.Join(" ", new[] { user.FirstName, user.MidName, user.LastName }.Where(name => !string.IsNullOrEmpty(name)));
+                    return View(user);
+                }
+                else
+                {
+                    return View("Error");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during login");
+                ViewData["Error"] = "An error occurred";
+                return View("Error");
+            }
+        }
+
+        public static string GenerateRandomString(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            char[] stringChars = new char[length];
+
+            for (int i = 0; i < length; i++)
+            {
+                stringChars[i] = chars[new Random().Next(chars.Length)];
+            }
+
+            return new string(stringChars);
+        }
     }
 }

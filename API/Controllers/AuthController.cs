@@ -22,9 +22,9 @@ namespace API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(UserLoginDto model)
+        public async Task<IActionResult> Login(UserDto model)
         {
-            var user = await _userService.Authenticate(model.Username, model.Password);
+            var user = await _userService.Authenticate(model.UserName, model.Password);
 
             if (user == null)
                 return Unauthorized();
@@ -42,7 +42,7 @@ namespace API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserDto model)
         {
-            var user = await _userService.AddUser(model.UserName, model.Password, model.FirstName, model.MidName, model.LastName, model.BirthDate, model.ProvinceCode, model.DistrictCode, model.WardCode);
+            var user = await _userService.AddUser(model.UserName, model.Phone, model.Password, model.FirstName, model.MidName, model.LastName, model.BirthDate, model.ProvinceCode, model.DistrictCode, model.WardCode);
 
             if (user == null)
                 return Unauthorized();

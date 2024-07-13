@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Web.Controllers.UserDto>
+﻿@model IEnumerable<Web.Models.UserViewModel>
 
 @{
     ViewData["Title"] = "Quản Lý Người Dùng";
@@ -39,12 +39,12 @@
                     <tr>
                     <tr>
                         <th>ID</th>
-                        <th>User Name</th>
-                        <th>Full Name</th>
-                        <th>Phone</th>
-                        <th>Birth Date</th>
-                        <th>Address</th>
-                        <th>Action</th>
+                        <th>Người Dùng</th>
+                        <th>Họ Và Tên</th>
+                        <th>Điện Thoại</th>
+                        <th>Chức Vụ</th>
+                        <th>Địa Chỉ</th>
+                        <th>Hành Động</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -55,12 +55,13 @@
                             <td>@item.UserName</td>
                             <td>@($"{item.FirstName ?? ""} {item.MidName ?? ""} {item.LastName ?? ""}")</td>
                             <td>@(item.Phone ?? "N/A")</td>
-                            <td>@(item.BirthDate?.ToString("yyyy-MM-dd") ?? "N/A")</td>
-                            <td>@($"{item.ProvinceCode ?? ""} {item.DistrictCode ?? ""} {item.WardCode ?? ""}")</td>
+                            @* <td>@(item.BirthDate?.ToString("dd-MM-yyyy") ?? "N/A")</td> *@
+                            <td>@(item.RoleName ?? "N/A")</td>
+                            <td>@(item.Address ?? "N/A")</td>
                             <td>
                                 <ul class="action">
-                                    <li class="edit"><a href="#"><i class="icon-pencil-alt"></i></a></li>
-                                    <li class="delete"><a href="#"><i class="icon-trash"></i></a></li>
+                                    <li class="edit"><a href="/user/edit/@item.Id"><i class="icon-pencil-alt"></i></a></li>
+                                    @* <li class="delete"><a href="#"><i class="icon-trash"></i></a></li> *@
                                 </ul>
                             </td>
                         </tr>
