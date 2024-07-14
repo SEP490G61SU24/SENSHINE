@@ -5,6 +5,8 @@ using System.Text;
 using API.Models;
 using API.Ultils;
 using System.Net.Http;
+using System.Drawing.Printing;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Web.Controllers
 {
@@ -47,7 +49,22 @@ namespace Web.Controllers
         [HttpGet]
         public IActionResult CreateCard()
         {
-            return View();
+            var response = _client.GetAsync($"http://localhost:5297/api/user/byRole/5").Result;
+            if (response.IsSuccessStatusCode)
+            {
+                var users = response.Content.ReadFromJsonAsync<IEnumerable<UserViewModel>>().Result;
+                foreach (var user in users)
+                {
+                    user.FullName = string.Join(" ", user.FirstName ?? "", user.MidName ?? "", user.LastName ?? "").Trim();
+                    user.FullName = string.Join(", ", user.FullName ?? "", user.Phone ?? "").Trim();
+                }
+                ViewBag.Users = new SelectList(users, "Id", "FullName");
+                return View();
+            }
+            else
+            {
+                return View("Error");
+            }
         }
 
         [HttpPost]
