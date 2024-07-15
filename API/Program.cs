@@ -7,6 +7,7 @@ using API.Services;
 using API.Models;
 using API.Mapping;
 
+
 namespace API
 {
     public class Program
@@ -38,10 +39,20 @@ namespace API
             builder.Services.AddScoped<IBedService, BedService>();
             builder.Services.AddScoped<IRoomService, RoomService>();
             builder.Services.AddScoped<IPromotionService, PromotionService>();
+            builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+            builder.Services.AddScoped<IBranchService, BranchService>();
             builder.Services.AddScoped<IReviewService, ReviewService>();
+            builder.Services.AddScoped<IWardService, WardService>();
+            builder.Services.AddScoped<IDistrictService, DistrictService>();
+            builder.Services.AddScoped<IProvinceService, ProvinceService>();
+
             builder.Services.AddAutoMapper(typeof(NewMapper));
             builder.Services.AddAutoMapper(typeof(ProductMapper));
             builder.Services.AddAutoMapper(typeof(PromotionMapper));
+            builder.Services.AddAutoMapper(typeof(CardMapper));
+            builder.Services.AddAutoMapper(typeof(EmployeeMapper));
+            builder.Services.AddAutoMapper(typeof(BranchMapper));
+
             // Configure JWT authentication
             builder.Services.AddAuthentication(options =>
             {
@@ -71,6 +82,18 @@ namespace API
                 options.AddPolicy("RequireStaff", policy => policy.RequireRole("STAFF"));
             });
 
+            // Configure CORS policy
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigins",
+                    builder =>
+                    {
+                        builder.WithOrigins("http://localhost:5129")
+                               .AllowAnyHeader()
+                               .AllowAnyMethod();
+                    });
+            });
+
             var app = builder.Build();
           
             if (app.Environment.IsDevelopment())
@@ -82,7 +105,7 @@ namespace API
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
-
+            app.UseCors("AllowSpecificOrigins");
 
             app.MapControllers();
 

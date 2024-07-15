@@ -1,4 +1,6 @@
-﻿@{
+﻿@model Web.Models.UserLoginViewModel
+
+@{
     Layout = null;
 }
 <!DOCTYPE html>
@@ -44,17 +46,17 @@
                 <div class="login-card login-dark">
                     <div>
                         <div class="login-main">
-                            <form class="theme-form">
+                            <form method="post" action="/auth/login" class="theme-form">
                                 <h4>Đăng nhập vào hệ thống</h4>
                                 <p>Nhập tài khoản và mật khẩu để đăng nhập!</p>
                                 <div class="form-group">
                                     <label class="col-form-label">Tài khoản</label>
-                                    <input class="form-control" type="text" name="username" required="" placeholder="Tên tài khoản">
+                                    <input asp-for="UserName" class="form-control" type="text" name="username" required="" placeholder="Tên tài khoản">
                                 </div>
                                 <div class="form-group">
                                     <label class="col-form-label">Mật khẩu </label>
                                     <div class="form-input position-relative">
-                                        <input class="form-control" type="password" name="login[password]" required="" placeholder="*********">
+                                        <input asp-for="Password" id="password" class=" form-control" type="password" name="password" required="" placeholder="*********">
                                         <div class="show-hide"> <span class="show"></span></div>
                                     </div>
                                 </div>

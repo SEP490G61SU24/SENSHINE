@@ -1,13 +1,16 @@
 ﻿using API.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace API.Services
 {
     public interface IAppointmentService
     {
-        Task<Appointment> AddAppointment(int customerId, int employeeId, DateTime appointmentDate, bool status);
-        Task<Appointment> UpdateAppointment(int id, int customerId, int employeeId, DateTime appointmentDate, bool status);
-        Task<bool> DeleteAppointment(int id);
-        Task<Appointment> GetAppointmentById(int id);
-        Task<IEnumerable<Appointment>> GetAllAppointments();
+        Task<List<Appointment>> GetAllAppointmentsAsync();
+        Task<Appointment> GetAppointmentByIdAsync(int id);
+        Task<List<Appointment>> GetAppointmentsByCustomerIdAsync(int customerId);
+        Task<Appointment> CreateAppointmentAsync(Appointment appointment);
+        Task<Appointment> UpdateAppointmentAsync(int id, Appointment appointment);
+        Task<Appointment> DeleteAppointmentAsync(int id);
     }
 }

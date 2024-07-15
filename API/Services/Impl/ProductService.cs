@@ -43,7 +43,7 @@ namespace API.Services.Impl
 
         public async Task<IEnumerable<ProductDTO>> ListProduct()
         {
-            var products = await _context.Products.ToListAsync();
+            var products = await _context.Products.Include(p=>p.Categories).ToListAsync();
             return _mapper.Map<IEnumerable<ProductDTO>>(products);
         }
 

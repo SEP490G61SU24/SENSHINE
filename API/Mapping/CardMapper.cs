@@ -9,10 +9,10 @@ namespace API.Mapping
         public CardMapper()
         {
             CreateMap<Card, CardDTO>()
-                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.FirstName + " " + src.Customer.MidName + " " + src.Customer.LastName))
-                .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.Customer.Phone))
-                .ForMember(dest => dest.ComboName, opt => opt.MapFrom(src => src.Combos.Select(s => s.Name).ToList()))
-                .ForMember(dest => dest.InvoiceId, opt => opt.MapFrom(src => src.Invoices.Select(s => s.Id).ToList()));
+                //.ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.FirstName + " " + src.Customer.MidName + " " + src.Customer.LastName))
+                //.ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.Customer.Phone))
+                .ForMember(dest => dest.ComboId, opt => opt.MapFrom(src => src.Combos.Select(s => s.Id).ToList()));
+                //.ForMember(dest => dest.InvoiceId, opt => opt.MapFrom(src => src.Invoices.Select(s => s.Id).ToList()));
             CreateMap<CardDTO, Card>();
         }
     }
