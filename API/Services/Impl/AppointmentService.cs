@@ -36,22 +36,24 @@ namespace API.Services.Impl
             return appointment;
         }
 
-        public async Task<Appointment> UpdateAppointmentAsync(int id, Appointment appointment)
+        //Update Appointment
+        public async Task<Appointment> UpdateAppointmentAsync(int id, Appointment updatedAppointment)
         {
-            var existingAppointment = await _dbContext.Appointments.FirstOrDefaultAsync(x => x.Id == id);
+            var existingAppointment = await _dbContext.Appointments.FindAsync(id);
             if (existingAppointment == null)
             {
                 return null;
             }
 
-            existingAppointment.CustomerId = appointment.CustomerId;
-            existingAppointment.EmployeeId = appointment.EmployeeId;
-            existingAppointment.AppointmentDate = appointment.AppointmentDate;
-            existingAppointment.Status = appointment.Status;
+            existingAppointment.CustomerId = updatedAppointment.CustomerId;
+            existingAppointment.EmployeeId = updatedAppointment.EmployeeId;
+            existingAppointment.AppointmentDate = updatedAppointment.AppointmentDate;
+            existingAppointment.Status = updatedAppointment.Status;
 
             await _dbContext.SaveChangesAsync();
             return existingAppointment;
         }
+
 
         public async Task<Appointment> DeleteAppointmentAsync(int id)
         {

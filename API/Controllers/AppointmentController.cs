@@ -1,6 +1,7 @@
 using API.Dtos;
 using API.Models;
 using API.Services;
+using API.Services.Impl;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -12,7 +13,8 @@ namespace API.Controllers
     public class AppointmentController : Controller
     {
         private readonly IAppointmentService _appointmentService;
-
+        private readonly IProductService _productService; 
+        private readonly ISpaService _spaService; 
         public AppointmentController(IAppointmentService appointmentService)
         {
             _appointmentService = appointmentService;
@@ -32,7 +34,7 @@ namespace API.Controllers
                 return StatusCode(500, $"Error retrieving appointments: {ex.Message}");
             }
         }
-
+        // lay danh sach theo appointment id
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAppointmentById(int id)
         {
@@ -62,7 +64,7 @@ namespace API.Controllers
                 return StatusCode(500, $"Error retrieving appointments: {ex.Message}");
             }
         }
-
+        //Create appointment
         [HttpPost]
         public async Task<IActionResult> CreateAppointment([FromBody] AppointmentDTO appointmentDTO)
         {
@@ -83,31 +85,52 @@ namespace API.Controllers
             return Ok(createdAppointment);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAppointment(int id, [FromBody] AppointmentDTO appointmentDTO)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        // Update Appointment
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> UpdateAppointment(int id, [FromBody] AppointmentDTO appointmentDTO)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
 
-            var appointment = new Appointment
-            {
-                CustomerId = appointmentDTO.CustomerId ?? 0,
-                EmployeeId = appointmentDTO.EmployeeId ?? 0,
-                AppointmentDate = appointmentDTO.AppointmentDate ?? DateTime.Now,
-                Status = appointmentDTO.Status?.ToLower() == "true"
-            };
+        //    // Tìm appointment theo ID
+        //    var existingAppointment = await _appointmentService.GetAppointmentByIdAsync(id);
+        //    if (existingAppointment == null)
+        //    {
+        //        return NotFound("Appointment not found");
+        //    }
 
-            var updatedAppointment = await _appointmentService.UpdateAppointmentAsync(id, appointment);
-            if (updatedAppointment == null)
-            {
-                return NotFound("Appointment not found");
-            }
+        //    // Cap nhat cac truong can thiet
+        //    existingAppointment.CustomerId = appointmentDTO.CustomerId ?? existingAppointment.CustomerId;
+        //    existingAppointment.EmployeeId = appointmentDTO.EmployeeId ?? existingAppointment.EmployeeId;
+        //    existingAppointment.AppointmentDate = appointmentDTO.AppointmentDate ?? existingAppointment.AppointmentDate;
 
-            return Ok(updatedAppointment);
-        }
+        //    if (appointmentDTO.Status != null)
+        //    {
+        //        if (Enum.TryParse<AppointmentStatus>(appointmentDTO.Status, true, out var status))
+        //        {
+        //            existingAppointment.Status = status;
+        //        }
+        //        else
+        //        {
+        //            return BadRequest("Invalid status value");
+        //        }
+        //    }
 
+        //    try
+        //    {
+        //        var updatedAppointment = await _appointmentService.UpdateAppointmentAsync(id, existingAppointment);
+        //        return Ok(updatedAppointment);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Error updating appointment: {ex.Message}");
+        //    }
+        //}
+
+
+        //Xoa appointment theo ID
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAppointment(int id)
         {
@@ -117,7 +140,9 @@ namespace API.Controllers
                 return NotFound("Appointment not found");
             }
 
-            return Ok($"Deleted appointment with ID {appointment.Id}");
+            return Ok($"Delete successful appointment with ID {appointment.Id}");
         }
+
     }
 }
+
