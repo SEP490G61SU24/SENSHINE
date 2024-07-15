@@ -16,5 +16,6 @@ namespace API.Services
         bool CardExist(int id);
         bool CardExistByNumNamePhone(string input);
         bool CardExistByDate(string dateFrom, string dateTo);
+        ICollection<Combo> GetComboByCard(int id);
     }
 }

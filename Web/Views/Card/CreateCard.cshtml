@@ -1,10 +1,6 @@
 ﻿@using Newtonsoft.Json
 @model Web.Models.CardViewModel
 
-@* @{
-    var users = ViewBag.Users as IEnumerable<Web.Models.UserViewModel>;
-} *@
-
 @{
     ViewData["Title"] = "CreateCard";
 }
@@ -114,7 +110,7 @@
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-    
+
     <script type="text/javascript">
         $(function () {
             $("#selectCustomerId").select2();

@@ -111,5 +111,16 @@ namespace API.Services.Impl
             return _context.Cards.Any(c => c.CreateDate <= parsedDateTo
                                         && c.CreateDate >= parsedDateFrom);
         }
+
+        public ICollection<Combo> GetComboByCard(int id)
+        {
+            List<Combo> combo = new List<Combo>();
+            var card = _context.Cards.Include(c => c.Combos).Where(c => c.Id == id).FirstOrDefault();
+            foreach (Combo cardCombo in card.Combos)
+            {
+                combo.Add(cardCombo);
+            }
+            return combo;
+        }
     }
 }

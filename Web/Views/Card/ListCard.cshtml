@@ -85,7 +85,9 @@
             {
                 <tr>
                     <td>
-                        @Html.DisplayFor(modelItem => item.CardNumber)
+                        <a href="@Url.Action("DetailCard", "Card", new { id = item.Id })">
+                            @Html.DisplayFor(modelItem => item.CardNumber)
+                        </a>
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.CustomerId)
@@ -104,9 +106,7 @@
                     </td>
                     <td>
                         @Html.ActionLink("Update", "UpdateCard", new { id = item.Id }, new { @href = "http://localhost:5129/Card/UpdateCard?id=" + item.Id }) |
-                        @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
                         @Html.ActionLink("Change State", "ChangeStateCard", new { id = item.Id }, new { @onclick = "return confirmChangeState(" + item.Id + ")" })
-
                     </td>
                 </tr>
             }
@@ -114,23 +114,23 @@
     }
     else
     {
-        <p>No cards found matching your search criteria.</p>
+        <caption>No cards found matching your search criteria.</caption>
     }
 </table>
 
-<script>
-    function confirmChangeState(id) {
-        if (confirm("Are you sure you want to change the state of this card?")) {
-            // Submit the form using the original ActionLink (no further action needed)
-            return true;
-        } else {
-            // User canceled, prevent default action (optional)
-            return false;
-        }
-    }
-</script>
-
 @section Scripts {
+    <script>
+        function confirmChangeState(id) {
+            if (confirm("Are you sure you want to change the state of this card?")) {
+                // Submit the form using the original ActionLink (no further action needed)
+                return true;
+            } else {
+                // User canceled, prevent default action (optional)
+                return false;
+            }
+        }
+    </script>
+
     <script src="~/assets/js/jquery.min.js"></script>
     <!-- Bootstrap js-->
     <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>

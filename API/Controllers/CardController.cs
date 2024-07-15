@@ -161,5 +161,16 @@ namespace API.Controllers
                 return StatusCode(500, $"Có lỗi xảy ra khi chuyển trạng thái thẻ: {ex.Message}");
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetComboByCard(int id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var combo = _mapper.Map<List<ComboDTO>>(_cardService.GetComboByCard(id));
+
+            return Ok(combo);
+        }
     }
 }

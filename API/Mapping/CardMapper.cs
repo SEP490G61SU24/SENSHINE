@@ -14,6 +14,8 @@ namespace API.Mapping
                 .ForMember(dest => dest.ComboId, opt => opt.MapFrom(src => src.Combos.Select(s => s.Id).ToList()));
                 //.ForMember(dest => dest.InvoiceId, opt => opt.MapFrom(src => src.Invoices.Select(s => s.Id).ToList()));
             CreateMap<CardDTO, Card>();
+
+            CreateMap<Combo, ComboDTO>();
         }
     }
 }

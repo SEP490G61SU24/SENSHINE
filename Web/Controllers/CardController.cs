@@ -47,6 +47,30 @@ namespace Web.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> DetailCard(int id)
+        {
+            CardViewModel card = null;
+            List<ComboView> combos = null;
+            HttpResponseMessage response = await _client.GetAsync(_client.BaseAddress + "/Card/GetById?id=" + id);
+            HttpResponseMessage response2 = await _client.GetAsync(_client.BaseAddress + "/Card/GetComboByCard?id=" + id);
+
+            if (response.IsSuccessStatusCode && response2.IsSuccessStatusCode)
+            {
+                string data = await response.Content.ReadAsStringAsync();
+                string data2 = await response2.Content.ReadAsStringAsync();
+                card = JsonConvert.DeserializeObject<CardViewModel>(data);
+                combos = JsonConvert.DeserializeObject<List<ComboView>>(data2);
+            }
+
+            if (card == null)
+            {
+                return NotFound("Không tìm thấy card");
+            }
+            ViewBag.Combos = combos;
+            return View(card);
+        }
+
+        [HttpGet]
         public IActionResult CreateCard()
         {
             var response = _client.GetAsync($"http://localhost:5297/api/user/byRole/5").Result;
