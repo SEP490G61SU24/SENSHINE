@@ -68,7 +68,8 @@ namespace API.Controllers
                 userDto.BirthDate,
                 userDto.ProvinceCode,
                 userDto.DistrictCode,
-                userDto.WardCode
+                userDto.WardCode,
+                userDto.RoleId
             );
             return Ok(user);
         }
@@ -90,7 +91,22 @@ namespace API.Controllers
                 return NotFound();
             }
 
-            return Ok(user);
+            var userDtoRes = new UserDto
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Phone = user.Phone,
+                FirstName = user.FirstName,
+                MidName = user.MidName,
+                LastName = user.LastName,
+                BirthDate = user.BirthDate,
+                ProvinceCode = user.ProvinceCode,
+                DistrictCode = user.DistrictCode,
+                WardCode = user.WardCode,
+                RoleId = user.Roles.FirstOrDefault().Id,
+            };
+
+            return Ok(userDtoRes);
         }
 
         [HttpDelete("delete/{id}")]
@@ -109,6 +125,10 @@ namespace API.Controllers
         public async Task<IActionResult> GetUsersByRole(int roleId)
         {
             var users = await _userService.GetUsersByRole(roleId);
+            if(users == null)
+            {
+                return NoContent();
+            }
             var userDtos = users.Select(u => new UserDto
             {
                 Id = u.Id,
@@ -130,23 +150,27 @@ namespace API.Controllers
         public async Task<IActionResult> GetAll()
         {
             var users = await _userService.GetAll();
-            var userDtos = users.Select(u => new UserDto
+            if (users != null)
             {
-                Id = u.Id,
-                UserName = u.UserName,
-                Phone = u.Phone,
-                FirstName = u.FirstName,
-                MidName = u.MidName,
-                LastName = u.LastName,
-                BirthDate = u.BirthDate,
-                ProvinceCode = u.ProvinceCode,
-                DistrictCode = u.DistrictCode,
-                WardCode = u.WardCode,
-                RoleName = u.RoleName,
-                RoleId = u.RoleId,
-                Address = u.Address
-            });
-            return Ok(userDtos);
+                var userDtos = users.Select(u => new UserDto
+                {
+                    Id = u.Id,
+                    UserName = u.UserName,
+                    Phone = u.Phone,
+                    FirstName = u.FirstName,
+                    MidName = u.MidName,
+                    LastName = u.LastName,
+                    BirthDate = u.BirthDate,
+                    ProvinceCode = u.ProvinceCode,
+                    DistrictCode = u.DistrictCode,
+                    WardCode = u.WardCode,
+                    RoleName = u.RoleName,
+                    RoleId = u.RoleId,
+                    Address = u.Address
+                });
+                return Ok(userDtos);
+            }
+            else { return NoContent(); }
         }
 
         [HttpGet("{id}")]
