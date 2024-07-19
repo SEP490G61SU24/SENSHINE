@@ -58,10 +58,10 @@
 
   $(".show-hide span").click(function () {
     if ($(this).hasClass("show")) {
-      $('input[name="login[password]"]').attr("type", "text");
+      $('#password').attr("type", "text");
       $(this).removeClass("show");
     } else {
-      $('input[name="login[password]"]').attr("type", "password");
+        $('#password').attr("type", "password");
       $(this).addClass("show");
     }
   });
@@ -69,7 +69,7 @@
     $(".show-hide span").addClass("show");
     $(".show-hide")
       .parent()
-      .find('input[name="login[password]"]')
+      .find('#password')
       .attr("type", "password");
   });
 
