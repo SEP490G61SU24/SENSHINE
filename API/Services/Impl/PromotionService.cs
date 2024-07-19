@@ -19,7 +19,7 @@ namespace API.Services.Impl
             _mapper = mapper;
         }
 
-        public async Task<Promotion> AddPromotion(PromotionDTO promotionDto)
+        public async Task<Promotion> AddPromotion(PromotionDTORequest promotionDto)
         {
             var promotion = _mapper.Map<Promotion>(promotionDto);
             _context.Promotions.Add(promotion);
@@ -28,7 +28,7 @@ namespace API.Services.Impl
             return promotion;
         }
 
-        public async Task<Promotion> EditPromotion(int id, PromotionDTO promotionDto)
+        public async Task<Promotion> EditPromotion(int id, PromotionDTORequest promotionDto)
         {
             var promotion = await _context.Promotions.FindAsync(id);
             if (promotion == null)

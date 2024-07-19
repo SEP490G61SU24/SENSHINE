@@ -39,13 +39,13 @@ namespace Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult AddNews()
+        public IActionResult Add()
         {
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddNews(NewsDTO newsDto)
+        public async Task<IActionResult> Add(NewsDTO newsDto)
         {
             if (!ModelState.IsValid)
             {
@@ -67,7 +67,7 @@ namespace Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> EditNews(int id)
+        public async Task<IActionResult> Edit(int id)
         {
             HttpResponseMessage response = await _httpClient.GetAsync($"/api/GetNewsDetail/{id}");
 
@@ -113,11 +113,20 @@ namespace Web.Controllers
             {
                 string data = await response.Content.ReadAsStringAsync();
                 var news = JsonConvert.DeserializeObject<NewsDTO>(data);
-                return View(news);
+                return Json(new
+                {
+                    cover = news?.Cover, 
+                    title = news?.Title,
+                    content = news?.Content,
+                    publishedDate = news?.PublishedDate
+                });
             }
 
             return NotFound();
         }
+
+
+
 
         [HttpGet]
         public async Task<IActionResult> NewsByDate(DateTime from, DateTime to)
@@ -149,5 +158,7 @@ namespace Web.Controllers
 
             return NotFound();
         }
+        
+
     }
 }
