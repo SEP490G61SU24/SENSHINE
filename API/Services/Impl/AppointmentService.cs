@@ -1,6 +1,8 @@
 ﻿using API.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace API.Services.Impl
@@ -16,17 +18,31 @@ namespace API.Services.Impl
 
         public async Task<List<Appointment>> GetAllAppointmentsAsync()
         {
-            return await _dbContext.Appointments.ToListAsync();
+            return await _dbContext.Appointments
+                .Include(a => a.Customer)
+                .Include(a => a.Employee)
+                .Include(a => a.Services)
+                .ToListAsync();
         }
 
-        public async Task<Appointment> GetAppointmentByIdAsync(int id)
+        public async Task<List<Appointment>> GetAppointmentsByDateAsync(DateTime appointmentDate)
         {
-            return await _dbContext.Appointments.FirstOrDefaultAsync(x => x.Id == id);
+            return await _dbContext.Appointments
+                .Include(a => a.Customer)
+                .Include(a => a.Employee)
+                .Include(a => a.Services)
+                .Where(a => a.AppointmentDate.Date == appointmentDate.Date)
+                .ToListAsync();
         }
 
         public async Task<List<Appointment>> GetAppointmentsByCustomerIdAsync(int customerId)
         {
-            return await _dbContext.Appointments.Where(a => a.CustomerId == customerId).ToListAsync();
+            return await _dbContext.Appointments
+                .Include(a => a.Customer)
+                .Include(a => a.Employee)
+                .Include(a => a.Services)
+                .Where(a => a.CustomerId == customerId)
+                .ToListAsync();
         }
 
         public async Task<Appointment> CreateAppointmentAsync(Appointment appointment)
@@ -36,24 +52,22 @@ namespace API.Services.Impl
             return appointment;
         }
 
-        //Update Appointment
-        public async Task<Appointment> UpdateAppointmentAsync(int id, Appointment updatedAppointment)
+        public async Task<Appointment> UpdateAppointmentAsync(int id, Appointment appointment)
         {
-            var existingAppointment = await _dbContext.Appointments.FindAsync(id);
+            var existingAppointment = await _dbContext.Appointments.FirstOrDefaultAsync(x => x.Id == id);
             if (existingAppointment == null)
             {
                 return null;
             }
 
-            existingAppointment.CustomerId = updatedAppointment.CustomerId;
-            existingAppointment.EmployeeId = updatedAppointment.EmployeeId;
-            existingAppointment.AppointmentDate = updatedAppointment.AppointmentDate;
-            existingAppointment.Status = updatedAppointment.Status;
+            existingAppointment.CustomerId = appointment.CustomerId;
+            existingAppointment.EmployeeId = appointment.EmployeeId;
+            existingAppointment.AppointmentDate = appointment.AppointmentDate;
+            existingAppointment.Status = appointment.Status;
 
             await _dbContext.SaveChangesAsync();
             return existingAppointment;
         }
-
 
         public async Task<Appointment> DeleteAppointmentAsync(int id)
         {
