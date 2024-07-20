@@ -1,11 +1,12 @@
-﻿using API.Models;
+﻿using API.Dtos;
+using API.Models;
 
 namespace API.Services
 {
     public interface IComboService
     {
         //tim kiem tat ca cac combo
-        Task<List<Combo>> GetAllComboAsync();
+        Task<List<ComboDTO>> GetAllComboAsync();
 
         //tim kiem combo theo id
         Task<Combo> FindComboWithItsId(int Id);
