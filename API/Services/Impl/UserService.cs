@@ -87,17 +87,18 @@ namespace API.Services.Impl
 
         public async Task<User> UpdateUser(int id, UserDto userDto)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == id);
             if (user == null)
             {
                 return null;
             }
 
-            user.UserName = userDto.UserName;
             if (!string.IsNullOrEmpty(userDto.Password))
             {
                 user.Password = PasswordUtils.HashPassword(userDto.Password);
             }
+
+            user.Phone = userDto.Phone;
             user.FirstName = userDto.FirstName;
             user.MidName = userDto.MidName;
             user.LastName = userDto.LastName;
@@ -105,6 +106,28 @@ namespace API.Services.Impl
             user.ProvinceCode = userDto.ProvinceCode;
             user.DistrictCode = userDto.DistrictCode;
             user.WardCode = userDto.WardCode;
+
+            user.Roles.Clear();
+
+            Role role;
+            if (userDto.RoleId != null)
+            {
+                role = await _context.Roles.FindAsync(userDto.RoleId);
+                if (role == null)
+                {
+                    throw new ArgumentException("Role not found.");
+                }
+            }
+            else
+            {
+                role = await _context.Roles.SingleOrDefaultAsync(r => r.RoleName == "STAFF");
+                if (role == null)
+                {
+                    throw new ArgumentException("Default role 'STAFF' not found.");
+                }
+            }
+
+            user.Roles = new List<Role> { role };
 
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
