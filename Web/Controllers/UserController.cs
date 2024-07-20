@@ -134,6 +134,62 @@ namespace Web.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Edit(UserViewModel user)
+        {
+            try
+            {
+                string[] nameArr = user.FullName.Split(" ");
+
+                if (nameArr.Length < 2)
+                {
+                    user.FirstName = null;
+                    user.MidName = null;
+                    user.LastName = nameArr[0];
+                }
+                else if (nameArr.Length < 3)
+                {
+                    user.FirstName = nameArr[0];
+                    user.MidName = null;
+                    user.LastName = nameArr[1];
+                }
+                else
+                {
+                    user.FirstName = nameArr[0];
+                    user.MidName = nameArr[1];
+                    user.LastName = nameArr[nameArr.Length - 1];
+                }
+
+                var apiUrl = _configuration["ApiUrl"];
+
+                var json = JsonSerializer.Serialize(user);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                using var client = _clientFactory.CreateClient();
+                var response = await client.PutAsync($"{apiUrl}/user/update/{user.Id}", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    var responseData = JsonSerializer.Deserialize<UserViewModel>(responseString);
+
+                    //return View(responseData);
+                    return RedirectToAction("Index", "User");
+                }
+                else
+                {
+                    ViewData["Error"] = "Có lỗi xảy ra!";
+                    return View();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during login");
+                ViewData["Error"] = "An error occurred";
+                return View();
+            }
+        }
+
         public static string GenerateRandomString(int length)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
