@@ -40,10 +40,10 @@ namespace API.Services.Impl
             return mapper.Map<News>(news);
         }
 
-        public async Task<IEnumerable<NewsDTORequest>> ListNews()
+        public async Task<IEnumerable<NewsDTO>> ListNews()
         {
             var data = await _context.News.ToListAsync();
-            return mapper.Map<IEnumerable<NewsDTORequest>>(data);
+            return mapper.Map<IEnumerable<NewsDTO>>(data);
         }
 
         public async Task<NewsDTO> GetNewsDetail(int id)
