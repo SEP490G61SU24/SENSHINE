@@ -4,15 +4,15 @@ namespace API.Dtos
 {
     public class AppointmentDTO
     {
-        public int AppointmentId { get; set; }
-        public int? SpaId { get; set; }
-        public int? RoomId { get; set; }
+        public int Id { get; set; }
         public int? CustomerId { get; set; }
         public int? EmployeeId { get; set; }
-        public int? ServiceId { get; set; }
         public DateTime? AppointmentDate { get; set; }
-        public TimeSpan? AppointmentTime { get; set; }
-        public string? Status { get; set; }
+        public string Status { get; set; }
+
+        public string CustomerName { get; set; }
+        public string EmployeeName { get; set; }
+        public string ServiceName { get; set; }
 
         public virtual User? Customer { get; set; }
         public virtual User? Employee { get; set; }

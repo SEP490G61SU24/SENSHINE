@@ -2,7 +2,9 @@ using API.Dtos;
 using API.Models;
 using API.Services;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace API.Controllers
@@ -18,14 +20,24 @@ namespace API.Controllers
             _appointmentService = appointmentService;
         }
 
-        //Lay ra tat ca danh sach cuoc hen
         [HttpGet]
         public async Task<IActionResult> GetAllAppointments()
         {
             try
             {
                 var appointments = await _appointmentService.GetAllAppointmentsAsync();
-                return Ok(appointments);
+                var appointmentDTOs = appointments.Select(a => new AppointmentDTO
+                {
+                    Id = a.Id,
+                    CustomerId = a.CustomerId,
+                    EmployeeId = a.EmployeeId,
+                    AppointmentDate = a.AppointmentDate,
+                    Status = a.Status ? "true" : "false",
+                    CustomerName = $"{a.Customer.FirstName} {a.Customer.LastName}",
+                    EmployeeName = $"{a.Employee.FirstName} {a.Employee.LastName}",
+                    ServiceName = string.Join(", ", a.Services.Select(s => s.ServiceName))
+                }).ToList();
+                return Ok(appointmentDTOs);
             }
             catch (Exception ex)
             {
@@ -33,20 +45,32 @@ namespace API.Controllers
             }
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetAppointmentById(int id)
+        [HttpGet("{appointmentDate}")]
+        public async Task<IActionResult> GetAppointmentsByDate(DateTime appointmentDate)
         {
-            var appointment = await _appointmentService.GetAppointmentByIdAsync(id);
-            if (appointment == null)
+            var appointments = await _appointmentService.GetAppointmentsByDateAsync(appointmentDate);
+            if (appointments == null || appointments.Count == 0)
             {
-                return NotFound("Appointment not found");
+                return NotFound("Appointments not found for the specified date");
             }
 
-            return Ok(appointment);
+            var appointmentDTOs = appointments.Select(a => new AppointmentDTO
+            {
+                Id = a.Id,
+                CustomerId = a.CustomerId,
+                EmployeeId = a.EmployeeId,
+                AppointmentDate = a.AppointmentDate,
+                Status = a.Status ? "true" : "false",
+                CustomerName = $"{a.Customer.FirstName} {a.Customer.LastName}",
+                EmployeeName = $"{a.Employee.FirstName} {a.Employee.LastName}",
+                ServiceName = string.Join(", ", a.Services.Select(s => s.ServiceName))
+            }).ToList();
+
+            return Ok(appointmentDTOs);
         }
 
         [HttpGet("{customerId}")]
-        public async Task<IActionResult> GetAppointmentsByCustomerId(int customerId) // tim kiem theo customer id
+        public async Task<IActionResult> GetAppointmentsByCustomerId(int customerId)
         {
             try
             {
@@ -55,7 +79,18 @@ namespace API.Controllers
                 {
                     return NotFound("No appointments found for this customer.");
                 }
-                return Ok(appointments);
+                var appointmentDTOs = appointments.Select(a => new AppointmentDTO
+                {
+                    Id = a.Id,
+                    CustomerId = a.CustomerId,
+                    EmployeeId = a.EmployeeId,
+                    AppointmentDate = a.AppointmentDate,
+                    Status = a.Status ? "true" : "false",
+                    CustomerName = $"{a.Customer.FirstName} {a.Customer.LastName}",
+                    EmployeeName = $"{a.Employee.FirstName} {a.Employee.LastName}",
+                    ServiceName = string.Join(", ", a.Services.Select(s => s.ServiceName))
+                }).ToList();
+                return Ok(appointmentDTOs);
             }
             catch (Exception ex)
             {

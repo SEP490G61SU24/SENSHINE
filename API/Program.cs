@@ -49,9 +49,11 @@ namespace API
             builder.Services.AddAutoMapper(typeof(NewMapper));
             builder.Services.AddAutoMapper(typeof(ProductMapper));
             builder.Services.AddAutoMapper(typeof(PromotionMapper));
+
             builder.Services.AddAutoMapper(typeof(CardMapper));
             builder.Services.AddAutoMapper(typeof(EmployeeMapper));
             builder.Services.AddAutoMapper(typeof(BranchMapper));
+
 
             // Configure JWT authentication
             builder.Services.AddAuthentication(options =>
