@@ -35,14 +35,13 @@ namespace API.Services.Impl
                 .ToListAsync();
         }
 
-        public async Task<List<Appointment>> GetAppointmentsByCustomerIdAsync(int customerId)
+        public async Task<Appointment> GetAppointmentByIdAsync(int id)
         {
             return await _dbContext.Appointments
                 .Include(a => a.Customer)
                 .Include(a => a.Employee)
                 .Include(a => a.Services)
-                .Where(a => a.CustomerId == customerId)
-                .ToListAsync();
+                .FirstOrDefaultAsync(a => a.Id == id);
         }
 
         public async Task<Appointment> CreateAppointmentAsync(Appointment appointment)
@@ -69,17 +68,34 @@ namespace API.Services.Impl
             return existingAppointment;
         }
 
+
+
+        //Delete
         public async Task<Appointment> DeleteAppointmentAsync(int id)
         {
-            var appointment = await _dbContext.Appointments.FirstOrDefaultAsync(x => x.Id == id);
-            if (appointment == null)
+            // Tìm combo theo ID
+            var existingAppointment = await _dbContext.Appointments
+                                                 .Include(c => c.Services) // Bao gồm các dịch vụ liên quan
+                                                 .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (existingAppointment == null)
             {
                 return null;
             }
 
-            _dbContext.Appointments.Remove(appointment);
+            // Xóa các liên kết với các dịch vụ nếu cần
+            // Ví dụ: nếu có bảng liên kết nhiều-nhiều, có thể cần xử lý nó tại đây
+            foreach (var service in existingAppointment.Services.ToList())
+            {
+                // Xóa liên kết giữa combo và dịch vụ
+                existingAppointment.Services.Remove(service);
+            }
+
+            // Xóa combo
+            _dbContext.Appointments.Remove(existingAppointment);
             await _dbContext.SaveChangesAsync();
-            return appointment;
+            return existingAppointment;
         }
+
     }
 }
