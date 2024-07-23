@@ -1,6 +1,8 @@
-﻿namespace API.Dtos
+﻿using API.Dtos;
+
+namespace Web.Models
 {
-    public class ComboDTO
+    public class ComboViewModel
     {
         public int Id { get; set; }
         public string? Name { get; set; }
