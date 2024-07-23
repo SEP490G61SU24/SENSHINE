@@ -4,6 +4,7 @@ using API.Services;
 using API.Services.Impl;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -62,13 +63,29 @@ namespace API.Controllers
 
             try
             {
-                // Chuyển đổi ComboDTO thành combo để lưu vào cơ sở dữ liệu
+                // Retrieve services based on their IDs
+                var services = await _dbContext.Services
+                                                .Where(s => comboDTO.ServiceIds.Contains(s.Id))
+                                                .ToListAsync();
+
+                // Convert ComboDTO to Combo entity
                 var newCombo = new Combo
                 {
                     Name = comboDTO.Name,
-                    Price = comboDTO.Price,
-                    SalePrice = comboDTO.SalePrice
+                    Quantity = comboDTO.Quantity,
+                    Note = comboDTO.Note,
+                    Discount = comboDTO.Discount,
+                    Services = services
                 };
+
+                // Calculate the total price of the combo
+                newCombo.Price = services.Sum(s => s.Amount);
+
+                // Calculate the sale price after discount
+                if (newCombo.Discount.HasValue && newCombo.Price.HasValue)
+                {
+                    newCombo.SalePrice = newCombo.Price - (newCombo.Price * newCombo.Discount / 100);
+                }
 
                 var createdCombo = await comboService.CreateComboAsync(newCombo);
                 return Ok($"Tạo mới {createdCombo.Name} thành công");

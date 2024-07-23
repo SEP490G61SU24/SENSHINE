@@ -20,7 +20,7 @@ namespace API.Controllers
 
         [HttpPost("AddPromotion")]
       
-            public async Task<ActionResult<Promotion>> AddPromotion([FromBody] PromotionDTO promotionDto)
+            public async Task<ActionResult<Promotion>> AddPromotion([FromBody] PromotionDTORequest promotionDto)
             {
                 if (!ModelState.IsValid)
                 {
@@ -33,7 +33,7 @@ namespace API.Controllers
 
             
             [HttpPut("EditPromotion/{id}")]
-            public async Task<IActionResult> EditPromotion(int id, [FromBody] PromotionDTO promotionDto)
+            public async Task<IActionResult> EditPromotion(int id, [FromBody] PromotionDTORequest promotionDto)
             {
                 if (!ModelState.IsValid)
                 {

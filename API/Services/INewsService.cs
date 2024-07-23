@@ -7,7 +7,7 @@ namespace API.Services
     {
         Task<News> AddNews(NewsDTO newsDto);
         Task<News> EditNews(int id, NewsDTO newsDto);
-        Task<IEnumerable<NewsDTORequest>> ListNews();
+        Task<IEnumerable<NewsDTO>> ListNews();
         Task<NewsDTO> GetNewsDetail(int id);
         Task<IEnumerable<NewsDTORequest>> NewsByDate(DateTime From, DateTime To);
         Task<bool> DeleteNews(int id);
