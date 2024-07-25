@@ -33,8 +33,6 @@
 <!-- Responsive css-->
 <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 
-<<h4>Edit Appointment</h4>
-<hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="EditAppointment">
@@ -57,8 +55,8 @@
             <div class="form-group">
                 <label asp-for="Status" class="control-label">Status</label>
                 <select asp-for="Status" class="form-control">
-                    <option value="true" selected="@(Model.Status ? "selected" : "")">Active</option>
-                    <option value="false" selected="@(Model.Status ? "" : "selected")">Inactive</option>
+                    <option value="true" selected="@(Model.Status ? "selected" : "")">Finished</option>
+                    <option value="false" selected="@(Model.Status ? "" : "selected")">Not Started</option>
                 </select>
             </div>
             <div class="form-group">

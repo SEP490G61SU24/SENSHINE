@@ -54,7 +54,7 @@ namespace Web.Controllers
 
             AppointmentViewModel appointment = null;
 
-            HttpResponseMessage response = await _httpClient.GetAsync($"/Appointment/GetByAppointmentId/{id}");
+            HttpResponseMessage response = await _httpClient.GetAsync($"/api/Appointment/GetByAppointmentId/{id}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -85,7 +85,7 @@ namespace Web.Controllers
                 var json = JsonConvert.SerializeObject(appointment);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                HttpResponseMessage response = await _httpClient.PostAsync("/Appointment/Create", content);
+                HttpResponseMessage response = await _httpClient.PostAsync("/api/Appointment/Create", content);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -111,7 +111,7 @@ namespace Web.Controllers
 
             AppointmentViewModel appointment = null;
 
-            HttpResponseMessage response = await _httpClient.GetAsync($"/Appointment/GetByAppointmentId/{id}");
+            HttpResponseMessage response = await _httpClient.GetAsync($"/api/Appointment/GetByAppointmentId/{id}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -136,7 +136,7 @@ namespace Web.Controllers
                 var json = JsonConvert.SerializeObject(appointment);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                HttpResponseMessage response = await _httpClient.PutAsync($"/Appointment/UpdateAppointment/{appointment.Id}", content);
+                HttpResponseMessage response = await _httpClient.PutAsync($"/api/Appointment/UpdateAppointment/{appointment.Id}", content);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -160,7 +160,7 @@ namespace Web.Controllers
                 return BadRequest("Invalid Appointment ID");
             }
 
-            HttpResponseMessage response = await _httpClient.DeleteAsync($"/Appointment/DeleteAppointment/{id}");
+            HttpResponseMessage response = await _httpClient.DeleteAsync($"/api/Appointment/DeleteAppointment/{id}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -174,9 +174,9 @@ namespace Web.Controllers
 
         private async Task LoadDropdownDataAsync()
         {
-            ViewBag.Customers = await GetSelectListAsync("/User/GetCustomers", "Id", "FullName");
-            ViewBag.Employees = await GetSelectListAsync("/User/GetEmployees", "Id", "FullName");
-            ViewBag.Services = await GetSelectListAsync("/Service/GetAllServices", "Id", "ServiceName");
+            ViewBag.Customers = await GetSelectListAsync("/api/User/GetCustomers", "Id", "FullName");
+            ViewBag.Employees = await GetSelectListAsync("/api/User/GetEmployees", "Id", "FullName");
+            ViewBag.Services = await GetSelectListAsync("/api/Service/GetAllServices", "Id", "ServiceName");
         }
 
         private async Task<SelectList> GetSelectListAsync(string apiUrl, string valueField, string textField)
@@ -188,14 +188,18 @@ namespace Web.Controllers
             {
                 string data = await response.Content.ReadAsStringAsync();
                 var result = JsonConvert.DeserializeObject<List<dynamic>>(data);
-                items = result.Select(x => new SelectListItem
-                {
-                    Value = x[valueField].ToString(),
-                    Text = x[textField].ToString()
-                }).ToList();
+
+                items = result
+                    .Where(x => x != null && x[valueField] != null && x[textField] != null)
+                    .Select(x => new SelectListItem
+                    {
+                        Value = x[valueField].ToString(),
+                        Text = x[textField].ToString()
+                    }).ToList();
             }
 
             return new SelectList(items, "Value", "Text");
         }
+
     }
 }
