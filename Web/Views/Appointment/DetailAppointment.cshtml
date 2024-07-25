@@ -1,0 +1,116 @@
+﻿@model AppointmentViewModel
+
+@{
+    ViewData["Title"] = "Appointment Details";
+}
+
+<!-- Google font-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<!-- ico-font-->
+<link href="~/~/~/~/~/đatn/senshine/web/wwwroot/assets/css/font-awesome.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
+<!-- Themify icon-->
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/themify.css">
+<!-- Flag icon-->
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/flag-icon.css">
+<!-- Feather icon-->
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/feather-icon.css">
+<!-- Plugins css start-->
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/js-datatables/style.css">
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/owlcarousel.css">
+<!-- Plugins css Ends-->
+<!-- Bootstrap css-->
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
+<!-- App css-->
+<link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
+<link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
+<!-- Responsive css-->
+<link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+
+<h2>Appointment Details</h2>
+
+<div>
+    <h4>Appointment</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            Appointment ID
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Id
+        </dd>
+        <dt class="col-sm-2">
+            Customer Name
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Customer.FullName
+        </dd>
+        <dt class="col-sm-2">
+            Employee Name
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Employee.FullName
+        </dd>
+        <dt class="col-sm-2">
+            Services
+        </dt>
+        <dd class="col-sm-10">
+            <ul>
+                @foreach (var service in Model.Services)
+                {
+                    <li>@service.ServiceName</li>
+                }
+            </ul>
+        </dd>
+        <dt class="col-sm-2">
+            Appointment Date
+        </dt>
+        <dd class="col-sm-10">
+            @Model.AppointmentDate
+        </dd>
+        <dt class="col-sm-2">
+            Status
+        </dt>
+        <dd class="col-sm-10">
+            @(Model.Status ? "Finished" : "Not Started")
+        </dd>
+    </dl>
+</div>
+<p>
+    <a href="@Url.Action("EditAppointment", new { id = Model.Id })">Edit</a> |
+    <a href="@Url.Action("ListAppointment")">Back to List</a>
+</p>
+
+<script src="~/assets/js/jquery.min.js"></script>
+<!-- Bootstrap js-->
+<script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
+<!-- feather icon js-->
+<script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
+<script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
+<!-- scrollbar js-->
+<script src="~/assets/js/scrollbar/simplebar.js"></script>
+<script src="~/assets/js/scrollbar/custom.js"></script>
+<!-- Sidebar jquery-->
+<script src="~/assets/js/config.js"></script>
+<!-- Plugins JS start-->
+<script src="~/assets/js/sidebar-menu.js"></script>
+<script src="~/assets/js/sidebar-pin.js"></script>
+<script src="~/assets/js/slick/slick.min.js"></script>
+<script src="~/assets/js/slick/slick.js"></script>
+<script src="~/assets/js/header-slick.js"></script>
+<!-- calendar js-->
+<script src="~/assets/js/js-datatables/simple-datatables@latest.js"></script>
+<script src="~/assets/js/custom-list-product.js"></script>
+<script src="~/assets/js/owlcarousel/owl.carousel.js"></script>
+<script src="~/assets/js/ecommerce.js"></script>
+<script src="~/assets/js/tooltip-init.js"></script>
+<!-- Plugins JS Ends-->
+<!-- Theme js-->
+<script src="~/assets/js/script.js"></script>
+<script src="~/assets/js/theme-customizer/customizer.js"></script>
