@@ -47,7 +47,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public IActionResult GetAll()
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -72,7 +72,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetByNumNamePhone(string input)
+        public IActionResult GetByNumNamePhone(string input)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -80,13 +80,13 @@ namespace API.Controllers
             if (!_cardService.CardExistByNumNamePhone(input))
                 return NotFound();
 
-            var cards = _cardService.GetCardByNumNamePhone(input);
+            var cards = _mapper.Map<List<CardDTO>>(_cardService.GetCardByNumNamePhone(input));
 
             return Ok(cards);
         }
 
         [HttpGet]
-        public async Task<IActionResult> SortByDate(string dateFrom, string dateTo)
+        public IActionResult SortByDate(string dateFrom, string dateTo)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -112,15 +112,15 @@ namespace API.Controllers
             {
                 var existingCard = _cardService.GetCard(id);
                 existingCard.CustomerId = cardDTO.CustomerId;
-                List<Combo> comboList = new List<Combo>();
+                //List<CardCombo> cardComboList = new List<CardCombo>();
 
-                foreach (int comboId in cardDTO.ComboId)
-                {
-                    var combo = _cardService.GetCombo(comboId);
-                    comboList.Add(combo);
-                }
+                //foreach (int cardComboId in cardDTO.CardComboId)
+                //{
+                //    var cardCombo = _cardService.GetCardCombo(cardComboId);
+                //    cardComboList.Add(cardCombo);
+                //}
 
-                existingCard.Combos = comboList;
+                //existingCard.CardCombos = cardComboList;
                 var cardUpdate = await _cardService.UpdateCard(id, existingCard);
 
                 if (cardUpdate == null)
@@ -163,14 +163,33 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetComboByCard(int id)
+        public IActionResult GetCardComboByCard(int id)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var combo = _mapper.Map<List<ComboDTO>>(_cardService.GetComboByCard(id));
+            var combo = _mapper.Map<List<CardComboDTO>>(_cardService.GetCardComboByCard(id));
 
             return Ok(combo);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddCombo([FromBody] CardComboDTO cardComboDTO)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var cardComboMap = _mapper.Map<CardCombo>(cardComboDTO);
+                var createdCardCombo = await _cardService.CreateCardCombo(cardComboMap);
+
+                return Ok($"Thêm combo thành công");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Có lỗi xảy ra khi thêm combo: {ex.Message}");
+            }
         }
     }
 }

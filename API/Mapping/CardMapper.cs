@@ -11,11 +11,13 @@ namespace API.Mapping
             CreateMap<Card, CardDTO>()
                 //.ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.FirstName + " " + src.Customer.MidName + " " + src.Customer.LastName))
                 //.ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.Customer.Phone))
-                .ForMember(dest => dest.ComboId, opt => opt.MapFrom(src => src.Combos.Select(s => s.Id).ToList()));
-                //.ForMember(dest => dest.InvoiceId, opt => opt.MapFrom(src => src.Invoices.Select(s => s.Id).ToList()));
+                .ForMember(dest => dest.CardComboId, opt => opt.MapFrom(src => src.CardCombos.Select(c => c.Id).ToList()))
+                .ForMember(dest => dest.InvoiceId, opt => opt.MapFrom(src => src.Invoices.Select(i => i.Id).ToList()));
             CreateMap<CardDTO, Card>();
 
-            CreateMap<Combo, ComboDTO>();
+            CreateMap<CardCombo, CardComboDTO>()
+                .ForMember(dest => dest.ComboId, opt => opt.MapFrom(src => src.Combo.Id));
+            CreateMap<CardComboDTO, CardCombo>();
         }
     }
 }

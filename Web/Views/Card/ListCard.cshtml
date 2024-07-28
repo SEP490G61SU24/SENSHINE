@@ -61,10 +61,13 @@
                 @Html.DisplayNameFor(model => model.CardNumber)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CustomerId)
+                @Html.DisplayNameFor(model => model.CustomerName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ComboId)
+                @Html.DisplayNameFor(model => model.CustomerPhone)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BranchName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.CreateDate)
@@ -72,10 +75,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.Status)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TotalPrice)
-            </th>
-            <th></th>
         </tr>
     </thead>
     @if (Model != null)
@@ -90,19 +89,19 @@
                         </a>
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.CustomerId)
+                        @Html.DisplayFor(modelItem => item.CustomerName)
                     </td>
+                    <th>
+                        @Html.DisplayFor(modelItem => item.CustomerPhone)
+                    </th>
                     <td>
-                        @Html.DisplayFor(modelItem => item.ComboId)
+                        @Html.DisplayFor(modelItem => item.BranchName)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.CreateDate)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Status)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.TotalPrice)
                     </td>
                     <td>
                         @Html.ActionLink("Update", "UpdateCard", new { id = item.Id }, new { @href = "http://localhost:5129/Card/UpdateCard?id=" + item.Id }) |

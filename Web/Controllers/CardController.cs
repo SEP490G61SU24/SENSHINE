@@ -7,6 +7,8 @@ using API.Ultils;
 using System.Net.Http;
 using System.Drawing.Printing;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using AutoMapper.Configuration.Annotations;
+using System.Collections.Generic;
 
 namespace Web.Controllers
 {
@@ -25,6 +27,8 @@ namespace Web.Controllers
         public async Task<IActionResult> ListCard(string searchInput, DateTime? dateFrom, DateTime? dateTo)
         {
             List<CardViewModel> cards = new List<CardViewModel>();
+            UserViewModel user = new UserViewModel();
+            BranchViewModel branch = new BranchViewModel();
             HttpResponseMessage response = _client.GetAsync(_client.BaseAddress + "/Card/GetAll").Result;
 
             if (dateFrom.HasValue && dateTo.HasValue)
@@ -41,6 +45,19 @@ namespace Web.Controllers
             {
                 string data = response.Content.ReadAsStringAsync().Result;
                 cards = JsonConvert.DeserializeObject<List<CardViewModel>>(data);
+            }
+
+            foreach (var card in cards)
+            {
+                HttpResponseMessage response1 = _client.GetAsync(_client.BaseAddress + "/user/" + card.CustomerId).Result;
+                HttpResponseMessage response2 = _client.GetAsync(_client.BaseAddress + "/Branch/GetById?id=" + card.BranchId).Result;
+                string data1 = response1.Content.ReadAsStringAsync().Result;
+                user = JsonConvert.DeserializeObject<UserViewModel>(data1);
+                string data2 = response2.Content.ReadAsStringAsync().Result;
+                branch = JsonConvert.DeserializeObject<BranchViewModel>(data2);
+                card.CustomerName = user.FirstName + " " + user.MidName + " " + user.LastName;
+                card.CustomerPhone = user.Phone;
+                card.BranchName = branch.SpaName;
             }
 
             return View(cards);
@@ -74,7 +91,8 @@ namespace Web.Controllers
         public IActionResult CreateCard()
         {
             var response = _client.GetAsync($"http://localhost:5297/api/user/byRole/5").Result;
-            if (response.IsSuccessStatusCode)
+            var response2 = _client.GetAsync($"http://localhost:5297/api/Combo/GetAllCombo").Result;
+            if (response.IsSuccessStatusCode && response2.IsSuccessStatusCode)
             {
                 var users = response.Content.ReadFromJsonAsync<IEnumerable<UserViewModel>>().Result;
                 foreach (var user in users)
@@ -83,6 +101,14 @@ namespace Web.Controllers
                     user.FullName = string.Join(", ", user.FullName ?? "", user.Phone ?? "").Trim();
                 }
                 ViewBag.Users = new SelectList(users, "Id", "FullName");
+                var combos = response2.Content.ReadFromJsonAsync<IEnumerable<ComboView>>().Result;
+                foreach (var combo in combos)
+                {
+                    string formattedNumber = string.Format("{0:N0}", combo.SalePrice);
+                    combo.SalePriceString = formattedNumber + " VNĐ";
+                }
+                ViewBag.Combos = combos;
+
                 return View();
             }
             else
@@ -92,21 +118,56 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateCard(CardViewModel card)
+        public async Task<IActionResult> CreateCard(CardCreateModel card, string selectedCardIds)
         {
-            string date = card.CreateDate.Value.ToString("yyyy-MM-dd");
-            DateTime date2 = FormatDateTimeUtils.ParseDateTimeLikeSSMS(date);
-            card.CreateDate = date2;
+            card.Id = 0;
+            card.CardNumber = "SenVip" + DateTime.Now.ToString("yyyyMMddHHmmss");
+            card.CreateDate = DateTime.Now;
+            card.Status = "Active";
+            card.BranchId = 1;
 
             if (ModelState.IsValid)
             {
                 var json = JsonConvert.SerializeObject(card);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
-
                 HttpResponseMessage response = await _client.PostAsync(_client.BaseAddress + "/Card/Create", content);
 
                 if (response.IsSuccessStatusCode)
                 {
+                    if (string.IsNullOrEmpty(selectedCardIds) || selectedCardIds == "[]")
+                    {
+                        Console.WriteLine("null " + selectedCardIds);
+                        return RedirectToAction("ListCard");
+                    }
+                    else
+                    {
+                        Console.WriteLine("k null " + selectedCardIds);
+                        HttpResponseMessage response3 = _client.GetAsync(_client.BaseAddress + "/Card/GetByNumNamePhone?input=" + card.CardNumber).Result;
+                        string data = response3.Content.ReadAsStringAsync().Result;
+                        List <CardViewModel> cardCreated = JsonConvert.DeserializeObject<List<CardViewModel>>(data);
+                        int idd = 0;
+                        foreach(var cct in cardCreated)
+                        {
+                            idd = cct.Id;
+                        }
+                        CardComboViewModel cardCombo = new CardComboViewModel();
+                        List<CardComboViewModel> listCardCombo = new List<CardComboViewModel>();
+
+                        List<int> selectedIds = JsonConvert.DeserializeObject<List<int>>(selectedCardIds);
+
+                        foreach (var id in selectedIds)
+                        {
+                            cardCombo.Id = 0;
+                            cardCombo.CardId = idd;
+                            cardCombo.ComboId = id;
+                            cardCombo.SessionDone = 0;
+                            var json2 = JsonConvert.SerializeObject(cardCombo);
+                            Console.WriteLine(json2);
+                            var content2 = new StringContent(json2, Encoding.UTF8, "application/json");
+                            HttpResponseMessage response2 = await _client.PostAsync(_client.BaseAddress + "/Card/AddCombo", content2);
+                        }
+                    }
+
                     return RedirectToAction("ListCard");
                 }
                 else
@@ -116,7 +177,7 @@ namespace Web.Controllers
                 }
             }
 
-            return View(card);
+            return View("Error");
         }
 
         [HttpGet]
