@@ -1,7 +1,6 @@
-﻿@model Web.Models.ServiceViewModel
-
+﻿@model Web.Models.AppointmentViewModel
 @{
-    ViewData["Title"] = "Create Service";
+    ViewData["Title"] = "Create Appointment";
 }
 
 <!-- Google font-->
@@ -33,24 +32,34 @@
 <!-- Responsive css-->
 <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 
+<h4>Appointment</h4>
+<hr />
+
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="CreateService">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <form asp-action="CreateAppointment">
             <div class="form-group">
-                <label asp-for="ServiceName" class="control-label"></label>
-                <input asp-for="ServiceName" class="form-control" />
-                <span asp-validation-for="ServiceName" class="text-danger"></span>
+                <label asp-for="CustomerId" class="control-label">Customer</label>
+                <select asp-for="CustomerId" class="form-control" asp-items="ViewBag.Customers"></select>
             </div>
             <div class="form-group">
-                <label asp-for="Amount" class="control-label"></label>
-                <input asp-for="Amount" class="form-control" />
-                <span asp-validation-for="Amount" class="text-danger"></span>
+                <label asp-for="EmployeeId" class="control-label">Employee</label>
+                <select asp-for="EmployeeId" class="form-control" asp-items="ViewBag.Employees"></select>
             </div>
             <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
+                <label asp-for="AppointmentDate" class="control-label">Appointment Date</label>
+                <input asp-for="AppointmentDate" class="form-control" type="date" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Status" class="control-label">Status</label>
+                <select asp-for="Status" class="form-control">
+                    <option value="true">Finished</option>
+                    <option value="false">Not Started</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Services" class="control-label">Services</label>
+                <select asp-for="Services" class="form-control" asp-items="ViewBag.Services" multiple="multiple"></select>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
@@ -60,14 +69,9 @@
 </div>
 
 <div>
-    <a asp-action="ListService">Back to List</a>
+    <a asp-action="ListAppointment">Back to List</a>
 </div>
 
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
 <script src="~/assets/js/jquery.min.js"></script>
 <!-- Bootstrap js-->
 <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
