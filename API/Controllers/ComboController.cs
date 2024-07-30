@@ -56,7 +56,7 @@ namespace API.Controllers
         }
         // Tạo combo mới
         [HttpPost]
-        [Route("[action]")]
+        [Route("/api/[controller]/[action]")]
         public async Task<IActionResult> Create([FromBody] ComboDTO comboDTO)
         {
             if (!ModelState.IsValid)

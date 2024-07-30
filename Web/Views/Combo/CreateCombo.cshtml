@@ -1,0 +1,146 @@
+﻿<link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
+<!-- ico-font-->
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
+<!-- Themify icon-->
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/themify.css">
+<!-- Flag icon-->
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/flag-icon.css">
+<!-- Feather icon-->
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/feather-icon.css">
+<!-- Plugins css start-->
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/js-datatables/style.css">
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/owlcarousel.css">
+<!-- Plugins css Ends-->
+<!-- Bootstrap css-->
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
+<!-- App css-->
+<link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
+<link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
+<link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+
+
+@model Web.Models.ComboViewModel
+
+@{
+    ViewData["Title"] = "Create Combo";
+    var services = ViewBag.Services as List<Web.Models.ServiceViewModel>;
+    
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h2>Create Combo</h2>
+            <form asp-action="CreateCombo">
+                <div class="form-group">
+                    <label asp-for="Name" class="control-label">Name</label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Quantity" class="control-label">Quantity</label>
+                    <input asp-for="Quantity" class="form-control" />
+                    <span asp-validation-for="Quantity" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Note" class="control-label">Note</label>
+                    <textarea asp-for="Note" class="form-control"></textarea>
+                    <span asp-validation-for="Note" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelectedServiceIds" class="control-label">Services</label>
+                    <select asp-for="SelectedServiceIds" class="form-control" multiple id="serviceSelect">
+                        @if (services != null)
+                        {
+                            @foreach (var service in services)
+                            {
+                                <option value="@service.Id" data-amount="@service.Amount">@service.ServiceName</option>
+                            }
+                        }
+                    </select>
+                    <span asp-validation-for="SelectedServiceIds" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Discount" class="control-label">Discount (%)</label>
+                    <input asp-for="Discount" class="form-control" id="discountInput" />
+                    <span asp-validation-for="Discount" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Price" class="control-label">Price</label>
+                    <input asp-for="Price" class="form-control" readonly id="priceInput" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SalePrice" class="control-label">Sale Price</label>
+                    <input asp-for="SalePrice" class="form-control" readonly id="salePriceInput" />
+                    <span asp-validation-for="SalePrice" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Create</button>
+                <a asp-action="Index" class="btn btn-secondary mt-3">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const serviceSelect = document.getElementById('serviceSelect');
+            const discountInput = document.getElementById('discountInput');
+            const priceInput = document.getElementById('priceInput');
+            const salePriceInput = document.getElementById('salePriceInput');
+
+            function calculatePrices() {
+                let totalAmount = 0;
+                for (let option of serviceSelect.options) {
+                    if (option.selected) {
+                        totalAmount += parseFloat(option.getAttribute('data-amount'));
+                    }
+                }
+                priceInput.value = totalAmount.toFixed(2);
+
+                const discount = parseFloat(discountInput.value) || 0;
+                const salePrice = totalAmount - (totalAmount * discount / 100);
+                salePriceInput.value = salePrice.toFixed(2);
+            }
+
+            serviceSelect.addEventListener('change', calculatePrices);
+            discountInput.addEventListener('input', calculatePrices);
+
+            calculatePrices();
+        });
+    </script>
+}
+
+
+<script src="~/assets/js/jquery.min.js"></script>
+<!-- Bootstrap js-->
+<script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
+<!-- feather icon js-->
+<script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
+<script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
+<!-- scrollbar js-->
+<script src="~/assets/js/scrollbar/simplebar.js"></script>
+<script src="~/assets/js/scrollbar/custom.js"></script>
+<!-- Sidebar jquery-->
+<script src="~/assets/js/config.js"></script>
+<!-- Plugins JS start-->
+<script src="~/assets/js/sidebar-menu.js"></script>
+<script src="~/assets/js/sidebar-pin.js"></script>
+<script src="~/assets/js/slick/slick.min.js"></script>
+<script src="~/assets/js/slick/slick.js"></script>
+<script src="~/assets/js/header-slick.js"></script>
+<!-- calendar js-->
+<script src="~/assets/js/js-datatables/simple-datatables@latest.js"></script>
+<script src="~/assets/js/custom-list-product.js"></script>
+<script src="~/assets/js/owlcarousel/owl.carousel.js"></script>
+<script src="~/assets/js/ecommerce.js"></script>
+<script src="~/assets/js/tooltip-init.js"></script>
+<!-- Plugins JS Ends-->
+<!-- Theme js-->
+<script src="~/assets/js/script.js"></script>

@@ -1,6 +1,4 @@
-﻿@{
-    ViewData["Title"] = "List Combo";
-}
+﻿
 <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
 <!-- ico-font-->
 <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
@@ -23,84 +21,79 @@
 <!-- App css-->
 <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
 <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
-<!-- Responsive css-->
 <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
-
-
-@model IEnumerable<Web.Models.ComboViewModel>
 <!-- Container-fluid starts-->
-<div class="card">
-    <div class="card-body">
-        <div class="list-product-header">
-            <div>
-                <div class="light-box">
-                    <a data-bs-toggle="collapse" href="list-promotions.html#collapsePromotion"
-                       role="button" aria-expanded="false" aria-controls="collapsePromotion">
-                        <i class="filter-icon show"
-                           data-feather="filter"></i><i class="icon-close filter-close hide"></i>
-                    </a>
-                </div>
-                <a class="btn btn-primary" href="@Url.Action("Add", "Promotions")"><i class="fa fa-plus"></i>Add Combo</a>
-            </div>
-            <div class="collapse" id="collapsePromotion">
-                <div class="card card-body list-product-body">
-                    <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3">
-                        <div class="col">
-                            <select class="form-select" aria-label="Default select example">
-                                <option selected="">Date To</option>
-                            </select>
+@model IEnumerable<Web.Models.ComboViewModel>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="list-product-header">
+                        <div>
+                            <div class="light-box"><a data-bs-toggle="collapse" href="list-products.html#collapseProduct" role="button" aria-expanded="false" aria-controls="collapseProduct"><i class="filter-icon show" data-feather="filter"></i><i class="icon-close filter-close hide"></i></a></div><a class="btn btn-primary" href="add-products.html"><i class="fa fa-plus"></i>Add Product</a>
                         </div>
-                        <div class="col">
-                            <select class="form-select" aria-label="Default select example">
-                                <option selected="">Date From</option>
-                            </select>
+                        <div class="collapse" id="collapseProduct">
+                            <div class="card card-body list-product-body">
+                                <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3">
+                                    
+                                    <div class="col">
+                                        <select class="form-select" aria-label="Default select example">
+                                            <option selected="">Price</option>
+                                            <option value="1">56000.00</option>
+                                            <option value="2">19000.00</option>
+                                            <option value="3">10000.00</option>
+                                            <option value="3">15000.00</option>
+                                            <option value="3">99000.00</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                    </div>
+                    <div class="list-product">
+                        <table class="table" id="project-status">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <div class="form-check">
+                                            <input class="form-check-input checkbox-primary" type="checkbox">
+                                        </div>
+                                    </th>
+                                    <th> <span class="f-light f-w-600">Combo Name</span></th>
+                                    <th> <span class="f-light f-w-600"> Quantity </span></th>
+                                    <th> <span class="f-light f-w-600"> Price </span></th>
+                                    <th> <span class="f-light f-w-600"> Discount </span></th>
+                                    <th> <span class="f-light f-w-600"> SalePrice </span></th>
+                                    <th> <span class="f-light f-w-600"> Note </span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td></td>
+                                        <td>@item.Name</td>
+                                        <td>@item.Quantity</td>
+                                        <td>@item.Price</td>
+                                        <td>@item.Discount</td>
+                                        <td>@item.SalePrice</td>
+                                        <td>@item.Note</td>
+                                       
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="list-product">
-            <table class="table" id="project-status">
-                <thead>
-                    <tr>
-                        <th>
-                            <div class="form-check">
-                                <input class="form-check-input checkbox-primary" type="checkbox">
-                            </div>
-                        </th>
-                        <th> <span class="f-light f-w-600">Combo Name</span></th>
-                        <th> <span class="f-light f-w-600"> Quantity </span></th>
-                        <th> <span class="f-light f-w-600"> Price </span></th>
-                        <th> <span class="f-light f-w-600"> Discount </span></th>
-                        <th> <span class="f-light f-w-600"> SalePrice </span></th>
-                        <th> <span class="f-light f-w-600"> Note </span></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td></td>
-                            <td>@item.Name</td>
-                            <td>@item.Quantity</td>
-                            <td>@item.Price</td>
-                            <td>@item.Discount</td>
-                            <td>@item.SalePrice</td>
-                            <td>@item.Note</td>
-                            <td>
-                                <div class="product-action">
-                                    @*<a href="Edit/@item.Id" class="btn btn-primary">Edit</a>
-                                    <a href="javascript:void(0);" class="btn btn-secondary" onclick="confirmDelete('@item.Id')">Delete</a>*@
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
     </div>
 </div>
 <!-- Container-fluid Ends-->
+
+
+
 <script src="~/assets/js/jquery.min.js"></script>
 <!-- Bootstrap js-->
 <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
@@ -127,4 +120,3 @@
 <!-- Plugins JS Ends-->
 <!-- Theme js-->
 <script src="~/assets/js/script.js"></script>
-<script src="~/assets/js/theme-customizer/customizer.js"></script>
