@@ -59,7 +59,6 @@ namespace API.Services.Impl
         {
             var cardUpdate = await _context.Cards.FirstOrDefaultAsync(c => c.Id == id);
             cardUpdate.CustomerId = card.CustomerId;
-            cardUpdate.CreateDate = card.CreateDate;
             cardUpdate.Status = card.Status;
             await _context.SaveChangesAsync();
 

@@ -5,7 +5,7 @@
 }
 
 @{
-    List<ComboView> combos = ViewBag.Combos;
+    List<CardComboViewModel> cardCombos = ViewBag.CardCombos;
 }
 
 @section Styles {
@@ -34,18 +34,8 @@
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 }
 
-<h1>DetailCard</h1>
-
 <div>
-    <h4>CardViewModel</h4>
-    <hr />
     <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Id)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Id)
-        </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.CardNumber)
         </dt>
@@ -70,35 +60,25 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Status)
         </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.TotalPrice)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.TotalPrice)
-        </dd>
     </dl>
 </div>
 
 <table class="table">
-    @if (combos != null && combos.Any())
+    @if (cardCombos != null && cardCombos.Any())
     {
         <table>
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Quantity</th>
-                    <th>Note</th>
-                    <th>SalePrice</th>
+                    <th>Combo</th>
+                    <th>SessionDone</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var combo in combos)
+                @foreach (var cardCombo in cardCombos)
                 {
                     <tr>
-                        <td>@combo.Name</td>
-                        <td>@combo.Quantity</td>
-                        <td>@combo.Note</td>
-                        <td>@combo.SalePrice</td>
+                        <td>@cardCombo.ComboName</td>
+                        <td>@cardCombo.SessionDone</td>
                     </tr>
                 }
             </tbody>
@@ -111,7 +91,7 @@
 </table>
 
 <div>
-    @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
+    @Html.ActionLink("Update", "UpdateCard", new { id = Model.Id }, new { @href = "http://localhost:5129/Card/UpdateCard?id=" + Model.Id }) |
     <a asp-action="ListCard">Back to List</a>
 </div>
 

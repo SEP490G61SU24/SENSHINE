@@ -112,15 +112,7 @@ namespace API.Controllers
             {
                 var existingCard = _cardService.GetCard(id);
                 existingCard.CustomerId = cardDTO.CustomerId;
-                //List<CardCombo> cardComboList = new List<CardCombo>();
-
-                //foreach (int cardComboId in cardDTO.CardComboId)
-                //{
-                //    var cardCombo = _cardService.GetCardCombo(cardComboId);
-                //    cardComboList.Add(cardCombo);
-                //}
-
-                //existingCard.CardCombos = cardComboList;
+                existingCard.Status = cardDTO.Status;
                 var cardUpdate = await _cardService.UpdateCard(id, existingCard);
 
                 if (cardUpdate == null)

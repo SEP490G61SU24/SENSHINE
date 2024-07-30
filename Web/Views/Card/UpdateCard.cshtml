@@ -1,4 +1,4 @@
-﻿@model Web.Models.CardViewModel
+﻿@model Web.Models.CardCreateModel
 
 @{
     ViewData["Title"] = "UpdateCard";
@@ -27,30 +27,65 @@
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
     <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+    <style>
+        .card {
+            background-color: white;
+            border: 2px solid #ccc;
+            padding: 20px;
+            margin: 10px;
+        }
+
+        .selected {
+            background-color: lightblue;
+            border: 2px solid blue;
+        }
+
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .custom-button {
+            height: 45px; /* Set the button height */
+            width: 120px;
+            font-size: 0.75rem; /* Smaller font size */
+            line-height: 1.5; /* Adjust line height for vertical centering */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .custom-select {
+            margin-right: 15px; /* Adjust space between dropdown and validation */
+        }
+
+        .custom-span {
+            margin-right: 15px; /* Adjust space between validation and button */
+        }
+    </style>
 }
 
-<h1>UpdateCard</h1>
-
-<h4>CardViewModel</h4>
-<hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="UpdateCard">
+    <div class="col-md-12">
+        <form asp-action="UpdateCard" id="updateCardForm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Id" class="control-label"></label>
-                <input asp-for="Id" class="form-control" readonly />
-                <span asp-validation-for="Id" class="text-danger"></span>
+            <div class="form-group" type="hidden">
+                <input asp-for="Id" type="hidden" class="form-control" readonly />
+                <span asp-validation-for="Id" type="hidden" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="CardNumber" class="control-label"></label>
                 <input asp-for="CardNumber" class="form-control" readonly />
                 <span asp-validation-for="CardNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CustomerId" class="control-label"></label>
-                <input asp-for="CustomerId" class="form-control" />
-                <span asp-validation-for="CustomerId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="CreateDate" class="control-label"></label>
@@ -62,21 +97,32 @@
                 <input asp-for="Status" class="form-control" readonly />
                 <span asp-validation-for="Status" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="TotalPrice" class="control-label"></label>
-                <input asp-for="TotalPrice" class="form-control" readonly />
-                <span asp-validation-for="TotalPrice" class="text-danger"></span>
+            <label asp-for="CustomerId" class="control-label"></label>
+            <div class="d-flex align-items-center">
+                <select id="selectCustomerId" asp-for="CustomerId" class="form-control custom-select" asp-items="@ViewBag.Users"></select>
+                <span asp-validation-for="CustomerId" class="text-danger custom-span"></span>
+                <button onclick="window.open('/User/Add', '_blank')" class="btn btn-secondary custom-button">Tạo mới</button>
+            </div>
+            <br />
+            <h2>Chọn combo</h2>
+            <div class="card-container">
+                <div class="row">
+                    @foreach (var item in ViewBag.Combos)
+                    {
+                        <div class="col-md-2">
+                            <div class="card" data-id="@item.Id">
+                                <div class="card-body">
+                                    @item.Name<br />
+                                    @item.Quantity Buổi<br />
+                                    @item.SalePriceString
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
             </div>
             <div class="form-group">
-                <label asp-for="ComboId">Combo IDs:</label>
-                <select asp-for="ComboId" class="form-control" multiple>
-                    <option value="1">Combo 1</option>
-                    <option value="3">Combo 3</option>
-                    <option value="4">Combo 4</option>
-                </select>
-                <span asp-validation-for="ComboId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
+                <input type="hidden" id="selectedCardIds" name="selectedCardIds" value="" />
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
@@ -111,4 +157,34 @@
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+    <script>
+        $(function () {
+            $("#selectCustomerId").select2();
+        });
+    </script>
+    <script>
+        const cards = document.querySelectorAll('.card');
+
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                card.classList.toggle('selected');
+                // alert('Selected card: ' + card.dataset.id);  // Added alert for debugging
+                // console.log('Selected card:', card.dataset.id);
+            });
+        });
+    </script>
+    <script>
+        document.getElementById('updateCardForm').addEventListener('submit', function (event) {
+            const selectedIds = Array.from(document.querySelectorAll('.card.selected')).map(card => card.dataset.id);
+            const selectedCardIdsInput = document.getElementById('selectedCardIds');
+            selectedCardIdsInput.value = JSON.stringify(selectedIds);
+            // alert('Selected IDs: ' + selectedIds);  // Added alert for debugging
+            // console.log('Selected IDs:', selectedIds);
+            // console.log('Hidden input value:', selectedCardIdsInput.value);
+        });
+    </script>
 }

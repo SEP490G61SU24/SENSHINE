@@ -1,12 +1,12 @@
-﻿namespace Web.Models
+﻿using API.Models;
+
+namespace API.Dtos
 {
-    public class CardComboViewModel
+    public class CardComboDTO
     {
         public int Id { get; set; }
         public int CardId { get; set; }
         public int ComboId { get; set; }
         public int? SessionDone { get; set; }
-
-        public string ComboName { get; set; }
     }
 }

@@ -56,26 +56,40 @@
             justify-content: center;
             text-align: center;
         }
+
+        .custom-button {
+            height: 45px; /* Set the button height */
+            width: 120px;
+            font-size: 0.75rem; /* Smaller font size */
+            line-height: 1.5; /* Adjust line height for vertical centering */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .custom-select {
+            margin-right: 15px; /* Adjust space between dropdown and validation */
+        }
+
+        .custom-span {
+            margin-right: 15px; /* Adjust space between validation and button */
+        }
     </style>
 }
 
-<hr />
 <div class="row">
     <div class="col-md-12">
         <form asp-action="CreateCard" id="createCardForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="form-group">
-                    <input asp-for="CardNumber" class="form-control" type="hidden" value="aaa" />
-                    <span asp-validation-for="CardNumber" class="text-danger"></span>
-                </div>
-                <label asp-for="CustomerId" class="control-label"></label>
-                <select id="selectCustomerId" asp-for="CustomerId" class="form-control" asp-items="@ViewBag.Users"></select>
-                <span asp-validation-for="CustomerId" class="text-danger"></span>
+                <input asp-for="CardNumber" class="form-control" type="hidden" value="aaa" />
+                <span asp-validation-for="CardNumber" class="text-danger"></span>
             </div>
-            <br />
-            <div>
-                <button onclick="window.open('/User/Add', '_blank')" class="btn btn-primary">Tạo Mới</button>
+            <label asp-for="CustomerId" class="control-label"></label>
+            <div class="d-flex align-items-center">
+                <select id="selectCustomerId" asp-for="CustomerId" class="form-control custom-select" asp-items="@ViewBag.Users"></select>
+                <span asp-validation-for="CustomerId" class="text-danger custom-span"></span>
+                <button onclick="window.open('/User/Add', '_blank')" class="btn btn-secondary custom-button">Tạo mới</button>
             </div>
             <br />
             <h2>Chọn combo</h2>
@@ -146,8 +160,8 @@
         cards.forEach(card => {
             card.addEventListener('click', () => {
                 card.classList.toggle('selected');
-                alert('Selected card: ' + card.dataset.id);  // Added alert for debugging
-                console.log('Selected card:', card.dataset.id);
+                // alert('Selected card: ' + card.dataset.id);  // Added alert for debugging
+                // console.log('Selected card:', card.dataset.id);
             });
         });
     </script>
@@ -156,11 +170,9 @@
             const selectedIds = Array.from(document.querySelectorAll('.card.selected')).map(card => card.dataset.id);
             const selectedCardIdsInput = document.getElementById('selectedCardIds');
             selectedCardIdsInput.value = JSON.stringify(selectedIds);
-            alert('Selected IDs: ' + selectedIds);  // Added alert for debugging
-            console.log('Selected IDs:', selectedIds);
-            console.log('Hidden input value:', selectedCardIdsInput.value);
+            // alert('Selected IDs: ' + selectedIds);  // Added alert for debugging
+            // console.log('Selected IDs:', selectedIds);
+            // console.log('Hidden input value:', selectedCardIdsInput.value);
         });
-
     </script>
-
 }
