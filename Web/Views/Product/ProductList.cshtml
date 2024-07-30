@@ -77,11 +77,18 @@
                             <td>@item.ProductName</td>
                             <td>@item.Price?.ToString("C2")</td>
                             <td>
-                                @foreach (var category in item.Categories)
+                                @if (item.Categories.Any())
                                 {
-                                    <span>@category.CategoryName</span>
-
-                                    <br />
+                                    <ul>
+                                        @foreach (var category in item.Categories)
+                                        {
+                                            <li>@category.CategoryName</li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <span>No Categories</span>
                                 }
                             </td>
                             <td>
