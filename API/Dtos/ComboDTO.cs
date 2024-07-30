@@ -9,5 +9,7 @@
         public decimal? Price { get; set; }
         public decimal? Discount { get; set; }
         public decimal? SalePrice { get; set; }
+        public virtual ICollection<ServiceDTO> Services { get; set; }
+        public List<int> ServiceIds { get; set; } // Modified to List<int> to hold the IDs of services
     }
 }

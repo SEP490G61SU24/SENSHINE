@@ -1,81 +1,101 @@
 ﻿using API.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace API.Services.Impl
 {
     public class AppointmentService : IAppointmentService
     {
-        private readonly SenShineSpaContext _context;
+        private readonly SenShineSpaContext _dbContext;
 
-        public AppointmentService(SenShineSpaContext context)
+        public AppointmentService(SenShineSpaContext dbContext)
         {
-            _context = context;
+            _dbContext = dbContext;
         }
 
-        public async Task<Appointment> AddAppointment(int customerId, int employeeId, DateTime appointmentDate, bool status)
+        public async Task<List<Appointment>> GetAllAppointmentsAsync()
         {
-            var appointment = new Appointment
-            {
-                CustomerId = customerId,
-                EmployeeId = employeeId,
-                AppointmentDate = appointmentDate,
-                Status = status
-            };
+            return await _dbContext.Appointments
+                .Include(a => a.Customer)
+                .Include(a => a.Employee)
+                .Include(a => a.Services)
+                .ToListAsync();
+        }
 
-            _context.Appointments.Add(appointment);
-            await _context.SaveChangesAsync();
+        public async Task<List<Appointment>> GetAppointmentsByDateAsync(DateTime appointmentDate)
+        {
+            return await _dbContext.Appointments
+                .Include(a => a.Customer)
+                .Include(a => a.Employee)
+                .Include(a => a.Services)
+                .Where(a => a.AppointmentDate.Date == appointmentDate.Date)
+                .ToListAsync();
+        }
+
+        public async Task<Appointment> GetAppointmentByIdAsync(int id)
+        {
+            return await _dbContext.Appointments
+                .Include(a => a.Customer)
+                .Include(a => a.Employee)
+                .Include(a => a.Services)
+                .FirstOrDefaultAsync(a => a.Id == id);
+        }
+
+        public async Task<Appointment> CreateAppointmentAsync(Appointment appointment)
+        {
+            await _dbContext.Appointments.AddAsync(appointment);
+            await _dbContext.SaveChangesAsync();
             return appointment;
         }
 
-        public async Task<Appointment> UpdateAppointment(int id, int customerId, int employeeId, DateTime appointmentDate, bool status)
+        public async Task<Appointment> UpdateAppointmentAsync(int id, Appointment appointment)
         {
-            var appointment = await _context.Appointments.FindAsync(id);
-            if (appointment == null)
+            var existingAppointment = await _dbContext.Appointments.FirstOrDefaultAsync(x => x.Id == id);
+            if (existingAppointment == null)
             {
                 return null;
             }
 
-            appointment.CustomerId = customerId;
-            appointment.EmployeeId = employeeId;
-            appointment.AppointmentDate = appointmentDate;
-            appointment.Status = status;
+            existingAppointment.CustomerId = appointment.CustomerId;
+            existingAppointment.EmployeeId = appointment.EmployeeId;
+            existingAppointment.AppointmentDate = appointment.AppointmentDate;
+            existingAppointment.Status = appointment.Status;
 
-            _context.Appointments.Update(appointment);
-            await _context.SaveChangesAsync();
-            return appointment;
+            await _dbContext.SaveChangesAsync();
+            return existingAppointment;
         }
 
-        public async Task<bool> DeleteAppointment(int id)
+
+
+        //Delete
+        public async Task<Appointment> DeleteAppointmentAsync(int id)
         {
-            var appointment = await _context.Appointments.FindAsync(id);
-            if (appointment == null)
+            // Tìm combo theo ID
+            var existingAppointment = await _dbContext.Appointments
+                                                 .Include(c => c.Services) // Bao gồm các dịch vụ liên quan
+                                                 .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (existingAppointment == null)
             {
-                return false;
+                return null;
             }
 
-            _context.Appointments.Remove(appointment);
-            await _context.SaveChangesAsync();
-            return true;
+            // Xóa các liên kết với các dịch vụ nếu cần
+            // Ví dụ: nếu có bảng liên kết nhiều-nhiều, có thể cần xử lý nó tại đây
+            foreach (var service in existingAppointment.Services.ToList())
+            {
+                // Xóa liên kết giữa combo và dịch vụ
+                existingAppointment.Services.Remove(service);
+            }
+
+            // Xóa combo
+            _dbContext.Appointments.Remove(existingAppointment);
+            await _dbContext.SaveChangesAsync();
+            return existingAppointment;
         }
 
-        public async Task<Appointment> GetAppointmentById(int id)
-        {
-            return await _context.Appointments
-                                 .Include(a => a.Customer)
-                                 .Include(a => a.Employee)
-                                 .Include(a => a.Products)
-                                 .Include(a => a.Services)
-                                 .SingleOrDefaultAsync(a => a.Id == id);
-        }
-
-        public async Task<IEnumerable<Appointment>> GetAllAppointments()
-        {
-            return await _context.Appointments
-                                 .Include(a => a.Customer)
-                                 .Include(a => a.Employee)
-                                 .Include(a => a.Products)
-                                 .Include(a => a.Services)
-                                 .ToListAsync();
-        }
     }
 }

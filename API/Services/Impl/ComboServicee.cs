@@ -1,4 +1,5 @@
-﻿using API.Models;
+﻿using API.Dtos;
+using API.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Services.Impl
@@ -49,9 +50,32 @@ namespace API.Services.Impl
             return await _dbContext.Combos.FirstOrDefaultAsync(x => x.Id == Id);
         }
 
-        public async Task<List<Combo>> GetAllComboAsync()
+        public async Task<List<ComboDTO>> GetAllComboAsync()
         {
-            return await _dbContext.Combos.ToListAsync();
+            var combos = await _dbContext.Combos
+                                         .Include(c => c.Services)
+                                         .ToListAsync();
+
+            var comboDTOs = combos.Select(c => new ComboDTO
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Quantity = c.Quantity,
+                Note = c.Note,
+                Price = c.Price,
+                Discount = c.Discount,
+                SalePrice = c.SalePrice,
+                Services = c.Services.Select(s => new ServiceDTO
+                {
+                    Id = s.Id,
+                    ServiceName = s.ServiceName,
+                    Amount = s.Amount,
+                    Description = s.Description
+                }).ToList()
+            }).ToList();
+
+            return comboDTOs;
         }
+
     }
 }

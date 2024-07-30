@@ -1,3 +1,6 @@
+@{
+    var userProfile = ViewData["UserProfile"] as UserViewModel;
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -61,9 +64,21 @@
                 <div class="left-header col-xxl-5 col-xl-6 col-lg-5 col-md-4 col-sm-3 p-0">
                     <div>
                         <a class="toggle-sidebar" href="buttons-edge.html#"> <i class="iconly-Category icli"> </i></a>
+<<<<<<< HEAD
                         
                     </div>
                     
+=======
+                        <div class="d-flex align-items-center gap-2 ">
+                            @if (userProfile != null)
+                            {
+                                <h4 class="f-w-600">Xin chào @userProfile.UserName</h4>
+                            }
+                            <img class="mt-0" src="~/assets/images/hand.gif" alt="hand-gif">
+                        </div>
+                    </div>
+                    <div class="welcome-content d-xl-block d-none"><span class="col-6" id="quotation">Here’s what’s happening with your store today. </span></div>
+>>>>>>> ac9390777cdf664f0285d2d82fc27783bb83008e
                 </div>
                 <div class="nav-right col-xxl-7 col-xl-6 col-md-7 col-8 pull-right right-header p-0 ms-auto">
                     <ul class="nav-menus">
@@ -126,11 +141,37 @@
                                     <h6>Pinned</h6>
                                 </div>
                             </li>
+
                             <li class="sidebar-main-title">
                                 <div>
-                                    <h6 class="lan-1">General</h6>
+                                    <h6 class="lan-1">Quản lý người dùng</h6>
                                 </div>
                             </li>
+
+                            <li class="sidebar-list">
+                                <i class="fa fa-thumb-tack"></i>
+                                <a class="sidebar-link sidebar-title link-nav" href="/user/index">
+                                    <svg class="stroke-icon">
+                                        <use href="~/assets/svg/icon-sprite.svg#stroke-file"></use>
+                                    </svg>
+                                    <svg class="fill-icon">
+                                        <use href="~/assets/svg/icon-sprite.svg#fill-file"></use>
+                                    </svg><span>Danh sách</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-list">
+                                <i class="fa fa-thumb-tack"></i>
+                                <a class="sidebar-link sidebar-title link-nav" href="/user/add">
+                                    <svg class="stroke-icon">
+                                        <use href="~/assets/svg/icon-sprite.svg#stroke-file"></use>
+                                    </svg>
+                                    <svg class="fill-icon">
+                                        <use href="~/assets/svg/icon-sprite.svg#fill-file"></use>
+                                    </svg><span>Thêm mới</span>
+                                </a>
+                            </li>
+
+
                             <li class="sidebar-list">
                                 <i class="fa fa-thumb-tack"> </i><a class="sidebar-link sidebar-title" href="buttons-edge.html#">
                                     <svg class="stroke-icon">
@@ -866,5 +907,37 @@
         </div>
     </div>
 
+
+    @RenderSection("Scripts", required: false)
+
+    <script>
+        const quotations = [
+            "Thà thất bại trong sự độc đáo còn hơn thành công trong việc bắt chước",
+            "Con đường thành công và con đường thất bại gần như hoàn toàn giống nhau",
+            "Thành công thường đến với những người quá bận rộn để tìm kiếm nó.",
+            "Cơ hội không xảy ra. Bạn tạo ra chúng.",
+            "Đừng ngại từ bỏ điều tốt đẹp để đi đến điều vĩ đại.",
+            "Tôi thấy rằng tôi càng làm việc chăm chỉ thì dường như tôi càng gặp nhiều may mắn.",
+            "Có hai kiểu người sẽ nói với bạn rằng bạn không thể tạo ra sự khác biệt trong thế giới này: những người ngại thử và những người sợ bạn sẽ thành công.",
+            "Những người thành công làm những điều mà những người không thành công không sẵn lòng làm. Đừng ước nó dễ dàng hơn, hãy ước bạn tốt hơn.",
+            "Hãy cố gắng đừng trở thành một người đàn ông thành công. Thay vào đó hãy trở thành một người đàn ông có giá trị.",
+            "Không bao giờ nhượng bộ ngoại trừ những tin tưởng về danh dự và ý thức tốt.",
+            "Mọi vấn đề đều là một món quà - nếu không có vấn đề thì chúng tôi sẽ không phát triển.",
+            "Bạn chỉ phải làm một số điều đúng đắn trong cuộc đời, miễn là bạn không làm sai quá nhiều điều.",
+            "Và ngày mà rủi ro để còn chặt trong nụ còn đau hơn rủi ro khi nó nở hoa.",
+            "Không thiếu những ý tưởng đáng chú ý, điều còn thiếu là ý chí thực hiện chúng.",
+            "Tôi không biết từ 'bỏ cuộc'. Hoặc là tôi chưa bao giờ làm, hoặc tôi đã xóa bỏ nó."
+        ];
+
+        const showQuotation = () => {
+            const randomIndex = Math.floor(Math.random() * quotations.length);
+            const quotationElement = document.getElementById('quotation');
+            if (quotationElement) {
+                quotationElement.innerText = quotations[randomIndex];
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', showQuotation);
+    </script>
 </body>
 </html>
