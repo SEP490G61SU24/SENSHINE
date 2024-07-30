@@ -1,4 +1,5 @@
-﻿using API.Models;
+﻿using API.Dtos;
+using API.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -16,14 +17,59 @@ namespace API.Services.Impl
             _dbContext = dbContext;
         }
 
-        public async Task<List<Appointment>> GetAllAppointmentsAsync()
+        public async Task<List<AppointmentDTO>> GetAllAppointmentsAsync()
         {
-            return await _dbContext.Appointments
+            var appointments = await _dbContext.Appointments
                 .Include(a => a.Customer)
                 .Include(a => a.Employee)
                 .Include(a => a.Services)
                 .ToListAsync();
+
+            var appointmentDTOs = new List<AppointmentDTO>();
+
+            foreach (var appointment in appointments)
+            {
+                var customerWard = await _dbContext.Wards.FirstOrDefaultAsync(w => w.Code == appointment.Customer.WardCode);
+                var customerDistrict = customerWard != null ? await _dbContext.Districts.FirstOrDefaultAsync(d => d.Code == customerWard.DistrictCode) : null;
+                var customerProvince = customerDistrict != null ? await _dbContext.Provinces.FirstOrDefaultAsync(p => p.Code == customerDistrict.ProvinceCode) : null;
+
+                var address = $"{customerWard?.Name ?? "-"} - {customerDistrict?.Name ?? "-"} - {customerProvince?.Name ?? "-"}";
+
+                appointmentDTOs.Add(new AppointmentDTO
+                {
+                    Id = appointment.Id,
+                    CustomerId = appointment.CustomerId,
+                    EmployeeId = appointment.EmployeeId,
+                    AppointmentDate = appointment.AppointmentDate,
+                    Status = appointment.Status ? "true" : "false",
+                    Customer = new AppointmentUserDTO
+                    {
+                        Id = appointment.Customer.Id,
+                        FullName = appointment.Customer.FirstName + " " + appointment.Customer.MidName + " " + appointment.Customer.LastName,
+                        Phone = appointment.Customer.Phone,
+                        Address = address
+                    },
+                    Employee = new AppointmentUserDTO
+                    {
+                        Id = appointment.Employee.Id,
+                        FullName = appointment.Employee.FirstName + " " + appointment.Employee.MidName + " " + appointment.Employee.LastName,
+                        Phone = appointment.Employee.Phone
+                    },
+                    Services = appointment.Services.Select(s => new ServiceDTO
+                    {
+                        Id = s.Id,
+                        ServiceName = s.ServiceName,
+                        Amount = s.Amount,
+                        Description = s.Description
+                    }).ToList()
+                });
+            }
+
+            return appointmentDTOs;
         }
+
+
+
 
         public async Task<List<Appointment>> GetAppointmentsByDateAsync(DateTime appointmentDate)
         {
