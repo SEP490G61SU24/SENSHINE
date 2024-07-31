@@ -91,7 +91,7 @@ namespace Web.Controllers
             }
         }
 
-
+        // tao cuoc hen moi
         [HttpGet]
         public async Task<IActionResult> CreateAppointment()
         {
@@ -177,10 +177,11 @@ namespace Web.Controllers
 
         private async Task LoadDropdownDataAsync()
         {
-            ViewBag.Customers = await GetSelectListAsync("/api/User/GetCustomers", "Id", "FullName");
-            ViewBag.Employees = await GetSelectListAsync("/api/User/GetEmployees", "Id", "FullName");
+            ViewBag.Customers = await GetSelectListAsync("/api/user/byRole/5", "Id", "FullName");
+            ViewBag.Employees = await GetSelectListAsync("/api/Employee/GetAll", "Id", "FullName");
             ViewBag.Services = await GetSelectListAsync("/api/Service/GetAllServices", "Id", "ServiceName");
         }
+
 
         private async Task<SelectList> GetSelectListAsync(string apiUrl, string valueField, string textField)
         {
