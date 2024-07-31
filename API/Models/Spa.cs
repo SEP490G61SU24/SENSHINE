@@ -7,6 +7,7 @@ namespace API.Models
     {
         public Spa()
         {
+            Cards = new HashSet<Card>();
             Invoices = new HashSet<Invoice>();
             Promotions = new HashSet<Promotion>();
             Rooms = new HashSet<Room>();
@@ -18,6 +19,7 @@ namespace API.Models
         public string? DistrictCode { get; set; }
         public string? WardCode { get; set; }
 
+        public virtual ICollection<Card> Cards { get; set; }
         public virtual ICollection<Invoice> Invoices { get; set; }
         public virtual ICollection<Promotion> Promotions { get; set; }
 
