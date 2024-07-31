@@ -9,11 +9,11 @@ namespace API.Services
         Task<List<ComboDTO>> GetAllComboAsync();
 
         //tim kiem combo theo id
-        Task<Combo> FindComboWithItsId(int Id);
+        Task<ComboDTO> FindComboWithItsId(int Id);
         //them 1 combo moi
         Task<Combo> CreateComboAsync(Combo combo);
         //edit 1 combo 
-        Task<Combo> EditComboAsync(int Id, Combo combo);
+        Task<ComboDTO> EditComboAsync(int Id, ComboDTO comboDTO);
         //xoa 1 combo
         Task<Combo> DeleteComboAsync(int Id);
     }

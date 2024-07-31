@@ -1,9 +1,10 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace API.Dtos
+namespace Web.Models
 {
-    public class ComboDTO
+    public class ComboViewModel
     {
+
         [JsonPropertyName("id")]
         public int Id { get; set; }
         [JsonPropertyName("name")]
@@ -18,7 +19,8 @@ namespace API.Dtos
         public decimal? Discount { get; set; }
         [JsonPropertyName("salePrice")]
         public decimal? SalePrice { get; set; }
-        [JsonPropertyName("services")]
-        public virtual ICollection<ServiceDTO> Services { get; set; }
+
+        public List<int> SelectedServiceIds { get; set; } = new List<int>();
+        
     }
 }

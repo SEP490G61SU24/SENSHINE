@@ -7,6 +7,6 @@
         public string Cover { get; set; } = null!;
         public string Content { get; set; } = null!;
         public DateTime PublishedDate { get; set; }
-        public string Image { get; set; }
+        
     }
 }

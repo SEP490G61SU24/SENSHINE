@@ -77,7 +77,6 @@ namespace API.Services.Impl
                 }
             }
 
-
             user.Roles = new List<Role> { role };
 
             _context.Users.Add(user);
@@ -222,6 +221,20 @@ namespace API.Services.Impl
             return await _context.Users
                                 .Include(u => u.Roles)
                                 .SingleOrDefaultAsync(u => u.UserName == username);
+        }
+
+        public async Task<string> GetAddress(string wardCode, string districtCode, string provinceCode)
+        {
+            var ward = await _context.Wards.SingleOrDefaultAsync(w => w.Code == wardCode);
+            var district = await _context.Districts.SingleOrDefaultAsync(d => d.Code == districtCode);
+            var province = await _context.Provinces.SingleOrDefaultAsync(p => p.Code == provinceCode);
+
+            var wardName = ward?.Name ?? "-";
+            var districtName = district?.Name ?? "-";
+            var provinceName = province?.Name ?? "-";
+
+            var addressString = $"{wardName} - {districtName} - {provinceName}";
+            return addressString;
         }
     }
 }

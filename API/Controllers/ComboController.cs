@@ -2,6 +2,7 @@
 using API.Models;
 using API.Services;
 using API.Services.Impl;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,9 +15,11 @@ namespace API.Controllers
     {
         private readonly SenShineSpaContext _dbContext;
         private readonly IComboService comboService;
-        public ComboController(SenShineSpaContext dbContext, IComboService comboService)
+        private readonly IMapper _mapper;
+        public ComboController(SenShineSpaContext dbContext, IMapper mapper, IComboService comboService)
         {
             this._dbContext = dbContext;
+            _mapper = mapper;
             this.comboService = comboService;
         }
         //Lay ra danh sach toan bo combo 
@@ -51,7 +54,7 @@ namespace API.Controllers
                 return Ok(combo);
             }
         }
-        //Tạo combo mới
+        // Tạo combo mới
         [HttpPost]
         [Route("/api/[controller]/[action]")]
         public async Task<IActionResult> Create([FromBody] ComboDTO comboDTO)
@@ -63,28 +66,33 @@ namespace API.Controllers
 
             try
             {
-                // Retrieve services based on their IDs
-                var services = await _dbContext.Services
-                                                .Where(s => comboDTO.ServiceIds.Contains(s.Id))
-                                                .ToListAsync();
+                // Convert ComboDTO to Combo entity using AutoMapper
+                var newCombo = _mapper.Map<Combo>(comboDTO);
 
-                // Convert ComboDTO to Combo entity
-                var newCombo = new Combo
+                // Ensure the services being added to the combo are existing ones
+                if (comboDTO.Services != null && comboDTO.Services.Any())
                 {
-                    Name = comboDTO.Name,
-                    Quantity = comboDTO.Quantity,
-                    Note = comboDTO.Note,
-                    Discount = comboDTO.Discount,
-                    Services = services
-                };
+                    var serviceIds = comboDTO.Services.Select(s => s.Id).ToList();
+                    var existingServices = await _dbContext.Services
+                                                         .Where(s => serviceIds.Contains(s.Id))
+                                                         .ToListAsync();
 
-                // Calculate the total price of the combo
-                newCombo.Price = services.Sum(s => s.Amount);
+                    if (existingServices.Count != serviceIds.Count)
+                    {
+                        return BadRequest("Một hoặc nhiều dịch vụ không tồn tại.");
+                    }
 
-                // Calculate the sale price after discount
-                if (newCombo.Discount.HasValue && newCombo.Price.HasValue)
-                {
-                    newCombo.SalePrice = newCombo.Price - (newCombo.Price * newCombo.Discount / 100);
+                    // Map the existing services to the combo
+                    newCombo.Services = existingServices;
+
+                    // Calculate the total price of the combo
+                    newCombo.Price = newCombo.Services.Sum(s => s.Amount);
+
+                    // Calculate the sale price after discount
+                    if (newCombo.Discount.HasValue && newCombo.Price.HasValue)
+                    {
+                        newCombo.SalePrice = newCombo.Price - (newCombo.Price * newCombo.Discount / 100);
+                    }
                 }
 
                 var createdCombo = await comboService.CreateComboAsync(newCombo);
@@ -119,12 +127,7 @@ namespace API.Controllers
                     return NotFound("Không tìm thấy combo để cập nhật");
                 }
 
-                // Cập nhật các thông tin từ serviceDTO vào existingService
-                existingCombo.Name = comboDTO.Name;
-                existingCombo.Price = comboDTO.Price;
-                existingCombo.SalePrice = comboDTO.SalePrice;
-
-                var updatedCombo = await comboService.EditComboAsync(id, existingCombo);
+                var updatedCombo = await comboService.EditComboAsync(id, comboDTO);
                 if (updatedCombo == null)
                 {
                     return NotFound("Không tìm thấy combo để cập nhật");
@@ -136,6 +139,8 @@ namespace API.Controllers
                 return StatusCode(500, $"Lỗi khi cập nhật combo: {ex.Message}");
             }
         }
+
+
 
 
         // DELETE: api/combo/delete/{id}

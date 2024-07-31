@@ -74,12 +74,27 @@ namespace Web.Controllers
             if (response.IsSuccessStatusCode)
             {
                 string data = await response.Content.ReadAsStringAsync();
-                var news = JsonConvert.DeserializeObject<NewsDTO>(data);
-                return View(news);
+                var news = JsonConvert.DeserializeObject<NewsViewModel>(data);
+
+                if (news != null)
+                {
+                    // Map NewsViewModel to your view model if necessary
+                    var viewModel = new NewsViewModel
+                    {
+                        IdNew = news.IdNew,
+                        Title = news.Title,
+                        Content = news.Content,
+                        PublishedDate = news.PublishedDate,
+                        Cover = news.Cover
+                    };
+
+                    return View(viewModel);
+                }
             }
 
-            return NotFound();
+            return RedirectToAction("ListNews");
         }
+
 
         [HttpPost]
         public async Task<IActionResult> EditNews(int id, NewsDTO newsDto)
@@ -104,26 +119,27 @@ namespace Web.Controllers
             return View(newsDto);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetNewsDetail(int id)
-        {
-            HttpResponseMessage response = await _httpClient.GetAsync($"/api/GetNewsDetail/{id}");
-
-            if (response.IsSuccessStatusCode)
+            [HttpGet]
+            public async Task<IActionResult> GetNewsDetail(int id)
             {
-                string data = await response.Content.ReadAsStringAsync();
-                var news = JsonConvert.DeserializeObject<NewsDTO>(data);
-                return Json(new
-                {
-                    cover = news?.Cover, 
-                    title = news?.Title,
-                    content = news?.Content,
-                    publishedDate = news?.PublishedDate
-                });
-            }
+                HttpResponseMessage response = await _httpClient.GetAsync($"/api/GetNewsDetail/{id}");
 
-            return NotFound();
-        }
+                if (response.IsSuccessStatusCode)
+                {
+                    string data = await response.Content.ReadAsStringAsync();
+                    var news = JsonConvert.DeserializeObject<NewsDTO>(data);
+                    return Json(new
+                    {
+                        id = news?.IdNew,
+                        cover = news?.Cover, 
+                        title = news?.Title,
+                        content = news?.Content,
+                        publishedDate = news?.PublishedDate
+                    });
+                }
+
+                return NotFound();
+            }
 
 
 
@@ -146,19 +162,27 @@ namespace Web.Controllers
             return View(new List<NewsDTORequest>());
         }
 
-        [HttpPost]
-        public async Task<IActionResult> DeleteNews(int id)
+        [HttpDelete]
+        public async Task<IActionResult> Delete(int id)
         {
-            HttpResponseMessage response = await _httpClient.DeleteAsync($"/api/DeleteNews/{id}");
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                return RedirectToAction("NewsList");
-            }
+                var response = await _httpClient.DeleteAsync($"/api/DeleteNews/{id}");
 
-            return NotFound();
+                if (response.IsSuccessStatusCode)
+                {
+
+                    return Json(new { success = true });
+                }
+
+
+                return Json(new { success = false, message = "An error occurred while deleting the news." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An unexpected error occurred." });
+            }
         }
-        
 
     }
 }

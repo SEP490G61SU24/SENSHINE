@@ -10,14 +10,16 @@ namespace API.Dtos
         public DateTime? AppointmentDate { get; set; }
         public string Status { get; set; }
 
-        public string CustomerName { get; set; }
-        public string EmployeeName { get; set; }
-        public string ServiceName { get; set; }
+        public virtual AppointmentUserDTO? Customer { get; set; }
+        public virtual AppointmentUserDTO? Employee { get; set; }
+        public virtual ICollection<ServiceDTO> Services { get; set; }
+        public virtual ICollection<AppointmentProductDTO> Products { get; set; }
 
-        public virtual User? Customer { get; set; }
-        public virtual User? Employee { get; set; }
-        public virtual Room? Room { get; set; }
-        public virtual Service? Service { get; set; }
-        public virtual Spa? Spa { get; set; }
+
+        public class AppointmentProductDTO
+        {
+            public int ProductId { get; set; }
+            public string ProductName { get; set; }
+        }
     }
 }

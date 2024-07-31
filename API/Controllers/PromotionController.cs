@@ -20,7 +20,7 @@ namespace API.Controllers
 
         [HttpPost("AddPromotion")]
       
-            public async Task<ActionResult<Promotion>> AddPromotion([FromBody] PromotionDTORequest promotionDto)
+            public async Task<IActionResult> AddPromotion([FromBody] PromotionDTORequest promotionDto)
             {
                 if (!ModelState.IsValid)
                 {
@@ -51,15 +51,15 @@ namespace API.Controllers
 
             
             [HttpGet("ListAllPromotion")]
-            public async Task<ActionResult<IEnumerable<PromotionDTORequest>>> ListPromotions()
+            public async Task<ActionResult<IEnumerable<PromotionDTORespond>>> ListPromotions()
             {
-                var promotions = await _promotionService.ListPromotion();
+            var promotions = await _promotionService.ListPromotion();
                 return Ok(promotions);
             }
 
             
-            [HttpGet("GetPromotionDetail{id}")]
-            public async Task<ActionResult<PromotionDTO>> GetPromotionDetail(int id)
+            [HttpGet("GetPromotionDetail/{id}")]
+            public async Task<IActionResult> GetPromotionDetail(int id)
             {
                 var promotion = await _promotionService.GetPromotionDetail(id);
                 if (promotion == null)
@@ -70,21 +70,21 @@ namespace API.Controllers
                 return Ok(promotion);
             }
 
-            
-            [HttpGet("GetPromotionbyCode")]
-            public async Task<ActionResult<IEnumerable<PromotionDTORequest>>> GetPromotionsByCode([FromQuery] string code)
-            {
-                var promotions = await _promotionService.PromotionByCode(code);
-                if (promotions == null)
-                {
-                    return NotFound();
-                }
 
-                return Ok(promotions);
+        [HttpGet("GetPromotionDetail")]
+        public async Task<ActionResult<IEnumerable<PromotionDTORequest>>> GetPromotionDetail([FromQuery] string spaLocation, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
+        {
+            var promotions = await _promotionService.GetPromotionsByFilter(spaLocation, startDate, endDate);
+            if (promotions == null)
+            {
+                return NotFound();
             }
 
-            
-            [HttpDelete("DeletePromotion/{id}")]
+            return Ok(promotions);
+        }
+
+
+        [HttpDelete("DeletePromotion/{id}")]
             public async Task<IActionResult> DeletePromotion(int id)
             {
                 var result = await _promotionService.DeletePromotion(id);

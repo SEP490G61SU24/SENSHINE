@@ -1,7 +1,6 @@
-﻿@model Web.Models.ServiceViewModel
-
+﻿@model Web.Models.AppointmentViewModel
 @{
-    ViewData["Title"] = "Create Service";
+    ViewData["Title"] = "Create Appointment";
 }
 
 <!-- Google font-->
@@ -35,39 +34,64 @@
 
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="CreateService">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <form asp-action="CreateAppointment" method="post">
             <div class="form-group">
-                <label asp-for="ServiceName" class="control-label"></label>
-                <input asp-for="ServiceName" class="form-control" />
-                <span asp-validation-for="ServiceName" class="text-danger"></span>
+                <label asp-for="CustomerId" class="control-label">Customer</label>
+                <select asp-for="CustomerId" class="form-control" asp-items="ViewBag.Customers">
+                    <option value="">Select Customer</option>
+                </select>
+                <span id="customerName"></span> <!-- Hiển thị tên khách hàng đã chọn -->
             </div>
             <div class="form-group">
-                <label asp-for="Amount" class="control-label"></label>
-                <input asp-for="Amount" class="form-control" />
-                <span asp-validation-for="Amount" class="text-danger"></span>
+                <label asp-for="EmployeeId" class="control-label">Employee</label>
+                <select asp-for="EmployeeId" class="form-control" asp-items="ViewBag.Employees">
+                    <option value="">Select Employee</option>
+                </select>
+                <span id="employeeName"></span> <!-- Hiển thị tên nhân viên đã chọn -->
             </div>
             <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
+                <label for="AppointmentDate" class="form-label">Date Time</label>
+                <input type="datetime-local" id="AppointmentDate" class="form-control" aria-label="Start Date" asp-for="AppointmentDate" />
             </div>
             <div class="form-group">
+                <label asp-for="Status" class="control-label">Status</label>
+                <select asp-for="Status" class="form-control">
+                    <option value="true">Finished</option>
+                    <option value="false">Not Started</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Services" class="control-label">Services</label>
+                <select asp-for="Services" class="form-control" asp-items="ViewBag.Services" multiple="multiple">
+                    @foreach (var service in ViewBag.Services)
+                    {
+                        <option value="@service.Value">@service.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="d-flex mt-3">
                 <input type="submit" value="Create" class="btn btn-primary" />
+                <a class="btn btn-secondary ms-1" asp-action="ListAppointment">Back to List</a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="ListService">Back to List</a>
-</div>
+<!-- JavaScript để cập nhật tên khi chọn ID -->
+<script>
+    document.querySelector('[name="CustomerId"]').addEventListener('change', function () {
+        var selectedOption = this.options[this.selectedIndex];
+        document.getElementById('customerName').textContent = selectedOption.textContent;
+    });
 
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
+    document.querySelector('[name="EmployeeId"]').addEventListener('change', function () {
+        var selectedOption = this.options[this.selectedIndex];
+        document.getElementById('employeeName').textContent = selectedOption.textContent;
+    });
+</script>
+
+
+
 <script src="~/assets/js/jquery.min.js"></script>
 <!-- Bootstrap js-->
 <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>

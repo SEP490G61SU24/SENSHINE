@@ -13,5 +13,6 @@ namespace API.Services
         Task<UserDto> GetById(int id);
         Task<User> GetByUserName(string username);
         Task<IEnumerable<User>> GetUsersByRole(int roleId);
+        Task<string> GetAddress(string wardCode, string districtCode, string provinceCode);
     }
 }
