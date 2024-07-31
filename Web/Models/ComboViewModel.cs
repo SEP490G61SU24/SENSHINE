@@ -21,6 +21,7 @@ namespace Web.Models
         public decimal? SalePrice { get; set; }
 
         public List<int> SelectedServiceIds { get; set; } = new List<int>();
-        
+
+        public string SalePriceString { get; set; }
     }
 }

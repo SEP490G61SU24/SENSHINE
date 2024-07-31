@@ -68,7 +68,7 @@ namespace Web.Controllers
         {
             CardViewModel card = new CardViewModel();
             List<CardComboViewModel> cardCombos = new List<CardComboViewModel>();
-            ComboView combo = new ComboView();
+            ComboViewModel combo = new ComboViewModel();
 
             HttpResponseMessage response = await _client.GetAsync(_client.BaseAddress + "/Card/GetById?id=" + id);
             HttpResponseMessage response2 = await _client.GetAsync(_client.BaseAddress + "/Card/GetCardComboByCard?id=" + id);
@@ -83,7 +83,7 @@ namespace Web.Controllers
                 {
                     HttpResponseMessage response3 = await _client.GetAsync(_client.BaseAddress + "/Combo/GetByID?IdCombo=" + cc.ComboId);
                     string data3 = await response3.Content.ReadAsStringAsync();
-                    combo = JsonConvert.DeserializeObject<ComboView>(data3);
+                    combo = JsonConvert.DeserializeObject<ComboViewModel>(data3);
                     cc.ComboName = combo.Name;
                 }
             }
@@ -110,7 +110,7 @@ namespace Web.Controllers
                     user.FullName = string.Join(", ", user.FullName ?? "", user.Phone ?? "").Trim();
                 }
                 ViewBag.Users = new SelectList(users, "Id", "FullName");
-                var combos = response2.Content.ReadFromJsonAsync<IEnumerable<ComboView>>().Result;
+                var combos = response2.Content.ReadFromJsonAsync<IEnumerable<ComboViewModel>>().Result;
                 foreach (var combo in combos)
                 {
                     string formattedNumber = string.Format("{0:N0}", combo.SalePrice);
@@ -206,7 +206,7 @@ namespace Web.Controllers
                     user.FullName = string.Join(", ", user.FullName ?? "", user.Phone ?? "").Trim();
                 }
                 ViewBag.Users = new SelectList(users, "Id", "FullName");
-                var combos = response3.Content.ReadFromJsonAsync<IEnumerable<ComboView>>().Result;
+                var combos = response3.Content.ReadFromJsonAsync<IEnumerable<ComboViewModel>>().Result;
                 foreach (var combo in combos)
                 {
                     string formattedNumber = string.Format("{0:N0}", combo.SalePrice);
