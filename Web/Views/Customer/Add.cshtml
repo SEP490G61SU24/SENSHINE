@@ -32,7 +32,7 @@
 
 <div class="card">
 	<div class="card-body">
-		<form method="post" action="/user/add" class="row g-3 needs-validation custom-input" novalidate="">
+		<form method="post" action="/customer/add" class="row g-3 needs-validation custom-input" novalidate="">
 			<div class="col-md-4 position-relative">
 				<label class="form-label" for="FullName">Họ và Tên</label>
 				<input class="form-control" name="FullName" id="FullName" type="text" placeholder="Nguyễn Quang Trường" required="" pattern="^[\p{L}]{2,}([\s][\p{L}]{2,})+$">
@@ -45,10 +45,10 @@
 			</div>
 			<div class="col-md-4 position-relative">
 				<label class="form-label" for="BirthDate">Ngày Sinh</label>
-				<input class="form-control digits" name="BirthDate" id="BirthDate" type="date"
-					   value="2024-05-01">
+				<input class="form-control digits" name="BirthDate" id="BirthDate" type="date" required>
 				<div class="invalid-tooltip">Nhập ngày sinh!</div>
 			</div>
+			<input class="form-control digits" asp-for="RoleId" name="RoleId" id="RoleId" type="hidden" value="5">
 			<div class="col-md-3 position-relative">
 				<label class="form-label" for="provinceDropdown">Tỉnh/Thành Phố</label>
 				<select class="form-select" name="ProvinceCode" id="provinceDropdown" required="">

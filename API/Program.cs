@@ -46,6 +46,9 @@ namespace API
             builder.Services.AddScoped<IDistrictService, DistrictService>();
             builder.Services.AddScoped<IProvinceService, ProvinceService>();
 
+            builder.Services.AddScoped<CustomAddressResolver>();
+
+            builder.Services.AddAutoMapper(typeof(UserMapper));
             builder.Services.AddAutoMapper(typeof(NewMapper));
             builder.Services.AddAutoMapper(typeof(ProductMapper));
             builder.Services.AddAutoMapper(typeof(PromotionMapper));
