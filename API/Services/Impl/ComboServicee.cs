@@ -19,36 +19,134 @@ namespace API.Services.Impl
             return combo;
         }
 
-        public async Task<Combo> DeleteComboAsync(int Id)
+        public async Task<Combo> DeleteComboAsync(int id)
         {
-            var existingCombo = await _dbContext.Combos.FirstOrDefaultAsync(x => x.Id == Id);
+            // Tìm combo theo ID
+            var existingCombo = await _dbContext.Combos
+                                                 .Include(c => c.Services) // Bao gồm các dịch vụ liên quan
+                                                 .FirstOrDefaultAsync(c => c.Id == id);
+
             if (existingCombo == null)
             {
                 return null;
             }
+
+            // Xóa các liên kết với các dịch vụ nếu cần
+            // Ví dụ: nếu có bảng liên kết nhiều-nhiều, có thể cần xử lý nó tại đây
+            foreach (var service in existingCombo.Services.ToList())
+            {
+                // Xóa liên kết giữa combo và dịch vụ
+                existingCombo.Services.Remove(service);
+            }
+
+            // Xóa combo
             _dbContext.Combos.Remove(existingCombo);
             await _dbContext.SaveChangesAsync();
             return existingCombo;
         }
 
-        public async Task<Combo> EditComboAsync(int Id, Combo combo)
+
+        public async Task<ComboDTO> EditComboAsync(int id, ComboDTO comboDTO)
         {
-            var existingCombo = await _dbContext.Combos.FirstOrDefaultAsync(x => x.Id == Id);
-            if (existingCombo == null)
+            var combo = await _dbContext.Combos
+                                        .Include(c => c.Services)
+                                        .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (combo == null)
             {
                 return null;
             }
-            existingCombo.Name = combo.Name;
-            existingCombo.SalePrice = combo.SalePrice;
+
+            // Cập nhật thông tin combo
+            combo.Name = comboDTO.Name;
+            combo.Quantity = comboDTO.Quantity;
+            combo.Note = comboDTO.Note;
+            combo.Discount = comboDTO.Discount;
+
+            // Xử lý cập nhật danh sách dịch vụ
+            if (comboDTO.Services != null && comboDTO.Services.Any())
+            {
+                var serviceIds = comboDTO.Services.Select(s => s.Id).ToList();
+                var existingServices = await _dbContext.Services
+                                                       .Where(s => serviceIds.Contains(s.Id))
+                                                       .ToListAsync();
+
+                if (existingServices.Count != serviceIds.Count)
+                {
+                    throw new Exception("Một hoặc nhiều dịch vụ không tồn tại.");
+                }
+
+                combo.Services = existingServices;
+            }
+            else
+            {
+                combo.Services.Clear();
+            }
+
+            // Tính lại tổng giá của combo
+            combo.Price = combo.Services.Sum(s => s.Amount);
+
+            // Tính lại giá sau giảm giá nếu có
+            if (combo.Discount.HasValue && combo.Price.HasValue)
+            {
+                combo.SalePrice = combo.Price - (combo.Price * combo.Discount / 100);
+            }
+
             await _dbContext.SaveChangesAsync();
 
-            return existingCombo;
+            return new ComboDTO
+            {
+                Id = combo.Id,
+                Name = combo.Name,
+                Quantity = combo.Quantity,
+                Note = combo.Note,
+                Price = combo.Price,
+                Discount = combo.Discount,
+                SalePrice = combo.SalePrice,
+                Services = combo.Services.Select(s => new ServiceDTO
+                {
+                    Id = s.Id,
+                    ServiceName = s.ServiceName,
+                    Amount = s.Amount,
+                    Description = s.Description
+                }).ToList()
+            };
         }
 
-        public async Task<Combo> FindComboWithItsId(int Id)
+
+
+        public async Task<ComboDTO> FindComboWithItsId(int Id)
         {
-            return await _dbContext.Combos.FirstOrDefaultAsync(x => x.Id == Id);
+            var combo = await _dbContext.Combos
+                                        .Include(c => c.Services)
+                                        .FirstOrDefaultAsync(x => x.Id == Id);
+
+            if (combo == null)
+            {
+                return null;
+            }
+
+            var comboDTO = new ComboDTO
+            {
+                Id = combo.Id,
+                Name = combo.Name,
+                Quantity = combo.Quantity,
+                Note = combo.Note,
+                Price = combo.Price,
+                Discount = combo.Discount,
+                SalePrice = combo.SalePrice,
+                Services = combo.Services.Select(s => new ServiceDTO
+                {
+                    Id = s.Id,
+                    ServiceName = s.ServiceName,
+                    Amount = s.Amount,
+                    Description = s.Description
+                }).ToList()
+            };
+
+            return comboDTO;
         }
+
 
         public async Task<List<ComboDTO>> GetAllComboAsync()
         {

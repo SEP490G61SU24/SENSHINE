@@ -13,6 +13,13 @@ namespace API.Dtos
         public virtual AppointmentUserDTO? Customer { get; set; }
         public virtual AppointmentUserDTO? Employee { get; set; }
         public virtual ICollection<ServiceDTO> Services { get; set; }
+        public virtual ICollection<AppointmentProductDTO> Products { get; set; }
 
+
+        public class AppointmentProductDTO
+        {
+            public int ProductId { get; set; }
+            public string ProductName { get; set; }
+        }
     }
 }
