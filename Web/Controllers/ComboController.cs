@@ -58,13 +58,13 @@ namespace Web.Controllers
                 Price = comboViewModel.Price,
                 Discount = comboViewModel.Discount,
                 SalePrice = comboViewModel.SalePrice,
-                Services = comboViewModel.SelectedServiceIds.Select(id => new ServiceDTO { Id = id }).ToList()
+                Services = comboViewModel.SelectedServiceIds.Select(id => new ServiceDTO { Id = id,ServiceName="" }).ToList()
             };
 
             string jsonString = JsonConvert.SerializeObject(comboDTO);
             var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
 
-            HttpResponseMessage response = await _httpClient.PostAsync("http://localhost:5297/api/Combo/Create", content);
+            HttpResponseMessage response = await _httpClient.PostAsync(_httpClient.BaseAddress +$"/Combo/Create", content);
 
             if (response.IsSuccessStatusCode)
             {
