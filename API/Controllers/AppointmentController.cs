@@ -86,6 +86,11 @@ namespace API.Controllers
                         ServiceName = s.ServiceName,
                         Amount = s.Amount,
                         Description = s.Description
+                    }).ToList(),
+                    Products = appointment.Products.Select(p => new AppointmentDTO.AppointmentProductDTO
+                    {
+                        ProductId = p.Id,
+                        ProductName = p.ProductName
                     }).ToList()
                 };
 
@@ -96,6 +101,7 @@ namespace API.Controllers
                 return StatusCode(500, $"Error retrieving appointment: {ex.Message}");
             }
         }
+
 
 
         //Tim kiem cuoc hen theo ngay
@@ -147,6 +153,11 @@ namespace API.Controllers
                             ServiceName = s.ServiceName,
                             Amount = s.Amount,
                             Description = s.Description
+                        }).ToList(),
+                        Products = appointment.Products.Select(p => new AppointmentDTO.AppointmentProductDTO
+                        {
+                            ProductId = p.Id,
+                            ProductName = p.ProductName
                         }).ToList()
                     });
                 }
@@ -158,6 +169,7 @@ namespace API.Controllers
                 return StatusCode(500, $"Error retrieving appointments: {ex.Message}");
             }
         }
+
 
         //Create - tao moi cuoc hen
         [HttpPost]
@@ -191,6 +203,7 @@ namespace API.Controllers
                 }
 
                 List<Service> existingServices = new List<Service>();
+                List<Product> existingProducts = new List<Product>();
 
                 // Ensure the services being added to the appointment are existing ones
                 if (appointmentDTO.Services != null && appointmentDTO.Services.Any())
@@ -212,20 +225,42 @@ namespace API.Controllers
                     }
                 }
 
-                // Convert AppointmentDTO to Appointment entity using AutoMapper
-                var newAppointment = _mapper.Map<Appointment>(appointmentDTO);
+                // Ensure the products being added to the appointment are existing ones
+                if (appointmentDTO.Products != null && appointmentDTO.Products.Any())
+                {
+                    var productIds = appointmentDTO.Products.Select(p => p.ProductId).ToList(); 
+                    existingProducts = await _dbContext.Products
+                                                       .Where(p => productIds.Contains(p.Id))
+                                                       .ToListAsync();
 
-                // Assign the attached services to the appointment
-                newAppointment.Services = existingServices;
+                    if (existingProducts.Count != productIds.Count)
+                    {
+                        return BadRequest("One or more products do not exist.");
+                    }
 
-                var createdAppointment = await _appointmentService.CreateAppointmentAsync(newAppointment);
-                return Ok($"Create Appointment Successful With ID: {createdAppointment.Id}");
+                    // Attach the existing products to the context to avoid tracking conflicts
+                    foreach (var product in existingProducts)
+                    {
+                        _dbContext.Entry(product).State = EntityState.Unchanged;
+                    }
+                }
+
+                var appointment = _mapper.Map<Appointment>(appointmentDTO);
+                appointment.Services = existingServices;
+                appointment.Products = existingProducts;
+
+                await _appointmentService.CreateAppointmentAsync(appointment);
+
+                return Ok($"Create Appointment Successfully With ID: {appointment.Id}");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Cannot Create Appointment: {ex.Message}");
+                return StatusCode(500, $"Error creating appointment: {ex.Message}");
             }
         }
+
+
+
 
         //Update Appointment
         [HttpPut]
@@ -241,6 +276,7 @@ namespace API.Controllers
             {
                 var existingAppointment = await _dbContext.Appointments
                                                           .Include(a => a.Services)
+                                                          .Include(a => a.Products) // Include Products
                                                           .FirstOrDefaultAsync(a => a.Id == id);
                 if (existingAppointment == null)
                 {
@@ -279,9 +315,24 @@ namespace API.Controllers
                     }
                 }
 
+                List<Product> existingProducts = new List<Product>();
+                if (appointmentDTO.Products != null && appointmentDTO.Products.Any())
+                {
+                    var productIds = appointmentDTO.Products.Select(p => p.ProductId).ToList();
+                    existingProducts = await _dbContext.Products
+                                                       .Where(p => productIds.Contains(p.Id))
+                                                       .ToListAsync();
+
+                    if (existingProducts.Count != productIds.Count)
+                    {
+                        return BadRequest("One or more products do not exist.");
+                    }
+                }
+
                 _mapper.Map(appointmentDTO, existingAppointment);
 
                 existingAppointment.Services = existingServices;
+                existingAppointment.Products = existingProducts;
 
                 await _dbContext.SaveChangesAsync();
 
@@ -292,6 +343,7 @@ namespace API.Controllers
                 return StatusCode(500, $"Cannot Update Appointment: {ex.Message}");
             }
         }
+
 
         // Delete Appointment
         [HttpDelete("delete/{id}")]

@@ -23,6 +23,7 @@ namespace API.Services.Impl
                 .Include(a => a.Customer)
                 .Include(a => a.Employee)
                 .Include(a => a.Services)
+                .Include(a => a.Products)
                 .ToListAsync();
 
             var appointmentDTOs = new List<AppointmentDTO>();
@@ -61,6 +62,11 @@ namespace API.Services.Impl
                         ServiceName = s.ServiceName,
                         Amount = s.Amount,
                         Description = s.Description
+                    }).ToList(),
+                    Products = appointment.Products.Select(p => new AppointmentDTO.AppointmentProductDTO
+                    {
+                        ProductId = p.Id,
+                        ProductName = p.ProductName
                     }).ToList()
                 });
             }
@@ -77,6 +83,7 @@ namespace API.Services.Impl
                 .Include(a => a.Customer)
                 .Include(a => a.Employee)
                 .Include(a => a.Services)
+                .Include(a => a.Products)
                 .Where(a => a.AppointmentDate.Date == appointmentDate.Date)
                 .ToListAsync();
         }
@@ -87,6 +94,7 @@ namespace API.Services.Impl
                 .Include(a => a.Customer)
                 .Include(a => a.Employee)
                 .Include(a => a.Services)
+                .Include(a => a.Products)
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
 
@@ -99,7 +107,10 @@ namespace API.Services.Impl
 
         public async Task<Appointment> UpdateAppointmentAsync(int id, Appointment appointment)
         {
-            var existingAppointment = await _dbContext.Appointments.FirstOrDefaultAsync(x => x.Id == id);
+            var existingAppointment = await _dbContext.Appointments
+                                                      .Include(a => a.Services)
+                                                      .Include(a => a.Products) // Include Products
+                                                      .FirstOrDefaultAsync(x => x.Id == id);
             if (existingAppointment == null)
             {
                 return null;
@@ -110,9 +121,24 @@ namespace API.Services.Impl
             existingAppointment.AppointmentDate = appointment.AppointmentDate;
             existingAppointment.Status = appointment.Status;
 
+            existingAppointment.Services.Clear();
+            foreach (var service in appointment.Services)
+            {
+                _dbContext.Entry(service).State = EntityState.Unchanged;
+                existingAppointment.Services.Add(service);
+            }
+
+            existingAppointment.Products.Clear();
+            foreach (var product in appointment.Products)
+            {
+                _dbContext.Entry(product).State = EntityState.Unchanged;
+                existingAppointment.Products.Add(product);
+            }
+
             await _dbContext.SaveChangesAsync();
             return existingAppointment;
         }
+
 
 
 
@@ -121,23 +147,26 @@ namespace API.Services.Impl
         {
             // Tìm combo theo ID
             var existingAppointment = await _dbContext.Appointments
-                                                 .Include(c => c.Services) // Bao gồm các dịch vụ liên quan
+                                                 .Include(c => c.Services)
+                                                 .Include(a => a.Products) // Bao gồm các dịch vụ liên quan
                                                  .FirstOrDefaultAsync(c => c.Id == id);
 
             if (existingAppointment == null)
             {
                 return null;
             }
-
             // Xóa các liên kết với các dịch vụ nếu cần
-            // Ví dụ: nếu có bảng liên kết nhiều-nhiều, có thể cần xử lý nó tại đây
             foreach (var service in existingAppointment.Services.ToList())
             {
                 // Xóa liên kết giữa combo và dịch vụ
                 existingAppointment.Services.Remove(service);
             }
+            // Xóa product
+            foreach (var product in existingAppointment.Products.ToList())
+            {
+                existingAppointment.Products.Remove(product);
+            }
 
-            // Xóa combo
             _dbContext.Appointments.Remove(existingAppointment);
             await _dbContext.SaveChangesAsync();
             return existingAppointment;

@@ -60,7 +60,15 @@
                     }
                 </ul>
             </dd>
-
+            <dt class="col-sm-3">Product Used</dt>
+            <dd class="col-sm-9">
+                <ul>
+                    @foreach (var service in Model.Products)
+                    {
+                        <li>@service.ProductName</li>
+                    }
+                </ul>
+            </dd>
             <dt class="col-sm-3">Appointment Date</dt>
             <dd class="col-sm-9">@Model.AppointmentDate.ToString("dd/MM/yyyy HH:mm:ss")</dd>
 
