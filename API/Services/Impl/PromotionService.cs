@@ -43,30 +43,45 @@ namespace API.Services.Impl
             return promotion;
         }
 
-        public async Task<IEnumerable<PromotionDTORequest>> ListPromotion()
+        public async Task<IEnumerable<PromotionDTORespond>> ListPromotion()
         {
-            var promotions = await _context.Promotions.ToListAsync();
-            return _mapper.Map<IEnumerable<PromotionDTORequest>>(promotions);
+            var promotions = await _context.Promotions.Include(x=>x.Spa).ToListAsync();
+            return _mapper.Map<IEnumerable<PromotionDTORespond>>(promotions);
         }
 
-        public async Task<PromotionDTO> GetPromotionDetail(int id)
+        public async Task<PromotionDTORespond> GetPromotionDetail(int id)
         {
-            var promotion = await _context.Promotions.FindAsync(id);
+            var promotion = await _context.Promotions.Include(x => x.Spa).FirstOrDefaultAsync(p => p.Id == id);
             if (promotion == null)
             {
                 return null;
             }
 
-            return _mapper.Map<PromotionDTO>(promotion);
+            return _mapper.Map<PromotionDTORespond>(promotion);
         }
 
-        public async Task<IEnumerable<PromotionDTORequest>> PromotionByCode(string code)
+        public async Task<IEnumerable<PromotionDTORespond>> GetPromotionsByFilter(string spaLocation, DateTime? startDate, DateTime? endDate)
         {
-            var promotions = await _context.Promotions
-                                            .Where(x => x.PromotionName == code)
-                                            .ToListAsync();
+            var query = _context.Promotions.Include(x => x.Spa).AsQueryable();
 
-            return _mapper.Map<IEnumerable<PromotionDTORequest>>(promotions);
+            if (!string.IsNullOrEmpty(spaLocation))
+            {
+                query = query.Where(x => x.Spa.SpaName == spaLocation);
+            }
+
+            if (startDate.HasValue)
+            {
+                query = query.Where(x => x.StartDate >= startDate);
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(x => x.EndDate <= endDate);
+            }
+
+            var promotions = await query.ToListAsync();
+
+            return _mapper.Map<IEnumerable<PromotionDTORespond>>(promotions);
         }
 
         public async Task<bool> DeletePromotion(int id)

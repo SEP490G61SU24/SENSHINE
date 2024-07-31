@@ -7,9 +7,9 @@ namespace API.Services
     {
         Task<Promotion> AddPromotion(PromotionDTORequest PromotionDto);
         Task<Promotion> EditPromotion(int id, PromotionDTORequest PromotionDto);
-        Task<IEnumerable<PromotionDTORequest>> ListPromotion();
-        Task<PromotionDTO> GetPromotionDetail(int id);
-        Task<IEnumerable<PromotionDTORequest>> PromotionByCode(string code);
+        Task<IEnumerable<PromotionDTORespond>> ListPromotion();
+        Task<PromotionDTORespond> GetPromotionDetail(int id);
+        Task<IEnumerable<PromotionDTORespond>> GetPromotionsByFilter(string spaLocation, DateTime? startDate, DateTime? endDate);
         Task<bool> DeletePromotion(int id);
     }
 }

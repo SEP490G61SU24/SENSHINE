@@ -10,6 +10,8 @@ namespace API.Mapping
         {
             CreateMap<Promotion, PromotionDTO>().ReverseMap();
             CreateMap<Promotion, PromotionDTORequest>().ReverseMap();
+            CreateMap<Promotion, PromotionDTORespond>().ForMember(dest => dest.SpaName, opt => opt.MapFrom(src => src.Spa.SpaName)).ReverseMap();
+
         }
     }
 
