@@ -1,5 +1,7 @@
 ﻿using API.Dtos;
+using API.Models;
 using API.Services;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -10,16 +12,17 @@ namespace API.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IMapper _mapper;
 
-        public UsersController(IUserService userService)
+        public UsersController(IUserService userService, IMapper mapper)
         {
             _userService = userService;
+            _mapper = mapper;
         }
 
         [HttpGet("profile")]
         public async Task<IActionResult> GetProfile()
         {
-
             var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
             if (userIdClaim == null)
             {
@@ -33,20 +36,7 @@ namespace API.Controllers
                 return NotFound();
             }
 
-            var userProfile = new UserDto
-            {
-                Id = user.Id,
-                UserName = user.UserName,
-                FirstName = user.FirstName,
-                MidName = user.MidName,
-                LastName = user.LastName,
-                Phone = user.Phone,
-                BirthDate = user.BirthDate,
-                ProvinceCode = user.ProvinceCode,
-                DistrictCode = user.DistrictCode,
-                WardCode = user.WardCode,
-            };
-
+            var userProfile = _mapper.Map<UserDto>(user);
             return Ok(userProfile);
         }
 
@@ -69,9 +59,11 @@ namespace API.Controllers
                 userDto.ProvinceCode,
                 userDto.DistrictCode,
                 userDto.WardCode,
-                userDto.RoleId
-            );
-            return Ok(user);
+                userDto.RoleId);
+
+            var resultDto = _mapper.Map<UserDto>(user);
+
+            return Ok(resultDto);
         }
 
         [HttpPut("update/{id}")]
@@ -82,30 +74,15 @@ namespace API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = await _userService.UpdateUser(
-                id, userDto
-            );
+            //var user = _mapper.Map<User>(userDto);
+            var user = await _userService.UpdateUser(id, userDto);
 
             if (user == null)
             {
                 return NotFound();
             }
 
-            var userDtoRes = new UserDto
-            {
-                Id = user.Id,
-                UserName = user.UserName,
-                Phone = user.Phone,
-                FirstName = user.FirstName,
-                MidName = user.MidName,
-                LastName = user.LastName,
-                BirthDate = user.BirthDate,
-                ProvinceCode = user.ProvinceCode,
-                DistrictCode = user.DistrictCode,
-                WardCode = user.WardCode,
-                RoleId = user.Roles.FirstOrDefault().Id,
-            };
-
+            var userDtoRes = _mapper.Map<UserDto>(user);
             return Ok(userDtoRes);
         }
 
@@ -124,36 +101,16 @@ namespace API.Controllers
         [HttpGet("byRole/{roleId}")]
         public async Task<IActionResult> GetUsersByRole(int roleId)
         {
+            
             var users = await _userService.GetUsersByRole(roleId);
             if (users == null || !users.Any())
             {
                 return NoContent();
             }
 
-            var userDtos = new List<UserDto>();
-
-            foreach (var u in users)
-            {
-                var address = await _userService.GetAddress(u.WardCode, u.DistrictCode, u.ProvinceCode);
-                userDtos.Add(new UserDto
-                {
-                    Id = u.Id,
-                    UserName = u.UserName,
-                    Phone = u.Phone,
-                    FirstName = u.FirstName,
-                    MidName = u.MidName,
-                    LastName = u.LastName,
-                    BirthDate = u.BirthDate,
-                    ProvinceCode = u.ProvinceCode,
-                    DistrictCode = u.DistrictCode,
-                    WardCode = u.WardCode,
-                    Address = address
-                });
-            }
-
+            var userDtos = _mapper.Map<IEnumerable<UserDto>>(users);
             return Ok(userDtos);
         }
-
 
         [HttpGet("all")]
         public async Task<IActionResult> GetAll()
@@ -161,22 +118,7 @@ namespace API.Controllers
             var users = await _userService.GetAll();
             if (users != null)
             {
-                var userDtos = users.Select(u => new UserDto
-                {
-                    Id = u.Id,
-                    UserName = u.UserName,
-                    Phone = u.Phone,
-                    FirstName = u.FirstName,
-                    MidName = u.MidName,
-                    LastName = u.LastName,
-                    BirthDate = u.BirthDate,
-                    ProvinceCode = u.ProvinceCode,
-                    DistrictCode = u.DistrictCode,
-                    WardCode = u.WardCode,
-                    RoleName = u.RoleName,
-                    RoleId = u.RoleId,
-                    Address = u.Address
-                });
+                var userDtos = _mapper.Map<IEnumerable<UserDto>>(users);
                 return Ok(userDtos);
             }
             else { return NoContent(); }
@@ -191,23 +133,7 @@ namespace API.Controllers
                 return NotFound();
             }
 
-            var userDto = new UserDto
-            {
-                Id = u.Id,
-                UserName = u.UserName,
-                Phone = u.Phone,
-                FirstName = u.FirstName,
-                MidName = u.MidName,
-                LastName = u.LastName,
-                BirthDate = u.BirthDate,
-                ProvinceCode = u.ProvinceCode,
-                DistrictCode = u.DistrictCode,
-                WardCode = u.WardCode,
-                RoleName = u.RoleName,
-                RoleId = u.RoleId,
-                Address = u.Address
-            };
-
+            var userDto = _mapper.Map<UserDto>(u);
             return Ok(userDto);
         }
     }

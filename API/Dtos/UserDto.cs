@@ -16,7 +16,7 @@ namespace API.Dtos
         public string? DistrictCode { get; set; }
         public string? WardCode { get; set; }
         public string? Address { get; set; }
-        public ICollection<Role>? Roles { get; set; }
+        public ICollection<RoleDTO>? Roles { get; set; }
         public string? RoleName { get; set; }
         public int RoleId { get; set; }
     }

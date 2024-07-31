@@ -2,6 +2,7 @@
 using System.Text;
 using Web.Models;
 using System.Text.Json;
+using System.Globalization;
 
 namespace Web.Controllers
 {
@@ -63,12 +64,12 @@ namespace Web.Controllers
 				}
 				else
 				{
-					user.FirstName = nameArr[0];
-					user.MidName = nameArr[1];
-					user.LastName = nameArr[nameArr.Length - 1];
-				}
+                    user.FirstName = nameArr[0];
+                    user.LastName = nameArr[nameArr.Length - 1];
+                    user.MidName = string.Join(" ", nameArr.Skip(1).Take(nameArr.Length - 2));
+                }
 
-				user.UserName = (user.LastName + user.ProvinceCode + GenerateRandomString(4)).ToLower();
+				user.UserName = (RemoveDiacritics(user.LastName) + user.ProvinceCode + GenerateRandomString(4)).ToLower();
 				user.RoleId = 5; // ROLE CUSTOMER
 
 				var apiUrl = _configuration["ApiUrl"];
@@ -84,7 +85,7 @@ namespace Web.Controllers
 					var responseString = await response.Content.ReadAsStringAsync();
 					var responseData = JsonSerializer.Deserialize<UserViewModel>(responseString);
 
-					return RedirectToAction("Index", "User");
+					return RedirectToAction("Index", "Customer");
 				}
 				else
 				{
@@ -149,11 +150,11 @@ namespace Web.Controllers
                 else
                 {
                     user.FirstName = nameArr[0];
-                    user.MidName = nameArr[1];
                     user.LastName = nameArr[nameArr.Length - 1];
+                    user.MidName = string.Join(" ", nameArr.Skip(1).Take(nameArr.Length - 2));
                 }
 
-				user.RoleId = 5; // CUSTOMER
+                user.RoleId = 5; // CUSTOMER
 
                 var apiUrl = _configuration["ApiUrl"];
 
@@ -197,5 +198,23 @@ namespace Web.Controllers
 
 			return new string(stringChars);
 		}
+
+		public static string RemoveDiacritics(string text)
+		{
+			var normalizedString = text.Normalize(NormalizationForm.FormD);
+			var stringBuilder = new StringBuilder();
+
+			foreach (var c in normalizedString)
+			{
+				var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+				if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+				{
+					stringBuilder.Append(c);
+				}
+			}
+
+			return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+		}
+
 	}
 }
