@@ -47,7 +47,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -58,7 +58,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
             if (!_cardService.CardExist(id))
                 return NotFound();
@@ -72,7 +72,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetByNumNamePhone(string input)
+        public async Task<IActionResult> GetByNumNamePhone(string input)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -86,7 +86,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public IActionResult SortByDate(string dateFrom, string dateTo)
+        public async Task<IActionResult> SortByDate(string dateFrom, string dateTo)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -155,7 +155,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetCardComboByCard(int id)
+        public async Task<IActionResult> GetCardComboByCard(int id)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
