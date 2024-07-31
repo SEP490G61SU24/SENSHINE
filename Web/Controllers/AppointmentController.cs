@@ -70,6 +70,28 @@ namespace Web.Controllers
             return View(appointment);
         }
 
+        //xoa cuoc hen
+        [HttpPost]
+        public async Task<IActionResult> DeleteAppointment1 (int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest("Appointment ID không hợp lệ");
+            }
+
+            HttpResponseMessage response = await _httpClient.DeleteAsync(_httpClient.BaseAddress + $"/Appointment/DeleteAppointment/delete/{id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                return RedirectToAction("ListAppointment");
+            }
+            else
+            {
+                return BadRequest("Có lỗi xảy ra khi xóa dịch vụ.");
+            }
+        }
+
+        // tao cuoc hen moi
         [HttpGet]
         public async Task<IActionResult> CreateAppointment()
         {
@@ -152,32 +174,14 @@ namespace Web.Controllers
             return View(appointment);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> DeleteAppointment(int id)
-        {
-            if (id <= 0)
-            {
-                return BadRequest("Invalid Appointment ID");
-            }
-
-            HttpResponseMessage response = await _httpClient.DeleteAsync($"/api/Appointment/DeleteAppointment/{id}");
-
-            if (response.IsSuccessStatusCode)
-            {
-                return RedirectToAction("ListAppointment");
-            }
-            else
-            {
-                return BadRequest("Có lỗi xảy ra khi xóa cuộc hẹn.");
-            }
-        }
 
         private async Task LoadDropdownDataAsync()
         {
-            ViewBag.Customers = await GetSelectListAsync("/api/User/GetCustomers", "Id", "FullName");
-            ViewBag.Employees = await GetSelectListAsync("/api/User/GetEmployees", "Id", "FullName");
+            ViewBag.Customers = await GetSelectListAsync("/api/user/byRole/5", "Id", "FullName");
+            ViewBag.Employees = await GetSelectListAsync("/api/Employee/GetAll", "Id", "FullName");
             ViewBag.Services = await GetSelectListAsync("/api/Service/GetAllServices", "Id", "ServiceName");
         }
+
 
         private async Task<SelectList> GetSelectListAsync(string apiUrl, string valueField, string textField)
         {
