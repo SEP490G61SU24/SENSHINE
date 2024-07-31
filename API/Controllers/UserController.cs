@@ -125,26 +125,35 @@ namespace API.Controllers
         public async Task<IActionResult> GetUsersByRole(int roleId)
         {
             var users = await _userService.GetUsersByRole(roleId);
-            if(users == null)
+            if (users == null || !users.Any())
             {
                 return NoContent();
             }
-            var userDtos = users.Select(u => new UserDto
+
+            var userDtos = new List<UserDto>();
+
+            foreach (var u in users)
             {
-                Id = u.Id,
-                UserName = u.UserName,
-                Phone = u.Phone,
-                FirstName = u.FirstName,
-                MidName = u.MidName,
-                LastName = u.LastName,
-                BirthDate = u.BirthDate,
-                ProvinceCode = u.ProvinceCode,
-                DistrictCode = u.DistrictCode,
-                WardCode = u.WardCode,
-            });
+                var address = await _userService.GetAddress(u.WardCode, u.DistrictCode, u.ProvinceCode);
+                userDtos.Add(new UserDto
+                {
+                    Id = u.Id,
+                    UserName = u.UserName,
+                    Phone = u.Phone,
+                    FirstName = u.FirstName,
+                    MidName = u.MidName,
+                    LastName = u.LastName,
+                    BirthDate = u.BirthDate,
+                    ProvinceCode = u.ProvinceCode,
+                    DistrictCode = u.DistrictCode,
+                    WardCode = u.WardCode,
+                    Address = address
+                });
+            }
 
             return Ok(userDtos);
         }
+
 
         [HttpGet("all")]
         public async Task<IActionResult> GetAll()
