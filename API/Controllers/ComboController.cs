@@ -106,7 +106,7 @@ namespace API.Controllers
 
         // Edit service
         [HttpPut]
-        [Route("/api/[controller]/[action]")]
+        [Route("/api/[controller]/[action]/{id}")]
         public async Task<IActionResult> UpdateCombo(int id, [FromBody] ComboDTO comboDTO)
         {
             if (id < 1)
