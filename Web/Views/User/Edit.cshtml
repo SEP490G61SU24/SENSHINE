@@ -1,5 +1,9 @@
 ﻿@model Web.Models.UserViewModel
 
+@{
+	ViewData["Title"] = "Cập nhật thông tin người dùng";
+}
+
 @section Styles {
     <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
     <!-- ico-font-->
@@ -41,8 +45,7 @@
             </div>
             <div class="col-md-6 position-relative">
                 <label class="form-label" for="BirthDate">Ngày Sinh</label>
-                <input class="form-control digits" asp-for="BirthDate" name="BirthDate" id="BirthDate" type="date"
-                       value="2024-05-01">
+                <input class="form-control digits" asp-for="BirthDate" name="BirthDate" id="BirthDate" type="date" />
                 <div class="invalid-tooltip">Nhập ngày sinh!</div>
             </div>
 
@@ -54,7 +57,8 @@
                     {
                     (Id: 4, Name: "STAFF (Nhân Viên)"),
                     (Id: 3, Name: "RECEPTIONS (Lễ Tân)"),
-                    (Id: 2, Name: "MANAGER (Quản Lý)")
+                    (Id: 2, Name: "MANAGER (Quản Lý)"),
+                    (Id: 5, Name: "CUSTOMER (Khách Hàng)"),
                     })
                     {
                         <option value="@role.Id" selected="@(role.Id == Model.RoleId ? "selected" : null)">@role.Name</option>

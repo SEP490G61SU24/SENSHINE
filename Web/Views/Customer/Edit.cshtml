@@ -1,5 +1,171 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model Web.Models.UserViewModel
+
 @{
+	ViewData["Title"] = "Cập nhật thông tin khách hàng";
+}
+
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
+    <!-- ico-font-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
+    <!-- Themify icon-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/themify.css">
+    <!-- Flag icon-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/flag-icon.css">
+    <!-- Feather icon-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/feather-icon.css">
+    <!-- Plugins css start-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
+    <!-- Plugins css Ends-->
+    <!-- Bootstrap css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
+    <!-- App css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
+    <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
+    <!-- Responsive css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+}
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" action="/customer/edit" class="row g-3 needs-validation custom-input" novalidate="">
+            <input asp-for="Id" name="Id" hidden>
+            <div class="col-md-4 position-relative">
+                <label class="form-label" for="FullName">Họ và Tên</label>
+                <input class="form-control" asp-for="FullName" name="FullName" id="FullName" type="text" placeholder="Nguyễn Quang Trường" required="" pattern="^[\p{L}]{2,}([\s][\p{L}]{2,})+$">
+                <div class="invalid-tooltip">Điền tên đầy đủ!</div>
+            </div>
+            <div class="col-md-4 position-relative">
+                <label class="form-label" for="Phone">Số Điện Thoại</label>
+                <input class="form-control" asp-for="Phone" name="Phone" id="Phone" type="tel" placeholder="0987654321" required="" pattern="^(03|09)[0-9]{8}$" minlength="10" maxlength="10">
+                <div class="invalid-tooltip">Điền số điện thoại!</div>
+            </div>
+            <div class="col-md-4 position-relative">
+                <label class="form-label" for="BirthDate">Ngày Sinh</label>
+                <input class="form-control digits" asp-for="BirthDate" name="BirthDate" id="BirthDate" type="date" required />
+                <div class="invalid-tooltip">Nhập ngày sinh!</div>
+            </div>
+            <input class="form-control digits" asp-for="RoleId" name="RoleId" id="RoleId" type="hidden" value="5">
+            <div class="col-md-3 position-relative">
+                <label class="form-label" for="provinceDropdown">Tỉnh/Thành Phố</label>
+                <select class="form-select" asp-for="ProvinceCode" name="ProvinceCode" id="provinceDropdown" required="">
+                    <option selected="" disabled="" value="">Chọn...</option>
+                </select>
+                <div class="invalid-tooltip">Chọn tỉnh, thành phố.</div>
+            </div>
+            <div class="col-md-3 position-relative">
+                <label class="form-label" for="districtDropdown">Quận/Huyện</label>
+                <select class="form-select" name="DistrictCode" id="districtDropdown" required="">
+                    <option selected="" disabled="" value="">Chọn...</option>
+                </select>
+                <div class="invalid-tooltip">Chọn quận, huyện.</div>
+            </div>
+            <div class="col-md-3 position-relative">
+                <label class="form-label" for="wardDropdown">Phường/Xã</label>
+                <select class="form-select" name="WardCode" id="wardDropdown" required="">
+                    <option selected="" disabled="" value="">Chọn...</option>
+                </select>
+                <div class="invalid-tooltip">Chọn phường, xã.</div>
+            </div>
+
+            <div class="col-12">
+                <button class="btn btn-primary" type="submit">Cập nhật</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/assets/js/jquery.min.js"></script>
+    <!-- Bootstrap js-->
+    <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
+    <!-- feather icon js-->
+    <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
+    <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
+    <!-- scrollbar js-->
+    <script src="~/assets/js/scrollbar/simplebar.js"></script>
+    <script src="~/assets/js/scrollbar/custom.js"></script>
+    <!-- Sidebar jquery-->
+    <script src="~/assets/js/config.js"></script>
+    <!-- Plugins JS start-->
+    <script src="~/assets/js/sidebar-menu.js"></script>
+    <script src="~/assets/js/sidebar-pin.js"></script>
+    <script src="~/assets/js/slick/slick.min.js"></script>
+    <script src="~/assets/js/slick/slick.js"></script>
+    <script src="~/assets/js/header-slick.js"></script>
+    <!-- calendar js-->
+    <script src="~/assets/js/form-validation-custom.js"></script>
+    <script src="~/assets/js/height-equal.js"></script>
+    <!-- Plugins JS Ends-->
+    <!-- Theme js-->
+    <script src="~/assets/js/script.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: 'http://localhost:5297/api/provinces',
+                type: 'GET',
+                success: function (provinces) {
+                    $('#provinceDropdown').empty().append('<option selected disabled value="">Chọn...</option>');
+                    provinces.forEach(province => {
+                        $('#provinceDropdown').append(new Option(province.name, province.code));
+                    });
+
+                    $('#provinceDropdown').val('@Model.ProvinceCode');
+
+                    $('#provinceDropdown').change();
+                },
+                error: function (xhr, status, error) {
+                    console.error("Failed to load provinces:", error);
+                }
+            });
+
+            $('#provinceDropdown').change(function () {
+                var provinceCode = $(this).val();
+                if (provinceCode) {
+                    $.ajax({
+                        url: `http://localhost:5297/api/districts/by-province/${provinceCode}`,
+                        type: 'GET',
+                        success: function (districts) {
+                            $('#districtDropdown').empty().append('<option selected disabled value="">Chọn...</option>');
+                            districts.forEach(district => {
+                                $('#districtDropdown').append(new Option(district.name, district.code));
+                            });
+
+                            $('#districtDropdown').val('@Model.DistrictCode');
+
+                            $('#districtDropdown').change();
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Failed to load districts:", error);
+                        }
+                    });
+                }
+            });
+
+            $('#districtDropdown').change(function () {
+                var districtCode = $(this).val();
+                if (districtCode) {
+                    $.ajax({
+                        url: `http://localhost:5297/api/wards/by-district/${districtCode}`,
+                        type: 'GET',
+                        success: function (wards) {
+                            $('#wardDropdown').empty().append('<option selected disabled value="">Chọn...</option>');
+                            wards.forEach(ward => {
+                                $('#wardDropdown').append(new Option(ward.name, ward.code));
+                            });
+
+                            $('#wardDropdown').val('@Model.WardCode');
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Failed to load wards:", error);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 }

@@ -50,7 +50,8 @@
             </div>
             <div class="form-group">
                 <label asp-for="AppointmentDate" class="control-label">Appointment Date</label>
-                <input asp-for="AppointmentDate" class="form-control" type="date" />
+                <input asp-for="AppointmentDate" class="form-control" type="datetime-local"
+                       value="@Model.AppointmentDate.ToString("yyyy-MM-ddTHH:mm")" />
             </div>
             <div class="form-group">
                 <label asp-for="Status" class="control-label">Status</label>
@@ -68,15 +69,12 @@
                     }
                 </select>
             </div>
-            <div class="form-group">
+            <div class="d-flex mt-3">
                 <input type="submit" value="Save" class="btn btn-primary" />
+                <a class="btn btn-secondary ms-1" asp-action="ListAppointment">Back to List</a>
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="ListAppointment">Back to List</a>
 </div>
 
 <script src="~/assets/js/jquery.min.js"></script>

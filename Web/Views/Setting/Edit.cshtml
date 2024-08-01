@@ -1,10 +1,7 @@
-﻿@model IEnumerable<Web.Models.UserViewModel>
+﻿@model Web.Models.SettingViewModel
 
 @{
-    ViewData["Title"] = "Quản Lý Người Dùng";
-    ViewData["ActionName"] = "Thêm người dùng mới";
-    ViewData["ActionUrl"] = "/user/add";
-    var usersJson = System.Text.Json.JsonSerializer.Serialize(Model);
+	ViewData["Title"] = "Sửa khóa cài đặt";
 }
 
 @section Styles {
@@ -22,7 +19,6 @@
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
-    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/datatables.css">
     <!-- Plugins css Ends-->
     <!-- Bootstrap css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
@@ -35,42 +31,27 @@
 
 <div class="card">
     <div class="card-body">
-        <div class="table-responsive custom-scrollbar">
-            <table class="display" id="basic-1">
-                <thead>
-                    <tr>
-                    <tr>
-                        <th>ID</th>
-                        <th>Người Dùng</th>
-                        <th>Họ Và Tên</th>
-                        <th>Điện Thoại</th>
-                        <th>Chức Vụ</th>
-                        <th>Địa Chỉ</th>
-                        <th>Hành Động</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td>@item.Id</td>
-                            <td>@item.UserName</td>
-                            <td>@($"{item.FirstName ?? ""} {item.MidName ?? ""} {item.LastName ?? ""}")</td>
-                            <td>@(item.Phone ?? "N/A")</td>
-                            @* <td>@(item.BirthDate?.ToString("dd-MM-yyyy") ?? "N/A")</td> *@
-                            <td>@(item.RoleName ?? "N/A")</td>
-                            <td>@(item.Address ?? "N/A")</td>
-                            <td>
-                                <ul class="action">
-                                    <li class="edit"><a href="/user/edit/@item.Id"><i class="icon-pencil-alt"></i></a></li>
-                                    @* <li class="delete"><a href="#"><i class="icon-trash"></i></a></li> *@
-                                </ul>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+        <form method="post" action="/setting/edit" class="row g-3 needs-validation custom-input" novalidate="">
+            <input asp-for="Id" name="Id" hidden>
+            <div class="col-md-12 position-relative">
+                <label class="form-label" for="Key">Khóa</label>
+                <input class="form-control" asp-for="Key" name="Key" id="Key" type="text" placeholder="Favicon" required="">
+                <div class="invalid-tooltip">Vui lòng điền khóa!</div>
+            </div>
+            <div class="col-md-12 position-relative">
+                <label class="form-label" for="Value">Giá trị khóa</label>
+                <input class="form-control" asp-for="Value" name="Value" id="Value" type="text" placeholder="Link ảnh" required="">
+                <div class="invalid-tooltip">Vui lòng điền giá trị khóa!</div>
+            </div>
+            <div class="col-md-12 position-relative">
+                <label class="form-label" for="Description">Mô tả</label>
+                <input class="form-control digits" asp-for="Description" name="Description" id="Description" type="text" />
+            </div>
+            
+            <div class="col-12">
+                <button class="btn btn-primary" type="submit">Cập nhật</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -93,8 +74,8 @@
     <script src="~/assets/js/slick/slick.js"></script>
     <script src="~/assets/js/header-slick.js"></script>
     <!-- calendar js-->
-    <script src="~/assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
-    <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
+    <script src="~/assets/js/form-validation-custom.js"></script>
+    <script src="~/assets/js/height-equal.js"></script>
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>

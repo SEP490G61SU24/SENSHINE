@@ -1,9 +1,9 @@
-﻿@model IEnumerable<Web.Models.UserViewModel>
+﻿@model IEnumerable<Web.Models.SettingViewModel>
 
 @{
-    ViewData["Title"] = "Quản Lý Người Dùng";
-    ViewData["ActionName"] = "Thêm người dùng mới";
-    ViewData["ActionUrl"] = "/user/add";
+    ViewData["Title"] = "Danh sách khóa cài đặt";
+    ViewData["ActionName"] = "Thêm khóa cài đặt";
+    ViewData["ActionUrl"] = "/setting/add";
     var usersJson = System.Text.Json.JsonSerializer.Serialize(Model);
 }
 
@@ -31,6 +31,8 @@
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
     <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/sweetalert2.css">
 }
 
 <div class="card">
@@ -41,11 +43,9 @@
                     <tr>
                     <tr>
                         <th>ID</th>
-                        <th>Người Dùng</th>
-                        <th>Họ Và Tên</th>
-                        <th>Điện Thoại</th>
-                        <th>Chức Vụ</th>
-                        <th>Địa Chỉ</th>
+                        <th>Key</th>
+                        <th>Giá trị</th>
+                        <th>Mô tả</th>
                         <th>Hành Động</th>
                     </tr>
                 </thead>
@@ -54,16 +54,13 @@
                     {
                         <tr>
                             <td>@item.Id</td>
-                            <td>@item.UserName</td>
-                            <td>@($"{item.FirstName ?? ""} {item.MidName ?? ""} {item.LastName ?? ""}")</td>
-                            <td>@(item.Phone ?? "N/A")</td>
-                            @* <td>@(item.BirthDate?.ToString("dd-MM-yyyy") ?? "N/A")</td> *@
-                            <td>@(item.RoleName ?? "N/A")</td>
-                            <td>@(item.Address ?? "N/A")</td>
+                            <td>@item.Key</td>
+                            <td>@item.Value</td>
+                            <td>@item.Description</td>
                             <td>
                                 <ul class="action">
-                                    <li class="edit"><a href="/user/edit/@item.Id"><i class="icon-pencil-alt"></i></a></li>
-                                    @* <li class="delete"><a href="#"><i class="icon-trash"></i></a></li> *@
+                                    <li class="edit"><a href="/setting/edit/@item.Id"><i class="icon-pencil-alt"></i></a></li>
+                                    <li class="detail"><a href="#" onclick="confirmDelete(@item.Id)"><i class="icon-trash"></i></a></li>
                                 </ul>
                             </td>
                         </tr>
@@ -98,4 +95,51 @@
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
+
+    <!-- sweet alert -->
+    <script src="~/assets/js/sweet-alert/sweetalert.min.js"></script>
+
+    <script type="text/javascript">
+        function confirmDelete(id) {
+            swal({
+                title: 'Bạn có chắc chắn muốn xóa?',
+                text: "Dữ liệu sẽ bị mất khi xác nhận!",
+                icon: 'warning',
+                buttons: {
+                    cancel: {
+                        text: 'Không, hủy bỏ!',
+                        value: null,
+                        visible: true,
+                        className: 'btn btn-secondary',
+                        closeModal: true
+                    },
+                    confirm: {
+                        text: 'Xác nhận!',
+                        value: true,
+                        visible: true,
+                        className: 'btn btn-success',
+                        closeModal: true
+                    }
+                }
+            }).then((result) => {
+                if (result) {
+                    $.ajax({
+                        url: '/setting/delete/' + id,
+                        type: 'DELETE',
+                        success: function (response) {
+                            swal("Đã xóa!", "Key cài đặt đã xóa thành công.", "success")
+                                .then(() => {
+                                    location.reload();
+                                });
+                        },
+                        error: function (xhr, status, error) {
+                            swal("Lỗi!", "Key cài đặt xóa thất bại.", "error");
+                        }
+                    });
+                } else {
+                    swal("Đã hủy", "Dữ liệu của bạn không thay đổi.", "info");
+                }
+            });
+        }
+    </script>
 }

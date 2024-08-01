@@ -77,7 +77,6 @@ namespace API.Services.Impl
                 }
             }
 
-
             user.Roles = new List<Role> { role };
 
             _context.Users.Add(user);
@@ -157,8 +156,8 @@ namespace API.Services.Impl
 
         public async Task<IEnumerable<UserDto>> GetAll()
         {
-            var users = await (from user in _context.Users.Include(u => u.Roles)
-                               join ward in _context.Wards on user.WardCode equals ward.Code into wardsJoined
+            var users = await (from user in _context.Users.Include(u => u.Roles).Where(u => u.Roles.All(r => r.Id != 5))
+							   join ward in _context.Wards on user.WardCode equals ward.Code into wardsJoined
                                from ward in wardsJoined.DefaultIfEmpty()
                                join district in _context.Districts on ward.DistrictCode equals district.Code into districtsJoined
                                from district in districtsJoined.DefaultIfEmpty()
@@ -222,6 +221,20 @@ namespace API.Services.Impl
             return await _context.Users
                                 .Include(u => u.Roles)
                                 .SingleOrDefaultAsync(u => u.UserName == username);
+        }
+
+        public async Task<string> GetAddress(string wardCode, string districtCode, string provinceCode)
+        {
+            var ward = await _context.Wards.SingleOrDefaultAsync(w => w.Code == wardCode);
+            var district = await _context.Districts.SingleOrDefaultAsync(d => d.Code == districtCode);
+            var province = await _context.Provinces.SingleOrDefaultAsync(p => p.Code == provinceCode);
+
+            var wardName = ward?.Name ?? "-";
+            var districtName = district?.Name ?? "-";
+            var provinceName = province?.Name ?? "-";
+
+            var addressString = $"{wardName} - {districtName} - {provinceName}";
+            return addressString;
         }
     }
 }
