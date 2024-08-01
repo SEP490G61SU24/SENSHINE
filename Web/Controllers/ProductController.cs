@@ -23,6 +23,7 @@ namespace Web.Controllers
         public async Task<IActionResult> ProductList()
         {
             List<ProductViewModel> viewList = new List<ProductViewModel>();
+            List<CategoryViewModel> categoryList = new List<CategoryViewModel>();
             HttpResponseMessage response = await _httpClient.GetAsync("/api/ListAllProduct");
 
             if (response.IsSuccessStatusCode)
@@ -30,26 +31,22 @@ namespace Web.Controllers
                 string data = await response.Content.ReadAsStringAsync();
                 viewList = JsonConvert.DeserializeObject<List<ProductViewModel>>(data);
             }
+            HttpResponseMessage categoryResponse = await _httpClient.GetAsync("/api/ListAllCategory");
+            if (categoryResponse.IsSuccessStatusCode)
+            {
+                string categoryData = await categoryResponse.Content.ReadAsStringAsync();
+                categoryList = JsonConvert.DeserializeObject<List<CategoryViewModel>>(categoryData);
+            }
+
+            // Store categories in ViewBag
+            ViewBag.Categories = categoryList;
+
 
             ViewData["Title"] = "List Products";
             return View(viewList);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> CategoryList()
-        {
-            List<CategoryViewModel> viewList = new List<CategoryViewModel>();
-            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/ListAllCategories");
-
-            if (response.IsSuccessStatusCode)
-            {
-                string data = await response.Content.ReadAsStringAsync();
-                viewList = JsonConvert.DeserializeObject<List<CategoryViewModel>>(data);
-            }
-
-
-            return View(viewList);
-        }
+       
     
     [HttpGet]
     public IActionResult AddProduct()
@@ -102,22 +99,42 @@ namespace Web.Controllers
         return View(productDto);
     }
 
-    [HttpGet]
-    public async Task<IActionResult> ProductDetail(int id)
-    {
-        HttpResponseMessage response = await _httpClient.GetAsync($"/api/GetProductDetail/{id}");
-
-        if (response.IsSuccessStatusCode)
+        [HttpGet]
+        public async Task<IActionResult> GetProductDetail(int id)
         {
-            string data = await response.Content.ReadAsStringAsync();
-            var productDto = JsonConvert.DeserializeObject<ProductDTO>(data);
-            return View(productDto);
+            HttpResponseMessage response = await _httpClient.GetAsync($"/api/GetProductDetailById/{id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+               
+                string data = await response.Content.ReadAsStringAsync();
+                var product = JsonConvert.DeserializeObject<ProductDTORequest>(data);
+
+               
+                if (product == null)
+                {
+                    return NotFound();
+                }
+
+               
+                var result = new
+                {
+                    id = product.Id,
+                    name = product.ProductName,
+                    price = product.Price,
+                    categories = product.Categories?.Select(c => c.CategoryName) 
+                };
+
+                return Json(result);
+            }
+
+            
+            return NotFound();
         }
 
-        return RedirectToAction("ProductList");
-    }
 
-    [HttpGet]
+
+        [HttpGet]
     public async Task<IActionResult> ProductsByCategory(int categoryId)
     {
         HttpResponseMessage response = await _httpClient.GetAsync($"/api/ProductsByCategory/{categoryId}");
@@ -133,18 +150,28 @@ namespace Web.Controllers
         return View(new List<ProductDTO>());
     }
 
-    [HttpPost]
-    public async Task<IActionResult> DeleteProduct(int id)
-    {
-        HttpResponseMessage response = await _httpClient.DeleteAsync($"/api/DeleteProduct/{id}");
-
-        if (response.IsSuccessStatusCode)
+        [HttpDelete]
+        public async Task<IActionResult> Delete(int id)
         {
-            return RedirectToAction("ProductList");
+            try
+            {
+                var response = await _httpClient.DeleteAsync($"/api/Deleteproduct/{id}");
+
+                if (response.IsSuccessStatusCode)
+                {
+
+                    return Json(new { success = true });
+                }
+
+
+                return Json(new { success = false, message = "An error occurred while deleting the product." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An unexpected error occurred." });
+            }
         }
 
-        ModelState.AddModelError(string.Empty, "An error occurred while deleting the product.");
-        return RedirectToAction("ProductList");
     }
-}
+
 }
