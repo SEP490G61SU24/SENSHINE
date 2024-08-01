@@ -31,7 +31,8 @@
                 <div class="card-body">
                     <div class="list-product-header">
                         <div>
-                            <div class="light-box"><a data-bs-toggle="collapse" href="list-products.html#collapseProduct" role="button" aria-expanded="false" aria-controls="collapseProduct">
+                            <div class="light-box">
+                                <a data-bs-toggle="collapse" href="list-products.html#collapseProduct" role="button" aria-expanded="false" aria-controls="collapseProduct">
                                     <i class="filter-icon show" data-feather="filter"></i><i class="icon-close filter-close hide"></i>
                                 </a>
                             </div><a class="btn btn-primary" href="@Url.Action("CreateCombo", "Combo")"><i class="fa fa-plus"></i>Add Combo</a>
@@ -39,7 +40,6 @@
                         <div class="collapse" id="collapseProduct">
                             <div class="card card-body list-product-body">
                                 <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3">
-                                    
                                     <div class="col">
                                         <select class="form-select" aria-label="Default select example">
                                             <option selected="">Price</option>
@@ -69,12 +69,13 @@
                                     <th> <span class="f-light f-w-600"> Discount </span></th>
                                     <th> <span class="f-light f-w-600"> SalePrice </span></th>
                                     <th> <span class="f-light f-w-600"> Note </span></th>
+                                    <th> <span class="f-light f-w-600"> Actions </span></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach (var item in Model)
                                 {
-                                    <tr>
+                                    <tr id="combo-@item.Id">
                                         <td></td>
                                         <td>@item.Name</td>
                                         <td>@item.Quantity</td>
@@ -82,10 +83,16 @@
                                         <td>@item.Discount</td>
                                         <td>@item.SalePrice</td>
                                         <td>@item.Note</td>
-                                       
+                                        <td>
+                                            <div class="product-action">
+                                                <a href="javascript:void(0);" class="btn btn-secondary" onclick="confirmDelete('@item.Id')">Delete</a>
+                                            </div>
+                                        </td>
                                     </tr>
                                 }
                             </tbody>
+
+
                         </table>
                     </div>
                 </div>
@@ -93,7 +100,52 @@
         </div>
     </div>
 </div>
+
 <!-- Container-fluid Ends-->
+@section Scripts {
+    <script type="text/javascript">
+        function confirmDelete(Id) {
+            if (confirm('Bạn có chắc chắn muốn xóa combo này không?')) {
+                deleteCombo(Id);
+            }
+        }
+
+        function deleteCombo(Id) {
+            $.ajax({
+                url: 'http://localhost:5297/api/Combo/DeleteCombo/' + Id,
+                type: 'DELETE',
+                success: function (result) {
+                    alert(result);
+                    $('#combo-' + Id).fadeOut(500, function () {
+                        $(this).remove();
+                        reloadComboList();
+                    });
+                },
+                error: function (xhr, status, error) {
+                    alert('Error: ' + xhr.responseText);
+                }
+            });
+        }
+
+        function reloadComboList() {
+            $.ajax({
+                url: '@Url.Action("Index", "Combo")',
+                type: 'GET',
+                success: function (data) {
+                    var newList = $(data).find('#project-status tbody').html();
+                    $('#project-status tbody').html(newList);
+                },
+                error: function (xhr, status, error) {
+                    alert('Error: ' + xhr.responseText);
+                }
+            });
+        }
+    </script>
+}
+
+
+
+
 
 
 

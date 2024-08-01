@@ -144,7 +144,7 @@ namespace API.Controllers
 
 
         // DELETE: api/combo/delete/{id}
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCombo(int id)
         {
             if (id < 1)
