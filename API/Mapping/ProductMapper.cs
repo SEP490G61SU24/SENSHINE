@@ -9,11 +9,18 @@ namespace API.Mapping
         public ProductMapper()
         {
             CreateMap<Product, ProductDTO>()
-           .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.Categories));
+           .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.Categories)).ReverseMap();
+            CreateMap<Product, ProductDTORequest>()
+               .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.Categories.Select(c => new CategoryDTO
+               {
+                   
+                   CategoryName = c.CategoryName
+               })))
+               .ReverseMap();
 
 
-            CreateMap<Category, CategoryDTO>();
-            CreateMap<CategoryDTO, Category>();
+            CreateMap<Category, CategoryDTO>().ReverseMap();
+            
         }
         }
 }

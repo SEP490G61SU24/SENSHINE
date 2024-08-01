@@ -50,13 +50,13 @@
                     <form asp-action="Add" method="post">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="row g-3">
-                            <div class="col-md-6">
+                            @* <div class="col-md-6">
                                 <div class="form-group">
                                     <label asp-for="IdNew" class="control-label">ID</label>
                                     <input asp-for="IdNew" class="form-control" />
                                     <span asp-validation-for="IdNew" class="text-danger"></span>
                                 </div>
-                            </div>
+                            </div> *@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label asp-for="Title" class="control-label">Title</label>
@@ -76,16 +76,20 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label asp-for="Cover" class="control-label">Cover Image</label>
                                     <div class="product-upload">
-                                      <!--  <p id="imageUrl"> Image</p> -->
                                         <input type="file" id="imageInput" accept="image/*">
                                         <div id="imagePreview"></div>
-                                        <span asp-validation-for="Cover" class="text-danger"></span>
+                                        
                                     </div>
                                 </div>
                             </div>
-
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label asp-for="Cover" class="control-label">Cover</label>
+                                    <textarea asp-for="Cover" class="form-control" rows="1"></textarea>
+                                    <span asp-validation-for="Cover" class="text-danger"></span>
+                                </div>
+                            </div>
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label asp-for="Content" class="control-label">Content</label>
