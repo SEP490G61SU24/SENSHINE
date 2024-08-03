@@ -41,17 +41,31 @@ namespace API.Services.Impl
             return _mapper.Map<Product>(product);
         }
 
-        public async Task<IEnumerable<ProductDTO>> ListProduct()
+        public async Task<IEnumerable<ProductDTORequest>> ListProduct()
         {
             var products = await _context.Products.Include(p=>p.Categories).ToListAsync();
-            return _mapper.Map<IEnumerable<ProductDTO>>(products);
+            return _mapper.Map<IEnumerable<ProductDTORequest>>(products);
         }
 
         public async Task<ProductDTORequest> GetProductDetail(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-            return _mapper.Map<ProductDTORequest>(product);
+            
+            var product = await _context.Products
+                .Include(p => p.Categories) 
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            
+            if (product == null)
+            {
+                return null; 
+            }
+
+            
+            var productDTORequest = _mapper.Map<ProductDTORequest>(product);
+
+            return productDTORequest;
         }
+
 
         public async Task<ProductDTO> GetProductByName(string name)
         {
@@ -61,17 +75,36 @@ namespace API.Services.Impl
 
         public async Task<bool> DeleteProduct(int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            
+            var product = await _context.Products
+               /* .Include(p => p.ProductCategories)*/
+                .FirstOrDefaultAsync(p => p.Id == id);
+
             if (product == null)
             {
                 return false;
             }
 
+            
+           /* _context.ProductCategories.RemoveRange(product.ProductCategories);*/
+
+            
             _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
+
+            try
+            {
+               
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                
+                return false;
+            }
 
             return true;
         }
+
 
     }
 

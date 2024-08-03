@@ -119,27 +119,27 @@ namespace Web.Controllers
             return View(newsDto);
         }
 
-            [HttpGet]
-            public async Task<IActionResult> GetNewsDetail(int id)
-            {
-                HttpResponseMessage response = await _httpClient.GetAsync($"/api/GetNewsDetail/{id}");
-
-                if (response.IsSuccessStatusCode)
+                [HttpGet]
+                public async Task<IActionResult> GetNewsDetail(int id)
                 {
-                    string data = await response.Content.ReadAsStringAsync();
-                    var news = JsonConvert.DeserializeObject<NewsDTO>(data);
-                    return Json(new
-                    {
-                        id = news?.IdNew,
-                        cover = news?.Cover, 
-                        title = news?.Title,
-                        content = news?.Content,
-                        publishedDate = news?.PublishedDate
-                    });
-                }
+                    HttpResponseMessage response = await _httpClient.GetAsync($"/api/GetNewsDetail/{id}");
 
-                return NotFound();
-            }
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string data = await response.Content.ReadAsStringAsync();
+                        var news = JsonConvert.DeserializeObject<NewsDTO>(data);
+                        return Json(new
+                        {
+                            id = news?.IdNew,
+                            cover = news?.Cover, 
+                            title = news?.Title,
+                            content = news?.Content,
+                            publishedDate = news?.PublishedDate
+                        });
+                    }
+
+                    return NotFound();
+                }
 
 
 

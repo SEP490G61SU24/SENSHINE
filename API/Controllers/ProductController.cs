@@ -43,7 +43,7 @@ namespace API.Controllers
         }
 
         [HttpGet("GetProductDetailById/{id}")]
-        public async Task<ActionResult<ProductDTO>> GetProductDetail(int id)
+        public async Task<ActionResult<ProductDTORequest>> GetProductDetail(int id)
         {
             var product = await _productService.GetProductDetail(id);
             if (product == null)

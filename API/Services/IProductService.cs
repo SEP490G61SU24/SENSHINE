@@ -7,7 +7,7 @@ namespace API.Services
     { 
             Task<Product> AddProduct(ProductDTO productDto);
             Task<Product> EditProduct(int id, ProductDTORequest productDto);
-            Task<IEnumerable<ProductDTO>> ListProduct();
+            Task<IEnumerable<ProductDTORequest>> ListProduct();
             Task<ProductDTORequest> GetProductDetail(int id);
             Task<ProductDTO> GetProductByName(string name);
             Task<bool> DeleteProduct(int id);
