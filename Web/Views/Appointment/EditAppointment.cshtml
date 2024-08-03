@@ -1,10 +1,4 @@
-﻿@model Web.Models.AppointmentViewModel
-
-@{
-    ViewData["Title"] = "Edit Appointment";
-}
-
-<!-- Google font-->
+﻿<!-- Google font-->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
@@ -33,47 +27,99 @@
 <!-- Responsive css-->
 <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="EditAppointment">
-            <div class="form-group">
-                <label asp-for="Id" class="control-label">Appointment ID</label>
-                <input asp-for="Id" class="form-control" readonly />
-            </div>
-            <div class="form-group">
-                <label asp-for="CustomerId" class="control-label">Customer</label>
-                <select asp-for="CustomerId" class="form-control" asp-items="ViewBag.Customers"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="EmployeeId" class="control-label">Employee</label>
-                <select asp-for="EmployeeId" class="form-control" asp-items="ViewBag.Employees"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="AppointmentDate" class="control-label">Appointment Date</label>
-                <input asp-for="AppointmentDate" class="form-control" type="datetime-local"
-                       value="@Model.AppointmentDate.ToString("yyyy-MM-ddTHH:mm")" />
-            </div>
-            <div class="form-group">
-                <label asp-for="Status" class="control-label">Status</label>
-                <select asp-for="Status" class="form-control">
-                    <option value="true" selected="@(Model.Status ? "selected" : "")">Finished</option>
-                    <option value="false" selected="@(Model.Status ? "" : "selected")">Not Started</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label asp-for="Services" class="control-label">Services</label>
-                <select asp-for="Services" class="form-control" asp-items="ViewBag.Services" multiple="multiple">
-                    @foreach (var service in ViewBag.Services)
-                    {
-                        <option value="@service.Value" selected="@Model.Services.Any(s => s.Id.ToString() == service.Value)">@service.Text</option>
-                    }
-                </select>
-            </div>
-            <div class="d-flex mt-3">
-                <input type="submit" value="Save" class="btn btn-primary" />
-                <a class="btn btn-secondary ms-1" asp-action="ListAppointment">Back to List</a>
-            </div>
-        </form>
+@model Web.Models.AppointmentViewModel
+
+@{
+    ViewData["Title"] = "Chỉnh sửa cuộc hẹn";
+    var services = ViewBag.Services as List<Web.Models.ServiceViewModel>;
+    var products = ViewBag.Products as List<Web.Models.ProductViewModel>;
+    var customers = ViewBag.Customers as List<Web.Models.UserViewModel>;
+    var employees = ViewBag.Employees as List<Web.Models.EmployeeViewModel>;
+}
+
+<div class="container mt-3">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <form asp-action="EditAppointment" method="post">
+
+                <div class="form-group">
+                    <label asp-for="CustomerId" class="control-label">Customer</label>
+                    <select asp-for="CustomerId" class="form-control" id="customerSelect">
+                        <option value="">Select Customer</option>
+                        @if (customers != null)
+                        {
+                            @foreach (var customer in customers)
+                            {
+                                <option value="@customer.Id">@customer.FirstName @customer.MidName @customer.LastName</option>
+                            }
+                        }
+                    </select>
+                    <span asp-validation-for="CustomerId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="EmployeeId" class="control-label">Employee</label>
+                    <select asp-for="EmployeeId" class="form-control" id="employeeSelect">
+                        @if (employees != null)
+                        {
+                            @foreach (var employee in employees)
+                            {
+                                <option value="@employee.Id">@employee.FirstName @employee.MidName @employee.LastName</option>
+                            }
+                        }
+                    </select>
+                    <span asp-validation-for="EmployeeId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="AppointmentDate" class="control-label">Appointment Date</label>
+                    <input asp-for="AppointmentDate" class="form-control" type="datetime-local" />
+                    <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="SelectedServiceIds" class="control-label">Services</label>
+                    <select asp-for="SelectedServiceIds" class="form-control" multiple id="serviceSelect">
+                        @if (services != null)
+                        {
+                            @foreach (var service in services)
+                            {
+                                <option value="@service.Id">@service.ServiceName</option>
+                            }
+                        }
+                    </select>
+                    <span asp-validation-for="SelectedServiceIds" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="SelectedProductIds" class="control-label">Products</label>
+                    <select asp-for="SelectedProductIds" class="form-control" id="productSelect">
+                        @if (products != null)
+                        {
+                            @foreach (var product in products)
+                            {
+                                <option value="@product.Id">@product.ProductName</option>
+                            }
+                        }
+                    </select>
+                    <span asp-validation-for="SelectedProductIds" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Status" class="control-label">Status</label>
+                    <select asp-for="Status" class="form-control" id="statusSelect">
+                        <option value="false">Not Started</option>
+                        <option value="true">Finished</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+
+                <div class="mt-4">
+                    <input type="submit" value="Save Changes" class="btn btn-primary" />
+                    <a asp-action="ListAppointment" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 

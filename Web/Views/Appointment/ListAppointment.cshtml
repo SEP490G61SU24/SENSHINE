@@ -1,9 +1,4 @@
-﻿@model IEnumerable<Web.Models.AppointmentViewModel>
-@{
-    ViewData["Title"] = "List Appointment";
-}
-
-<!-- Google font-->
+﻿<!-- Google font-->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
@@ -33,31 +28,42 @@
 <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 
 
-<p>
-    <a href="@Url.Action("CreateAppointment", "Appointment")">Add New Appointment</a>
-</p>
+@model IEnumerable<Web.Models.ListAppointmentViewModel>
+@{
+    ViewData["Title"] = "List Appointment";
+}
+
+<div class="controls-container">
+    <div class="controls">
+        <div class="button-group" role="group" aria-label="Basic mixed styles example">
+            <button id="prevWeek" class="btn btn-danger"><span>&lt;</span></button>
+            <button id="today" class="btn btn-success">This Week</button>
+            <button id="nextWeek" class="btn btn-warning"><span>&gt;</span></button>
+        </div>
+        <h2 id="weekRange"></h2>
+        <a class="btn btn-primary" href="@Url.Action("CreateAppointment", "Appointment")"><i class="fa fa-plus"></i>Tạo Cuộc Hẹn Mới</a>
+    </div>
+</div>
 
 
-<form asp-controller="Appointment" asp-action="ListAppointment" method="get">
-</form>
 
-<table class="table">
+<table id="appointments-container">
     <thead>
         <tr>
-            <th>Appointment ID</th>
-            <th>Customer Name</th>
-            <th>Employee Name</th>
-            <th>Services</th>
-            <th>Appointment Date</th>
-            <th>Status</th>
-            <th>Action</th>
+            <th>STT</th>
+            <th>Tên Khách Hàng</th>
+            <th>Nhân Viên Thực Hiện</th>
+            <th>Dịch Vụ Sử Dụng</th>
+            <th>Thời Gian Cuộc Hẹn</th>
+            <th>Trạng Thái</th>
+            <th>Hành Động</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var appointment in Model)
         {
-            <tr>
-                <td>@appointment.Id</td>
+            <tr class="appointment" data-date="@appointment.AppointmentDate" data-day="@appointment.AppointmentDate.DayOfWeek">
+                <td class="index"></td>
                 <td>@appointment.Customer.FullName</td>
                 <td>@appointment.Employee.FullName</td>
                 <td>
@@ -68,20 +74,205 @@
                         }
                     </ul>
                 </td>
-                <td>@appointment.AppointmentDate.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                <td>@appointment.AppointmentDate</td>
                 <td>@(appointment.Status ? "Finished" : "Not Started")</td>
                 <td>
                     <a asp-action="DetailAppointment" asp-route-id="@appointment.Id">Details</a> |
-                    <a asp-action="EditAppointment" asp-route-id="@appointment.Id">Edit</a> |
-                    <form asp-action="DeleteAppointment1" asp-route-id="@appointment.Id" method="post" onsubmit="return confirm('Are you sure you want to delete this appointment?');" class="me-0 custom-margin">
-                        <button type="submit" class="btn btn-link">Delete</button>
-                    </form>
-
+                    <a asp-action="EditAppointment" asp-route-id="@appointment.Id">Edit</a>           
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const appointmentsContainer = document.getElementById('appointments-container').querySelector('tbody');
+        let appointments = Array.from(appointmentsContainer.querySelectorAll('.appointment'));
+        let currentWeekStart = new Date();
+
+        function startOfWeek(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+            return new Date(d.setDate(diff));
+        }
+
+        function endOfWeek(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1) + 6;
+            return new Date(d.setDate(diff));
+        }
+
+        function formatDate(date) {
+            return date.toLocaleDateString('vi-VN', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        function updateWeekDisplay(start) {
+            const end = endOfWeek(start);
+            document.getElementById('weekRange').textContent = `${formatDate(start)} - ${formatDate(end)}`;
+        }
+
+        function filterAppointmentsByWeek(start) {
+            const end = endOfWeek(start);
+            appointments.forEach(appointment => {
+                const date = new Date(appointment.dataset.date);
+                if (date >= start && date <= end) {
+                    appointment.style.display = 'table-row';
+                } else {
+                    appointment.style.display = 'none';
+                }
+            });
+        }
+
+        function addIndexToAppointments() {
+            const visibleAppointments = Array.from(appointments).filter(appointment => appointment.style.display !== 'none');
+            visibleAppointments.forEach((appointment, index) => {
+                appointment.querySelector('.index').textContent = index + 1;
+            });
+        }
+
+        function highlightFinishedAppointments() {
+            appointments.forEach(appointment => {
+                const status = appointment.querySelector('td:nth-child(6)').textContent.trim();
+                if (status === 'Finished') {
+                    appointment.style.backgroundColor = '#d4edda'; // Màu xanh sáng cho trạng thái hoàn thành
+                } else {
+                    appointment.style.backgroundColor = ''; // Xóa màu nền nếu không phải hoàn thành
+                }
+            });
+        }
+
+        function sortAppointments() {
+            appointments.sort((a, b) => {
+                const dateA = new Date(a.dataset.date);
+                const dateB = new Date(b.dataset.date);
+                return dateA - dateB;
+            });
+
+            appointments.forEach(appointment => appointmentsContainer.appendChild(appointment));
+        }
+
+        function showCurrentWeek() {
+            const start = startOfWeek(currentWeekStart);
+            updateWeekDisplay(start);
+            filterAppointmentsByWeek(start);
+            sortAppointments(); // Thêm dòng này để sắp xếp các cuộc hẹn theo thứ tự thời gian
+            addIndexToAppointments(); // Thêm số thứ tự
+            highlightFinishedAppointments(); // Tô màu các cuộc hẹn đã hoàn thành
+        }
+
+        document.getElementById('prevWeek').addEventListener('click', function () {
+            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+            showCurrentWeek();
+        });
+
+        document.getElementById('today').addEventListener('click', function () {
+            currentWeekStart = new Date();
+            showCurrentWeek();
+        });
+
+        document.getElementById('nextWeek').addEventListener('click', function () {
+            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+            showCurrentWeek();
+        });
+
+        showCurrentWeek();
+    });
+
+</script>
+
+
+<!-- CSS for better visual grouping -->
+<style>
+    .controls-container {
+        margin-bottom: 20px; /* Khoảng cách dưới phần tử chứa */
+    }
+
+    .controls {
+        display: flex;
+        justify-content: space-between; /* Phân bố không gian đều giữa các phần tử */
+        align-items: center; /* Căn chỉnh theo chiều dọc */
+    }
+
+    .button-group {
+        display: flex;
+        align-items: center;
+    }
+
+        .button-group button {
+            margin-right: 5px; /* Khoảng cách giữa các nút */
+            font-size: 1em; /* Kích thước chữ của nút */
+        }
+
+    #weekRange {
+        text-align: center; /* Căn giữa chữ */
+        font-size: 2em; /* Đặt kích thước chữ của h2 bằng với kích thước của nút */
+        margin: 0; /* Loại bỏ khoảng cách trên và dưới */
+        padding: 0; /* Loại bỏ khoảng cách bên trong */
+    }
+
+    .new-appointment-button {
+        text-align: center; /* Căn giữa nội dung của nút */
+        margin-left: 20px; /* Khoảng cách bên trái để đẩy ra khỏi h2 */
+    }
+
+        .new-appointment-button a {
+            font-size: 1em; /* Đặt kích thước chữ của nút tương đương với kích thước chữ của h2 và nút */
+            padding: 10px 20px; /* Tăng kích thước padding của nút */
+            line-height: 1.5em;
+        }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+
+    th, td {
+        padding: 8px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    .appointment:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .appointment ul {
+        padding: 0;
+        list-style: none;
+    }
+
+    .appointment ul li {
+            margin: 0;
+    }
+
+    .btn-link {
+        background: none;
+        border: none;
+        color: #007bff;
+        text-decoration: underline;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .btn-link:hover {
+        color: #0056b3;
+     }
+</style>
+
 
 <script src="~/assets/js/jquery.min.js"></script>
 <!-- Bootstrap js-->

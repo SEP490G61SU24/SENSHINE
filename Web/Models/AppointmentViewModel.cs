@@ -21,11 +21,9 @@ namespace Web.Models
 
         [DisplayName("Status")]
         public bool Status { get; set; }
+        public List<int> SelectedServiceIds { get; set; } = new List<int>();
+        public List<int> SelectedProductIds { get; set; } = new List<int>();
 
-        public AppointmentUserViewModel Customer { get; set; }
-        public AppointmentUserViewModel Employee { get; set; }
-        public List<ServiceViewModel> Services { get; set; }
-        public List<ProductViewModel> Products { get; set; }
         public class AppointmentUserViewModel
         {
             [DisplayName("User ID")]
@@ -40,6 +38,7 @@ namespace Web.Models
             [DisplayName("Address")]
             public string Address { get; set; }
         }
+
     }
 
 }
