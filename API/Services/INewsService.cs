@@ -8,8 +8,9 @@ namespace API.Services
         Task<News> AddNews(NewsDTO newsDto);
         Task<News> EditNews(int id, NewsDTO newsDto);
         Task<IEnumerable<NewsDTO>> ListNews();
+        Task<IEnumerable<NewsDTO>> ListNewsSortByNewDate();
         Task<NewsDTO> GetNewsDetail(int id);
-        Task<IEnumerable<NewsDTORequest>> NewsByDate(DateTime From, DateTime To);
+        Task<IEnumerable<NewsDTO>> NewsByDate(DateTime From, DateTime To);
         Task<bool> DeleteNews(int id);
     }
 }

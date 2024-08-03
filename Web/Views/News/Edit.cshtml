@@ -29,6 +29,17 @@
     <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 }
+<style>
+    .fixed-size-image {
+        width: 350px;
+        height: 250px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 5px solid black; /* Add black border to the image */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add shadow to the image */
+    }
+
+</style>
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-12">
@@ -44,7 +55,7 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     
-                                    <img id="imagePreview" src="@(!string.IsNullOrEmpty(Model.Cover) ? Model.Cover : "https://via.placeholder.com/150")" alt="Image Preview" class="img-fluid" />
+                                    <img id="imagePreview" src="@(!string.IsNullOrEmpty(Model.Cover) ? Model.Cover : "https://via.placeholder.com/150")" alt="Image Preview" class="img-fluid fixed-size-image" />
                                 </div>
                             </div>
                             <div class="col-md-12">

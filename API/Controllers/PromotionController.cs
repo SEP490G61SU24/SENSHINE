@@ -71,15 +71,18 @@ namespace API.Controllers
             }
 
 
-        [HttpGet("GetPromotionDetail")]
-        public async Task<ActionResult<IEnumerable<PromotionDTORequest>>> GetPromotionDetail([FromQuery] string spaLocation, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
+        [HttpGet("GetPromotionsByFilter")]
+        public async Task<ActionResult<IEnumerable<PromotionDTORespond>>> GetPromotionsByFilter(
+             string? spaLocation = null,
+             DateTime? startDate = null,
+             DateTime? endDate = null)
         {
             var promotions = await _promotionService.GetPromotionsByFilter(spaLocation, startDate, endDate);
-            if (promotions == null)
+
+            if (promotions == null || !promotions.Any())
             {
                 return NotFound();
             }
-
             return Ok(promotions);
         }
 

@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Net.Http;
 using Web.Models;
 
 namespace Web.Controllers
@@ -7,10 +9,15 @@ namespace Web.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly HttpClient _httpClient;
+        private readonly IConfiguration _configuration;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IConfiguration configuration)
         {
             _logger = logger;
+            _configuration = configuration;
+            var apiUrl = _configuration.GetValue<string>("ApiUrl");
+            _httpClient = new HttpClient { BaseAddress = new Uri(apiUrl) };
         }
 
         public IActionResult Index()
@@ -22,9 +29,24 @@ namespace Web.Controllers
         {
             return View();
         }
-        public IActionResult HomePage()
+        public async Task<IActionResult> HomePageAsync()
         {
-            return View();
+            List<NewsViewModel> viewList = new List<NewsViewModel>();
+            HttpResponseMessage response = await _httpClient.GetAsync("/api/ListNewsSortDESCByNewDate");
+
+            if (response.IsSuccessStatusCode)
+            {
+                string data = await response.Content.ReadAsStringAsync();
+                viewList = JsonConvert.DeserializeObject<List<NewsViewModel>>(data);
+            }
+            else
+            {
+                // Log error message here
+                ModelState.AddModelError(string.Empty, "An error occurred while fetching the news list.");
+            }
+
+            
+            return View(viewList);
         }
         public IActionResult NewsList()
         {
