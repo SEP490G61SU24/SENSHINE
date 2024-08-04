@@ -92,5 +92,94 @@ namespace Web.Controllers
 
             return services;
         }
+        [HttpDelete]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                var response = await _httpClient.DeleteAsync($"/api/Combo/DeleteCombo/{id}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Json(new { success = true });
+                }
+
+                return Json(new { success = false, message = "An error occurred while deleting the combo." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An unexpected error occurred." });
+            }
+        }
+        // GET: /Combo/EditCombo/{id}
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var combo = await GetComboById(id);
+            if (combo == null)
+            {
+                return NotFound();
+            }
+
+            var services = await GetAvailableServices();
+            ViewBag.Services = services;
+
+            return View(combo);
+        }
+
+        // POST: /Combo/EditCombo
+        [HttpPost]
+        public async Task<IActionResult> Edit(ComboViewModel comboViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                var services = await GetAvailableServices();
+                ViewBag.Services = services;
+                return View(comboViewModel);
+            }
+
+            var comboDTO = new ComboDTO
+            {
+                Id = comboViewModel.Id,
+                Name = comboViewModel.Name,
+                Quantity = comboViewModel.Quantity,
+                Note = comboViewModel.Note,
+                Price = comboViewModel.Price,
+                Discount = comboViewModel.Discount,
+                SalePrice = comboViewModel.SalePrice,
+                Services = comboViewModel.SelectedServiceIds.Select(id => new ServiceDTO { Id = id, ServiceName = "" }).ToList()
+            };
+
+            string jsonString = JsonConvert.SerializeObject(comboDTO);
+            var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+
+            HttpResponseMessage response = await _httpClient.PutAsync(_httpClient.BaseAddress + $"/Combo/UpdateCombo/{comboViewModel.Id}", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Index");
+            }
+
+            string errorMessage = await response.Content.ReadAsStringAsync();
+            ModelState.AddModelError(string.Empty, errorMessage);
+            var servicesList = await GetAvailableServices();
+            ViewBag.Services = servicesList;
+            return View(comboViewModel);
+        }
+
+        private async Task<ComboViewModel> GetComboById(int id)
+        {
+            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + $"/Combo/GetByID?IdCombo={id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                string jsonString = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<ComboViewModel>(jsonString);
+            }
+
+            return null;
+        }
+
+
     }
 }
