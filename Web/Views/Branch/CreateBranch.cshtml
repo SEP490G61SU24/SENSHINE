@@ -4,40 +4,65 @@
     ViewData["Title"] = "CreateBranch";
 }
 
-<h1>CreateBranch</h1>
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
+    <!-- ico-font-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
+    <!-- Themify icon-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/themify.css">
+    <!-- Flag icon-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/flag-icon.css">
+    <!-- Feather icon-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/feather-icon.css">
+    <!-- Plugins css start-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/datatables.css">
+    <!-- Plugins css Ends-->
+    <!-- Bootstrap css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
+    <!-- App css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
+    <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
+    <!-- Responsive css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+}
 
-<h4>BranchViewModel</h4>
 <hr />
-<div class="row">
-    <div class="col-md-4">
+<div class="card">
+    <div class="card-body">
         <form asp-action="CreateBranch">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-@*             <div class="form-group">
-                <label asp-for="Id" class="control-label"></label>
-                <input asp-for="Id" class="form-control" />
-                <span asp-validation-for="Id" class="text-danger"></span>
-            </div> *@
-            <div class="form-group">
+            <div class="col-md-12 position-relative">
                 <label asp-for="SpaName" class="control-label"></label>
                 <input asp-for="SpaName" class="form-control" />
                 <span asp-validation-for="SpaName" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="ProvinceCode" class="control-label"></label>
-                <input asp-for="ProvinceCode" class="form-control" />
-                <span asp-validation-for="ProvinceCode" class="text-danger"></span>
+            <div class="col-md-12 position-relative">
+                <label class="form-label" for="provinceDropdown">Tỉnh/Thành Phố</label>
+                <select class="form-select" name="ProvinceCode" id="provinceDropdown" required="">
+                    <option selected="" disabled="" value="">Chọn...</option>
+                </select>
+                <div class="invalid-tooltip">Chọn tỉnh, thành phố.</div>
             </div>
-            <div class="form-group">
-                <label asp-for="DistrictCode" class="control-label"></label>
-                <input asp-for="DistrictCode" class="form-control" />
-                <span asp-validation-for="DistrictCode" class="text-danger"></span>
+            <div class="col-md-12 position-relative">
+                <label class="form-label" for="districtDropdown">Quận/Huyện</label>
+                <select class="form-select" name="DistrictCode" id="districtDropdown" required="">
+                    <option selected="" disabled="" value="">Chọn...</option>
+                </select>
+                <div class="invalid-tooltip">Chọn quận, huyện.</div>
             </div>
-            <div class="form-group">
-                <label asp-for="WardCode" class="control-label"></label>
-                <input asp-for="WardCode" class="form-control" />
-                <span asp-validation-for="WardCode" class="text-danger"></span>
+            <div class="col-md-12 position-relative">
+                <label class="form-label" for="wardDropdown">Phường/Xã</label>
+                <select class="form-select" name="WardCode" id="wardDropdown" required="">
+                    <option selected="" disabled="" value="">Chọn...</option>
+                </select>
+                <div class="invalid-tooltip">Chọn phường, xã.</div>
             </div>
-            <div class="form-group">
+            </br>
+            <div class="col-12">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>
@@ -48,6 +73,83 @@
     <a asp-action="ListBranch">Back to List</a>
 </div>
 
-@* @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-} *@
+@section Scripts {
+    <script src="~/assets/js/jquery.min.js"></script>
+    <!-- Bootstrap js-->
+    <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
+    <!-- feather icon js-->
+    <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
+    <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
+    <!-- scrollbar js-->
+    <script src="~/assets/js/scrollbar/simplebar.js"></script>
+    <script src="~/assets/js/scrollbar/custom.js"></script>
+    <!-- Sidebar jquery-->
+    <script src="~/assets/js/config.js"></script>
+    <!-- Plugins JS start-->
+    <script src="~/assets/js/sidebar-menu.js"></script>
+    <script src="~/assets/js/sidebar-pin.js"></script>
+    <script src="~/assets/js/slick/slick.min.js"></script>
+    <script src="~/assets/js/slick/slick.js"></script>
+    <script src="~/assets/js/header-slick.js"></script>
+    <!-- calendar js-->
+    <script src="~/assets/js/da tatable/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
+    <!-- Plugins JS Ends-->
+    <!-- Theme js-->
+    <script src="~/assets/js/script.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: 'http://localhost:5297/api/provinces',
+                type: 'GET',
+                success: function (provinces) {
+                    provinces.forEach(province => {
+                        $('#provinceDropdown').append(new Option(province.name, province.code));
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error("Failed to load provinces:", error);
+                }
+            });
+
+            $('#provinceDropdown').change(function () {
+                var provinceCode = $(this).val();
+                if (provinceCode) {
+                    $.ajax({
+                        url: `http://localhost:5297/api/districts/by-province/${provinceCode}`,
+                        type: 'GET',
+                        success: function (districts) {
+                            $('#districtDropdown').empty().append('<option selected disabled value="">Chọn...</option>');
+                            districts.forEach(district => {
+                                $('#districtDropdown').append(new Option(district.name, district.code));
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Failed to load districts:", error);
+                        }
+                    });
+                }
+            });
+
+            $('#districtDropdown').change(function () {
+                var districtCode = $(this).val();
+                if (districtCode) {
+                    $.ajax({
+                        url: `http://localhost:5297/api/wards/by-district/${districtCode}`,
+                        type: 'GET',
+                        success: function (wards) {
+                            $('#wardDropdown').empty().append('<option selected disabled value="">Chọn...</option>');
+                            wards.forEach(ward => {
+                                $('#wardDropdown').append(new Option(ward.name, ward.code));
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Failed to load wards:", error);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}

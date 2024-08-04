@@ -15,7 +15,6 @@ namespace API.Models
             Reviews = new HashSet<Review>();
             Salaries = new HashSet<Salary>();
             WorkSchedules = new HashSet<WorkSchedule>();
-            CardsNavigation = new HashSet<Card>();
             Roles = new HashSet<Role>();
         }
 
@@ -40,7 +39,6 @@ namespace API.Models
         public virtual ICollection<Salary> Salaries { get; set; }
         public virtual ICollection<WorkSchedule> WorkSchedules { get; set; }
 
-        public virtual ICollection<Card> CardsNavigation { get; set; }
         public virtual ICollection<Role> Roles { get; set; }
     }
 }

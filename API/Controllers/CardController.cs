@@ -58,7 +58,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
             if (!_cardService.CardExist(id))
                 return NotFound();
@@ -80,7 +80,7 @@ namespace API.Controllers
             if (!_cardService.CardExistByNumNamePhone(input))
                 return NotFound();
 
-            var cards = _cardService.GetCardByNumNamePhone(input);
+            var cards = _mapper.Map<List<CardDTO>>(_cardService.GetCardByNumNamePhone(input));
 
             return Ok(cards);
         }
@@ -112,15 +112,7 @@ namespace API.Controllers
             {
                 var existingCard = _cardService.GetCard(id);
                 existingCard.CustomerId = cardDTO.CustomerId;
-                List<Combo> comboList = new List<Combo>();
-
-                foreach (int comboId in cardDTO.ComboId)
-                {
-                    var combo = _cardService.GetCombo(comboId);
-                    comboList.Add(combo);
-                }
-
-                existingCard.Combos = comboList;
+                existingCard.Status = cardDTO.Status;
                 var cardUpdate = await _cardService.UpdateCard(id, existingCard);
 
                 if (cardUpdate == null)
@@ -159,6 +151,36 @@ namespace API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, $"Có lỗi xảy ra khi chuyển trạng thái thẻ: {ex.Message}");
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCardComboByCard(int id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var combo = _mapper.Map<List<CardComboDTO>>(_cardService.GetCardComboByCard(id));
+
+            return Ok(combo);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddCombo([FromBody] CardComboDTO cardComboDTO)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var cardComboMap = _mapper.Map<CardCombo>(cardComboDTO);
+                var createdCardCombo = await _cardService.CreateCardCombo(cardComboMap);
+
+                return Ok($"Thêm combo thành công");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Có lỗi xảy ra khi thêm combo: {ex.Message}");
             }
         }
     }

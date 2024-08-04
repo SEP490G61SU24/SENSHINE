@@ -1,9 +1,33 @@
 ﻿@model IEnumerable<Web.Models.CardViewModel>
-@{
-    Layout = null;
-}
+
 @{
     ViewData["Title"] = "card management";
+}
+
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
+    <!-- ico-font-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
+    <!-- Themify icon-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/themify.css">
+    <!-- Flag icon-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/flag-icon.css">
+    <!-- Feather icon-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/feather-icon.css">
+    <!-- Plugins css start-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/datatables.css">
+    <!-- Plugins css Ends-->
+    <!-- Bootstrap css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
+    <!-- App css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
+    <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
+    <!-- Responsive css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 }
 
 <form method="get" asp-action="ListCard">
@@ -37,10 +61,13 @@
                 @Html.DisplayNameFor(model => model.CardNumber)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CustomerId)
+                @Html.DisplayNameFor(model => model.CustomerName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ComboId)
+                @Html.DisplayNameFor(model => model.CustomerPhone)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BranchName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.CreateDate)
@@ -48,10 +75,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.Status)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TotalPrice)
-            </th>
-            <th></th>
         </tr>
     </thead>
     @if (Model != null)
@@ -61,13 +84,18 @@
             {
                 <tr>
                     <td>
-                        @Html.DisplayFor(modelItem => item.CardNumber)
+                        <a href="@Url.Action("DetailCard", "Card", new { id = item.Id })">
+                            @Html.DisplayFor(modelItem => item.CardNumber)
+                        </a>
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.CustomerId)
+                        @Html.DisplayFor(modelItem => item.CustomerName)
                     </td>
+                    <th>
+                        @Html.DisplayFor(modelItem => item.CustomerPhone)
+                    </th>
                     <td>
-                        @Html.DisplayFor(modelItem => item.ComboId)
+                        @Html.DisplayFor(modelItem => item.BranchName)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.CreateDate)
@@ -76,13 +104,8 @@
                         @Html.DisplayFor(modelItem => item.Status)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.TotalPrice)
-                    </td>
-                    <td>
                         @Html.ActionLink("Update", "UpdateCard", new { id = item.Id }, new { @href = "http://localhost:5129/Card/UpdateCard?id=" + item.Id }) |
-                        @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
                         @Html.ActionLink("Change State", "ChangeStateCard", new { id = item.Id }, new { @onclick = "return confirmChangeState(" + item.Id + ")" })
-
                     </td>
                 </tr>
             }
@@ -90,18 +113,44 @@
     }
     else
     {
-        <p>No cards found matching your search criteria.</p>
+        <caption>No cards found matching your search criteria.</caption>
     }
 </table>
 
-<script>
-    function confirmChangeState(id) {
-        if (confirm("Are you sure you want to change the state of this card?")) {
-            // Submit the form using the original ActionLink (no further action needed)
-            return true;
-        } else {
-            // User canceled, prevent default action (optional)
-            return false;
+@section Scripts {
+    <script>
+        function confirmChangeState(id) {
+            if (confirm("Are you sure you want to change the state of this card?")) {
+                // Submit the form using the original ActionLink (no further action needed)
+                return true;
+            } else {
+                // User canceled, prevent default action (optional)
+                return false;
+            }
         }
-    }
-</script>
+    </script>
+
+    <script src="~/assets/js/jquery.min.js"></script>
+    <!-- Bootstrap js-->
+    <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
+    <!-- feather icon js-->
+    <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
+    <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
+    <!-- scrollbar js-->
+    <script src="~/assets/js/scrollbar/simplebar.js"></script>
+    <script src="~/assets/js/scrollbar/custom.js"></script>
+    <!-- Sidebar jquery-->
+    <script src="~/assets/js/config.js"></script>
+    <!-- Plugins JS start-->
+    <script src="~/assets/js/sidebar-menu.js"></script>
+    <script src="~/assets/js/sidebar-pin.js"></script>
+    <script src="~/assets/js/slick/slick.min.js"></script>
+    <script src="~/assets/js/slick/slick.js"></script>
+    <script src="~/assets/js/header-slick.js"></script>
+    <!-- calendar js-->
+    <script src="~/assets/js/da tatable/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
+    <!-- Plugins JS Ends-->
+    <!-- Theme js-->
+    <script src="~/assets/js/script.js"></script>
+}

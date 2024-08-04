@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using API.Models;
 
-namespace API.Models
+namespace API.Dtos
 {
-    public partial class Salary
+    public class SalaryDTO
     {
         public int Id { get; set; }
         public int EmployeeId { get; set; }
@@ -14,7 +13,5 @@ namespace API.Models
         public decimal? TotalSalary { get; set; }
         public int? SalaryMonth { get; set; }
         public int? SalaryYear { get; set; }
-
-        public virtual User Employee { get; set; } = null!;
     }
 }

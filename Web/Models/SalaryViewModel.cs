@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace API.Models
+﻿namespace Web.Models
 {
-    public partial class Salary
+    public class SalaryViewModel
     {
         public int Id { get; set; }
         public int EmployeeId { get; set; }
@@ -14,7 +11,5 @@ namespace API.Models
         public decimal? TotalSalary { get; set; }
         public int? SalaryMonth { get; set; }
         public int? SalaryYear { get; set; }
-
-        public virtual User Employee { get; set; } = null!;
     }
 }
