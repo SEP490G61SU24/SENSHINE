@@ -55,6 +55,12 @@ namespace API.Controllers
             var newsList = await _newsService.ListNews();
             return Ok(newsList);
         }
+        [HttpGet("ListNewsSortDESCByNewDate")]
+        public async Task<IActionResult> ListNewsSortByNewDate()
+        {
+            var newsList = await _newsService.ListNewsSortByNewDate();
+            return Ok(newsList);
+        }
 
         [HttpGet("GetNewsDetail/{id}")]
         public async Task<IActionResult> GetNewsDetail(int id)
@@ -68,12 +74,18 @@ namespace API.Controllers
             return Ok(news);
         }
 
-        [HttpGet("Newsbydate")]
+        [HttpGet("NewsByDate")]
         public async Task<IActionResult> NewsByDate([FromQuery] DateTime from, [FromQuery] DateTime to)
         {
+            if (from > to)
+            {
+                return BadRequest("The 'from' date cannot be later than the 'to' date.");
+            }
+
             var newsList = await _newsService.NewsByDate(from, to);
             return Ok(newsList);
         }
+
 
         [HttpDelete("DeleteNews/{id}")]
         public async Task<IActionResult> DeleteNews(int id)

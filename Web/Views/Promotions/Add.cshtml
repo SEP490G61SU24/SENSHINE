@@ -52,7 +52,7 @@
                                 <div class="form-group">
                                     <label for="SpaId" class="control-label">Spa Name</label>
                                     <select asp-for="SpaId" class="form-control" asp-items="ViewBag.SpaList">
-                                        <option value="">Select a Spa</option>
+                                        <option selected disabled>All Location</option>
                                     </select>
                                     <span asp-validation-for="SpaId" class="text-danger"></span>
                                 </div>

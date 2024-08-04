@@ -64,7 +64,7 @@ namespace API.Services.Impl
         {
             var query = _context.Promotions.Include(x => x.Spa).AsQueryable();
 
-            if (!string.IsNullOrEmpty(spaLocation))
+            if (!string.IsNullOrEmpty(spaLocation) && spaLocation != "All Location")
             {
                 query = query.Where(x => x.Spa.SpaName == spaLocation);
             }
@@ -79,9 +79,16 @@ namespace API.Services.Impl
                 query = query.Where(x => x.EndDate <= endDate);
             }
 
-            var promotions = await query.ToListAsync();
-
-            return _mapper.Map<IEnumerable<PromotionDTORespond>>(promotions);
+            if (!string.IsNullOrEmpty(spaLocation) || startDate.HasValue || endDate.HasValue)
+            {
+                var promotions = await query.ToListAsync();
+                return _mapper.Map<IEnumerable<PromotionDTORespond>>(promotions);
+            }
+            else
+            {
+                var allPromotions = await _context.Promotions.Include(x => x.Spa).ToListAsync();
+                return _mapper.Map<IEnumerable<PromotionDTORespond>>(allPromotions);
+            }
         }
 
         public async Task<bool> DeletePromotion(int id)

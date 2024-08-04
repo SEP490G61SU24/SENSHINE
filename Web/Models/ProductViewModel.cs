@@ -12,6 +12,7 @@ namespace Web.Models
         public int Id { get; set; }
         public string ProductName { get; set; } = null!;
         public decimal? Price { get; set; }
+        public int? Quantity { get; set; }
         public virtual ICollection<Category> Categories { get; set; }
     }
 }

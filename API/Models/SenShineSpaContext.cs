@@ -388,6 +388,8 @@ namespace API.Models
 
                 entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
 
+                entity.Property(e => e.Quantity).HasColumnType("int");
+
                 entity.Property(e => e.ProductName).HasMaxLength(100);
 
                 entity.HasMany(d => d.Categories)
