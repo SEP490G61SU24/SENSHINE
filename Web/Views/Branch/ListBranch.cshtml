@@ -1,8 +1,80 @@
 ﻿@model IEnumerable<Web.Models.BranchViewModel>
 
 @{
-    ViewData["Title"] = "ListBranch";
+    ViewData["Title"] = "Quản lý chi nhánh";
 }
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="list-product-header">
+                        <div>
+                            <div class="light-box">
+                                <a data-bs-toggle="collapse" href="list-products.html#collapseProduct" role="button" aria-expanded="false" aria-controls="collapseProduct">
+                                    <i class="filter-icon show" data-feather="filter"></i>
+                                    <i class="icon-close filter-close hide"></i>
+                                </a>
+                            </div>
+                            <a class="btn btn-primary" href="@Url.Action("CreateBranch", "Branch")"><i class="fa fa-plus"></i>Add Branch</a>
+                        </div>
+                        <div class="collapse" id="collapseProduct">
+                            <div class="card card-body list-product-body">
+                                <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3">
+
+                                    <div class="col">
+                                        <select class="form-select" aria-label="Default select example">
+                                            <option selected="">Price</option>
+                                            <option value="1">56000.00</option>
+                                            <option value="2">19000.00</option>
+                                            <option value="3">10000.00</option>
+                                            <option value="3">15000.00</option>
+                                            <option value="3">99000.00</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-product">
+                        <table class="table" id="project-status">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <div class="form-check">
+                                            <input class="form-check-input checkbox-primary" type="checkbox">
+                                        </div>
+                                    </th>
+                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.SpaName)</span></th>
+                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.ProvinceCode)</span></th>
+                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.DistrictCode)</span></th>
+                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.WardCode)</span></th>
+                                    <th> <span class="f-light f-w-600">Cập nhật</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td></td>
+                                        <td>@item.SpaName</td>
+                                        <td>@item.ProvinceName</td>
+                                        <td>@item.DistrictName</td>
+                                        <td>@item.WardName</td>
+                                        <td>
+                                            @Html.ActionLink("Update", "UpdateBranch", new { id = item.Id }, new { @href = "http://localhost:5129/Branch/UpdateBranch?id=" + item.Id })
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Styles {
     <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
@@ -19,61 +91,19 @@
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/js-datatables/style.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/owlcarousel.css">
     <!-- Plugins css Ends-->
     <!-- Bootstrap css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
     <!-- App css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
-    <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 }
 
-<p>
-    <a asp-action="CreateBranch">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.SpaName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ProvinceCode)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DistrictCode)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.WardCode)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.SpaName)
-                </td>
-                <td data-province-code="@item.ProvinceCode">
-                </td>
-                <td data-district-code="@item.DistrictCode">
-                </td>
-                <td data-ward-code="@item.WardCode">
-                </td>
-                <td>
-                    @Html.ActionLink("Update", "UpdateBranch", new { id = item.Id }, new { @href = "http://localhost:5129/Branch/UpdateBranch?id=" + item.Id }) |
-                    @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
 @section Scripts {
+    <!-- Container-fluid Ends-->
     <script src="~/assets/js/jquery.min.js"></script>
     <!-- Bootstrap js-->
     <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
@@ -92,33 +122,12 @@
     <script src="~/assets/js/slick/slick.js"></script>
     <script src="~/assets/js/header-slick.js"></script>
     <!-- calendar js-->
-    <script src="~/assets/js/da tatable/datatables/jquery.dataTables.min.js"></script>
-    <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
+    <script src="~/assets/js/js-datatables/simple-datatables@latest.js"></script>
+    <script src="~/assets/js/custom-list-product.js"></script>
+    <script src="~/assets/js/owlcarousel/owl.carousel.js"></script>
+    <script src="~/assets/js/ecommerce.js"></script>
+    <script src="~/assets/js/tooltip-init.js"></script>
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            function fetchData(selector, url, propertyName) {
-                const cells = document.querySelectorAll(selector);
-                cells.forEach(cell => {
-                    const code = cell.getAttribute('data-' + selector.replace('td[data-', '').replace(']', ''));
-                    fetch(`${url}/${code}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            cell.textContent = data[propertyName];
-                        })
-                        .catch(error => {
-                            console.error(`Error fetching ${propertyName}:`, error);
-                            cell.textContent = `Error fetching ${propertyName}`;
-                        });
-                });
-            }
-
-            fetchData('td[data-province-code]', 'http://localhost:5297/api/provinces', 'name');
-            fetchData('td[data-district-code]', 'http://localhost:5297/api/districts', 'name');
-            fetchData('td[data-ward-code]', 'http://localhost:5297/api/wards', 'name');
-        });
-    </script>
 }

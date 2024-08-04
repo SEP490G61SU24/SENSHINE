@@ -13,5 +13,8 @@ namespace Web.Models
         public string? DistrictCode { get; set; }
         [DisplayName("Phường")]
         public string? WardCode { get; set; }
+        public string? ProvinceName { get; set; }
+        public string? DistrictName { get; set; }
+        public string? WardName { get; set; }
     }
 }

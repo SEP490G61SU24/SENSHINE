@@ -1,4 +1,6 @@
-﻿namespace Web.Models
+﻿using System.ComponentModel;
+
+namespace Web.Models
 {
     public class SalaryViewModel
     {
@@ -11,5 +13,6 @@
         public decimal? TotalSalary { get; set; }
         public int? SalaryMonth { get; set; }
         public int? SalaryYear { get; set; }
+        public string? EmployeeName { get; set; }
     }
 }
