@@ -1,5 +1,233 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿    @model IEnumerable<Web.Models.NewsViewModel>
+
+    @{
+    
+        Layout = null;
+    }
+
+    <html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <meta name="author" content="pixelstrap">
+        <link rel="icon" href="~/assets/images/landing/landinglogo.png" type="image/x-icon">
+        <link rel="shortcut icon" href="~/assets/images/landing/landinglogo.png" type="image/x-icon">
+        <title>SenShine Spa</title>
+        <!-- Google font-->
+        <link href="https://fonts.googleapis.com/css?family=Rubik:400,400i,500,500i,700,700i&amp;display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i,900&amp;display=swap" rel="stylesheet">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+        <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&amp;display=swap" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
+        <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
+        <link rel="icon" href="~/assets/svg/landing-icons.svg">
+        <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
+        <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
+        <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
+        <link rel="stylesheet" type="text/css" href="~/assets/css/styles_HomePage.css">
+        <!-- Bootstrap css-->
+        <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
+        <!-- App css-->
+        <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
+        <!-- Responsive css-->
+        <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+
+    </head>
+    <style>
+        .card-with-border {
+            border: 1px solid #ddd;
+            transition: transform 0.2s ease-in-out;
+        }
+
+            .card-with-border:hover {
+                transform: scale(1.05);
+            }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+    .card {
+        margin-bottom: 0 !important;
+    }
+        .card-text {
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+    </style>
+    <body class="landing-page">
+        <!-- tap on top starts -->
+        <div class="tap-top"><i data-feather="chevrons-up"></i></div>
+        <!-- tap on top ends -->
+        <!-- page-wrapper Start -->
+        
+            <!-- Page Body Start -->
+            <div class="landing-home" id="home">
+                <div class="container-fluid">
+                    <div class="sticky-header">
+                        <header>
+                            <nav class="navbar navbar-b navbar-dark navbar-trans navbar-expand-xl fixed-top nav-padding" id="sidebar-menu">
+                                <a class="navbar-brand p-0" href="@Url.Action("HomePage", "Home")">
+                                    <img class="img-fluid" src="~/assets/images/landing/landinglogo.png"  alt="Landing Page Logo">
+                                </a>
+                                <button class="navbar-toggler navabr_btn-set custom_nav" type="button" data-bs-toggle="collapse" data-bs-target="#navbarDefault" aria-controls="navbarDefault" aria-expanded="false" aria-label="Toggle navigation">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </button>
+                                <div class="navbar-collapse justify-content-center collapse hidenav" id="navbarDefault">
+                                    <ul class="navbar-nav navbar_nav_modify" id="scroll-spy">
+                                        <li class="nav-item"><a class="nav-link" href="@Url.Action("NewsPage", "Home")">News</a></li>
+                                        <li class="nav-item"><a class="nav-link" href="#">Promotions</a></li>
+                                        <li class="nav-item"><a class="nav-link" id="page" href="#">Our Services</a></li>
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <span id="dropdownMenuButton">SenShineSpa_HaNoi</span>
+                                            </a>
+                                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                                <a class="dropdown-item" href="landing-page.html#framework-saigon" onclick="updateDropdown('SenShineSpa_SaiGon')">SenShineSpa_SaiGon</a>
+                                                <a class="dropdown-item" href="landing-page.html#framework-saigon" onclick="updateDropdown('SenShineSpa_BinhThuan')">SenShineSpa_BinhThuan</a>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="buy-btn">
+                                    <a class="nav-link js-scroll" href="https://themeforest.net/user/pixelstrap/portfolio" target="_blank">Book Now</a>
+                                </div>
+                            </nav>
+                        </header>
+                    </div>
+        </div>
+    
+    
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="content text-center mb-4">
+                    <h1>News Of SenShine Spa</h1>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Filter Section -->
+                <div class="col-lg-4 col-md-12 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="card-title">Filter News</h5>
+                            </div>
+                            <div class="card card-body">
+                                <div class="mb-3">
+                                    <label for="fromDate" class="form-label">From Date</label>
+                                    <input type="date" id="fromDate" class="form-control" onchange="fetchNewsByDate()">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="toDate" class="form-label">To Date</label>
+                                    <input type="date" id="toDate" class="form-control" onchange="fetchNewsByDate()">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
+
+                <!-- News List Section -->
+                <div class="col-lg-8 col-md-12">
+                    <div class="card email-body radius-left">
+                        <div class="card-header d-flex">
+                            <h4 class="mb-0 f-w-600">NEWS</h4>
+                        </div>
+                        <div class="card-body pb-0">
+                            <div class="details-bookmark text-center list-bookmark">
+                                
+                                <div class="row" id="bookmarkData">
+                                    @foreach (var item in Model)
+                                    {
+                                        <div class="col-xxl-6 col-md-12 mb-4">
+                                            <div class="card card-with-border bookmark-card o-hidden d-flex flex-row align-items-center">
+                                                <img class="img-fluid me-4" src="@item.Cover" alt="News Image" style="width: 230px; height: 150px; object-fit: cover; border-radius: 8px;">
+                                                <div class="card-body d-flex flex-column justify-content-center">
+                                                    <h5 class="card-title mb-2">@item.Title</h5>
+                                                    <p class="card-text text-muted mb-1">
+                                                        @(item.Content.Length > 100 ? item.Content.Substring(0, 100) + "..." : item.Content)
+                                                    </p>
+                                                    <p class="card-text mb-1">
+                                                        <small class="text-muted">@item.PublishedDate.ToString("MMM dd, yyyy") - @GetTimeAgo(item.PublishedDate)</small>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+           
+    </body>
+    </html>
+
+
+    <script>
+        @functions {
+            public string GetTimeAgo(DateTime publishedDate)
+            {
+                var timeSpan = DateTime.Now - publishedDate;
+
+                if (timeSpan.TotalMinutes < 1)
+                    return "just now";
+                if (timeSpan.TotalMinutes < 60)
+                    return $"{(int)timeSpan.TotalMinutes} minutes ago";
+                if (timeSpan.TotalHours < 24)
+                    return $"{(int)timeSpan.TotalHours} hours ago";
+                if (timeSpan.TotalDays < 7)
+                    return $"{(int)timeSpan.TotalDays} days ago";
+                if (timeSpan.TotalDays < 30)
+                    return $"{(int)timeSpan.TotalDays / 7} weeks ago";
+                if (timeSpan.TotalDays < 365)
+                    return $"{(int)timeSpan.TotalDays / 30} months ago";
+
+                return $"{(int)timeSpan.TotalDays / 365} years ago";
+            }
+        }
+
+        }
+    </script>
+    <script src="~/assets/js/jquery.min.js"></script>
+    <!-- Bootstrap js-->
+    <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
+    <!-- feather icon js-->
+    <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
+    <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
+    <!-- scrollbar js-->
+    <script src="~/assets/js/scrollbar/simplebar.js"></script>
+    <script src="~/assets/js/scrollbar/custom.js"></script>
+    <!-- Sidebar jquery-->
+    <script src="~/assets/js/config.js"></script>
+    <!-- Plugins JS start-->
+    <script src="~/assets/js/sidebar-menu.js"></script>
+    <script src="~/assets/js/sidebar-pin.js"></script>
+    <script src="~/assets/js/slick/slick.min.js"></script>
+    <script src="~/assets/js/slick/slick.js"></script>
+    <script src="~/assets/js/header-slick.js"></script>
+    <!-- calendar js-->
+    <script src="~/assets/js/js-datatables/simple-datatables@latest.js"></script>
+    <script src="~/assets/js/custom-list-product.js"></script>
+    <script src="~/assets/js/owlcarousel/owl.carousel.js"></script>
+    <script src="~/assets/js/ecommerce.js"></script>
+    <script src="~/assets/js/tooltip-init.js"></script>
+    <!-- Plugins JS Ends-->
+    <!-- Theme js-->
+    <script src="~/assets/js/script.js"></script>
