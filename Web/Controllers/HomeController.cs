@@ -48,9 +48,24 @@ namespace Web.Controllers
             
             return View(viewList);
         }
-        public IActionResult NewsList()
+        public async Task<IActionResult> NewsPage()
         {
-            return View();
+            List<NewsViewModel> viewList = new List<NewsViewModel>();
+            HttpResponseMessage response = await _httpClient.GetAsync("/api/ListAllNews");
+
+            if (response.IsSuccessStatusCode)
+            {
+                string data = await response.Content.ReadAsStringAsync();
+                viewList = JsonConvert.DeserializeObject<List<NewsViewModel>>(data);
+            }
+            else
+            {
+                // Log error message here
+                ModelState.AddModelError(string.Empty, "An error occurred while fetching the news list.");
+            }
+
+
+            return View(viewList);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
