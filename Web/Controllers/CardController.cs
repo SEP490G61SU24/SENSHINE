@@ -9,6 +9,7 @@ using System.Drawing.Printing;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using AutoMapper.Configuration.Annotations;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 namespace Web.Controllers
 {
@@ -71,20 +72,33 @@ namespace Web.Controllers
             ComboViewModel combo = new ComboViewModel();
 
             HttpResponseMessage response = await _client.GetAsync(_client.BaseAddress + "/Card/GetById?id=" + id);
-            HttpResponseMessage response2 = await _client.GetAsync(_client.BaseAddress + "/Card/GetCardComboByCard?id=" + id);
+            HttpResponseMessage response1 = await _client.GetAsync(_client.BaseAddress + "/Card/GetCardComboByCard?id=" + id);
 
-            if (response.IsSuccessStatusCode && response2.IsSuccessStatusCode)
+            if (response.IsSuccessStatusCode && response1.IsSuccessStatusCode)
             {
                 string data = await response.Content.ReadAsStringAsync();
-                string data2 = await response2.Content.ReadAsStringAsync();
+                string data1 = await response1.Content.ReadAsStringAsync();
                 card = JsonConvert.DeserializeObject<CardViewModel>(data);
-                cardCombos = JsonConvert.DeserializeObject<List<CardComboViewModel>>(data2);
+                cardCombos = JsonConvert.DeserializeObject<List<CardComboViewModel>>(data1);
+
+                HttpResponseMessage response2 = _client.GetAsync(_client.BaseAddress + "/user/" + card.CustomerId).Result;
+                if (response2.IsSuccessStatusCode)
+                {
+                    string response2Body = response2.Content.ReadAsStringAsync().Result;
+                    JObject json2 = JObject.Parse(response2Body);
+                    card.CustomerName = json2["firstName"].ToString() + " " + json2["midName"].ToString() + " " + json2["lastName"].ToString();
+                }
+                else
+                {
+                    Console.WriteLine("Error");
+                }
                 foreach (var cc in cardCombos)
                 {
                     HttpResponseMessage response3 = await _client.GetAsync(_client.BaseAddress + "/Combo/GetByID?IdCombo=" + cc.ComboId);
                     string data3 = await response3.Content.ReadAsStringAsync();
                     combo = JsonConvert.DeserializeObject<ComboViewModel>(data3);
                     cc.ComboName = combo.Name;
+                    cc.SessionLeft = combo.Quantity - cc.SessionDone;
                 }
             }
 

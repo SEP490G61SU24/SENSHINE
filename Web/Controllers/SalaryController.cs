@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using API.Models;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Text;
 using Web.Models;
 
@@ -16,15 +18,40 @@ namespace Web.Controllers
             _client.BaseAddress = baseAddress;
         }
         [HttpGet]
-        public async Task<IActionResult> ListSalary()
+        public async Task<IActionResult> ListSalary(int? month, int? year)
         {
             List<SalaryViewModel> salaries = new List<SalaryViewModel>();
-            HttpResponseMessage response = _client.GetAsync(_client.BaseAddress + "/Salary/GetAll").Result;
-
+            HttpResponseMessage response = null;
+            if (month.HasValue && year.HasValue)
+            {
+                response = _client.GetAsync(_client.BaseAddress + "/Salary/GetByMonthYear?month=" + month + "&year=" + year).Result;
+            }
+            else
+            {
+                response = _client.GetAsync(_client.BaseAddress + "/Salary/GetAll").Result;
+            }
+            if (month.HasValue && year.HasValue)
+            {
+                response = _client.GetAsync(_client.BaseAddress + "/Salary/GetByMonthYear?month=" + month + "&year=" + year).Result;
+            }
             if (response.IsSuccessStatusCode)
             {
                 string data = response.Content.ReadAsStringAsync().Result;
                 salaries = JsonConvert.DeserializeObject<List<SalaryViewModel>>(data);
+                foreach (var salary in salaries)
+                {
+                    HttpResponseMessage response1 = _client.GetAsync(_client.BaseAddress + "/user/" + salary.EmployeeId).Result;
+                    if (response1.IsSuccessStatusCode)
+                    {
+                        string response1Body = response1.Content.ReadAsStringAsync().Result;
+                        JObject json1 = JObject.Parse(response1Body);
+                        salary.EmployeeName = json1["firstName"].ToString() + " " + json1["midName"].ToString() + " " + json1["lastName"].ToString();
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error");
+                    }
+                }
             }
 
             return View(salaries);

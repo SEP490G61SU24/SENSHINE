@@ -11,30 +11,7 @@
                 <div class="card-body">
                     <div class="list-product-header">
                         <div>
-                            <div class="light-box">
-                                <a data-bs-toggle="collapse" href="list-products.html#collapseProduct" role="button" aria-expanded="false" aria-controls="collapseProduct">
-                                    <i class="filter-icon show" data-feather="filter"></i>
-                                    <i class="icon-close filter-close hide"></i>
-                                </a>
-                            </div>
-                            <a class="btn btn-primary" href="@Url.Action("CreateBranch", "Branch")"><i class="fa fa-plus"></i>Add Branch</a>
-                        </div>
-                        <div class="collapse" id="collapseProduct">
-                            <div class="card card-body list-product-body">
-                                <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3">
-
-                                    <div class="col">
-                                        <select class="form-select" aria-label="Default select example">
-                                            <option selected="">Price</option>
-                                            <option value="1">56000.00</option>
-                                            <option value="2">19000.00</option>
-                                            <option value="3">10000.00</option>
-                                            <option value="3">15000.00</option>
-                                            <option value="3">99000.00</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
+                            <a class="btn btn-primary" href="@Url.Action("CreateBranch", "Branch")"><i class="fa fa-plus"></i>Tạo chi nhánh</a>
                         </div>
                     </div>
                     <div class="list-product">
@@ -50,7 +27,7 @@
                                     <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.ProvinceCode)</span></th>
                                     <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.DistrictCode)</span></th>
                                     <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.WardCode)</span></th>
-                                    <th> <span class="f-light f-w-600">Cập nhật</span></th>
+                                    <th> <span class="f-light f-w-600">Thao tác</span></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -63,7 +40,7 @@
                                         <td>@item.DistrictName</td>
                                         <td>@item.WardName</td>
                                         <td>
-                                            @Html.ActionLink("Update", "UpdateBranch", new { id = item.Id }, new { @href = "http://localhost:5129/Branch/UpdateBranch?id=" + item.Id })
+                                            @Html.ActionLink("Cập nhật", "UpdateBranch", new { id = item.Id }, new { @href = "http://localhost:5129/Branch/UpdateBranch?id=" + item.Id })
                                         </td>
                                     </tr>
                                 }

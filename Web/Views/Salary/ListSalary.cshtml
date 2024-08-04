@@ -1,4 +1,4 @@
-﻿@model Web.Models.SalaryViewModel
+﻿@model IEnumerable<Web.Models.SalaryViewModel>
 
 @{
     ViewData["Title"] = "Chi tiết lương";
@@ -17,25 +17,41 @@
                                     <i class="icon-close filter-close hide"></i>
                                 </a>
                             </div>
-                            <a class="btn btn-primary" href="@Url.Action("CreateSalary", "Salary")"><i class="fa fa-plus"></i>Add Salary</a>
+                            <a class="btn btn-primary" href="@Url.Action("CreateSalary", "Salary")"><i class="fa fa-plus"></i>Tạo lương</a>
                         </div>
                         <div class="collapse" id="collapseProduct">
                             <div class="card card-body list-product-body">
-                                <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3">
-
-                                    <div class="col">
-                                        <select class="form-select" aria-label="Default select example">
-                                            <option selected="">Price</option>
-                                            <option value="1">56000.00</option>
-                                            <option value="2">19000.00</option>
-                                            <option value="3">10000.00</option>
-                                            <option value="3">15000.00</option>
-                                            <option value="3">99000.00</option>
-                                        </select>
+                                <form method="get" action="@Url.Action("ListSalary", "Salary")">
+                                    <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3">
+                                        <div class="col">
+                                            <select class="form-select" name="month" aria-label="Select Month">
+                                                <option selected="" disabled>Tháng</option>
+                                                @for (int i = 1; i <= 12; i++)
+                                                {
+                                                    <option value="@i">@i</option>
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="col">
+                                            <select class="form-select" name="year" aria-label="Select Year">
+                                                <option selected="" disabled>Năm</option>
+                                                @for (int y = 2021; y <= DateTime.Now.Year; y++)
+                                                {
+                                                    <option value="@y">@y</option>
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="col">
+                                            <button type="submit" class="btn btn-primary">Filter</button>
+                                        </div>
+                                        <div class="col">
+                                            <a href="@Url.Action("ListSalary", "Salary")" class="btn btn-secondary">Reset</a>
+                                        </div>
                                     </div>
-                                </div>
+                                </form>
                             </div>
                         </div>
+
                     </div>
                     <div class="list-product">
                         <table class="table" id="project-status">
@@ -52,7 +68,7 @@
                                     <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.Bonus)</span></th>
                                     <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.Deductions)</span></th>
                                     <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.TotalSalary)</span></th>
-                                    <th> <span class="f-light f-w-600">Cập nhật</span></th>
+                                    <th> <span class="f-light f-w-600">Thao tác</span></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -67,7 +83,7 @@
                                         <td>@item.Deductions</td>
                                         <td>@item.TotalSalary</td>
                                         <td>
-                                            @Html.ActionLink("Update", "UpdateBranch", new { id = item.Id }, new { @href = "http://localhost:5129/Branch/UpdateBranch?id=" + item.Id })
+                                            @Html.ActionLink("Cập nhật", "UpdateSalary", new { id = item.Id }, new { @href = "http://localhost:5129/Salary/UpdateSalary?id=" + item.Id })
                                         </td>
                                     </tr>
                                 }

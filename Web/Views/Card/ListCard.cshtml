@@ -11,62 +11,7 @@
                 <div class="card-body">
                     <div class="list-product-header">
                         <div>
-                            <div class="light-box">
-                                <a data-bs-toggle="collapse" href="list-products.html#collapseProduct" role="button" aria-expanded="false" aria-controls="collapseProduct">
-                                    <i class="filter-icon show" data-feather="filter"></i>
-                                    <i class="icon-close filter-close hide"></i>
-                                </a>
-                            </div>
-                            <a class="btn btn-primary" href="@Url.Action("CreateCard", "Card")"><i class="fa fa-plus"></i>Add Card</a>
-                        </div>
-                        <div class="collapse" id="collapseProduct">
-                            <div class="card card-body list-product-body">
-                                <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3">
-                                    <div class="col">
-                                        <select class="form-select" aria-label="Default select example">
-                                            <option selected="">Choose Product</option>
-                                            <option value="1">Apple iphone 13 Pro</option>
-                                            <option value="2">Wood Chair</option>
-                                            <option value="3">M185 Compact Wireless Mouse</option>
-                                        </select>
-                                    </div>
-                                    <div class="col">
-                                        <select class="form-select" aria-label="Default select example">
-                                            <option selected="">Choose Category</option>
-                                            <option value="1">Furniture</option>
-                                            <option value="2">Smart Gadgets</option>
-                                            <option value="3">Electrics</option>
-                                        </select>
-                                    </div>
-                                    <div class="col">
-                                        <select class="form-select" aria-label="Default select example">
-                                            <option selected="">Choose Sub Category</option>
-                                            <option value="1">Smart Phones</option>
-                                            <option value="2">Smart Watches</option>
-                                            <option value="3">Wireless headphone</option>
-                                        </select>
-                                    </div>
-                                    <div class="col">
-                                        <select class="form-select" aria-label="Default select example">
-                                            <option selected="">Status</option>
-                                            <option value="1">Sold Out </option>
-                                            <option value="2">In Stock</option>
-                                            <option value="3">Pre Order</option>
-                                            <option value="4">Limited Stock </option>
-                                        </select>
-                                    </div>
-                                    <div class="col">
-                                        <select class="form-select" aria-label="Default select example">
-                                            <option selected="">Price</option>
-                                            <option value="1">56000.00</option>
-                                            <option value="2">19000.00</option>
-                                            <option value="3">10000.00</option>
-                                            <option value="3">15000.00</option>
-                                            <option value="3">99000.00</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
+                            <a class="btn btn-primary" href="@Url.Action("CreateCard", "Card")"><i class="fa fa-plus"></i>Tạo thẻ</a>
                         </div>
                     </div>
                     <div class="list-product">
@@ -84,7 +29,7 @@
                                     <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.BranchName)</span></th>
                                     <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.CreateDate)</span></th>
                                     <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.Status)</span></th>
-                                    <th> <span class="f-light f-w-600">Chỉnh sửa</span></th>
+                                    <th> <span class="f-light f-w-600">Thao tác</span></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -113,8 +58,8 @@
                                             @Html.DisplayFor(modelItem => item.Status)
                                         </td>
                                         <td>
-                                            @Html.ActionLink("Update", "UpdateCard", new { id = item.Id }, new { @href = "http://localhost:5129/Card/UpdateCard?id=" + item.Id }) |
-                                            @Html.ActionLink("Change State", "ChangeStateCard", new { id = item.Id }, new { @onclick = "return confirmChangeState(" + item.Id + ")" })
+                                            @Html.ActionLink("Cập nhật", "UpdateCard", new { id = item.Id }, new { @href = "http://localhost:5129/Card/UpdateCard?id=" + item.Id }) |
+                                            @Html.ActionLink("Chuyển trạng thái", "ChangeStateCard", new { id = item.Id }, new { @onclick = "return confirmChangeState(" + item.Id + ")" })
                                         </td>
                                     </tr>
                                 }
