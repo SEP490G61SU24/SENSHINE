@@ -27,6 +27,12 @@ namespace Web.Models
 
         [JsonPropertyName("birthDate")]
         public DateTime? BirthDate { get; set; }
+        [JsonPropertyName("status")]
+        public string? Status { get; set; }
+        [JsonPropertyName("statusWorking")]
+        public string? StatusWorking { get; set; }
+        [JsonPropertyName("spaId")]
+        public int? SpaId { get; set; }
 
         [JsonPropertyName("provinceCode")]
         public string? ProvinceCode { get; set; }
@@ -38,7 +44,7 @@ namespace Web.Models
         public string? WardCode { get; set; }
 
         [JsonPropertyName("roleId")]
-        public int RoleId { get; set; }
+        public int? RoleId { get; set; }
         public string? Address { get; set; }
         public string? FullName { get; set; }
         public string? RoleName { get; set; }

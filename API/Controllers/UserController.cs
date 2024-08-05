@@ -48,18 +48,7 @@ namespace API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = await _userService.AddUser(
-                userDto.UserName,
-                userDto.Phone,
-                userDto.Password,
-                userDto.FirstName,
-                userDto.MidName,
-                userDto.LastName,
-                userDto.BirthDate,
-                userDto.ProvinceCode,
-                userDto.DistrictCode,
-                userDto.WardCode,
-                userDto.RoleId);
+            var user = await _userService.AddUser(userDto);
 
             var resultDto = _mapper.Map<UserDto>(user);
 
