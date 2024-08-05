@@ -10,7 +10,7 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <b>Chọn nhân viên</b>
             <div class="d-flex align-items-center">
-                <select id="selectCustomerId" asp-for="EmployeeId" class="form-control custom-select" asp-items="@ViewBag.Users"></select>
+                <select id="selectEmployeeId" asp-for="EmployeeId" class="form-control custom-select" asp-items="@ViewBag.Users"></select>
                 <span asp-validation-for="EmployeeId" class="text-danger custom-span"></span>
                 <button onclick="window.open('/User/Add', '_blank')" class="btn btn-secondary custom-button">Tạo mới</button>
             </div>
@@ -165,7 +165,7 @@
 
     <script>
         $(function () {
-            $("#selectCustomerId").select2();
+            $("#selectEmployeeId").select2();
         });
     </script>
 }

@@ -4,10 +4,11 @@ namespace API.Services
 {
     public interface IRoomService
     {
-        Task<Room> AddRoom(string roomName);
-        Task<Room> UpdateRoom(int id, string roomName);
+        Task<Room> CreateRoom(Room room);
+        ICollection<Room> GetRooms();
+        Room GetRoom(int id);
+        Task<Room> UpdateRoom(int id, Room room);
         Task<bool> DeleteRoom(int id);
-        Task<Room> GetRoomById(int id);
-        Task<IEnumerable<Room>> GetAllRooms();
+        bool RoomExist(int id);
     }
 }

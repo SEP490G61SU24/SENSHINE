@@ -10,6 +10,12 @@ namespace API.Mapping
         {
             CreateMap<Spa, BranchDTO>();
             CreateMap<BranchDTO, Spa>();
+
+            CreateMap<Room, RoomDTO>();
+            CreateMap<RoomDTO, Room>();
+
+            CreateMap<Bed, BedDTO>();
+            CreateMap<BedDTO, Bed>();
         }
     }
 }
