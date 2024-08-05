@@ -137,9 +137,19 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateSalary(SalaryViewModel salary)
         {
+            SalaryCreateModel salaryCreate = new SalaryCreateModel();
+            salaryCreate.Id = salary.Id;
+            salaryCreate.EmployeeId = salary.EmployeeId;
+            salaryCreate.BaseSalary = salary.BaseSalary;
+            salaryCreate.Allowances = salary.Allowances;
+            salaryCreate.Bonus = salary.Bonus;
+            salaryCreate.Deductions = salary.Deductions;
+            salaryCreate.TotalSalary = salary.TotalSalary;
+            salaryCreate.SalaryMonth = salary.SalaryMonth;
+            salaryCreate.SalaryYear = salary.SalaryYear;
             if (ModelState.IsValid)
             {
-                var json = JsonConvert.SerializeObject(salary);
+                var json = JsonConvert.SerializeObject(salaryCreate);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 HttpResponseMessage response = await _client.PutAsync(_client.BaseAddress + "/Salary/Update?id=" + salary.Id, content);

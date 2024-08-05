@@ -1,4 +1,5 @@
-﻿using API.Models;
+﻿using API.Dtos;
+using API.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Services.Impl
@@ -38,6 +39,13 @@ namespace API.Services.Impl
         public async Task<Salary> UpdateSalary(int id, Salary salary)
         {
             var salaryUpdate = await _context.Salaries.FirstOrDefaultAsync(s => s.Id == id);
+            salaryUpdate.BaseSalary = salary.BaseSalary;
+            salaryUpdate.Allowances = salary.Allowances;
+            salaryUpdate.Bonus = salary.Bonus;
+            salaryUpdate.Deductions = salary.Deductions;
+            salaryUpdate.TotalSalary = salary.TotalSalary;
+            salaryUpdate.SalaryMonth = salary.SalaryMonth;
+            salaryUpdate.SalaryYear = salary.SalaryYear;
             await _context.SaveChangesAsync();
 
             return salaryUpdate;

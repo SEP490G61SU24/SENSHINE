@@ -85,6 +85,13 @@ namespace API.Controllers
             try
             {
                 var existingSalary = _salaryService.GetSalary(id);
+                existingSalary.BaseSalary = salaryDTO.BaseSalary;
+                existingSalary.Allowances = salaryDTO.Allowances;
+                existingSalary.Bonus = salaryDTO.Bonus;
+                existingSalary.Deductions = salaryDTO.Deductions;
+                existingSalary.TotalSalary = salaryDTO.TotalSalary;
+                existingSalary.SalaryMonth = salaryDTO.SalaryMonth;
+                existingSalary.SalaryYear = salaryDTO.SalaryYear;
                 var salaryUpdate = await _salaryService.UpdateSalary(id, existingSalary);
 
                 if (salaryUpdate == null)
