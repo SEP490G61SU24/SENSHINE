@@ -129,10 +129,8 @@
     <script>
         function confirmChangeState(id) {
             if (confirm("Are you sure you want to change the state of this card?")) {
-                // Submit the form using the original ActionLink (no further action needed)
                 return true;
             } else {
-                // User canceled, prevent default action (optional)
                 return false;
             }
         }

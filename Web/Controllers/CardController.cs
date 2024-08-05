@@ -25,22 +25,12 @@ namespace Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ListCard(/*string searchInput, DateTime? dateFrom, DateTime? dateTo*/)
+        public async Task<IActionResult> ListCard()
         {
             List<CardViewModel> cards = new List<CardViewModel>();
             UserViewModel user = new UserViewModel();
             BranchViewModel branch = new BranchViewModel();
             HttpResponseMessage response = _client.GetAsync(_client.BaseAddress + "/Card/GetAll").Result;
-
-            //if (dateFrom.HasValue && dateTo.HasValue)
-            //{
-            //    response = _client.GetAsync(_client.BaseAddress + "/Card/SortByDate?dateFrom=" + dateFrom.Value.ToString("yyyy-MM-dd") + "&dateTo=" + dateTo.Value.ToString("yyyy-MM-dd")).Result;
-            //}
-
-            //if (!string.IsNullOrEmpty(searchInput))
-            //{
-            //    response = _client.GetAsync(_client.BaseAddress + "/Card/GetByNumNamePhone?input=" + searchInput).Result;
-            //}
 
             if (response.IsSuccessStatusCode)
             {

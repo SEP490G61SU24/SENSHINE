@@ -1,5 +1,6 @@
 ﻿using API.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Text;
@@ -30,10 +31,6 @@ namespace Web.Controllers
             {
                 response = _client.GetAsync(_client.BaseAddress + "/Salary/GetAll").Result;
             }
-            if (month.HasValue && year.HasValue)
-            {
-                response = _client.GetAsync(_client.BaseAddress + "/Salary/GetByMonthYear?month=" + month + "&year=" + year).Result;
-            }
             if (response.IsSuccessStatusCode)
             {
                 string data = response.Content.ReadAsStringAsync().Result;
@@ -60,12 +57,31 @@ namespace Web.Controllers
         [HttpGet]
         public IActionResult CreateSalary()
         {
-            return View();
+            var response1 = _client.GetAsync($"http://localhost:5297/api/user/byRole/3").Result;
+            var response2 = _client.GetAsync($"http://localhost:5297/api/user/byRole/4").Result;
+            if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode)
+            {
+                var users1 = response1.Content.ReadFromJsonAsync<IEnumerable<UserViewModel>>().Result;
+                var users2 = response2.Content.ReadFromJsonAsync<IEnumerable<UserViewModel>>().Result;
+                var combinedUsers = users1.Concat(users2);
+                foreach (var user in combinedUsers)
+                {
+                    user.FullName = string.Join(" ", user.FirstName ?? "", user.MidName ?? "", user.LastName ?? "").Trim();
+                    user.FullName = string.Join(", ", user.FullName ?? "", user.Phone ?? "").Trim();
+                }
+                ViewBag.Users = new SelectList(combinedUsers, "Id", "FullName");
+                return View();
+            }
+            else
+            {
+                return View("Error");
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateSalary(SalaryViewModel salary)
         {
+
             if (ModelState.IsValid)
             {
                 var json = JsonConvert.SerializeObject(salary);
@@ -97,6 +113,17 @@ namespace Web.Controllers
             {
                 string data = await response.Content.ReadAsStringAsync();
                 salary = JsonConvert.DeserializeObject<SalaryViewModel>(data);
+                HttpResponseMessage response1 = _client.GetAsync(_client.BaseAddress + "/user/" + salary.EmployeeId).Result;
+                if (response1.IsSuccessStatusCode)
+                {
+                    string response1Body = response1.Content.ReadAsStringAsync().Result;
+                    JObject json1 = JObject.Parse(response1Body);
+                    salary.EmployeeName = json1["firstName"].ToString() + " " + json1["midName"].ToString() + " " + json1["lastName"].ToString();
+                }
+                else
+                {
+                    Console.WriteLine("Error");
+                }
             }
 
             if (salary == null)

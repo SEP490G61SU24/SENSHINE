@@ -163,25 +163,22 @@
             $("#selectCustomerId").select2();
         });
     </script>
+
     <script>
         const cards = document.querySelectorAll('.card');
 
         cards.forEach(card => {
             card.addEventListener('click', () => {
                 card.classList.toggle('selected');
-                // alert('Selected card: ' + card.dataset.id);  // Added alert for debugging
-                // console.log('Selected card:', card.dataset.id);
             });
         });
     </script>
+
     <script>
         document.getElementById('updateCardForm').addEventListener('submit', function (event) {
             const selectedIds = Array.from(document.querySelectorAll('.card.selected')).map(card => card.dataset.id);
             const selectedCardIdsInput = document.getElementById('selectedCardIds');
             selectedCardIdsInput.value = JSON.stringify(selectedIds);
-            // alert('Selected IDs: ' + selectedIds);  // Added alert for debugging
-            // console.log('Selected IDs:', selectedIds);
-            // console.log('Hidden input value:', selectedCardIdsInput.value);
         });
     </script>
 }

@@ -68,6 +68,8 @@
                                     <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.Bonus)</span></th>
                                     <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.Deductions)</span></th>
                                     <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.TotalSalary)</span></th>
+                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.SalaryMonth)</span></th>
+                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.SalaryYear)</span></th>
                                     <th> <span class="f-light f-w-600">Thao tác</span></th>
                                 </tr>
                             </thead>
@@ -82,6 +84,8 @@
                                         <td>@item.Bonus</td>
                                         <td>@item.Deductions</td>
                                         <td>@item.TotalSalary</td>
+                                        <td>@item.SalaryMonth</td>
+                                        <td>@item.SalaryYear</td>
                                         <td>
                                             @Html.ActionLink("Cập nhật", "UpdateSalary", new { id = item.Id }, new { @href = "http://localhost:5129/Salary/UpdateSalary?id=" + item.Id })
                                         </td>

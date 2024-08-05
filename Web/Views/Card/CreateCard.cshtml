@@ -10,7 +10,7 @@
         <form asp-action="CreateCard" id="createCardForm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <input asp-for="CardNumber" class="form-control" type="hidden" value="aaa" />
+                <input asp-for="CardNumber" class="form-control" type="hidden" value="a" />
                 <span asp-validation-for="CardNumber" class="text-danger"></span>
             </div>
             <b>Chọn khách hàng</b>
@@ -142,7 +142,6 @@
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
-
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
@@ -151,25 +150,22 @@
             $("#selectCustomerId").select2();
         });
     </script>
+
     <script>
         const cards = document.querySelectorAll('.card');
 
         cards.forEach(card => {
             card.addEventListener('click', () => {
                 card.classList.toggle('selected');
-                // alert('Selected card: ' + card.dataset.id);  // Added alert for debugging
-                // console.log('Selected card:', card.dataset.id);
             });
         });
     </script>
+
     <script>
         document.getElementById('createCardForm').addEventListener('submit', function (event) {
             const selectedIds = Array.from(document.querySelectorAll('.card.selected')).map(card => card.dataset.id);
             const selectedCardIdsInput = document.getElementById('selectedCardIds');
             selectedCardIdsInput.value = JSON.stringify(selectedIds);
-            // alert('Selected IDs: ' + selectedIds);  // Added alert for debugging
-            // console.log('Selected IDs:', selectedIds);
-            // console.log('Hidden input value:', selectedCardIdsInput.value);
         });
     </script>
 }
