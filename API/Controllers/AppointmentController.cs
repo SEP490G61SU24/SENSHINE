@@ -226,8 +226,10 @@ namespace API.Controllers
                 {
                 AppointmentStatusUtils.Cancelled,
                 AppointmentStatusUtils.Pending,
-                AppointmentStatusUtils.Ongoing,
-                AppointmentStatusUtils.Finished
+                AppointmentStatusUtils.Doing,
+                AppointmentStatusUtils.Finished,
+                AppointmentStatusUtils.Combo
+
         };
 
                 if (!validStatuses.Contains(appointmentDTO.Status))
@@ -319,8 +321,10 @@ namespace API.Controllers
         {
             AppointmentStatusUtils.Cancelled,
             AppointmentStatusUtils.Pending,
-            AppointmentStatusUtils.Ongoing,
-            AppointmentStatusUtils.Finished
+            AppointmentStatusUtils.Doing,
+            AppointmentStatusUtils.Finished,
+            AppointmentStatusUtils.Combo
+
         };
 
                 if (!validStatuses.Contains(appointmentDTO.Status))

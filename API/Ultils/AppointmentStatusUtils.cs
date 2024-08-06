@@ -2,9 +2,10 @@
 {
     public class AppointmentStatusUtils
     {
-        public const string Cancelled = "cancel";
-        public const string Pending = "pending";
-        public const string Ongoing = "on going";
-        public const string Finished = "finished";
+        public const string Cancelled = "Cancel";
+        public const string Pending = "Pending";
+        public const string Doing = "Doing";
+        public const string Finished = "Finished";
+        public const string Combo = "Combo";
     }
 }
