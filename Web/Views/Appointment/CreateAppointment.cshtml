@@ -101,14 +101,18 @@
                     </select>
                     <span asp-validation-for="SelectedProductIds" class="text-danger"></span>
                 </div>
+
                 <div class="form-group">
                     <label asp-for="Status" class="control-label">Status</label>
                     <select asp-for="Status" class="form-control" id="statusSelect">
-                        <option value="false">Not Started</option>
-                        <option value="true">Finished</option>
+                        <option value="cancel">Cancelled</option>
+                        <option value="pending">Pending</option>
+                        <option value="on going">Ongoing</option>
+                        <option value="finished">Finished</option>
                     </select>
                     <span asp-validation-for="Status" class="text-danger"></span>
                 </div>
+
                 <div class="mt-4">
                     <a asp-action="ListAppointment" class="btn btn-secondary">Cancel</a>
                     <input type="submit" value="Create" class="btn btn-primary" />
