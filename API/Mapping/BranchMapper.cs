@@ -13,9 +13,6 @@ namespace API.Mapping
 
             CreateMap<Room, RoomDTO>();
             CreateMap<RoomDTO, Room>();
-
-            CreateMap<Bed, BedDTO>();
-            CreateMap<BedDTO, Bed>();
         }
     }
 }
