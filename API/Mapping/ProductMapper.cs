@@ -17,7 +17,9 @@ namespace API.Mapping
                    CategoryName = c.CategoryName
                })))
                .ReverseMap();
-
+            CreateMap<ProductDTORequest_2, Product>()
+            .ForMember(dest => dest.Categories, opt => opt.Ignore()).ReverseMap();
+            //.ForMember(dest => dest.ProductImages, opt => opt.Ignore());
 
             CreateMap<Category, CategoryDTO>().ReverseMap();
             

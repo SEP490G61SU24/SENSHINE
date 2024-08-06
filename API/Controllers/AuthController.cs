@@ -42,7 +42,7 @@ namespace API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserDto model)
         {
-            var user = await _userService.AddUser(model.UserName, model.Phone, model.Password, model.FirstName, model.MidName, model.LastName, model.BirthDate, model.ProvinceCode, model.DistrictCode, model.WardCode);
+            var user = await _userService.AddUser(model);
 
             if (user == null)
                 return Unauthorized();

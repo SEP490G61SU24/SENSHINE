@@ -109,23 +109,26 @@
                 <div class="card card-body list-product-body">
                     <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3">
                         <div class="col">
-                            <label for="startDate" class="form-label">Date Post</label>
-                            <input type="datetime-local" id="startDate" class="form-control" aria-label="Start Date">
+                            <label for="fromDate" class="form-label">From Date</label>
+                            <input type="date" id="fromDate" class="form-control" aria-label="From Date" onchange="fetchNewsByDate()">
                         </div>
+                        <div class="col">
+                            <label for="toDate" class="form-label">To Date</label>
+                            <input type="date" id="toDate" class="form-control" aria-label="To Date" onchange="fetchNewsByDate()">
+                        </div>
+
+
                         
                     </div>
                 </div>
             </div>
         </div>
+        
         <div class="list-product">
             <table class="table" id="project-status">
                 <thead>
                     <tr>
-                       @*  <th>
-                            <div class="form-check">
-                                <input class="form-check-input checkbox-primary" type="checkbox">
-                            </div>
-                        </th> *@
+                       
                        
                         <th> <span class="f-light f-w-600">Title</span></th>
                         <th> <span class="f-light f-w-600"> Date Post </span></th>
@@ -133,11 +136,10 @@
 
                     </tr>
                 </thead>
-                <tbody>
+                <tbody >
                     @foreach (var item in Model)
                     {
                         <tr>
-                            
                             <td>
                                 <div class="product-names">
                                     <div class="light-product-box">
@@ -145,14 +147,16 @@
                                              src="@(!string.IsNullOrEmpty(item.Cover) ? item.Cover : "https://via.placeholder.com/150")"
                                              alt="Image">
                                     </div>
-                                <a href="#" class="newsTitle" data-id="@item.IdNew">@item.Title</a></td>
-                            <td>@item.PublishedDate.ToString("dd/MM/yyyy")</td>
-                           
+                                    <a href="#" class="newsTitle" data-id="@item.IdNew">@item.Title</a>
+                                </div>
+                            </td>
+                            <td>@item.PublishedDate.ToString("MM/dd/yyyy")</td>
                         </tr>
                     }
                 </tbody>
-            </table>
-        </div>
+                </table>
+            </div>
+        
     </div>
 </div>
 <script src="~/assets/js/jquery.min.js"></script>
@@ -197,7 +201,7 @@
                 method: 'GET',
                 success: function (data) {
                     // Set default values for properties
-                    var coverImage = data.image || 'https://via.placeholder.com/150';
+                    var coverImage = data.cover || 'https://via.placeholder.com/150';
                     var title = data.title || 'No Title';
                     var content = data.content || 'No Content';
                     var publishedDate = data.publishedDate ? new Date(data.publishedDate).toLocaleDateString() : 'No Published Date';
@@ -245,5 +249,83 @@
         }
     }
 
-   
+</script>
+<script>
+    function fetchNewsByDate() {
+        var fromDate = $('#fromDate').val();
+        var toDate = $('#toDate').val();
+        if (!toDate) {
+            var now = new Date();
+            toDate = now.toISOString().slice(0, 10);
+            document.getElementById('toDate').value = toDate;
+        }
+        if (fromDate && toDate) {
+            $.ajax({
+                url: '/News/NewsByDate',
+                method: 'GET',
+                data: { from: fromDate, to: toDate },
+                success: function (data) {
+                    var newsTableBody = $("#project-status tbody");
+                    newsTableBody.empty();
+
+                    data.forEach(function (news) {
+                        var newsRow = `
+                            <tr>
+                                <td>
+                                    <div class="product-names">
+                                        <div class="light-product-box">
+                                            <img class="img-fluid" src="${news.cover ? news.cover : 'https://via.placeholder.com/150'}" alt="Image">
+                                        </div>
+                                        <a href="#" class="newsTitle" data-id="${news.idNew}">${news.title}</a>
+                                    </div>
+                                </td>
+                                <td>${new Date(news.publishedDate).toLocaleDateString()}</td>
+                            </tr>
+                        `;
+                        newsTableBody.append(newsRow);
+                    });
+
+                    // Re-bind the click event for the news titles
+                    $(".newsTitle").click(function (event) {
+                        event.preventDefault();
+                        var newsId = $(this).data("id");
+
+                        $.ajax({
+                            url: '/News/GetNewsDetail/' + newsId,
+                            method: 'GET',
+                            success: function (data) {
+                                // Set default values for properties
+                                var coverImage = data.cover || 'https://via.placeholder.com/150';
+                                var title = data.title || 'No Title';
+                                var content = data.content || 'No Content';
+                                var publishedDate = data.publishedDate ? new Date(data.publishedDate).toLocaleDateString() : 'No Published Date';
+
+                                // Update HTML elements with the API data
+                                $("#newsImage").attr("src", coverImage);
+                                $("#newsTitle").text('Title: ' + title);
+                                $("#newsDescription").text('Description: ' + content);
+                                $("#newsDate").text('Published Date: ' + publishedDate);
+                                $("#newsId").text('News ID: ' + newsId);
+                                $("#deleteNewsBtn").attr("data-id", newsId);
+
+                                // Update edit button to redirect to edit page
+                                $("#editNewsBtn").click(function () {
+                                    window.location.href = '/News/Edit/' + newsId;
+                                });
+                            },
+                            error: function () {
+                                alert("An error occurred while fetching the news details.");
+                            }
+                        });
+                    });
+                },
+                error: function () {
+                    alert("An error occurred while fetching the news list.");
+                }
+            });
+        } else {
+            alert("Please select both from and to dates.");
+        }
+    }
+
 </script>

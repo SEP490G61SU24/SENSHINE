@@ -1,10 +1,10 @@
-﻿@model Web.Models.PromotionViewModel
+﻿@model API.Dtos.ProductDTORequest_2
 
 @{
-    ViewData["Title"] = "Edit Promotion";
-    
+    ViewData["Title"] = "Add";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var categories = ViewBag.Categories as List<Web.Models.CategoryViewModel> ?? new List<Web.Models.CategoryViewModel>();
 }
-
 
 @section Styles {
     <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
@@ -30,68 +30,70 @@
     <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 }
+
+
+<hr />
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5>Edit Promotion Details</h5>
+                    <h5>Product Form</h5>
                 </div>
                 <div class="card-body">
-                    <form asp-action="Edit" method="post">
+                    <form asp-action="Add">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="SpaId" class="control-label">Spa Name</label>
-                                    <select asp-for="SpaId" class="form-control" asp-items="ViewBag.SpaList">
-                                        <option value="2">Sai Gon</option>
-                                    </select>
-                                    <span asp-validation-for="SpaId" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label asp-for="PromotionName" class="control-label">Promotion Name</label>
-                                    <input asp-for="PromotionName" class="form-control" />
-                                    <span asp-validation-for="PromotionName" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label asp-for="StartDate" class="control-label">Start Date</label>
-                                    <input asp-for="StartDate" type="date" class="form-control" />
-                                    <span asp-validation-for="StartDate" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label asp-for="EndDate" class="control-label">End Date</label>
-                                    <input asp-for="EndDate" type="date" class="form-control" />
-                                    <span asp-validation-for="EndDate" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label asp-for="Description" class="control-label">Description</label>
-                                    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
-                                    <span asp-validation-for="Description" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label asp-for="DiscountPercentage" class="control-label">Discount Percentage</label>
-                                    <input asp-for="DiscountPercentage" type="number" step="0.01" class="form-control" />
-                                    <span asp-validation-for="DiscountPercentage" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-group d-flex" style="display: flex; gap: 10px;">
-                                    <input type="submit" value="Save" style="height: 35px; width: 150px;" class="btn btn-primary spacing-10px" />
-                                    <a asp-action="ListPromotion" style="height: 35px; width: 150px;" class="btn btn-secondary spacing-10px">Back List</a>
+                                    <label asp-for="ProductName" class="control-label">Product Name</label>
+                                    <input asp-for="ProductName" class="form-control" />
+                                    <span asp-validation-for="ProductName" class="text-danger"></span>
                                 </div>
                             </div>
 
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Price" class="control-label">Price</label>
+                                    <input asp-for="Price" class="form-control" />
+                                    <span asp-validation-for="Price" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Quantity" class="control-label">Quantity</label>
+                                    <input asp-for="Quantity" class="form-control" />
+                                    <span asp-validation-for="Quantity" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="CategoryIds" class="control-label">Categories</label>
+                                    <select asp-for="CategoryIds" class="form-control" multiple id="categorySelect">
+                                        @if (categories != null)
+                                        {
+                                            @foreach (var category in categories)
+                                            {
+                                                <option value="@category.Id">@category.CategoryName</option>
+                                            }
+                                        }
+                                    </select>
+                                    <span asp-validation-for="CategoryIds" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            
+
+                            
+
+                            <div class="col-12">
+                                <div class="form-group d-flex">
+                                    <input type="submit" value="Create" class="btn btn-primary spacing-10px" />
+                                    <a asp-action="ProductList" class="btn btn-secondary spacing-10px">Back to List</a>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -126,3 +128,23 @@
 <!-- Plugins JS Ends-->
 <!-- Theme js-->
 <script src="~/assets/js/script.js"></script>
+
+<script>
+    document.getElementById('imageInput').addEventListener('change', function (event) {
+        var file = event.target.files[0];
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            var img = document.createElement('img');
+            img.src = e.target.result;
+            img.width = 200;
+            img.style.marginTop = '10px';
+
+            var preview = document.getElementById('imagePreview');
+            preview.innerHTML = '';
+            preview.appendChild(img);
+        };
+
+        reader.readAsDataURL(file);
+    });
+</script>

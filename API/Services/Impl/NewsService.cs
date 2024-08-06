@@ -45,6 +45,15 @@ namespace API.Services.Impl
             var data = await _context.News.ToListAsync();
             return mapper.Map<IEnumerable<NewsDTO>>(data);
         }
+        public async Task<IEnumerable<NewsDTO>> ListNewsSortByNewDate()
+        {
+            var data = await _context.News
+                .OrderByDescending(news => news.PublishedDate)
+                .ToListAsync();
+
+            return mapper.Map<IEnumerable<NewsDTO>>(data);
+        }
+
 
         public async Task<NewsDTO> GetNewsDetail(int id)
         {
@@ -57,7 +66,7 @@ namespace API.Services.Impl
             return mapper.Map<NewsDTO>(news);
         }
 
-        public async Task<IEnumerable<NewsDTORequest>> NewsByDate(DateTime From, DateTime To)
+        public async Task<IEnumerable<NewsDTO>> NewsByDate(DateTime From, DateTime To)
         {
             DateTime fromDate = From.Date;
             DateTime toDate = To.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
@@ -67,7 +76,7 @@ namespace API.Services.Impl
                 .Where(x => x.PublishedDate >= fromDate && x.PublishedDate <= toDate)
                 .ToListAsync();
 
-            var result = mapper.Map<IEnumerable<NewsDTORequest>>(data);
+            var result = mapper.Map<IEnumerable<NewsDTO>>(data);
             return result;
         }
 

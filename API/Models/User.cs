@@ -27,6 +27,9 @@ namespace API.Models
         public string? Phone { get; set; }
         public DateTime? BirthDate { get; set; }
         public string? ProvinceCode { get; set; }
+        public string? Status { get; set; }
+        public string? StatusWorking { get; set; }
+        public int? SpaId { get; set; }
         public string? DistrictCode { get; set; }
         public string? WardCode { get; set; }
 
