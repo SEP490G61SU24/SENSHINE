@@ -140,13 +140,19 @@
         function highlightFinishedAppointments() {
             appointments.forEach(appointment => {
                 const status = appointment.querySelector('td:nth-child(6)').textContent.trim();
+
                 if (status === 'Finished') {
                     appointment.style.backgroundColor = '#d4edda'; // Màu xanh sáng cho trạng thái hoàn thành
+                } else if (status === 'Combo') {
+                    appointment.style.backgroundColor = '#cce5ff'; // Màu xanh da trời nhạt cho trạng thái Combo
+                } else if (status === 'Cancel') {
+                    appointment.style.backgroundColor = '#f8d7da'; // Màu đỏ nhạt cho trạng thái Cancel
                 } else {
-                    appointment.style.backgroundColor = ''; // Xóa màu nền nếu không phải hoàn thành
+                    appointment.style.backgroundColor = ''; // Xóa màu nền nếu không phải các trạng thái đã định nghĩa
                 }
             });
         }
+
 
         function sortAppointments() {
             appointments.sort((a, b) => {
