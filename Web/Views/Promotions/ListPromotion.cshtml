@@ -115,7 +115,7 @@
                             <div class="col">
                                 <label for="spaLocation" class="form-label">Select Spa Location</label>
                                 <select id="spaLocation" class="form-select" aria-label="Select Spa Location">
-                                    <option selected disabled>All Location</option>
+                                    <option selected value="All Location">All Location</option>
                                     @foreach (var spaName in distinctSpaNames)
                                     {
                                         <option value="@spaName">@spaName</option>
@@ -124,11 +124,11 @@
                             </div>
                             <div class="col">
                                 <label for="startDate" class="form-label">Start Date</label>
-                                <input type="datetime-local" id="startDate" class="form-control" aria-label="Start Date">
+                                <input type="date" id="startDate" class="form-control" aria-label="Start Date">
                             </div>
                             <div class="col">
                                 <label for="endDate" class="form-label">End Date</label>
-                                <input type="datetime-local" id="endDate" class="form-control" aria-label="End Date">
+                                <input type="date" id="endDate" class="form-control" aria-label="End Date">
                             </div>
                        
                     </div>
@@ -139,11 +139,7 @@
             <table class="table" id="project-status">
                 <thead>
                     <tr>
-                        @* <th>
-                            <div class="form-check">
-                                <input class="form-check-input checkbox-primary" type="checkbox">
-                            </div>
-                        </th> *@
+                       
                         <th> <span class="f-light f-w-600">Promotion Name</span></th>
                         <th> <span class="f-light f-w-600">Start Date</span></th>
                         <th> <span class="f-light f-w-600">End Date</span></th>
@@ -157,18 +153,14 @@
                     @foreach (var item in Model)
                     {
                         <tr>
-                            @* <td>
-                                <div class="form-check">
-                                    <input class="form-check-input checkbox-primary" type="checkbox">
-                                </div>
-                            </td> *@
+                            
                             <td><a href="#" class="promotionTitle" data-id="@item.Id">@item.PromotionName</a></td>
                             <td>@item.StartDate?.ToString("dd/MM/yyyy")</td>
                             <td>@item.EndDate?.ToString("dd/MM/yyyy")</td>
                             
                             <td>@item.DiscountPercentage?.ToString() %</td>
                             <td>@item.SpaName</td>
-                            <!-- Add Edit and Delete buttons -->
+                            
                             
                         </tr>
                     }
@@ -275,9 +267,82 @@
         }
     }
    
+</script>
+<script>
+    $('#spaLocation, #startDate, #endDate').on('change', fetchPromotionsByFilter);
+    function fetchPromotionsByFilter() {
+        var spaLocation = $('#spaLocation').val();
+        var startDate = $('#startDate').val();
+        var endDate = $('#endDate').val();
 
+        $.ajax({
+            url: '/Promotions/ListByFilter',
+            method: 'GET',
+            data: { spaLocation: spaLocation, startDate: startDate, endDate: endDate },
+            success: function (data) {
+                var promotionsTableBody = $("#project-status tbody");
+                promotionsTableBody.empty();
 
+                data.forEach(function (promotion) {
+                    var promotionRow = `
+                        <tr>
+                            <td>
+                                <div class="promotion-info">
+                                    <a href="#" class="promotionTitle" data-id="${promotion.id}">${promotion.promotionName}</a>
+                                </div>
+                            </td>
+                            <td>${new Date(promotion.startDate).toLocaleDateString()}</td>
+                            <td>${new Date(promotion.endDate).toLocaleDateString()}</td>
+                            <td>${promotion.discountPercentage}%</td>
+                            <td>${promotion.spaName}</td>
+                        </tr>
+                    `;
+                    promotionsTableBody.append(promotionRow);
+                });
 
+                // Re-bind the click event for the promotion titles
+                $(".promotionTitle").click(function (event) {
+                    event.preventDefault();
+                    var promotionId = $(this).data("id");
 
+                    $.ajax({
+                        url: '/Promotions/GetPromotionDetail/' + promotionId,
+                        method: 'GET',
+                        success: function (data) {
+                            
+                            var coverImage = data.coverImage || 'https://via.placeholder.com/150';
+                            var promotionName = data.promotionName || 'No Title';
+                            var description = data.description || 'No Description';
+                            var startDate = data.startDate ? new Date(data.startDate).toLocaleDateString() : 'No Start Date';
+                            var endDate = data.endDate ? new Date(data.endDate).toLocaleDateString() : 'No End Date';
+                            var discountPercentage = data.discountPercentage !== null ? data.discountPercentage + '%' : 'No Discount';
+                            var spaName = data.spaName || 'No Spa Location';
+
+                            
+                            $("#promotionImage").attr("src", coverImage);
+                            $("#promotionTitle").text('Promotion Name: ' + promotionName);
+                            $("#promotionDescription").text('Description: ' + description);
+                            $("#promotionDate").text('Start Date: ' + startDate + ' - End Date: ' + endDate);
+                            $("#promotionDiscount").text('Discount: ' + discountPercentage);
+                            $("#promotionSpaName").text('Spa Location: ' + spaName);
+                            $("#promotionId").text('Promotion ID: ' + promotionId);
+                            $("#deletePromotionBtn").attr("data-id", promotionId);
+
+                           
+                            $("#editPromotionBtn").click(function () {
+                                window.location.href = '/Promotions/Edit/' + promotionId;
+                            });
+                        },
+                        error: function () {
+                            alert("An error occurred while fetching the promotion details.");
+                        }
+                    });
+                });
+            },
+            error: function () {
+                alert("An error occurred while fetching the promotions list.");
+            }
+        });
+    }
 
 </script>

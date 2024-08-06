@@ -106,7 +106,7 @@ namespace API.Controllers
 
         // Edit service
         [HttpPut]
-        [Route("/api/[controller]/[action]")]
+        [Route("/api/[controller]/[action]/{id}")]
         public async Task<IActionResult> UpdateCombo(int id, [FromBody] ComboDTO comboDTO)
         {
             if (id < 1)
@@ -144,7 +144,7 @@ namespace API.Controllers
 
 
         // DELETE: api/combo/delete/{id}
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCombo(int id)
         {
             if (id < 1)

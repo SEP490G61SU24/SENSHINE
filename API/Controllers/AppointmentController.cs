@@ -1,7 +1,8 @@
-using API.Dtos;
+﻿using API.Dtos;
 using API.Models;
 using API.Services;
 using API.Services.Impl;
+using API.Ultils;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -66,7 +67,7 @@ namespace API.Controllers
                     CustomerId = appointment.CustomerId,
                     EmployeeId = appointment.EmployeeId,
                     AppointmentDate = appointment.AppointmentDate,
-                    Status = appointment.Status ? "true" : "false",
+                    Status = appointment.Status,
                     Customer = new AppointmentUserDTO
                     {
                         Id = appointment.Customer.Id,
@@ -102,6 +103,24 @@ namespace API.Controllers
             }
         }
 
+        //Tim kiem theo ID khach hang
+        [HttpGet("customer/{customerId}")]
+        public async Task<IActionResult> GetByCustomerId(int customerId)
+        {
+            try
+            {
+                var appointmentDTOs = await _appointmentService.GetAppointmentsByCustomerIdAsync(customerId);
+                if (appointmentDTOs == null || !appointmentDTOs.Any())
+                {
+                    return NotFound("No appointments found for this customer");
+                }
+                return Ok(appointmentDTOs);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error retrieving appointments: {ex.Message}");
+            }
+        }
 
 
         //Tim kiem cuoc hen theo ngay
@@ -133,7 +152,7 @@ namespace API.Controllers
                         CustomerId = appointment.CustomerId,
                         EmployeeId = appointment.EmployeeId,
                         AppointmentDate = appointment.AppointmentDate,
-                        Status = appointment.Status ? "true" : "false",
+                        Status = appointment.Status,
                         Customer = new AppointmentUserDTO
                         {
                             Id = appointment.Customer.Id,
@@ -171,7 +190,7 @@ namespace API.Controllers
         }
 
 
-        //Create - tao moi cuoc hen
+        // Create - Tạo mới cuộc hẹn
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AppointmentDTO appointmentDTO)
         {
@@ -182,7 +201,7 @@ namespace API.Controllers
 
             try
             {
-                // Ensure the customer exists in the database
+                // Kiểm tra sự tồn tại của khách hàng trong cơ sở dữ liệu
                 if (appointmentDTO.CustomerId.HasValue)
                 {
                     var customerExists = await _dbContext.Users.AnyAsync(c => c.Id == appointmentDTO.CustomerId.Value);
@@ -192,7 +211,7 @@ namespace API.Controllers
                     }
                 }
 
-                // Ensure the employee exists in the database
+                // Kiểm tra sự tồn tại của nhân viên trong cơ sở dữ liệu
                 if (appointmentDTO.EmployeeId.HasValue)
                 {
                     var employeeExists = await _dbContext.Users.AnyAsync(e => e.Id == appointmentDTO.EmployeeId.Value);
@@ -202,10 +221,22 @@ namespace API.Controllers
                     }
                 }
 
-                List<Service> existingServices = new List<Service>();
-                List<Product> existingProducts = new List<Product>();
+                // Kiểm tra trạng thái cuộc hẹn
+                var validStatuses = new List<string>
+                {
+                AppointmentStatusUtils.Cancelled,
+                AppointmentStatusUtils.Pending,
+                AppointmentStatusUtils.Ongoing,
+                AppointmentStatusUtils.Finished
+        };
 
-                // Ensure the services being added to the appointment are existing ones
+                if (!validStatuses.Contains(appointmentDTO.Status))
+                {
+                    return BadRequest("Invalid status value.");
+                }
+
+                // Kiểm tra sự tồn tại của dịch vụ được thêm vào cuộc hẹn
+                List<Service> existingServices = new List<Service>();
                 if (appointmentDTO.Services != null && appointmentDTO.Services.Any())
                 {
                     var serviceIds = appointmentDTO.Services.Select(s => s.Id).ToList();
@@ -218,17 +249,18 @@ namespace API.Controllers
                         return BadRequest("One or more services do not exist.");
                     }
 
-                    // Attach the existing services to the context to avoid tracking conflicts
+                    // Đảm bảo các dịch vụ tồn tại không bị theo dõi trong ngữ cảnh
                     foreach (var service in existingServices)
                     {
                         _dbContext.Entry(service).State = EntityState.Unchanged;
                     }
                 }
 
-                // Ensure the products being added to the appointment are existing ones
+                // Kiểm tra sự tồn tại của sản phẩm được thêm vào cuộc hẹn
+                List<Product> existingProducts = new List<Product>();
                 if (appointmentDTO.Products != null && appointmentDTO.Products.Any())
                 {
-                    var productIds = appointmentDTO.Products.Select(p => p.ProductId).ToList(); 
+                    var productIds = appointmentDTO.Products.Select(p => p.ProductId).ToList();
                     existingProducts = await _dbContext.Products
                                                        .Where(p => productIds.Contains(p.Id))
                                                        .ToListAsync();
@@ -238,17 +270,19 @@ namespace API.Controllers
                         return BadRequest("One or more products do not exist.");
                     }
 
-                    // Attach the existing products to the context to avoid tracking conflicts
+                    // Đảm bảo các sản phẩm tồn tại không bị theo dõi trong ngữ cảnh
                     foreach (var product in existingProducts)
                     {
                         _dbContext.Entry(product).State = EntityState.Unchanged;
                     }
                 }
 
+                // Ánh xạ DTO thành đối tượng Appointment và gán dịch vụ, sản phẩm đã kiểm tra
                 var appointment = _mapper.Map<Appointment>(appointmentDTO);
                 appointment.Services = existingServices;
                 appointment.Products = existingProducts;
 
+                // Tạo cuộc hẹn mới
                 await _appointmentService.CreateAppointmentAsync(appointment);
 
                 return Ok($"Create Appointment Successfully With ID: {appointment.Id}");
@@ -259,10 +293,7 @@ namespace API.Controllers
             }
         }
 
-
-
-
-        //Update Appointment
+        // Update - Cập nhật cuộc hẹn
         [HttpPut]
         [Route("{id}")]
         public async Task<IActionResult> UpdateAppointment(int id, [FromBody] AppointmentDTO appointmentDTO)
@@ -276,13 +307,28 @@ namespace API.Controllers
             {
                 var existingAppointment = await _dbContext.Appointments
                                                           .Include(a => a.Services)
-                                                          .Include(a => a.Products) // Include Products
+                                                          .Include(a => a.Products)
                                                           .FirstOrDefaultAsync(a => a.Id == id);
                 if (existingAppointment == null)
                 {
                     return NotFound("Appointment not found.");
                 }
 
+                // Kiểm tra trạng thái cuộc hẹn
+                var validStatuses = new List<string>
+        {
+            AppointmentStatusUtils.Cancelled,
+            AppointmentStatusUtils.Pending,
+            AppointmentStatusUtils.Ongoing,
+            AppointmentStatusUtils.Finished
+        };
+
+                if (!validStatuses.Contains(appointmentDTO.Status))
+                {
+                    return BadRequest("Invalid status value.");
+                }
+
+                // Kiểm tra sự tồn tại của khách hàng
                 if (appointmentDTO.CustomerId.HasValue)
                 {
                     var customerExists = await _dbContext.Users.AnyAsync(c => c.Id == appointmentDTO.CustomerId.Value);
@@ -292,6 +338,7 @@ namespace API.Controllers
                     }
                 }
 
+                // Kiểm tra sự tồn tại của nhân viên
                 if (appointmentDTO.EmployeeId.HasValue)
                 {
                     var employeeExists = await _dbContext.Users.AnyAsync(e => e.Id == appointmentDTO.EmployeeId.Value);
@@ -301,6 +348,7 @@ namespace API.Controllers
                     }
                 }
 
+                // Xử lý dịch vụ
                 List<Service> existingServices = new List<Service>();
                 if (appointmentDTO.Services != null && appointmentDTO.Services.Any())
                 {
@@ -315,6 +363,7 @@ namespace API.Controllers
                     }
                 }
 
+                // Xử lý sản phẩm
                 List<Product> existingProducts = new List<Product>();
                 if (appointmentDTO.Products != null && appointmentDTO.Products.Any())
                 {
@@ -329,8 +378,8 @@ namespace API.Controllers
                     }
                 }
 
+                // Ánh xạ và cập nhật cuộc hẹn
                 _mapper.Map(appointmentDTO, existingAppointment);
-
                 existingAppointment.Services = existingServices;
                 existingAppointment.Products = existingProducts;
 

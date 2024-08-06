@@ -28,11 +28,11 @@ namespace API.Services.Impl
             return user;
         }
 
-        public async Task<User> AddUser(string? username = null, string? phone = null, string? password = null, string? firstName = null, string? midName = null, string? lastName = null, DateTime? birthDate = null, string? provinceCode = null, string? districtCode = null, string? wardCode = null, int? roleId = null)
+        public async Task<User> AddUser(UserDto userDto)
         {
-            if (!string.IsNullOrEmpty(username))
+            if (!string.IsNullOrEmpty(userDto.UserName))
             {
-                var existingUser = await _context.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                var existingUser = await _context.Users.SingleOrDefaultAsync(u => u.UserName == userDto.UserName);
                 if (existingUser != null)
                 {
                     throw new ArgumentException("Username already exists.");
@@ -40,29 +40,36 @@ namespace API.Services.Impl
             }
 
             string hashedPassword = null;
-            if (!string.IsNullOrEmpty(password))
+            if (!string.IsNullOrEmpty(userDto.Password))
             {
-                hashedPassword = PasswordUtils.HashPassword(password);
+                hashedPassword = PasswordUtils.HashPassword(userDto.Password);
             }
 
             var user = new User
             {
-                UserName = username,
-                Phone = phone,
+                UserName = userDto.UserName,
+                Phone = userDto.Phone,
                 Password = hashedPassword,
-                FirstName = firstName,
-                MidName = midName,
-                LastName = lastName,
-                BirthDate = birthDate,
-                ProvinceCode = provinceCode,
-                DistrictCode = districtCode,
-                WardCode = wardCode
+                FirstName = userDto.FirstName,
+                MidName = userDto.MidName,
+                LastName = userDto.LastName,
+                BirthDate = userDto.BirthDate,
+                Status = "ACTIVE",
+                StatusWorking = "INACTIVE",
+                ProvinceCode = userDto.ProvinceCode,
+                DistrictCode = userDto.DistrictCode,
+                WardCode = userDto.WardCode
             };
 
-            Role role;
-            if (roleId.HasValue)
+            if(userDto.SpaId.HasValue)
             {
-                role = await _context.Roles.FindAsync(roleId.Value);
+                user.SpaId = userDto.SpaId.Value;
+            }
+
+            Role role;
+            if (userDto.RoleId.HasValue)
+            {
+                role = await _context.Roles.FindAsync(userDto.RoleId.Value);
                 if (role == null)
                 {
                     throw new ArgumentException("Role not found.");
@@ -105,6 +112,11 @@ namespace API.Services.Impl
             user.ProvinceCode = userDto.ProvinceCode;
             user.DistrictCode = userDto.DistrictCode;
             user.WardCode = userDto.WardCode;
+
+            if (userDto.SpaId.HasValue)
+            {
+                user.SpaId = userDto.SpaId.Value;
+            }
 
             user.Roles.Clear();
 
@@ -173,6 +185,9 @@ namespace API.Services.Impl
                                    LastName = user.LastName,
                                    Phone = user.Phone,
                                    BirthDate = user.BirthDate,
+                                   Status = user.Status,
+                                   StatusWorking = user.StatusWorking,
+                                   SpaId = user.SpaId,
                                    ProvinceCode = user.ProvinceCode,
                                    DistrictCode = user.DistrictCode,
                                    WardCode = user.WardCode,
@@ -205,6 +220,9 @@ namespace API.Services.Impl
                                      LastName = user.LastName,
                                      Phone = user.Phone,
                                      BirthDate = user.BirthDate,
+                                     Status = user.Status,
+                                     StatusWorking = user.StatusWorking,
+                                     SpaId = user.SpaId,
                                      ProvinceCode = user.ProvinceCode,
                                      DistrictCode = user.DistrictCode,
                                      WardCode = user.WardCode,

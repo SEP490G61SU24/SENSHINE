@@ -109,6 +109,8 @@ namespace API.Models
 
                 entity.Property(e => e.Id).HasColumnName("id");
 
+                entity.Property(e => e.Status).HasDefaultValueSql("PENDING");
+
                 entity.Property(e => e.AppointmentDate).HasColumnType("datetime");
 
                 entity.HasOne(d => d.Customer)
@@ -155,6 +157,8 @@ namespace API.Models
                 entity.ToTable("Bed");
 
                 entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Quantity).HasDefaultValueSql("0");
 
                 entity.Property(e => e.BedNumber).HasMaxLength(50);
             });
@@ -387,6 +391,8 @@ namespace API.Models
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Quantity).HasColumnType("int");
 
                 entity.Property(e => e.ProductName).HasMaxLength(100);
 
@@ -652,6 +658,16 @@ namespace API.Models
                     .HasMaxLength(5)
                     .IsUnicode(false)
                     .HasColumnName("province_code");
+
+                entity.Property(e => e.Status)
+                    .HasMaxLength(10)
+                    .HasDefaultValueSql("ACTIVE")
+                    .IsUnicode(true);
+
+                entity.Property(e => e.StatusWorking)
+                    .HasMaxLength(10)
+                    .HasDefaultValueSql("INACTIVE")
+                    .IsUnicode(true);
 
                 entity.Property(e => e.UserName)
                     .HasMaxLength(50)

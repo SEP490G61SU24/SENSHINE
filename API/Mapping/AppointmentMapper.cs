@@ -14,7 +14,7 @@ public class AutoMapperProfile : Profile
             .ForMember(dest => dest.Products, opt => opt.MapFrom(src => src.Products));
 
         CreateMap<Appointment, AppointmentDTO>()
-            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status ? "true" : "false"))
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
             .ForMember(dest => dest.Customer, opt => opt.MapFrom(src => new AppointmentUserDTO
             {
                 Id = src.Customer.Id,

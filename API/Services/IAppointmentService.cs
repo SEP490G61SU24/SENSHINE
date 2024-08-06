@@ -14,5 +14,7 @@ namespace API.Services
         Task<Appointment> CreateAppointmentAsync(Appointment appointment);
         Task<Appointment> UpdateAppointmentAsync(int id, Appointment appointment);
         Task<Appointment> DeleteAppointmentAsync(int id);
+        Task<List<AppointmentDTO>> GetAppointmentsByCustomerIdAsync(int customerId);
+
     }
 }

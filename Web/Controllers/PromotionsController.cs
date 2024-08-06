@@ -37,17 +37,11 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Add()
         {
-            List<BranchViewModel> viewList = new List<BranchViewModel>();
-            HttpResponseMessage response = await _httpClient.GetAsync("/api/Branch/GetAll");
-
-            if (response.IsSuccessStatusCode)
-            {
-                string data = await response.Content.ReadAsStringAsync();
-                viewList = JsonConvert.DeserializeObject<List<BranchViewModel>>(data);
-            }
+           
 
             // Create a SelectList to populate the dropdown
-            ViewBag.SpaList = new SelectList(viewList, "Id", "SpaName");
+            var spaNames = await GetDistinctSpaNames();
+            ViewBag.SpaList = new SelectList(spaNames, "Id", "SpaName");
 
             return View();
 
@@ -78,6 +72,7 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
+
             HttpResponseMessage response = await _httpClient.GetAsync($"/api/GetPromotionDetail/{id}");
 
             if (response.IsSuccessStatusCode)
@@ -98,21 +93,40 @@ namespace Web.Controllers
                         DiscountPercentage = promotion.DiscountPercentage,
                         SpaName = promotion.SpaName
                     };
-
+                    var spaNames = await GetDistinctSpaNames();
+                    ViewBag.SpaList = new SelectList(spaNames, "Id", "SpaName", promotion.SpaId);
                     return View(viewModel);
                 }
             }
 
             return RedirectToAction("ListPromotion");
         }
+        private async Task<List<BranchViewModel>> GetDistinctSpaNames()
+        {
+            HttpResponseMessage response = await _httpClient.GetAsync("/api/Branch/GetAll");
+            if (response.IsSuccessStatusCode)
+            {
+                string data = await response.Content.ReadAsStringAsync();
+                var branches = JsonConvert.DeserializeObject<List<BranchViewModel>>(data);
 
+                // Get distinct Spa names
+                var distinctSpaNames = branches
+                    .GroupBy(branch => branch.SpaName)
+                    .Select(group => group.First())
+                    .ToList();
+
+                return distinctSpaNames;
+            }
+
+            return new List<BranchViewModel>();
+        }
 
         [HttpPost]
-        public async Task<IActionResult> EditPromotion(PromotionViewModel promotionViewModel)
+        public async Task<IActionResult> Edit(PromotionViewModel promotionViewModel)
         {
             if (!ModelState.IsValid)
             {
-                return View(promotionViewModel); // Return view with validation errors.
+                return View(promotionViewModel); 
             }
 
             try
@@ -201,28 +215,29 @@ namespace Web.Controllers
 
             if (startDate.HasValue)
             {
-                query.Add($"startDate={startDate.Value:yyyy-MM-ddTHH:mm:ss}");
+                query.Add($"startDate={startDate.Value:yyyy-MM-dd}");
             }
 
             if (endDate.HasValue)
             {
-                query.Add($"endDate={endDate.Value:yyyy-MM-ddTHH:mm:ss}");
+                query.Add($"endDate={endDate.Value:yyyy-MM-dd}");
             }
 
             var queryString = string.Join("&", query);
-            var url = $"http://localhost:5297/api/GetPromotionDetail?{queryString}";
+            var url = $"/api/GetPromotionsByFilter?{queryString}";
 
             HttpResponseMessage response = await _httpClient.GetAsync(url);
 
             if (response.IsSuccessStatusCode)
             {
                 string data = await response.Content.ReadAsStringAsync();
-                var promotions = JsonConvert.DeserializeObject<IEnumerable<PromotionDTORequest>>(data);
+                var promotions = JsonConvert.DeserializeObject<IEnumerable<PromotionDTORespond>>(data);
                 return Json(promotions);
             }
 
             return StatusCode((int)response.StatusCode, "An error occurred while fetching promotions by filter.");
         }
+
 
 
         [HttpDelete]

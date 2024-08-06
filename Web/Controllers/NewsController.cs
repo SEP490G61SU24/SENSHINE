@@ -97,11 +97,19 @@ namespace Web.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> EditNews(int id, NewsDTO newsDto)
+        public async Task<IActionResult> Edit(int id, NewsDTO newsDto)
         {
             if (!ModelState.IsValid)
             {
-                return View(newsDto);
+                var newsViewModel = new NewsViewModel
+                {
+                    IdNew = newsDto.IdNew,
+                    Title = newsDto.Title,
+                    Cover = newsDto.Cover,
+                    Content = newsDto.Content,
+                    PublishedDate = newsDto.PublishedDate
+                };
+                return View(newsViewModel);
             }
 
             string json = JsonConvert.SerializeObject(newsDto);
@@ -115,9 +123,20 @@ namespace Web.Controllers
             }
 
             // Log error message here
+            var newsViewModelError = new NewsViewModel
+            {
+                IdNew = newsDto.IdNew,
+                Title = newsDto.Title,
+                Cover = newsDto.Cover,
+                Content = newsDto.Content,
+                PublishedDate = newsDto.PublishedDate
+            };
             ModelState.AddModelError(string.Empty, "An error occurred while editing the news.");
-            return View(newsDto);
+            return View(newsViewModelError);
         }
+
+
+       
 
                 [HttpGet]
                 public async Task<IActionResult> GetNewsDetail(int id)
@@ -155,12 +174,14 @@ namespace Web.Controllers
             if (response.IsSuccessStatusCode)
             {
                 string data = await response.Content.ReadAsStringAsync();
-                var newsList = JsonConvert.DeserializeObject<IEnumerable<NewsDTORequest>>(data);
-                return View(newsList);
+                var newsList = JsonConvert.DeserializeObject<IEnumerable<NewsViewModel>>(data);
+                return Json(newsList);
             }
 
-            return View(new List<NewsDTORequest>());
+            return Json(new List<NewsViewModel>());
         }
+
+
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
