@@ -11,7 +11,34 @@
                 <div class="card-body">
                     <div class="list-product-header">
                         <div>
+                            <div class="light-box">
+                                <a data-bs-toggle="collapse" href="list-products.html#collapseProduct" role="button" aria-expanded="false" aria-controls="collapseProduct">
+                                    <i class="filter-icon show" data-feather="filter"></i>
+                                    <i class="icon-close filter-close hide"></i>
+                                </a>
+                            </div>
                             <a class="btn btn-primary" href="@Url.Action("CreateCard", "Card")"><i class="fa fa-plus"></i>Tạo thẻ</a>
+                        </div>
+                        <div class="collapse" id="collapseProduct">
+                            <div class="card card-body list-product-body">
+                                <form method="get" action="@Url.Action("ListCard", "Card")">
+                                    <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3">
+                                        <div class="col">
+                                            <select class="form-select" name="status" aria-label="Select Status">
+                                                <option selected="" disabled>Trạng thái</option>
+                                                <option value="Active">Hoạt động</option>
+                                                <option value="Deactive">Không hoạt động</option>
+                                            </select>
+                                        </div>
+                                        <div class="col">
+                                            <button type="submit" class="btn btn-primary">Filter</button>
+                                        </div>
+                                        <div class="col">
+                                            <a href="@Url.Action("ListCard", "Card")" class="btn btn-secondary">Reset</a>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                     <div class="list-product">

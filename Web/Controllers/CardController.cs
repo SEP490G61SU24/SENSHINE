@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using AutoMapper.Configuration.Annotations;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Web.Controllers
 {
@@ -25,7 +26,7 @@ namespace Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ListCard()
+        public async Task<IActionResult> ListCard(string? status)
         {
             List<CardViewModel> cards = new List<CardViewModel>();
             UserViewModel user = new UserViewModel();
@@ -36,6 +37,10 @@ namespace Web.Controllers
             {
                 string data = response.Content.ReadAsStringAsync().Result;
                 cards = JsonConvert.DeserializeObject<List<CardViewModel>>(data);
+                if (!status.IsNullOrEmpty())
+                {
+                    cards = cards.Where(c => c.Status.Equals(status, StringComparison.OrdinalIgnoreCase)).ToList();
+                }
             }
 
             foreach (var card in cards)
