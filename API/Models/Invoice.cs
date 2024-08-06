@@ -8,6 +8,7 @@ namespace API.Models
         public Invoice()
         {
             Cards = new HashSet<Card>();
+            Combos = new HashSet<Combo>();
             Services = new HashSet<Service>();
         }
 
@@ -24,6 +25,7 @@ namespace API.Models
         public virtual Spa? Spa { get; set; }
 
         public virtual ICollection<Card> Cards { get; set; }
+        public virtual ICollection<Combo> Combos { get; set; }
         public virtual ICollection<Service> Services { get; set; }
     }
 }

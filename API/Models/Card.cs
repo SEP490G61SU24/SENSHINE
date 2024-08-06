@@ -13,12 +13,12 @@ namespace API.Models
 
         public int Id { get; set; }
         public string CardNumber { get; set; } = null!;
+        public int BranchId { get; set; }
         public int CustomerId { get; set; }
         public DateTime? CreateDate { get; set; }
         public string? Status { get; set; }
-        public int? BranchId { get; set; }
 
-        public virtual Spa? Branch { get; set; }
+        public virtual Spa Branch { get; set; } = null!;
         public virtual User Customer { get; set; } = null!;
         public virtual ICollection<CardCombo> CardCombos { get; set; }
 
