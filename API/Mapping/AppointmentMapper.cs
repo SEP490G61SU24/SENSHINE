@@ -7,7 +7,7 @@ public class AutoMapperProfile : Profile
     public AutoMapperProfile()
     {
         CreateMap<AppointmentDTO, Appointment>()
-            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status == "true"))
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
             .ForMember(dest => dest.Services, opt => opt.Ignore())
             .ForMember(dest => dest.Customer, opt => opt.Ignore())
             .ForMember(dest => dest.Employee, opt => opt.Ignore())

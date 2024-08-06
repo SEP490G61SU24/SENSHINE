@@ -18,7 +18,7 @@ namespace Web.Models
         public DateTime AppointmentDate { get; set; }
 
         [DisplayName("Status")]
-        public bool Status { get; set; }
+        public string Status { get; set; }
 
         public AppointmentUserViewModel Customer { get; set; }
         public AppointmentUserViewModel Employee { get; set; }

@@ -75,7 +75,7 @@
                     </ul>
                 </td>
                 <td>@appointment.AppointmentDate</td>
-                <td>@(appointment.Status ? "Finished" : "Not Started")</td>
+                <td>@appointment.Status</td>
                 <td>
                     <a asp-action="DetailAppointment" asp-route-id="@appointment.Id">Details</a> |
                     <a asp-action="EditAppointment" asp-route-id="@appointment.Id">Edit</a>           

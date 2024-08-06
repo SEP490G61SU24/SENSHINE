@@ -70,9 +70,8 @@
             </dd>
             <dt class="col-sm-3">Appointment Date</dt>
             <dd class="col-sm-9">@Model.AppointmentDate.ToString("dd/MM/yyyy HH:mm:ss")</dd>
-
             <dt class="col-sm-3">Status</dt>
-            <dd class="col-sm-9">@((Model.Status ? "Finished" : "Not Started"))</dd>
+            <dd class="col-sm-9">@Model.Status</dd>
         </dl>
     </div>
 </div>

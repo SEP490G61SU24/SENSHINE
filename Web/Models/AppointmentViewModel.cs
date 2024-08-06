@@ -20,7 +20,7 @@ namespace Web.Models
         public DateTime AppointmentDate { get; set; }
 
         [DisplayName("Status")]
-        public bool Status { get; set; }
+        public string Status { get; set; }
         public List<int> SelectedServiceIds { get; set; } = new List<int>();
         public List<int> SelectedProductIds { get; set; } = new List<int>();
 
