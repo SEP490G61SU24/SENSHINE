@@ -287,7 +287,7 @@ namespace Web.Controllers
         private async Task<List<EmployeeViewModel>> GetAvailableEmployees()
         {
             List<EmployeeViewModel> employees = new List<EmployeeViewModel>();
-            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/Employee/GetAll");
+            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/user/byRole/4");
 
             if (response.IsSuccessStatusCode)
             {
