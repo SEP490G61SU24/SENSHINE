@@ -12,6 +12,7 @@ namespace API.Models
 
         public int Id { get; set; }
         public string RoleName { get; set; } = null!;
+        public string Rules { get; set; } = null!;
 
         public virtual ICollection<User> Users { get; set; }
     }

@@ -36,6 +36,7 @@ namespace API.Models
         public virtual DbSet<Review> Reviews { get; set; } = null!;
         public virtual DbSet<Role> Roles { get; set; } = null!;
         public virtual DbSet<Room> Rooms { get; set; } = null!;
+        public virtual DbSet<Rule> Rules { get; set; } = null!;
         public virtual DbSet<Salary> Salaries { get; set; } = null!;
         public virtual DbSet<Service> Services { get; set; } = null!;
         public virtual DbSet<Spa> Spas { get; set; } = null!;
@@ -554,6 +555,8 @@ namespace API.Models
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.RoleName).HasMaxLength(50);
+
+                entity.Property(e => e.Rules).HasMaxLength(1000);
             });
 
             modelBuilder.Entity<Room>(entity =>
@@ -568,7 +571,50 @@ namespace API.Models
                     .WithMany(p => p.Rooms)
                     .HasForeignKey(d => d.SpaId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Room__RoomName__49C3F6B7");
+                    .HasConstraintName("FK__Room__RoomName__21D600EE");
+            });
+
+            modelBuilder.Entity<Rule>(entity =>
+            {
+                entity.ToTable("Rule");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Condition)
+                    .HasMaxLength(50)
+                    .HasColumnName("condition");
+
+                entity.Property(e => e.Icon)
+                    .HasMaxLength(50)
+                    .HasColumnName("icon");
+
+                entity.Property(e => e.Ismenu)
+                    .HasColumnName("ismenu")
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.Order).HasColumnName("order");
+
+                entity.Property(e => e.Path)
+                    .HasMaxLength(50)
+                    .HasColumnName("path");
+
+                entity.Property(e => e.Pid).HasColumnName("pid");
+
+                entity.Property(e => e.Remark)
+                    .HasMaxLength(50)
+                    .HasColumnName("remark");
+
+                entity.Property(e => e.Title)
+                    .HasMaxLength(50)
+                    .HasColumnName("title");
+
+                entity.Property(e => e.Type)
+                    .HasMaxLength(50)
+                    .HasColumnName("type");
+
+                entity.Property(e => e.Url)
+                    .HasMaxLength(50)
+                    .HasColumnName("url");
             });
 
             modelBuilder.Entity<Salary>(entity =>
