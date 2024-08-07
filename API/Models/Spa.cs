@@ -22,7 +22,6 @@ namespace API.Models
         public virtual ICollection<Card> Cards { get; set; }
         public virtual ICollection<Invoice> Invoices { get; set; }
         public virtual ICollection<Promotion> Promotions { get; set; }
-
         public virtual ICollection<Room> Rooms { get; set; }
     }
 }

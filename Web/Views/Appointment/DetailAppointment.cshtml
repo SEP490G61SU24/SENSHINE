@@ -1,10 +1,4 @@
-﻿@model AppointmentViewModel
-
-@{
-    ViewData["Title"] = "Appointment Details";
-}
-
-<!-- Google font-->
+﻿<!-- Google font-->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
@@ -33,6 +27,11 @@
 <!-- Responsive css-->
 <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 
+@model ListAppointmentViewModel
+
+@{
+    ViewData["Title"] = "Appointment Details";
+}
 <div class="card">
     <div class="card-body">
         <dl class="row">
@@ -71,16 +70,18 @@
             </dd>
             <dt class="col-sm-3">Appointment Date</dt>
             <dd class="col-sm-9">@Model.AppointmentDate.ToString("dd/MM/yyyy HH:mm:ss")</dd>
-
             <dt class="col-sm-3">Status</dt>
-            <dd class="col-sm-9">@((Model.Status ? "Finished" : "Not Started"))</dd>
+            <dd class="col-sm-9">@Model.Status</dd>
         </dl>
     </div>
 </div>
 
 <div class="mt-4">
-    <a class="btn btn-primary" asp-action="EditAppointment" asp-route-id="@Model.Id">Edit</a>
-    <a class="btn btn-secondary" asp-action="ListAppointment">Back to List</a>
+    <a class="btn btn-primary" asp-action="ListAppointment">Back to List</a>
+    <!-- Form for deleting the appointment -->
+    <form asp-action="DeleteAppointment1" asp-route-id="@Model.Id" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this appointment?');">
+        <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
 </div>
 
 <script src="~/assets/js/jquery.min.js"></script>

@@ -22,7 +22,7 @@ namespace API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(UserDto model)
+        public async Task<IActionResult> Login(UserDTO model)
         {
             var user = await _userService.Authenticate(model.UserName, model.Password);
 
@@ -40,7 +40,7 @@ namespace API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(UserDto model)
+        public async Task<IActionResult> Register(UserDTO model)
         {
             var user = await _userService.AddUser(model);
 
