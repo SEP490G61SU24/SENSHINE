@@ -28,18 +28,18 @@ namespace API.Services.Impl
 
         public ICollection<Card> GetCards()
         {
-            return _context.Cards.Include(c => c.Customer).Include(c => c.Combos).ToList();
+            return _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices).ToList();
         }
 
         public Card GetCard(int id)
         {
-            return _context.Cards.Include(c => c.Customer).Include(c => c.Combos).Where(c => c.Id == id).FirstOrDefault();
+            return _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices).Where(c => c.Id == id).FirstOrDefault();
         }
 
         public ICollection<Card> GetCardByNumNamePhone(string input)
         {
             input = input.ToLower();
-            var cards = _context.Cards.Include(c => c.Customer).Include(c => c.Combos);
+            var cards = _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices);
 
             return cards.Where(c => c.CardNumber.ToLower().Contains(input)
                                  || (c.Customer.FirstName + " " + c.Customer.MidName + " " + c.Customer.LastName).ToLower().Contains(input)
@@ -51,22 +51,15 @@ namespace API.Services.Impl
             DateTime parsedDateFrom = FormatDateTimeUtils.ParseDateTimeLikeSSMS(dateFrom);
             DateTime parsedDateTo = FormatDateTimeUtils.ParseDateTimeLikeSSMS(dateTo);
 
-            return _context.Cards.Include(c => c.Customer).Include(c => c.Combos).Where(c => c.CreateDate >= parsedDateFrom
+            return _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices).Where(c => c.CreateDate >= parsedDateFrom
                                                                                           && c.CreateDate <= parsedDateTo).ToList();
-        }
-
-        public Combo GetCombo(int id)
-        {
-            return _context.Combos.Where(c => c.Id == id).FirstOrDefault();
         }
 
         public async Task<Card> UpdateCard(int id, Card card)
         {
             var cardUpdate = await _context.Cards.FirstOrDefaultAsync(c => c.Id == id);
             cardUpdate.CustomerId = card.CustomerId;
-            cardUpdate.CreateDate = card.CreateDate;
             cardUpdate.Status = card.Status;
-            cardUpdate.Combos = card.Combos;
             await _context.SaveChangesAsync();
 
             return cardUpdate;
@@ -96,7 +89,7 @@ namespace API.Services.Impl
         public bool CardExistByNumNamePhone(string input)
         {
             input = input.ToLower();
-            var cards = _context.Cards.Include(c => c.Customer).Include(s => s.Combos);
+            var cards = _context.Cards.Include(c => c.Customer);
 
             return cards.Any(c => c.CardNumber.ToLower().Contains(input)
                                  || (c.Customer.FirstName + " " + c.Customer.MidName + " " + c.Customer.LastName).ToLower().Contains(input)
@@ -110,6 +103,28 @@ namespace API.Services.Impl
 
             return _context.Cards.Any(c => c.CreateDate <= parsedDateTo
                                         && c.CreateDate >= parsedDateFrom);
+        }
+
+        public ICollection<CardCombo> GetCardComboByCard(int id)
+        {
+            // Fetch all related card combos in one go
+            var cardCombos = _context.CardCombos.Include(c => c.Combo).Where(c => c.CardId == id).ToList();
+
+            return cardCombos;
+        }
+
+
+        public CardCombo GetCardCombo(int id)
+        {
+            return _context.CardCombos.Where(c => c.Id == id).FirstOrDefault();
+        }
+
+        public async Task<CardCombo> CreateCardCombo(CardCombo cardCombo)
+        {
+            await _context.CardCombos.AddAsync(cardCombo);
+            await _context.SaveChangesAsync();
+
+            return cardCombo;
         }
     }
 }

@@ -1,68 +1,106 @@
-﻿using API.Models;
+﻿using API.Dtos;
+using API.Models;
 using API.Services;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
     [ApiController]
-    [Route("api/rooms")]
-    public class RoomController : ControllerBase
+    [Route("api/[controller]/[action]")]
+    public class RoomController : Controller
     {
         private readonly IRoomService _roomService;
-
-        public RoomController(IRoomService roomService)
+        private readonly IMapper _mapper;
+        public RoomController(IRoomService roomService, IMapper mapper)
         {
             _roomService = roomService;
+            _mapper = mapper;
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddRoom(Room room)
+        public async Task<IActionResult> Create([FromBody] RoomDTO roomDTO)
         {
-            var addedRoom = await _roomService.AddRoom(room.RoomName);
-            return CreatedAtAction(nameof(GetRoomById), new { id = addedRoom.Id }, addedRoom);
-        }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateRoom(int id, Room room)
-        {
-            var updatedRoom = await _roomService.UpdateRoom(id, room.RoomName);
-            if (updatedRoom == null)
+            try
             {
-                return NotFound();
-            }
+                var roomMap = _mapper.Map<Room>(roomDTO);
+                var createdRoom = await _roomService.CreateRoom(roomMap);
 
-            return Ok(updatedRoom);
+                return Ok($"Tạo room {createdRoom.RoomName} thành công");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Có lỗi xảy ra khi tạo room: {ex.Message}");
+            }
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteRoom(int id)
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
         {
-            var success = await _roomService.DeleteRoom(id);
-            if (!success)
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var rooms = _mapper.Map<List<RoomDTO>>(_roomService.GetRooms());
+
+            return Ok(rooms);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetById(int id)
+        {
+            if (!_roomService.RoomExist(id))
+                return NotFound();
+
+            var room = _mapper.Map<RoomDTO>(_roomService.GetRoom(id));
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            return Ok(room);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> Update(int id, [FromBody] RoomDTO roomDTO)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_roomService.RoomExist(id))
+                return NotFound();
+
+            try
+            {
+                var existingRoom = _roomService.GetRoom(id);
+                existingRoom.RoomName = roomDTO.RoomName;
+                existingRoom.SpaId = roomDTO.SpaId;
+                var roomUpdate = await _roomService.UpdateRoom(id, existingRoom);
+
+                if (roomUpdate == null)
+                {
+                    return NotFound("Không thể cập nhật room");
+                }
+
+                return Ok($"Cập nhật room {roomUpdate.RoomName} thành công");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Có lỗi xảy ra khi cập nhật room: {ex.Message}");
+            }
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var result = await _roomService.DeleteRoom(id);
+            if (!result)
             {
                 return NotFound();
             }
 
             return NoContent();
-        }
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetRoomById(int id)
-        {
-            var room = await _roomService.GetRoomById(id);
-            if (room == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(room);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetAllRooms()
-        {
-            var rooms = await _roomService.GetAllRooms();
-            return Ok(rooms);
         }
     }
 }

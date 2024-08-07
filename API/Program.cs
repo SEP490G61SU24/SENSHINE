@@ -45,6 +45,7 @@ namespace API
             builder.Services.AddScoped<IWardService, WardService>();
             builder.Services.AddScoped<IDistrictService, DistrictService>();
             builder.Services.AddScoped<IProvinceService, ProvinceService>();
+            builder.Services.AddScoped<ISalaryService, SalaryService>();
 
             builder.Services.AddScoped<CustomAddressResolver>();
 
@@ -52,11 +53,10 @@ namespace API
             builder.Services.AddAutoMapper(typeof(NewMapper));
             builder.Services.AddAutoMapper(typeof(ProductMapper));
             builder.Services.AddAutoMapper(typeof(PromotionMapper));
-
             builder.Services.AddAutoMapper(typeof(CardMapper));
             builder.Services.AddAutoMapper(typeof(EmployeeMapper));
             builder.Services.AddAutoMapper(typeof(BranchMapper));
-
+            builder.Services.AddAutoMapper(typeof(SalaryMapper));
 
             // Configure JWT authentication
             builder.Services.AddAuthentication(options =>

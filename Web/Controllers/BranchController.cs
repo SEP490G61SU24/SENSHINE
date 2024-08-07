@@ -1,6 +1,7 @@
 ﻿using API.Ultils;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Text;
 using Web.Models;
 
@@ -26,6 +27,28 @@ namespace Web.Controllers
             {
                 string data = response.Content.ReadAsStringAsync().Result;
                 branchs = JsonConvert.DeserializeObject<List<BranchViewModel>>(data);
+                foreach (var branch in branchs)
+                {
+                    HttpResponseMessage response1 = _client.GetAsync(_client.BaseAddress + "/provinces/" + branch.ProvinceCode).Result;
+                    HttpResponseMessage response2 = _client.GetAsync(_client.BaseAddress + "/districts/" + branch.DistrictCode).Result;
+                    HttpResponseMessage response3 = _client.GetAsync(_client.BaseAddress + "/wards/" + branch.WardCode).Result;
+                    if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode && response3.IsSuccessStatusCode)
+                    {
+                        string response1Body = response1.Content.ReadAsStringAsync().Result;
+                        string response2Body = response2.Content.ReadAsStringAsync().Result;
+                        string response3Body = response3.Content.ReadAsStringAsync().Result;
+                        JObject json1 = JObject.Parse(response1Body);
+                        JObject json2 = JObject.Parse(response2Body);
+                        JObject json3 = JObject.Parse(response3Body);
+                        branch.ProvinceName = json1["name"].ToString();
+                        branch.DistrictName = json2["name"].ToString();
+                        branch.WardName = json3["name"].ToString();
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error");
+                    }
+                }
             }
 
             return View(branchs);

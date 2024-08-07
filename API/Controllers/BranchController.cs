@@ -50,7 +50,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
             if (!_branchService.BranchExist(id))
                 return NotFound();

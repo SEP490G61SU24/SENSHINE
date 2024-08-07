@@ -1,7 +1,7 @@
-﻿@model IEnumerable<Web.Models.CardViewModel>
+﻿@model IEnumerable<Web.Models.SalaryViewModel>
 
 @{
-    ViewData["Title"] = "Quản lý thẻ";
+    ViewData["Title"] = "Chi tiết lương";
 }
 
 <div class="container-fluid">
@@ -17,24 +17,35 @@
                                     <i class="icon-close filter-close hide"></i>
                                 </a>
                             </div>
-                            <a class="btn btn-primary" href="@Url.Action("CreateCard", "Card")"><i class="fa fa-plus"></i>Tạo thẻ</a>
+                            <a class="btn btn-primary" href="@Url.Action("CreateSalary", "Salary")"><i class="fa fa-plus"></i>Tạo lương</a>
                         </div>
                         <div class="collapse" id="collapseProduct">
                             <div class="card card-body list-product-body">
-                                <form method="get" action="@Url.Action("ListCard", "Card")">
+                                <form method="get" action="@Url.Action("ListSalary", "Salary")">
                                     <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3">
                                         <div class="col">
-                                            <select class="form-select" name="status" aria-label="Select Status">
-                                                <option selected="" disabled>Trạng thái</option>
-                                                <option value="Active">Hoạt động</option>
-                                                <option value="Deactive">Không hoạt động</option>
+                                            <select class="form-select" name="month" aria-label="Select Month">
+                                                <option selected="" disabled>Tháng</option>
+                                                @for (int i = 1; i <= 12; i++)
+                                                {
+                                                    <option value="@i">@i</option>
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="col">
+                                            <select class="form-select" name="year" aria-label="Select Year">
+                                                <option selected="" disabled>Năm</option>
+                                                @for (int y = 2021; y <= DateTime.Now.Year; y++)
+                                                {
+                                                    <option value="@y">@y</option>
+                                                }
                                             </select>
                                         </div>
                                         <div class="col">
                                             <button type="submit" class="btn btn-primary">Filter</button>
                                         </div>
                                         <div class="col">
-                                            <a href="@Url.Action("ListCard", "Card")" class="btn btn-secondary">Reset</a>
+                                            <a href="@Url.Action("ListSalary", "Salary")" class="btn btn-secondary">Reset</a>
                                         </div>
                                     </div>
                                 </form>
@@ -50,12 +61,14 @@
                                             <input class="form-check-input checkbox-primary" type="checkbox">
                                         </div>
                                     </th>
-                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.CardNumber)</span></th>
-                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.CustomerName) </span></th>
-                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.CustomerPhone)</span></th>
-                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.BranchName)</span></th>
-                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.CreateDate)</span></th>
-                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.Status)</span></th>
+                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.EmployeeName)</span></th>
+                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.BaseSalary)</span></th>
+                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.Allowances)</span></th>
+                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.Bonus)</span></th>
+                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.Deductions)</span></th>
+                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.TotalSalary)</span></th>
+                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.SalaryMonth)</span></th>
+                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.SalaryYear)</span></th>
                                     <th> <span class="f-light f-w-600">Thao tác</span></th>
                                 </tr>
                             </thead>
@@ -64,29 +77,16 @@
                                 {
                                     <tr>
                                         <td></td>
+                                        <td>@item.EmployeeName</td>
+                                        <td>@item.BaseSalary</td>
+                                        <td>@item.Allowances</td>
+                                        <td>@item.Bonus</td>
+                                        <td>@item.Deductions</td>
+                                        <td>@item.TotalSalary</td>
+                                        <td>@item.SalaryMonth</td>
+                                        <td>@item.SalaryYear</td>
                                         <td>
-                                            <a href="@Url.Action("DetailCard", "Card", new { id = item.Id })">
-                                                @Html.DisplayFor(modelItem => item.CardNumber)
-                                            </a>
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.CustomerName)
-                                        </td>
-                                        <th>
-                                            @Html.DisplayFor(modelItem => item.CustomerPhone)
-                                        </th>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.BranchName)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.CreateDate)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Status)
-                                        </td>
-                                        <td>
-                                            @Html.ActionLink("Cập nhật", "UpdateCard", new { id = item.Id }, new { @href = "http://localhost:5129/Card/UpdateCard?id=" + item.Id }) |
-                                            @Html.ActionLink("Chuyển trạng thái", "ChangeStateCard", new { id = item.Id }, new { @onclick = "return confirmChangeState(" + item.Id + ")" })
+                                            @Html.ActionLink("Cập nhật", "UpdateSalary", new { id = item.Id }, new { @href = "http://localhost:5129/Salary/UpdateSalary?id=" + item.Id })
                                         </td>
                                     </tr>
                                 }
@@ -126,6 +126,7 @@
 }
 
 @section Scripts {
+    <!-- Container-fluid Ends-->
     <script src="~/assets/js/jquery.min.js"></script>
     <!-- Bootstrap js-->
     <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
@@ -152,14 +153,4 @@
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
-
-    <script>
-        function confirmChangeState(id) {
-            if (confirm("Are you sure you want to change the state of this card?")) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-    </script>
 }

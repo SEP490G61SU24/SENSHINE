@@ -8,13 +8,13 @@ namespace API.Models
         public Room()
         {
             Beds = new HashSet<Bed>();
-            Spas = new HashSet<Spa>();
         }
 
         public int Id { get; set; }
+        public int SpaId { get; set; }
         public string RoomName { get; set; } = null!;
 
+        public virtual Spa Spa { get; set; } = null!;
         public virtual ICollection<Bed> Beds { get; set; }
-        public virtual ICollection<Spa> Spas { get; set; }
     }
 }

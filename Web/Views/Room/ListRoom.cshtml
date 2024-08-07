@@ -1,7 +1,7 @@
-﻿@model IEnumerable<Web.Models.BranchViewModel>
+﻿@model IEnumerable<Web.Models.RoomViewModel>
 
 @{
-    ViewData["Title"] = "Quản lý chi nhánh";
+    ViewData["Title"] = "Quản lý phòng";
 }
 
 <div class="container-fluid">
@@ -11,7 +11,7 @@
                 <div class="card-body">
                     <div class="list-product-header">
                         <div>
-                            <a class="btn btn-primary" href="@Url.Action("CreateBranch", "Branch")"><i class="fa fa-plus"></i>Tạo chi nhánh</a>
+                            <a class="btn btn-primary" href="@Url.Action("CreateRoom", "Room")"><i class="fa fa-plus"></i>Tạo phòng</a>
                         </div>
                     </div>
                     <div class="list-product">
@@ -23,10 +23,8 @@
                                             <input class="form-check-input checkbox-primary" type="checkbox">
                                         </div>
                                     </th>
+                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.RoomName)</span></th>
                                     <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.SpaName)</span></th>
-                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.ProvinceCode)</span></th>
-                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.DistrictCode)</span></th>
-                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.WardCode)</span></th>
                                     <th> <span class="f-light f-w-600">Thao tác</span></th>
                                 </tr>
                             </thead>
@@ -35,12 +33,10 @@
                                 {
                                     <tr>
                                         <td></td>
+                                        <td>@item.RoomName</td>
                                         <td>@item.SpaName</td>
-                                        <td>@item.ProvinceName</td>
-                                        <td>@item.DistrictName</td>
-                                        <td>@item.WardName</td>
                                         <td>
-                                            @Html.ActionLink("Cập nhật", "UpdateBranch", new { id = item.Id }, new { @href = "http://localhost:5129/Branch/UpdateBranch?id=" + item.Id })
+                                            @Html.ActionLink("Cập nhật", "UpdateRoom", new { id = item.Id }, new { @href = "http://localhost:5129/Room/UpdateRoom?id=" + item.Id })
                                         </td>
                                     </tr>
                                 }

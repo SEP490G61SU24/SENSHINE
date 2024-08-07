@@ -12,31 +12,33 @@ namespace API.Services.Impl
             _context = context;
         }
 
-        public async Task<Room> AddRoom(string roomName)
+        public async Task<Room> CreateRoom(Room room)
         {
-            var room = new Room
-            {
-                RoomName = roomName
-            };
-
-            _context.Rooms.Add(room);
+            await _context.Rooms.AddAsync(room);
             await _context.SaveChangesAsync();
+
             return room;
         }
 
-        public async Task<Room> UpdateRoom(int id, string roomName)
+        public ICollection<Room> GetRooms()
         {
-            var room = await _context.Rooms.FindAsync(id);
-            if (room == null)
-            {
-                return null;
-            }
+            return _context.Rooms.ToList();
+        }
 
-            room.RoomName = roomName;
+        public Room GetRoom(int id)
+        {
+            var rooms = GetRooms();
+            return rooms.FirstOrDefault(r => r.Id == id);
+        }
 
-            _context.Rooms.Update(room);
+        public async Task<Room> UpdateRoom(int id, Room room)
+        {
+            var roomUpdate = await _context.Rooms.FirstOrDefaultAsync(r => r.Id == id);
+            roomUpdate.RoomName = room.RoomName;
+            roomUpdate.SpaId = room.SpaId;
             await _context.SaveChangesAsync();
-            return room;
+
+            return roomUpdate;
         }
 
         public async Task<bool> DeleteRoom(int id)
@@ -46,20 +48,14 @@ namespace API.Services.Impl
             {
                 return false;
             }
-
             _context.Rooms.Remove(room);
             await _context.SaveChangesAsync();
             return true;
         }
 
-        public async Task<Room> GetRoomById(int id)
+        public bool RoomExist(int id)
         {
-            return await _context.Rooms.FindAsync(id);
-        }
-
-        public async Task<IEnumerable<Room>> GetAllRooms()
-        {
-            return await _context.Rooms.ToListAsync();
+            return _context.Rooms.Any(s => s.Id == id);
         }
     }
 }
