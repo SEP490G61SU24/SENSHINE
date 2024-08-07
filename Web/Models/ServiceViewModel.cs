@@ -4,16 +4,16 @@ namespace Web.Models
 {
     public class ServiceViewModel
     {
-        [DisplayName("Service ID")]
+        [DisplayName("ID")]
         public int Id { get; set; }
 
-        [DisplayName("Service Name")]
+        [DisplayName("Tên Dịch Vụ")]
         public string ServiceName { get; set; } = null!;
 
-        [DisplayName("Amount")]
+        [DisplayName("Giá Tiền")]
         public decimal Amount { get; set; }
 
-        [DisplayName("Description")]
+        [DisplayName("Mô Tả Chi Tiết")]
         public string? Description { get; set; }
     }
 }
