@@ -1,5 +1,8 @@
 ﻿using API.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace API.Services.Impl
 {
@@ -12,14 +15,10 @@ namespace API.Services.Impl
             _context = context;
         }
 
-        public async Task<Bed> AddBed(string bedNumber)
+       
+        public async Task<Bed> AddBed(Bed bed)
         {
-            var bed = new Bed
-            {
-                BedNumber = bedNumber
-            };
-
-            _context.Beds.Add(bed);
+            await _context.Beds.AddAsync(bed);
             await _context.SaveChangesAsync();
             return bed;
         }
@@ -52,14 +51,40 @@ namespace API.Services.Impl
             return true;
         }
 
-        public async Task<Bed> GetBedById(int id)
+        public async Task<BedDTO> GetBedById(int id)
         {
-            return await _context.Beds.FindAsync(id);
+            var bed = await _context.Beds
+                                    .Include(b => b.Room)
+                                    .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (bed == null)
+            {
+                return null;
+            }
+
+            return new BedDTO
+            {
+                Id = bed.Id,
+                RoomId = bed.RoomId,
+                BedNumber = bed.BedNumber,
+                StatusWorking = bed.StatusWorking,
+                
+            };
         }
 
-        public async Task<IEnumerable<Bed>> GetAllBeds()
+        public async Task<IEnumerable<BedDTO>> GetAllBeds()
         {
-            return await _context.Beds.ToListAsync();
+            return await _context.Beds
+                                 .Include(b => b.Room)
+                                 .Select(b => new BedDTO
+                                 {
+                                     Id = b.Id,
+                                     RoomId = b.RoomId,
+                                     BedNumber = b.BedNumber,
+                                     StatusWorking = b.StatusWorking,
+                                     
+                                 })
+                                 .ToListAsync();
         }
     }
 }
