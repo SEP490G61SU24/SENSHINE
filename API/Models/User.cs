@@ -26,10 +26,10 @@ namespace API.Models
         public string? LastName { get; set; }
         public string? Phone { get; set; }
         public DateTime? BirthDate { get; set; }
-        public string? ProvinceCode { get; set; }
-        public string? Status { get; set; }
-        public string? StatusWorking { get; set; }
+        public string Status { get; set; } = null!;
+        public string StatusWorking { get; set; } = null!;
         public int? SpaId { get; set; }
+        public string? ProvinceCode { get; set; }
         public string? DistrictCode { get; set; }
         public string? WardCode { get; set; }
 
