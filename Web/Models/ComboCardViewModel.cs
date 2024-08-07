@@ -2,7 +2,7 @@
 
 namespace Web.Models
 {
-    public class ComboViewModel
+    public class ComboCardViewModel
     {
 
         [JsonPropertyName("id")]
@@ -22,6 +22,7 @@ namespace Web.Models
 
         public List<int> SelectedServiceIds { get; set; } = new List<int>();
 
+        public string SalePriceString { get; set; }
         public List<ServiceViewModel> AvailableServices { get; set; } = new List<ServiceViewModel>();
 
     }
