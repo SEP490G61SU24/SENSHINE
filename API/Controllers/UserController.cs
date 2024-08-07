@@ -36,12 +36,12 @@ namespace API.Controllers
                 return NotFound();
             }
 
-            var userProfile = _mapper.Map<UserDto>(user);
+            var userProfile = _mapper.Map<UserDTO>(user);
             return Ok(userProfile);
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> AddUser([FromBody] UserDto userDto)
+        public async Task<IActionResult> AddUser([FromBody] UserDTO userDto)
         {
             if (!ModelState.IsValid)
             {
@@ -50,13 +50,13 @@ namespace API.Controllers
 
             var user = await _userService.AddUser(userDto);
 
-            var resultDto = _mapper.Map<UserDto>(user);
+            var resultDto = _mapper.Map<UserDTO>(user);
 
             return Ok(resultDto);
         }
 
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserDto userDto)
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserDTO userDto)
         {
             if (!ModelState.IsValid)
             {
@@ -71,7 +71,7 @@ namespace API.Controllers
                 return NotFound();
             }
 
-            var userDtoRes = _mapper.Map<UserDto>(user);
+            var userDtoRes = _mapper.Map<UserDTO>(user);
             return Ok(userDtoRes);
         }
 
@@ -94,11 +94,11 @@ namespace API.Controllers
             var users = await _userService.GetUsersByRole(roleId);
             if (users == null || !users.Any())
             {
-                var emptyArray = new UserDto[0];
+                var emptyArray = new UserDTO[0];
                 return Ok(emptyArray);
             }
 
-            var userDtos = _mapper.Map<IEnumerable<UserDto>>(users);
+            var userDtos = _mapper.Map<IEnumerable<UserDTO>>(users);
             return Ok(userDtos);
         }
 
@@ -108,11 +108,11 @@ namespace API.Controllers
             var users = await _userService.GetAll();
             if (users == null || !users.Any())
             {
-                var emptyArray = new UserDto[0];
+                var emptyArray = new UserDTO[0];
                 return Ok(emptyArray);
             }
 
-            var userDtos = _mapper.Map<IEnumerable<UserDto>>(users);
+            var userDtos = _mapper.Map<IEnumerable<UserDTO>>(users);
             return Ok(userDtos);
         }
 
@@ -125,7 +125,7 @@ namespace API.Controllers
                 return NotFound();
             }
 
-            var userDto = _mapper.Map<UserDto>(u);
+            var userDto = _mapper.Map<UserDTO>(u);
             return Ok(userDto);
         }
     }
