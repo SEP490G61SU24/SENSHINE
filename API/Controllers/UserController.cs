@@ -94,7 +94,8 @@ namespace API.Controllers
             var users = await _userService.GetUsersByRole(roleId);
             if (users == null || !users.Any())
             {
-                return NoContent();
+                var emptyArray = new UserDto[0];
+                return Ok(emptyArray);
             }
 
             var userDtos = _mapper.Map<IEnumerable<UserDto>>(users);
@@ -105,12 +106,14 @@ namespace API.Controllers
         public async Task<IActionResult> GetAll()
         {
             var users = await _userService.GetAll();
-            if (users != null)
+            if (users == null || !users.Any())
             {
-                var userDtos = _mapper.Map<IEnumerable<UserDto>>(users);
-                return Ok(userDtos);
+                var emptyArray = new UserDto[0];
+                return Ok(emptyArray);
             }
-            else { return NoContent(); }
+
+            var userDtos = _mapper.Map<IEnumerable<UserDto>>(users);
+            return Ok(userDtos);
         }
 
         [HttpGet("{id}")]
