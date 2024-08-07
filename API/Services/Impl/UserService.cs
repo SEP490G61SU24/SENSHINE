@@ -28,7 +28,7 @@ namespace API.Services.Impl
             return user;
         }
 
-        public async Task<User> AddUser(UserDto userDto)
+        public async Task<User> AddUser(UserDTO userDto)
         {
             if (!string.IsNullOrEmpty(userDto.UserName))
             {
@@ -91,7 +91,7 @@ namespace API.Services.Impl
             return user;
         }
 
-        public async Task<User> UpdateUser(int id, UserDto userDto)
+        public async Task<User> UpdateUser(int id, UserDTO userDto)
         {
             var user = await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == id);
             if (user == null)
@@ -166,7 +166,7 @@ namespace API.Services.Impl
                                  .ToListAsync();
         }
 
-        public async Task<IEnumerable<UserDto>> GetAll()
+        public async Task<IEnumerable<UserDTO>> GetAll()
         {
             var users = await (from user in _context.Users.Include(u => u.Roles).Where(u => u.Roles.All(r => r.Id != 5))
 							   join ward in _context.Wards on user.WardCode equals ward.Code into wardsJoined
@@ -175,7 +175,7 @@ namespace API.Services.Impl
                                from district in districtsJoined.DefaultIfEmpty()
                                join province in _context.Provinces on district.ProvinceCode equals province.Code into provincesJoined
                                from province in provincesJoined.DefaultIfEmpty()
-                               select new UserDto
+                               select new UserDTO
                                {
                                    Id = user.Id,
                                    UserName = user.UserName,
@@ -200,7 +200,7 @@ namespace API.Services.Impl
             return users;
         }
 
-        public async Task<UserDto> GetById(int id)
+        public async Task<UserDTO> GetById(int id)
         {
             var userDto = await (from user in _context.Users.Include(u => u.Roles)
                                  join ward in _context.Wards on user.WardCode equals ward.Code into wardsJoined
@@ -210,7 +210,7 @@ namespace API.Services.Impl
                                  join province in _context.Provinces on district.ProvinceCode equals province.Code into provincesJoined
                                  from province in provincesJoined.DefaultIfEmpty()
                                  where user.Id == id
-                                 select new UserDto
+                                 select new UserDTO
                                  {
                                      Id = user.Id,
                                      UserName = user.UserName,
