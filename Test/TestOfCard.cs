@@ -23,12 +23,13 @@ namespace Test_SenShineSpa
         [Test]
         public async Task CreateCard_ShouldReturnSuccess()
         {
+            DateTime localDate = DateTime.Now;
             // Arrange
             var cardDTO = new
             {
-                CardNumber = "testCard3",
+                CardNumber = "testCard" + localDate.ToString(),
                 BranchId = 1,
-                CustomerId = 2,
+                CustomerId = 1,
                 Status = "Active"
             };
 
@@ -57,7 +58,7 @@ namespace Test_SenShineSpa
         public async Task GetCardById_ShouldReturnCard()
         {
             // Arrange
-            var cardId = 2;
+            var cardId = 1;
 
             // Act
             var response = await _client.GetAsync($"/api/Card/GetById?id={cardId}");
@@ -72,12 +73,12 @@ namespace Test_SenShineSpa
         public async Task UpdateCard_ShouldReturnSuccess()
         {
             // Arrange
-            var cardId = 2;
+            var cardId = 1;
             var cardDTO = new
             {
                 CardNumber = "aaa",
-                CustomerId = 1,
-                Status = "Active",
+                CustomerId = 2,
+                Status = "Deactive",
             };
 
             var response = await _client.PutAsJsonAsync($"/api/Card/Update?id={cardId}", cardDTO);
@@ -94,7 +95,7 @@ namespace Test_SenShineSpa
         public async Task ActiveDeactiveCard_ShouldReturnSuccess()
         {
             // Arrange
-            var cardId = 2;
+            var cardId = 1;
 
             // Act
             var response = await _client.PutAsync($"/api/Card/ActiveDeactive?id={cardId}", null);
@@ -109,7 +110,7 @@ namespace Test_SenShineSpa
         public async Task GetCardComboByCard_ShouldReturnCombos()
         {
             // Arrange
-            var cardId = 2;
+            var cardId = 1;
 
             // Act
             var response = await _client.GetAsync($"/api/Card/GetCardComboByCard?id={cardId}");
@@ -126,9 +127,9 @@ namespace Test_SenShineSpa
             // Arrange
             var cardComboDTO = new
             {
-                CardId = 2,
+                CardId = 1,
                 ComboId = 1,
-                Quantity = 2
+                Quantity = 5
             };
 
             // Act
