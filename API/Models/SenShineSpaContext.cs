@@ -450,20 +450,32 @@ namespace API.Models
 
                             j.ToTable("ProductCategories");
                         });
+                entity.HasMany(d => d.ProductImages)
+               .WithOne(p => p.Product) // Configure the inverse navigation property
+               .HasForeignKey(d => d.ProductId)
+               .OnDelete(DeleteBehavior.ClientSetNull)
+               .HasConstraintName("PK__ProductI__3213E83F76428B88");
             });
 
             modelBuilder.Entity<ProductImage>(entity =>
             {
-                entity.HasNoKey();
-
                 entity.ToTable("ProductImage");
 
-                entity.Property(e => e.ImageUrl)
-                    .HasMaxLength(1000)
-                    .HasColumnName("ImageURL");
-            });
+                entity.HasKey(e => e.Id);
 
-            modelBuilder.Entity<Promotion>(entity =>
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.ProductId).HasColumnName("ProductId");
+                entity.Property(e => e.ImageUrl).HasMaxLength(1000).HasColumnName("ImageURL");
+
+                entity.HasOne(d => d.Product) // Configure the navigation property for the relationship
+                      .WithMany(p => p.ProductImages)
+                      .HasForeignKey(d => d.ProductId)
+                      .OnDelete(DeleteBehavior.ClientSetNull)
+                      .HasConstraintName("PK__ProductI__3213E83F76428B88");
+            });
+        
+
+        modelBuilder.Entity<Promotion>(entity =>
             {
                 entity.Property(e => e.Id).HasColumnName("id");
 

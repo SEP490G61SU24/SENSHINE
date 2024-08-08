@@ -1,4 +1,5 @@
-﻿using API.Models;
+﻿using API.Dtos;
+using API.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -84,6 +85,13 @@ namespace API.Services.Impl
                                      StatusWorking = b.StatusWorking,
                                      
                                  })
+                                 .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Bed>> GetBedByRoomId(int roomId)
+        {
+            return await _context.Beds.Include(b => b.Room)  
+                                 .Where(b => b.RoomId == roomId)  
                                  .ToListAsync();
         }
     }

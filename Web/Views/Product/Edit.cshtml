@@ -1,87 +1,292 @@
-﻿@model API.Dtos.ProductDTORequest_2
+﻿@model Web.Models.ProductViewModel
 
 @{
     ViewData["Title"] = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
 @section Styles {
     <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
-    <!-- ico-font-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
-    <!-- Themify icon-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/themify.css">
-    <!-- Flag icon-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/flag-icon.css">
-    <!-- Feather icon-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/feather-icon.css">
-    <!-- Plugins css start-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
-    <!-- Plugins css Ends-->
-    <!-- Bootstrap css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
-    <!-- App css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
-    <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 }
+
+<style>
+    .custom-select-wrapper {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+
+    .custom-select {
+        display: flex;
+        flex-wrap: wrap;
+        border: 1px solid #ccc;
+        padding: 0.5rem;
+        border-radius: 4px;
+        background-color: #fff;
+        cursor: pointer;
+        position: relative;
+    }
+
+        .custom-select .btn {
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+    .custom-options {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        border: 1px solid #ccc;
+        border-top: none;
+        background-color: #fff;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+    }
+
+        .custom-options.show {
+            display: block;
+        }
+
+        .custom-options label {
+            display: block;
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+
+            .custom-options label:hover {
+                background-color: #f0f0f0;
+            }
+
+    #imageUrlsContainer {
+        margin-bottom: 1rem;
+    }
+
+    .input-group {
+        margin-bottom: 0.5rem;
+    }
+
+    .input-group-append .btn {
+        border-radius: 0.25rem;
+    }
+
+    .image-preview img {
+        max-width: 100%;
+        max-height: 150px;
+        margin: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 0.25rem;
+        object-fit: cover;
+    }
+
+    .image-preview {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    textarea.d-none {
+        display: none;
+    }
+
+    .text-danger {
+        color: #dc3545;
+    }
+</style>
+
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="ProductName" class="control-label"></label>
-                <input asp-for="ProductName" class="form-control" />
-                <span asp-validation-for="ProductName" class="text-danger"></span>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Edit Product</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="row g-3">
+                            <!-- Product Name -->
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label asp-for="ProductName" class="control-label">Product Name</label>
+                                    <input asp-for="ProductName" class="form-control" />
+                                    <span asp-validation-for="ProductName" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- Price -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Price" class="control-label">Price</label>
+                                    <input asp-for="Price" class="form-control" />
+                                    <span asp-validation-for="Price" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- Quantity -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Quantity" class="control-label">Quantity</label>
+                                    <input asp-for="Quantity" class="form-control" />
+                                    <span asp-validation-for="Quantity" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- Categories -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Categories</label>
+                                    <div class="custom-select-wrapper">
+                                        <div id="categorySelect" class="custom-select" >
+                                            @foreach (var category in ViewBag.Categories ?? new List<API.Dtos.CategoryDTO>())
+                                            {
+                                                <button type="button"
+                                                        class="btn @(Model.Categories.Any(c => c.Id == category.Id) ? "btn-primary" : "btn-default")"
+                                                        data-id="@category.Id">
+                                                    @category.CategoryName
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="CategoryIdsString" value="@string.Join(",", Model.CategoryIds ?? new List<int>())" id="CategoriesInput" />
+                                    <span asp-validation-for="CategoryIdsString" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- Image URLs -->
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label asp-for="ImageUrls" class="control-label">Image URLs</label>
+                                    <div id="imageUrlsContainer">
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-outline-secondary add-image-btn">
+                                                <i class="fa fa-plus"></i>
+                                            </button>
+                                        </div>
+
+                                        <!-- Existing image URLs from the model -->
+                                        @foreach (var image in Model.ProductImages ?? new List<API.Dtos.ProductImageDTO>())
+                                        {
+                                            <div class="input-group mb-2">
+                                                <input type="text" name="ImageUrls" class="form-control image-url-input" value="@image.ImageUrl" />
+                                                <div class="input-group-append">
+                                                    <button type="button" class="btn btn-outline-secondary remove-image-btn">
+                                                        <i class="fa fa-minus"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <div id="imagePreview" class="image-preview mt-2"></div>
+
+                                    <!-- Hidden textarea for form submission -->
+                                    <textarea name="ImageUrls" class="form-control d-none" rows="1"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="col-12">
+                                <div class="form-group d-flex justify-content-end">
+                                    <input type="submit" value="Update" class="btn btn-primary spacing-10px" />
+                                    <a asp-action="ProductList" class="btn btn-secondary spacing-10px ms-2">Back to List</a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Price" class="control-label"></label>
-                <input asp-for="Price" class="form-control" />
-                <span asp-validation-for="Price" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Quantity" class="control-label"></label>
-                <input asp-for="Quantity" class="form-control" />
-                <span asp-validation-for="Quantity" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 <script src="~/assets/js/jquery.min.js"></script>
-<!-- Bootstrap js-->
 <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
-<!-- feather icon js-->
 <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
 <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
-<!-- scrollbar js-->
 <script src="~/assets/js/scrollbar/simplebar.js"></script>
 <script src="~/assets/js/scrollbar/custom.js"></script>
-<!-- Sidebar jquery-->
 <script src="~/assets/js/config.js"></script>
-<!-- Plugins JS start-->
 <script src="~/assets/js/sidebar-menu.js"></script>
 <script src="~/assets/js/sidebar-pin.js"></script>
 <script src="~/assets/js/slick/slick.min.js"></script>
 <script src="~/assets/js/slick/slick.js"></script>
 <script src="~/assets/js/header-slick.js"></script>
-<!-- calendar js-->
 <script src="~/assets/js/js-datatables/simple-datatables@latest.js"></script>
 <script src="~/assets/js/custom-list-product.js"></script>
 <script src="~/assets/js/owlcarousel/owl.carousel.js"></script>
 <script src="~/assets/js/ecommerce.js"></script>
 <script src="~/assets/js/tooltip-init.js"></script>
-<!-- Plugins JS Ends-->
-<!-- Theme js-->
 <script src="~/assets/js/script.js"></script>
+<script>
+    $(document).ready(function () {
+        // Handle adding and removing image URLs
+        $('.add-image-btn').click(function () {
+            var newImageInput = `
+                    <div class="input-group mb-2">
+                        <input type="text" name="ImageUrls" class="form-control image-url-input" />
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-outline-secondary remove-image-btn">
+                                <i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>`;
+            $('#imageUrlsContainer').append(newImageInput);
+        });
+
+        $(document).on('click', '.remove-image-btn', function () {
+            $(this).closest('.input-group').remove();
+        });
+
+        // Preview images
+        function updateImagePreview() {
+            var imagePreviewContainer = $('#imagePreview');
+            imagePreviewContainer.empty();
+            $('input.image-url-input').each(function () {
+                var url = $(this).val();
+                if (url) {
+                    imagePreviewContainer.append(`<img src="${url}" alt="Image Preview" />`);
+                }
+            });
+        }
+
+        $('#imageUrlsContainer').on('input', '.image-url-input', function () {
+            updateImagePreview();
+        });
+
+        // Handle category selection
+        $('#categorySelect').on('click', 'button', function () {
+            var $button = $(this);
+            var categoryId = $button.data('id');
+            var selectedCategoryIds = $('#CategoriesInput').val().split(',').filter(Boolean);
+            var index = selectedCategoryIds.indexOf(categoryId.toString());
+
+            if (index === -1) {
+                selectedCategoryIds.push(categoryId);
+                $button.removeClass('btn-default').addClass('btn-primary');
+            } else {
+                selectedCategoryIds.splice(index, 1);
+                $button.removeClass('btn-primary').addClass('btn-default');
+            }
+
+            $('#CategoriesInput').val(selectedCategoryIds.join(','));
+        });
+
+        // Initialize image preview
+        updateImagePreview();
+    });
+</script>

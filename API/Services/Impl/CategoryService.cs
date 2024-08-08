@@ -71,6 +71,19 @@ namespace API.Services.Impl
 
             return true;
         }
+        public async Task<IEnumerable<CategoryDTO>> GetCategoriesByProductId(int Id)
+        {
+            var categories = await _context.Categories
+                .Include(x => x.Products)
+                .Where(p => p.Products.Any(c => c.Id == Id)).ToListAsync();
+
+            if (categories == null)
+            {
+                return null;
+            }
+
+            return _mapper.Map<IEnumerable<CategoryDTO>>(categories);
+        }
     }
 
 }

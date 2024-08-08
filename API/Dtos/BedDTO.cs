@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace API.Models
+﻿namespace API.Dtos
 {
     public class BedDTO
     {
