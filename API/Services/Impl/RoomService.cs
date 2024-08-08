@@ -57,5 +57,12 @@ namespace API.Services.Impl
         {
             return _context.Rooms.Any(s => s.Id == id);
         }
+
+        public async Task<IEnumerable<Room>> GetRoomBySpaId(int spaId)
+        {
+             return await _context.Rooms.Include(r => r.Spa)
+                                     .Where(r => r.Spa.Id == spaId)
+                                     .ToListAsync();
+        }
     }
 }
