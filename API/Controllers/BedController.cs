@@ -1,5 +1,8 @@
-﻿using API.Models;
+﻿using API.Dtos;
+using API.Models;
 using API.Services;
+using API.Services.Impl;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -9,10 +12,12 @@ namespace API.Controllers
     public class BedController : ControllerBase
     {
         private readonly IBedService _bedService;
+        private readonly IMapper _mapper;
 
-        public BedController(IBedService bedService)
+        public BedController(IBedService bedService, IMapper mapper)
         {
             _bedService = bedService;
+            _mapper = mapper;
         }
 
         [HttpPost]
@@ -64,5 +69,18 @@ namespace API.Controllers
             var beds = await _bedService.GetAllBeds();
             return Ok(beds);
         }
+
+        //lay ra danh sach phong theo RoomId
+        [HttpGet("ByRoomId/{roomId}")]
+        public async Task<IActionResult> GetByRoomId(int roomId)
+        {
+            var beds = await _bedService.GetBedByRoomId(roomId);
+            if(beds == null)
+            {
+                return NotFound();
+            }
+            return Ok(_mapper.Map<IEnumerable<BedDTO>>(beds));
+        }
+
     }
 }

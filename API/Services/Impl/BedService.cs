@@ -1,5 +1,6 @@
 ﻿using API.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace API.Services.Impl
 {
@@ -60,6 +61,13 @@ namespace API.Services.Impl
         public async Task<IEnumerable<Bed>> GetAllBeds()
         {
             return await _context.Beds.ToListAsync();
+        }
+
+        public async Task<IEnumerable<Bed>> GetBedByRoomId(int roomId)
+        {
+            return await _context.Beds.Include(b => b.Room)  
+                                 .Where(b => b.RoomId == roomId)  
+                                 .ToListAsync();
         }
     }
 }
