@@ -1,15 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Net.Http.Json;
-using API.Models;
-using System.Configuration;
-using Web.Models;
-using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text;
-using System;
 using System.Globalization;
 using API.Dtos;
 

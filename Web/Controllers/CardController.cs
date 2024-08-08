@@ -11,6 +11,7 @@ using AutoMapper.Configuration.Annotations;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using Microsoft.IdentityModel.Tokens;
+using API.Dtos;
 
 namespace Web.Controllers
 {
@@ -29,7 +30,7 @@ namespace Web.Controllers
         public async Task<IActionResult> ListCard(string? status)
         {
             List<CardViewModel> cards = new List<CardViewModel>();
-            UserViewModel user = new UserViewModel();
+            UserDTO user = new UserDTO();
             BranchViewModel branch = new BranchViewModel();
             HttpResponseMessage response = _client.GetAsync(_client.BaseAddress + "/Card/GetAll").Result;
 
@@ -48,7 +49,7 @@ namespace Web.Controllers
                 HttpResponseMessage response1 = _client.GetAsync(_client.BaseAddress + "/user/" + card.CustomerId).Result;
                 HttpResponseMessage response2 = _client.GetAsync(_client.BaseAddress + "/Branch/GetById?id=" + card.BranchId).Result;
                 string data1 = response1.Content.ReadAsStringAsync().Result;
-                user = JsonConvert.DeserializeObject<UserViewModel>(data1);
+                user = JsonConvert.DeserializeObject<UserDTO>(data1);
                 string data2 = response2.Content.ReadAsStringAsync().Result;
                 branch = JsonConvert.DeserializeObject<BranchViewModel>(data2);
                 card.CustomerName = user.FirstName + " " + user.MidName + " " + user.LastName;
@@ -112,7 +113,7 @@ namespace Web.Controllers
             var response2 = _client.GetAsync($"http://localhost:5297/api/Combo/GetAllCombo").Result;
             if (response.IsSuccessStatusCode && response2.IsSuccessStatusCode)
             {
-                var users = response.Content.ReadFromJsonAsync<IEnumerable<UserViewModel>>().Result;
+                var users = response.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
                 foreach (var user in users)
                 {
                     user.FullName = string.Join(" ", user.FirstName ?? "", user.MidName ?? "", user.LastName ?? "").Trim();
@@ -208,7 +209,7 @@ namespace Web.Controllers
             {
                 string data = await response.Content.ReadAsStringAsync();
                 card = JsonConvert.DeserializeObject<CardCreateModel>(data);
-                var users = response2.Content.ReadFromJsonAsync<IEnumerable<UserViewModel>>().Result;
+                var users = response2.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
                 foreach (var user in users)
                 {
                     user.FullName = string.Join(" ", user.FirstName ?? "", user.MidName ?? "", user.LastName ?? "").Trim();
