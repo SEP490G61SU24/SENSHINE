@@ -66,6 +66,18 @@ namespace API.Controllers
             return Ok(category);
         }
 
+        [HttpGet("GetCategoriesByProductId")]
+        public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetCategoriesByProductId(int id)
+        {
+            var category = await _categoryService.GetCategoriesByProductId(id);
+            if (category == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(category);
+        }
+
         [HttpDelete("DeleteCategory/{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
