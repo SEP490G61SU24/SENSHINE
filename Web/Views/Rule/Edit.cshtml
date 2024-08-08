@@ -65,9 +65,9 @@
             </div>
             <div class="col-md-6 position-relative">
                 <label class="form-label" for="Ismenu">Có là menu hay không</label>
-                <select class="form-select" name="Ismenu" id="Ismenu" required="">
-                    <option selected value="1">Là menu</option>
-                    <option value="0">Không phải menu</option>
+                <select class="form-select" asp-for="Ismenu" name="Ismenu" id="Ismenu" required="">
+                    <option selected value="yes">Là menu</option>
+                    <option value="no">Không phải menu</option>
                 </select>
                 <div class="invalid-tooltip">Chọn lựa chọn.</div>
             </div>

@@ -105,7 +105,7 @@ namespace Web.Controllers
             ViewBag.Services = services ?? new List<ServiceViewModel>();
             ViewBag.Products = products ?? new List<ProductViewModel>();
             ViewBag.Employees = employees ?? new List<EmployeeViewModel>();
-            ViewBag.Customers = customers ?? new List<UserViewModel>();
+            ViewBag.Customers = customers ?? new List<UserDTO>();
 
             return View();
         }
@@ -195,7 +195,7 @@ namespace Web.Controllers
             ViewBag.Services = services ?? new List<ServiceViewModel>();
             ViewBag.Products = products ?? new List<ProductViewModel>();
             ViewBag.Employees = employees ?? new List<EmployeeViewModel>();
-            ViewBag.Customers = customers ?? new List<UserViewModel>();
+            ViewBag.Customers = customers ?? new List<UserDTO>();
 
             return View(appointmentViewModel);
         }
@@ -298,15 +298,15 @@ namespace Web.Controllers
             return employees;
         }
 
-        private async Task<List<UserViewModel>> GetAvailableCustomers()
+        private async Task<List<UserDTO>> GetAvailableCustomers()
         {
-            List<UserViewModel> customers = new List<UserViewModel>();
+            List<UserDTO> customers = new List<UserDTO>();
             HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/user/byRole/5");
 
             if (response.IsSuccessStatusCode)
             {
                 string jsonString = await response.Content.ReadAsStringAsync();
-                customers = JsonConvert.DeserializeObject<List<UserViewModel>>(jsonString);
+                customers = JsonConvert.DeserializeObject<List<UserDTO>>(jsonString);
             }
 
             return customers;

@@ -1,4 +1,5 @@
-﻿using API.Models;
+﻿using API.Dtos;
+using API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
@@ -61,8 +62,8 @@ namespace Web.Controllers
             var response2 = _client.GetAsync($"http://localhost:5297/api/user/byRole/4").Result;
             if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode)
             {
-                var users1 = response1.Content.ReadFromJsonAsync<IEnumerable<UserViewModel>>().Result;
-                var users2 = response2.Content.ReadFromJsonAsync<IEnumerable<UserViewModel>>().Result;
+                var users1 = response1.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
+                var users2 = response2.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
                 var combinedUsers = users1.Concat(users2);
                 foreach (var user in combinedUsers)
                 {

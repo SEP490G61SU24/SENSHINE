@@ -22,5 +22,6 @@ namespace API.Dtos
         public ICollection<RoleDTO>? Roles { get; set; }
         public string? RoleName { get; set; }
         public int? RoleId { get; set; }
+        public string? FullName { get; set; }
     }
 }

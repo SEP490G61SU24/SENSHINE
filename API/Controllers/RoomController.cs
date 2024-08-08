@@ -1,6 +1,7 @@
 ﻿using API.Dtos;
 using API.Models;
 using API.Services;
+using API.Services.Impl;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -101,6 +102,18 @@ namespace API.Controllers
             }
 
             return NoContent();
+        }
+
+        //Lay ra danh sach phong theo spa Id
+        [HttpGet("BySpaId/{spaId}")]
+        public async Task<IActionResult> GetBySpaId(int spaId)
+        {
+            var rooms = await _roomService.GetRoomBySpaId(spaId);
+            if (rooms == null)
+            {
+                return NotFound();
+            }
+            return Ok(_mapper.Map<IEnumerable<RoomDTO>>(rooms));
         }
     }
 }
