@@ -103,9 +103,14 @@
                 url: 'http://localhost:5297/api/provinces',
                 type: 'GET',
                 success: function (provinces) {
+                    $('#provinceDropdown').empty().append('<option selected disabled value="">Chọn...</option>');
                     provinces.forEach(province => {
                         $('#provinceDropdown').append(new Option(province.name, province.code));
                     });
+
+                    $('#provinceDropdown').val('@Model.ProvinceCode');
+
+                    $('#provinceDropdown').change();
                 },
                 error: function (xhr, status, error) {
                     console.error("Failed to load provinces:", error);
@@ -123,6 +128,10 @@
                             districts.forEach(district => {
                                 $('#districtDropdown').append(new Option(district.name, district.code));
                             });
+
+                            $('#districtDropdown').val('@Model.DistrictCode');
+
+                            $('#districtDropdown').change();
                         },
                         error: function (xhr, status, error) {
                             console.error("Failed to load districts:", error);
@@ -142,6 +151,8 @@
                             wards.forEach(ward => {
                                 $('#wardDropdown').append(new Option(ward.name, ward.code));
                             });
+
+                            $('#wardDropdown').val('@Model.WardCode');
                         },
                         error: function (xhr, status, error) {
                             console.error("Failed to load wards:", error);
