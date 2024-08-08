@@ -11,6 +11,7 @@ using System.Text.Json;
 using System.Text;
 using System;
 using System.Globalization;
+using API.Dtos;
 
 namespace Web.Controllers
 {
@@ -35,7 +36,7 @@ namespace Web.Controllers
             var response = await client.GetAsync($"{apiUrl}/user/all");
             if (response.IsSuccessStatusCode)
             {
-                var users = await response.Content.ReadFromJsonAsync<IEnumerable<UserViewModel>>();
+                var users = await response.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>();
                 return View(users);
             }
             else
@@ -50,7 +51,7 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(UserViewModel user)
+        public async Task<IActionResult> Add(UserDTO user)
         {
             try
             {
@@ -90,7 +91,7 @@ namespace Web.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     var responseString = await response.Content.ReadAsStringAsync();
-                    var responseData = JsonSerializer.Deserialize<UserViewModel>(responseString);
+                    var responseData = JsonSerializer.Deserialize<UserDTO>(responseString);
 
                     return RedirectToAction("Index", "User");
                 }
@@ -118,7 +119,7 @@ namespace Web.Controllers
                 var response = await client.GetAsync($"{apiUrl}/user/{id}");
                 if (response.IsSuccessStatusCode)
                 {
-                    var user = await response.Content.ReadFromJsonAsync<UserViewModel>();
+                    var user = await response.Content.ReadFromJsonAsync<UserDTO>();
                     user.FullName = string.Join(" ", new[] { user.FirstName, user.MidName, user.LastName }.Where(name => !string.IsNullOrEmpty(name)));
                     return View(user);
                 }
@@ -136,7 +137,7 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(UserViewModel user)
+        public async Task<IActionResult> Edit(UserDTO user)
         {
             try
             {
@@ -172,7 +173,7 @@ namespace Web.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     var responseString = await response.Content.ReadAsStringAsync();
-                    var responseData = JsonSerializer.Deserialize<UserViewModel>(responseString);
+                    var responseData = JsonSerializer.Deserialize<UserDTO>(responseString);
 
                     //return View(responseData);
                     return RedirectToAction("Index", "User");
