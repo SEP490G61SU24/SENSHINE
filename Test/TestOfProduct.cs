@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing;
 using API;
 
-namespace Test_SenShineSpa
+namespace SenShineSpa
 {
     public class TestOfProduct
     {
