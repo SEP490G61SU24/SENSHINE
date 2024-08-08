@@ -3,12 +3,16 @@ using API.Models;
 using API.Services;
 using API.Services.Impl;
 using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace API.Controllers
 {
+
+    [Route("api/[controller]/[action]")]
     [ApiController]
-    [Route("api/beds")]
     public class BedController : ControllerBase
     {
         private readonly IBedService _bedService;
@@ -21,22 +25,38 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddBed(Bed bed)
+        [Route("/api/[controller]/[action]")]
+        public async Task<IActionResult> AddBed(BedDTO bedDTO)
         {
-            var addedBed = await _bedService.AddBed(bed.BedNumber);
-            return CreatedAtAction(nameof(GetBedById), new { id = addedBed.Id }, addedBed);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var bed = _mapper.Map<Bed>(bedDTO);
+            var addedBed = await _bedService.AddBed(bed);
+            var addedBedDTO = _mapper.Map<BedDTO>(addedBed);
+
+            return CreatedAtAction(nameof(GetBedById), new { id = addedBedDTO.Id }, addedBedDTO);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBed(int id, Bed bed)
+        [HttpPut]
+        [Route("/api/[controller]/[action]/{id}")]
+        public async Task<IActionResult> UpdateBed(int id, BedDTO bedDTO)
         {
-            var updatedBed = await _bedService.UpdateBed(id, bed.BedNumber);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var updatedBed = await _bedService.UpdateBed(id, bedDTO.BedNumber);
             if (updatedBed == null)
             {
                 return NotFound();
             }
 
-            return Ok(updatedBed);
+            var updatedBedDTO = _mapper.Map<BedDTO>(updatedBed);
+            return Ok(updatedBedDTO);
         }
 
         [HttpDelete("{id}")]
@@ -54,20 +74,20 @@ namespace API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBedById(int id)
         {
-            var bed = await _bedService.GetBedById(id);
-            if (bed == null)
+            var bedDTO = await _bedService.GetBedById(id);
+            if (bedDTO == null)
             {
                 return NotFound();
             }
 
-            return Ok(bed);
+            return Ok(bedDTO);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllBeds()
         {
-            var beds = await _bedService.GetAllBeds();
-            return Ok(beds);
+            var bedDTOs = await _bedService.GetAllBeds();
+            return Ok(bedDTOs);
         }
 
         //lay ra danh sach phong theo RoomId
