@@ -1,6 +1,8 @@
 ﻿using API.Dtos;
 using API.Models;
 using API.Services;
+using API.Services.Impl;
+using AutoMapper;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -87,5 +89,18 @@ namespace API.Controllers
             var bedDTOs = await _bedService.GetAllBeds();
             return Ok(bedDTOs);
         }
+
+        //lay ra danh sach phong theo RoomId
+        [HttpGet("ByRoomId/{roomId}")]
+        public async Task<IActionResult> GetByRoomId(int roomId)
+        {
+            var beds = await _bedService.GetBedByRoomId(roomId);
+            if(beds == null)
+            {
+                return NotFound();
+            }
+            return Ok(_mapper.Map<IEnumerable<BedDTO>>(beds));
+        }
+
     }
 }

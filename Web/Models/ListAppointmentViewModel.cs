@@ -19,10 +19,22 @@ namespace Web.Models
 
         [DisplayName("Status")]
         public string Status { get; set; }
+        [DisplayName("Room")]
+        public RoomAppointmentViewModel Room { get; set; }
+
+        [DisplayName("Bed")]
+        public BedViewModel Bed { get; set; }
 
         public AppointmentUserViewModel Customer { get; set; }
         public AppointmentUserViewModel Employee { get; set; }
         public List<ServiceViewModel> Services { get; set; }
         public List<ProductViewModel> Products { get; set; }
+
+
+        public class RoomAppointmentViewModel
+        {
+            public int RoomId { get; set; }
+            public string RoomName { get; set; }
+        }
     }
 }

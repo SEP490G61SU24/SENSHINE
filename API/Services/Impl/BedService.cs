@@ -86,5 +86,12 @@ namespace API.Services.Impl
                                  })
                                  .ToListAsync();
         }
+
+        public async Task<IEnumerable<Bed>> GetBedByRoomId(int roomId)
+        {
+            return await _context.Beds.Include(b => b.Room)  
+                                 .Where(b => b.RoomId == roomId)  
+                                 .ToListAsync();
+        }
     }
 }
