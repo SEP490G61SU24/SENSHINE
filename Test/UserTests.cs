@@ -6,7 +6,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
-namespace Test_SenShineSpa
+namespace SenShineSpa
 {
     [TestFixture]
     public class UsersTests
