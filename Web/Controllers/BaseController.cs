@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Headers;
-using Web.Models;
 using System.Text.Json;
+using API.Dtos;
 
 namespace Web.Controllers
 {
@@ -19,7 +19,7 @@ namespace Web.Controllers
             _logger = logger;
         }
 
-        protected async Task<UserViewModel> GetUserProfileAsync(string token)
+        protected async Task<UserDTO> GetUserProfileAsync(string token)
         {
             try
             {
@@ -33,7 +33,7 @@ namespace Web.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonString = await response.Content.ReadAsStringAsync();
-                    var userProfile = JsonSerializer.Deserialize<UserViewModel>(jsonString);
+                    var userProfile = JsonSerializer.Deserialize<UserDTO>(jsonString);
 
                     return userProfile;
                 }

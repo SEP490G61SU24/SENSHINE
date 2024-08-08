@@ -11,7 +11,7 @@
         public string? Url { get; set; }
         public string? Condition { get; set; }
         public string? Remark { get; set; }
-        public bool? Ismenu { get; set; }
+        public string Ismenu { get; set; } = "no"; // yes or no
         public int Order { get; set; }
     }
 }

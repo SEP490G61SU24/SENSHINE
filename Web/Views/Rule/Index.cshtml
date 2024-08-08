@@ -62,7 +62,16 @@
                             <td>@item.Path</td>
                             <td>@item.Title</td>
                             <td>@item.Icon</td>
-                            <td>@item.Ismenu</td>
+                            <td>
+                                @if (item.Ismenu == "yes")
+                                {
+                                    <span>Là menu</span>
+                                }
+                                else
+                                {
+                                    <span>Không phải menu</span>
+                                }
+                            </td>
                             <td>@item.Remark</td>
                             <td>
                                 <ul class="action">
