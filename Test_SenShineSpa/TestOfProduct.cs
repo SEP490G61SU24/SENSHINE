@@ -23,7 +23,7 @@ namespace Test_SenShineSpa
             // Arrange
             var categoryName = "thuoc";
             var quantityRange = "1-10";
-            var priceRange = "100-500";
+            var priceRange = "0-500";
 
             // Act
             var response = await _client.GetAsync($"/api/GetFilterProducts?categoryName={categoryName}&quantityRange={quantityRange}&priceRange={priceRange}");

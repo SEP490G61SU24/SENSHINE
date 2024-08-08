@@ -35,6 +35,25 @@
         .spacing-10px:last-of-type {
             margin-right: 10;
         }
+
+
+
+    .image-preview {
+        position: relative;
+        width: 100%;
+        max-height: 300px;
+        overflow: hidden;
+        border: 1px solid #ddd;
+        padding: 5px;
+        background: #f5f5f5;
+    }
+
+        .image-preview img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
 </style>
 
 <h1>Add News</h1>
@@ -50,13 +69,7 @@
                     <form asp-action="Add" method="post">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="row g-3">
-                            @* <div class="col-md-6">
-                                <div class="form-group">
-                                    <label asp-for="IdNew" class="control-label">ID</label>
-                                    <input asp-for="IdNew" class="form-control" />
-                                    <span asp-validation-for="IdNew" class="text-danger"></span>
-                                </div>
-                            </div> *@
+                           
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label asp-for="Title" class="control-label">Title</label>
@@ -76,20 +89,20 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <div class="product-upload">
-                                        <input type="file" id="imageInput" accept="image/*">
-                                        <div id="imagePreview"></div>
-                                        
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
                                     <label asp-for="Cover" class="control-label">Cover</label>
-                                    <textarea asp-for="Cover" class="form-control" rows="1"></textarea>
+                                    
+                                    <label for="imageUrl" class="control-label">Image URL</label>
+                                    <input type="text" id="imageUrl" class="form-control" placeholder="Enter image URL" />
+
+                                    <div id="imagePreview" class="image-preview mt-2">
+                                        <img src="#" alt="Image Preview" class="img-thumbnail d-none" id="imagePreviewImg" />
+                                    </div>
+
+                                    <textarea asp-for="Cover" class="form-control d-none" rows="1"></textarea>
                                     <span asp-validation-for="Cover" class="text-danger"></span>
                                 </div>
                             </div>
+
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label asp-for="Content" class="control-label">Content</label>
@@ -141,27 +154,41 @@
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
 <script>
-    document.getElementById('imageInput').addEventListener('change', function (event) {
-        var file = event.target.files[0];
-        var reader = new FileReader();
+    document.getElementById('imageUrl').addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        const previewImg = document.getElementById('imagePreviewImg');
+        const textarea = document.querySelector('textarea[asp-for="Cover"]');
 
-        reader.onload = function (e) {
-            // Tạo một phần tử img và đặt thuộc tính src
-            var img = document.createElement('img');
-            img.src = e.target.result;
-            img.width = 200; // Đặt kích thước của ảnh để xem trước
-            img.style.marginTop = '10px'; // Tạo khoảng cách giữa ảnh và input
+        if (file) {
+            const reader = new FileReader();
 
-            // Cập nhật nội dung của phần tử p với URL hình ảnh
-            //var imageUrlElement = document.getElementById('imageUrl');
-            //imageUrlElement.textContent = 'Image URL: ' + e.target.result;
+            reader.onload = function (e) {
+                previewImg.src = e.target.result;
+                previewImg.classList.remove('d-none');
+                textarea.value = e.target.result;
+            }
 
-            // Xóa các ảnh đã có trong khu vực xem trước
-            var preview = document.getElementById('imagePreview');
-            preview.innerHTML = '';
-            preview.appendChild(img);
-        };
+            reader.readAsDataURL(file);
+        } else {
+            previewImg.src = '#';
+            previewImg.classList.add('d-none');
+            textarea.value = '';
+        }
+    });
 
-        reader.readAsDataURL(file);
+    document.getElementById('imageUrl').addEventListener('input', function (event) {
+        const url = event.target.value;
+        const previewImg = document.getElementById('imagePreviewImg');
+        const textarea = document.querySelector('textarea[asp-for="Cover"]');
+
+        if (url) {
+            previewImg.src = url;
+            previewImg.classList.remove('d-none');
+            textarea.value = url;
+        } else {
+            previewImg.src = '#';
+            previewImg.classList.add('d-none');
+            textarea.value = '';
+        }
     });
 </script>

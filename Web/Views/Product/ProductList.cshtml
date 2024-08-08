@@ -126,11 +126,11 @@
                             <label for="quantity" class="form-label">Quantity Range</label>
                             <select id="quantity" class="form-select" aria-label="Select Quantity Range" onchange="fetchProductsByFilters()">
                                 <option value="" selected disabled>Select Quantity Range</option>
-                                <option value="0-10">0-10</option>
-                                <option value="11-100">11-100</option>
-                                <option value="101-500">101-500</option>
-                                <option value="501-1000">501-1000</option>
-                                <option value="1001-9999">&gt; 1000</option>
+                                <option value="0-10">&lt;10</option>
+                                <option value="0-100">&lt;100</option>
+                                <option value="0-500">&lt;500</option>
+                                <option value="0-1000">&lt;1000</option>
+                                <option value="1000-9999">&gt; 1000</option>
                                 <option value="0-99999">All</option>
                             </select>
                         </div>
@@ -138,9 +138,9 @@
                             <label for="price" class="form-label">Price Range</label>
                             <select id="price" class="form-select" aria-label="Select Price Range" onchange="fetchProductsByFilters()">
                                 <option value="" selected disabled>Select Price Range</option>
-                                <option value="0-100">0-100</option>
-                                <option value="100-500">100-500</option>
-                                <option value="500-1000">500-1000</option>
+                                <option value="0-100">&lt;100</option>
+                                <option value="0-500">&lt;500</option>
+                                <option value="0-1000">&lt;1000</option>
                                 <option value="1000-9999">&gt; 1000</option>
                                 <option value="0-99999">All</option>
                             </select>

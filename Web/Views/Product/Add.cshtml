@@ -1,4 +1,4 @@
-﻿@model API.Dtos.ProductDTORequest_2
+﻿@model Web.Models.ProductViewModel
 
 @{
     ViewData["Title"] = "Add";
@@ -8,31 +8,104 @@
 
 @section Styles {
     <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
-    <!-- ico-font-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
-    <!-- Themify icon-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/themify.css">
-    <!-- Flag icon-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/flag-icon.css">
-    <!-- Feather icon-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/feather-icon.css">
-    <!-- Plugins css start-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
-    <!-- Plugins css Ends-->
-    <!-- Bootstrap css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
-    <!-- App css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
-    <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 }
+<style>
+    .custom-select-wrapper {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
 
+    .custom-select {
+        display: flex;
+        flex-wrap: wrap;
+        border: 1px solid #ccc;
+        padding: 0.5rem;
+        border-radius: 4px;
+        background-color: #fff;
+        cursor: pointer;
+        position: relative;
+    }
 
-<hr />
+        .custom-select .btn {
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+    .custom-options {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        border: 1px solid #ccc;
+        border-top: none;
+        background-color: #fff;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+    }
+
+        .custom-options.show {
+            display: block;
+        }
+
+        .custom-options label {
+            display: block;
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+
+            .custom-options label:hover {
+                background-color: #f0f0f0;
+            }
+
+    #imageUrlsContainer {
+        margin-bottom: 1rem;
+    }
+
+    .input-group {
+        margin-bottom: 0.5rem;
+    }
+
+    .input-group-append .btn {
+        border-radius: 0.25rem;
+    }
+
+    .image-preview img {
+        max-width: 100%;
+        max-height: 150px;
+        margin: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 0.25rem;
+        object-fit: cover;
+    }
+
+    .image-preview {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    textarea.d-none {
+        display: none;
+    }
+
+    .text-danger {
+        color: #dc3545;
+    }
+</style>
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
@@ -44,7 +117,7 @@
                     <form asp-action="Add">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="row g-3">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label asp-for="ProductName" class="control-label">Product Name</label>
                                     <input asp-for="ProductName" class="form-control" />
@@ -68,32 +141,56 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label asp-for="CategoryIds" class="control-label">Categories</label>
-                                    <select asp-for="CategoryIds" class="form-control" multiple id="categorySelect">
+                            <div class="col-md-12">
+                                <label class="control-label">Select Categories</label>
+                                <div class="custom-select-wrapper">
+                                    <div class="custom-select" id="customSelect">
+                                        <span>Select Categories</span>
+                                    </div>
+                                    <div class="custom-options" id="customOptions">
                                         @if (categories != null)
                                         {
                                             @foreach (var category in categories)
                                             {
-                                                <option value="@category.Id">@category.CategoryName</option>
+                                                <label>
+                                                    <input type="checkbox" value="@category.Id" />
+                                                    @category.CategoryName
+                                                </label>
                                             }
                                         }
-                                    </select>
-                                    <span asp-validation-for="CategoryIds" class="text-danger"></span>
+                                    </div>
                                 </div>
+                                <!-- Hidden field for Category IDs -->
+                                <input type="hidden" id="CategoryIds" name="CategoryIds" />
+                                <span asp-validation-for="CategoryIds" class="text-danger"></span>
                             </div>
 
-                            
-
-                            
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label asp-for="ImageUrls" class="control-label">Images</label>
+                                    <div id="imageUrlsContainer">
+                                        <div class="input-group mb-2">
+                                            <input type="text" class="form-control image-url-input" placeholder="Enter image URL" />
+                                            <div class="input-group-append">
+                                                <button type="button" class="btn btn-outline-secondary add-image-btn">
+                                                    <i class="fa fa-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="imagePreview" class="image-preview mt-2"></div>
+                                    <textarea asp-for="CategoryIdsString" class="form-control d-none" rows="1"></textarea>
+                                    <span asp-validation-for="CategoryIdsString" class="text-danger"></span>
+                                </div>
+                            </div>
 
                             <div class="col-12">
-                                <div class="form-group d-flex">
+                                <div class="form-group d-flex justify-content-end">
                                     <input type="submit" value="Create" class="btn btn-primary spacing-10px" />
-                                    <a asp-action="ProductList" class="btn btn-secondary spacing-10px">Back to List</a>
+                                    <a asp-action="ProductList" class="btn btn-secondary spacing-10px ms-2">Back to List</a>
                                 </div>
                             </div>
+
                         </div>
                     </form>
                 </div>
@@ -103,48 +200,121 @@
 </div>
 
 <script src="~/assets/js/jquery.min.js"></script>
-<!-- Bootstrap js-->
 <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
-<!-- feather icon js-->
 <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
 <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
-<!-- scrollbar js-->
 <script src="~/assets/js/scrollbar/simplebar.js"></script>
 <script src="~/assets/js/scrollbar/custom.js"></script>
-<!-- Sidebar jquery-->
 <script src="~/assets/js/config.js"></script>
-<!-- Plugins JS start-->
 <script src="~/assets/js/sidebar-menu.js"></script>
 <script src="~/assets/js/sidebar-pin.js"></script>
 <script src="~/assets/js/slick/slick.min.js"></script>
 <script src="~/assets/js/slick/slick.js"></script>
 <script src="~/assets/js/header-slick.js"></script>
-<!-- calendar js-->
 <script src="~/assets/js/js-datatables/simple-datatables@latest.js"></script>
 <script src="~/assets/js/custom-list-product.js"></script>
 <script src="~/assets/js/owlcarousel/owl.carousel.js"></script>
 <script src="~/assets/js/ecommerce.js"></script>
 <script src="~/assets/js/tooltip-init.js"></script>
-<!-- Plugins JS Ends-->
-<!-- Theme js-->
 <script src="~/assets/js/script.js"></script>
 
 <script>
-    document.getElementById('imageInput').addEventListener('change', function (event) {
-        var file = event.target.files[0];
-        var reader = new FileReader();
+    document.addEventListener('DOMContentLoaded', function () {
+        const imageUrlsContainer = document.getElementById('imageUrlsContainer');
+        const imagePreview = document.getElementById('imagePreview');
+        const categoryIdsInput = document.getElementById('CategoryIdsString');
+        const customSelect = document.getElementById('customSelect');
+        const customOptions = document.getElementById('customOptions');
+        let selectedCategories = [];
 
-        reader.onload = function (e) {
-            var img = document.createElement('img');
-            img.src = e.target.result;
-            img.width = 200;
-            img.style.marginTop = '10px';
+        function createImageInput() {
+            const inputGroup = document.createElement('div');
+            inputGroup.className = 'input-group mb-2';
+            inputGroup.innerHTML = `
+                    <input type="text" class="form-control image-url-input" placeholder="Enter image URL" />
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-outline-secondary remove-image-btn">
+                            <i class="fa fa-minus"></i>
+                        </button>
+                    </div>
+                `;
+            imageUrlsContainer.appendChild(inputGroup);
+        }
 
-            var preview = document.getElementById('imagePreview');
-            preview.innerHTML = '';
-            preview.appendChild(img);
-        };
+        function updateImagePreview() {
+            imagePreview.innerHTML = '';
+            const imageUrlInputs = document.querySelectorAll('.image-url-input');
+            imageUrlInputs.forEach(input => {
+                const imageUrl = input.value.trim();
+                if (imageUrl) {
+                    const img = document.createElement('img');
+                    img.src = imageUrl;
+                    img.alt = 'Image preview';
+                    imagePreview.appendChild(img);
+                }
+            });
+            document.querySelector('textarea[name="ImageUrls"]').value = Array.from(imageUrlInputs).map(input => input.value.trim()).filter(url => url).join(',');
+        }
 
-        reader.readAsDataURL(file);
+        imageUrlsContainer.addEventListener('click', function (e) {
+            if (e.target.classList.contains('add-image-btn')) {
+                e.preventDefault();
+                createImageInput();
+            }
+            if (e.target.classList.contains('remove-image-btn')) {
+                e.preventDefault();
+                const inputGroup = e.target.closest('.input-group');
+                if (inputGroup) {
+                    imageUrlsContainer.removeChild(inputGroup);
+                    updateImagePreview();
+                }
+            }
+        });
+
+        imageUrlsContainer.addEventListener('input', function () {
+            updateImagePreview();
+        });
+
+
+        // Category select functionality
+        customSelect.addEventListener('click', () => {
+            customOptions.classList.toggle('show');
+        });
+
+        customOptions.addEventListener('change', function (e) {
+            if (e.target.tagName === 'INPUT' && e.target.type === 'checkbox') {
+                const id = e.target.value;
+                const text = e.target.nextSibling.textContent.trim();
+                const index = selectedCategories.findIndex(c => c.id === id);
+                if (e.target.checked) {
+                    if (index === -1) {
+                        selectedCategories.push({ id, text });
+                    }
+                } else {
+                    if (index !== -1) {
+                        selectedCategories.splice(index, 1);
+                    }
+                }
+                updateCustomSelect();
+            }
+        });
+
+        function updateCustomSelect() {
+            customSelect.innerHTML = '';
+            selectedCategories.forEach(category => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'btn btn-primary me-2';
+                button.textContent = category.text;
+                button.dataset.id = category.id;
+                customSelect.appendChild(button);
+            });
+            if (selectedCategories.length === 0) {
+                customSelect.appendChild(document.createTextNode('Select Categories'));
+            }
+
+            categoryIdsInput.value = selectedCategories.map(c => c.id).join(',');
+        }
     });
+
 </script>
