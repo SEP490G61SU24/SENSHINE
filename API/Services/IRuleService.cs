@@ -9,5 +9,6 @@ namespace API.Services
         Task<RuleDTO> AddRule(RuleDTO ruleDto);
         Task<bool> UpdateRule(int id, RuleDTO ruleDto);
         Task<bool> DeleteRule(int id);
-    }
+        Task<IEnumerable<RuleDTO>> GetRulesByRoleId(int roleId);
+	}
 }

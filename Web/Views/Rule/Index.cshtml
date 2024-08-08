@@ -1,10 +1,9 @@
-﻿@model IEnumerable<Web.Models.SettingViewModel>
+﻿@model IEnumerable<API.Dtos.RuleDTO>
 
 @{
-    ViewData["Title"] = "Danh sách khóa cài đặt";
-    ViewData["ActionName"] = "Thêm khóa cài đặt";
-    ViewData["ActionUrl"] = "/setting/add";
-    var usersJson = System.Text.Json.JsonSerializer.Serialize(Model);
+    ViewData["Title"] = "Quản lý quy tắc";
+    ViewData["ActionName"] = "Thêm quy tắc mới";
+    ViewData["ActionUrl"] = "/rule/add";
 }
 
 @section Styles {
@@ -31,7 +30,7 @@
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
     <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
-
+    
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/sweetalert2.css">
 }
 
@@ -43,9 +42,13 @@
                     <tr>
                     <tr>
                         <th>ID</th>
-                        <th>Key</th>
-                        <th>Giá trị</th>
-                        <th>Mô tả</th>
+                        <th>Loại</th>
+                        <th>PID</th>
+                        <th>Path</th>
+                        <th>Title</th>
+                        <th>Icon</th>
+                        <th>IsMenu</th>
+                        <th>Remark</th>
                         <th>Hành Động</th>
                     </tr>
                 </thead>
@@ -54,12 +57,16 @@
                     {
                         <tr>
                             <td>@item.Id</td>
-                            <td>@item.Key</td>
-                            <td>@item.Value</td>
-                            <td>@item.Description</td>
+                            <td>@item.Type</td>
+                            <td>@item.Pid</td>
+                            <td>@item.Path</td>
+                            <td>@item.Title</td>
+                            <td>@item.Icon</td>
+                            <td>@item.Ismenu</td>
+                            <td>@item.Remark</td>
                             <td>
                                 <ul class="action">
-                                    <li class="edit"><a href="/setting/edit/@item.Id"><i class="icon-pencil-alt"></i></a></li>
+                                    <li class="edit"><a href="/rule/edit/@item.Id"><i class="icon-pencil-alt"></i></a></li>
                                     <li class="delete"><a href="#" onclick="confirmDelete(@item.Id)"><i class="icon-trash"></i></a></li>
                                 </ul>
                             </td>
@@ -95,7 +102,6 @@
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
-
     <!-- sweet alert -->
     <script src="~/assets/js/sweet-alert/sweetalert.min.js"></script>
 
@@ -124,7 +130,7 @@
             }).then((result) => {
                 if (result) {
                     $.ajax({
-                        url: '/setting/delete/' + id,
+                        url: '/rule/delete/' + id,
                         type: 'DELETE',
                         success: function (response) {
                             swal("Đã xóa!", "Key cài đặt đã xóa thành công.", "success")

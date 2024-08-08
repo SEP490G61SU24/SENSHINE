@@ -77,5 +77,16 @@ namespace API.Controllers
 
             return NoContent();
         }
-    }
+
+		[HttpGet("role/{roleId}")]
+		public async Task<IActionResult> GetRulesByRoleId(int roleId)
+		{
+			var rules = await _ruleService.GetRulesByRoleId(roleId);
+			if (rules == null || !rules.Any())
+			{
+				return NotFound("No rules found for this role.");
+			}
+			return Ok(rules);
+		}
+	}
 }
