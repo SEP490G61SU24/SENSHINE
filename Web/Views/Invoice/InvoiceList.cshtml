@@ -1,0 +1,135 @@
+﻿@model IEnumerable<API.Dtos.InvoiceDTO>
+
+@{
+    ViewData["Title"] = "Danh sách hóa đơn";
+    ViewData["ActionName"] = "Thêm hóa đơn";
+    ViewData["ActionUrl"] = "/invoice/add";
+    var invoicesJson = System.Text.Json.JsonSerializer.Serialize(Model);
+}
+
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/themify.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/flag-icon.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/feather-icon.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/datatables.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/sweetalert2.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
+    <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+}
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive custom-scrollbar">
+            <table class="display" id="invoice-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Amount</th>
+                        <th>Invoice Date</th>
+                        <th>Description</th>
+                        <th>Customer Name</th>
+                        <th>Promotion Name</th>
+                        <th>Spa Name</th>
+                        <th>Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>@item.Amount</td>
+                            <td>@item.InvoiceDate.ToString("dd/MM/yyyy")</td>
+                            <td>@item.Description</td>
+                            <td>@item.CustomerName</td>
+                            <td>@item.PromotionName</td>
+                            <td>@item.SpaName</td>
+                            <td>
+                                <ul class="action">
+                                    <li class="edit"><a href="/invoice/edit/@item.Id"><i class="icon-pencil-alt"></i></a></li>
+                                    <li class="details"><a href="/invoice/details/@item.Id"><i class="icon-eye"></i></a></li>
+                                    <li class="delete"><a href="#" onclick="confirmDelete(@item.Id)"><i class="icon-trash"></i></a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/assets/js/jquery.min.js"></script>
+    <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
+    <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
+    <script src="~/assets/js/scrollbar/simplebar.js"></script>
+    <script src="~/assets/js/scrollbar/custom.js"></script>
+    <script src="~/assets/js/config.js"></script>
+    <script src="~/assets/js/sidebar-menu.js"></script>
+    <script src="~/assets/js/sidebar-pin.js"></script>
+    <script src="~/assets/js/slick/slick.min.js"></script>
+    <script src="~/assets/js/slick/slick.js"></script>
+    <script src="~/assets/js/header-slick.js"></script>
+    <script src="~/assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
+    <script src="~/assets/js/script.js"></script>
+    <script src="~/assets/js/sweet-alert/sweetalert.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#invoice-table').DataTable();
+        });
+
+        function confirmDelete(id) {
+            swal({
+                title: 'Bạn có chắc chắn muốn xóa?',
+                text: "Dữ liệu sẽ bị mất khi xác nhận!",
+                icon: 'warning',
+                buttons: {
+                    cancel: {
+                        text: 'Không, hủy bỏ!',
+                        value: null,
+                        visible: true,
+                        className: 'btn btn-secondary',
+                        closeModal: true
+                    },
+                    confirm: {
+                        text: 'Xác nhận!',
+                        value: true,
+                        visible: true,
+                        className: 'btn btn-success',
+                        closeModal: true
+                    }
+                }
+            }).then((result) => {
+                if (result) {
+                    $.ajax({
+                        url: '/invoice/delete/' + id,
+                        type: 'DELETE',
+                        success: function (response) {
+                            swal("Đã xóa!", "Hóa đơn đã xóa thành công.", "success")
+                                .then(() => {
+                                    location.reload();
+                                });
+                        },
+                        error: function (xhr, status, error) {
+                            swal("Lỗi!", "Hóa đơn xóa thất bại.", "error");
+                        }
+                    });
+                } else {
+                    swal("Đã hủy", "Dữ liệu của bạn không thay đổi.", "info");
+                }
+            });
+        }
+    </script>
+}
