@@ -26,41 +26,31 @@ namespace API.Services.Impl
             return _mapper.Map<Product>(product);
         }
 
-        public async Task<ProductDTO> EditProduct(int id, ProductDTORequest_2 productDto)
+        public async Task<Product> EditProduct(int id, Product productDto)
         {
+            // Find the existing product
             var product = await _context.Products
-                .Include(p => p.Categories)
+                .Include(p => p.Categories) 
                 .FirstOrDefaultAsync(p => p.Id == id);
 
-            if (product == null)
-            {
-                return null;
-            }
+            
+           
 
-            // Clear existing categories
-            product.Categories.Clear();
-
-            // Add new categories
-            foreach (var categoryId in productDto.CategoryIds)
-            {
-                var category = await _context.Categories.FindAsync(categoryId);
-                if (category != null)
-                {
-                    product.Categories.Add(category);
-                }
-            }
-
-            // Update product properties
             _mapper.Map(productDto, product);
+
+            
             _context.Products.Update(product);
+
+            
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<ProductDTO>(product);
+            
+            return _mapper.Map<Product>(product);
         }
 
         public async Task<IEnumerable<ProductDTORequest>> ListProduct()
         {
-            var products = await _context.Products.Include(p=>p.Categories).ToListAsync();
+            var products = await _context.Products.Include(p=>p.Categories).Include(p=>p.ProductImages).ToListAsync();
             return _mapper.Map<IEnumerable<ProductDTORequest>>(products);
         }
 
@@ -68,7 +58,7 @@ namespace API.Services.Impl
         {
             
             var product = await _context.Products
-                .Include(p => p.Categories) 
+                .Include(p => p.Categories).Include(p=>p.ProductImages) 
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             
@@ -82,6 +72,22 @@ namespace API.Services.Impl
 
             return productDTORequest;
         }
+        public async Task<ProductDTORequest_2> GetProductDetailForEdit(int id)
+        {
+            var product = await _context.Products
+                .Include(p => p.Categories)
+                .Include(p => p.ProductImages)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (product == null)
+            {
+                return null;
+            }
+
+            var productDTORequest_2 = _mapper.Map<ProductDTORequest_2>(product);
+
+            return productDTORequest_2;
+        }
 
 
         public async Task<ProductDTO> GetProductByName(string name)
@@ -89,6 +95,8 @@ namespace API.Services.Impl
             var product = await _context.Products.FirstOrDefaultAsync(p => p.ProductName == name);
             return _mapper.Map<ProductDTO>(product);
         }
+        
+
         public async Task<IEnumerable<ProductDTORequest>> GetProductsByFilter(string categoryName, string quantityRange, string priceRange)
         {
             var quantityParts = quantityRange?.Split('-');
@@ -102,7 +110,7 @@ namespace API.Services.Impl
 
             var query = _context.Products.AsQueryable();
 
-            
+
             if (minQuantity.HasValue)
             {
                 query = query.Where(p => p.Quantity >= minQuantity.Value);
@@ -123,12 +131,12 @@ namespace API.Services.Impl
                 query = query.Where(p => p.Price <= maxPrice.Value);
             }
 
-            
+
             var products = await query
-                .Include(p => p.Categories)
+                .Include(p => p.Categories).Include(P => P.ProductImages)
                 .ToListAsync();
 
-            
+
             if (!string.IsNullOrEmpty(categoryName))
             {
                 products = products
@@ -143,42 +151,45 @@ namespace API.Services.Impl
 
 
 
-        public async Task<Product> DeleteProductAsync(int id)
-        {
-            
-            var existingProduct = await _context.Products
-                                                  //.Include(p => p.Images) 
-                                                  .Include(p => p.Categories) 
-                                                  .FirstOrDefaultAsync(p => p.Id == id);
 
+        public async Task<Product?> DeleteProductAsync(int id)
+        {
+            // Retrieve the product including related entities
+            var existingProduct = await _context.Products
+                .Include(p => p.Categories)   
+                .Include(p => p.ProductImages) 
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            // Return null if the product doesn't exist
             if (existingProduct == null)
             {
-                
                 return null;
             }
 
-            // Handle related entities if needed
-            // Example: If there is a many-to-many relationship, you might need to remove links here
-            /*foreach (var image in existingProduct.Images.ToList())
-            {
-                // Optionally: Remove image from product if needed
-                existingProduct.Images.Remove(image);
-            }*/
+           
+            existingProduct.Categories.Clear();
 
-            foreach (var category in existingProduct.Categories.ToList())
+            // Remove related images
+            if (existingProduct.ProductImages != null && existingProduct.ProductImages.Any())
             {
-                
-                existingProduct.Categories.Remove(category);
+                _context.ProductImages.RemoveRange(existingProduct.ProductImages);
             }
 
-           
+            // Remove the product itself
             _context.Products.Remove(existingProduct);
+
+            // Save changes to the database
             await _context.SaveChangesAsync();
 
             return existingProduct;
         }
 
 
+
+
+
     }
 
 }
+
+

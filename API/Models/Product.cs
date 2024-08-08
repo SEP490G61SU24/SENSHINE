@@ -9,6 +9,7 @@ namespace API.Models
         {
             Appointments = new HashSet<Appointment>();
             Categories = new HashSet<Category>();
+            ProductImages = new HashSet<ProductImage>();
         }
 
         public int Id { get; set; }
@@ -18,5 +19,6 @@ namespace API.Models
 
         public virtual ICollection<Appointment> Appointments { get; set; }
         public virtual ICollection<Category> Categories { get; set; }
+        public virtual ICollection<ProductImage>? ProductImages { get; set; }
     }
 }

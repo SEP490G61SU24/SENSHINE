@@ -10,6 +10,7 @@ namespace API.Services
             Task<Category> EditCategory(int id, CategoryDTO categoryDto);
             Task<IEnumerable<CategoryDTO>> ListCategory();
             Task<CategoryDTO> GetCategoryDetail(int id);
+            Task<IEnumerable<CategoryDTO>> GetCategoriesByProductId(int Id);
             Task<CategoryDTO> GetCategoryByName(string name);
             Task<bool> DeleteCategory(int id);
         }

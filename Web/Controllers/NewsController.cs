@@ -54,7 +54,7 @@ namespace Web.Controllers
 
             string json = JsonConvert.SerializeObject(newsDto);
             StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
-            HttpResponseMessage response = await _httpClient.PostAsync("/api/AddNews", content);
+            HttpResponseMessage response = await _httpClient.PostAsync("api/AddNews", content);
 
             if (response.IsSuccessStatusCode)
             {
