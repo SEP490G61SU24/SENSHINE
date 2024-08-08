@@ -119,7 +119,7 @@ namespace Web.Controllers
                     user.FullName = string.Join(", ", user.FullName ?? "", user.Phone ?? "").Trim();
                 }
                 ViewBag.Users = new SelectList(users, "Id", "FullName");
-                var combos = response2.Content.ReadFromJsonAsync<IEnumerable<ComboViewModel>>().Result;
+                var combos = response2.Content.ReadFromJsonAsync<IEnumerable<ComboCardViewModel>>().Result;
                 foreach (var combo in combos)
                 {
                     string formattedNumber = string.Format("{0:N0}", combo.SalePrice);
@@ -215,7 +215,7 @@ namespace Web.Controllers
                     user.FullName = string.Join(", ", user.FullName ?? "", user.Phone ?? "").Trim();
                 }
                 ViewBag.Users = new SelectList(users, "Id", "FullName");
-                var combos = response3.Content.ReadFromJsonAsync<IEnumerable<ComboViewModel>>().Result;
+                var combos = response3.Content.ReadFromJsonAsync<IEnumerable<ComboCardViewModel>>().Result;
                 foreach (var combo in combos)
                 {
                     string formattedNumber = string.Format("{0:N0}", combo.SalePrice);
