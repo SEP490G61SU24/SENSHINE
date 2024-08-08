@@ -37,8 +37,12 @@
             @foreach (var rule in Model.AllRules)
             {
                 <div>
-                    <label>
-                        <input type="checkbox" name="SelectedRuleIds" value="@rule.Id"
+                    <label class="d-block" for="rule_@rule.Id">
+                        <input class="checkbox_animated"
+                               id="rule_@rule.Id"
+                               value="@rule.Id"
+                               name="SelectedRuleIds"
+                               type="checkbox"
                         @(Model.RoleRules.Any(r => r.Id == rule.Id) ? "checked" : "") />
                         @rule.Title
                     </label>

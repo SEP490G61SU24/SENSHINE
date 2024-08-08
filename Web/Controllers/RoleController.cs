@@ -158,14 +158,14 @@ namespace Web.Controllers
                 else
                 {
                     ViewData["Error"] = "Có lỗi xảy ra khi cập nhật các rules!";
-                    return View();
+                    return View(model);
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error during role edit");
                 ViewData["Error"] = "An error occurred";
-                return View();
+                return View(model);
             }
         }
 
