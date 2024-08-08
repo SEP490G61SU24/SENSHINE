@@ -63,5 +63,20 @@ namespace API.Services.Impl
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> UpdateRoleRules(int roleId, IEnumerable<int> ruleIds)
+        {
+            var role = await _context.Roles.FindAsync(roleId);
+            if (role == null)
+            {
+                return false;
+            }
+
+            role.Rules = string.Join(',', ruleIds);
+
+            _context.Roles.Update(role);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

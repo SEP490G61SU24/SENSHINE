@@ -66,6 +66,23 @@ namespace API.Controllers
             return NoContent();
         }
 
+        [HttpPut("{id}/rules")]
+        public async Task<IActionResult> UpdateRoleRules(int id, [FromBody] IEnumerable<int> ruleIds)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _roleService.UpdateRoleRules(id, ruleIds);
+            if (!result)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
