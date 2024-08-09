@@ -35,6 +35,59 @@
 @{
     ViewData["Title"] = "Our Services";
 }
+<style>
+    * {
+        outline: none !important;
+    }
+
+        *, *:after, *:before {
+            box-sizing: border-box;
+        }
+
+    body {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.125rem;
+        color: #333;
+    }
+
+    .nav-link {
+        color: #006666; /* Màu chữ mặc định cho các tab chưa chọn */
+    }
+
+    .nav-item.active {
+        background-color: #006666 !important; /* Đảm bảo màu nền không bị ghi đè */
+    }
+
+        .nav-item.active .nav-link {
+            color: #BF932E !important; /* Màu chữ của thẻ <a> khi thẻ <li> được nhấp vào */
+        }
+        .nav-link:hover {
+            background-color: #006666; /* Màu nền khi hover */
+            color: #BF932E; /* Màu chữ khi hover */
+        }
+       
+    .pb-5, .py-5 {
+        padding-bottom: 3rem !important;
+    }
+
+    .pt-5, .py-5 {
+        padding-top: 3rem !important;
+    }
+
+    article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
+        display: block;
+    }
+
+    .ml-auto {
+        margin-left: auto; /* Tự động căn lề trái để đẩy ra xa */
+    }
+
+    .border-custom-white {
+        border-color: white !important;
+    }
+</style>
+
+
 <body class="landing-page">
     <!-- tap on top starts -->
     <div class="tap-top"><i data-feather="chevrons-up"></i></div>
@@ -59,7 +112,7 @@
                                 <li class="nav-item"><a class="nav-link" href="@Url.Action("NewsPage", "Home")">News</a></li>
                                 <li class="nav-item"><a class="nav-link" href="#">Promotions</a></li>
                                 <li class="nav-item"><a class="nav-link" id="page" href="@Url.Action("OurService", "Home")">Our Services</a></li>
-                                <li class="nav-item"><a class="nav-link" id="page" href="@Url.Action("AboutUs", "Home")">About US</a></li>
+                                <li class="nav-item"><a class="nav-link" id="page" href="@Url.Action("AboutUs", "Home")">About Us</a></li>
 
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -79,7 +132,817 @@
                 </header>
             </div>
         </div>
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="content text-center mb-4">
+                    <h1>Our Services</h1>
+                </div>
+            </div>
+            </div>
+            <section class="py-5">
+                <div class="container">
+                    <div class="border border-primary mb-4 d-none d-sm-none d-md-none d-lg-block">
+                        <div class="row mx-0">
+                            <div class="col-3 border-right border-primary px-0">
+                                <div class="small text-uppercase text-white bg-primary d-flex py-2 px-4 mb-3">Treatment</div>
+                                <ul class="nav nav-tabs flex-column pl-4 pr-4">
+                                    <li class="nav-item mb-3">
+                                        <a class="nav-link text-uppercase active show" data-toggle="tab" href="#signature-packages">
+                                            Signature Packages
+                                        </a>
+                                    </li>
+                                    <li class="nav-item mb-3">
+                                        <a class="nav-link text-uppercase" data-toggle="tab" href="#four-hands-massage-by-la-spa">
+                                            Four-hands Massage by Sen Shine
+                                        </a>
+                                    </li>
+                                    <li class="nav-item mb-3">
+                                        <a class="nav-link text-uppercase" data-toggle="tab" href="#relaxing-moment">
+                                            Relaxing moment
+                                        </a>
+                                    </li>
+                                    <li class="nav-item mb-3">
+                                        <a class="nav-link text-uppercase" data-toggle="tab" href="#facial">
+                                            Facial
+                                        </a>
+                                    </li>
+                                    <li class="nav-item mb-3">
+                                        <a class="nav-link text-uppercase" data-toggle="tab" href="#body-massage">
+                                            Body Massage
+                                        </a>
+                                    </li>
+                                    <li class="nav-item mb-3">
+                                        <a class="nav-link text-uppercase" data-toggle="tab" href="#foot-treatment">
+                                            Foot Treatment
+                                        </a>
+                                    </li>
+                                    <li class="nav-item mb-3">
+                                        <a class="nav-link text-uppercase" data-toggle="tab" href="#body-skin-care">
+                                            Body skin care
+                                        </a>
+                                    </li>
+                                    <li class="nav-item mb-3">
+                                        <a class="nav-link text-uppercase" data-toggle="tab" href="#extra-pampering">
+                                            Extra Pampering
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-9 p-0">
+                                <div class="tab-content">
+                                    <div class="tab-pane fade show active" id="signature-packages">
+                                        <!-- Nội dung của Signature Packages -->
+                                        <div class="small text-uppercase text-white bg-primary d-flex py-2 px-5">
+                                            <span>Signature Packages</span>
+                                            <span class="ml-auto">Price (VND)</span>
+                                        </div>
+                                        <div class="py-4 px-5">
+                                            <div class="mb-2"><span></span></div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            1. Pamper Package -
+                                                            <span>90'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>1,240,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted"><p>A combination of Hot Stone full body massage using warm smooth stones followed by a refreshing facial pampering</p></div>
+                                            </div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            2. Cloud 9 Package -
+                                                            <span>90'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>1,240,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted"><p>Hot Stone full body massage combined with a soothing foot scrub</p></div>
+                                            </div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            3. Made for Life -
+                                                            <span>2hrs 15''</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>1,785,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted">
+                                                    <p>
+                                                        This luxurious face and foot ritual stimulates energy flow, eliminates toxins and tones facial muscles,
+                                                        also promotes a feeling of pure relaxation that extends from head to toe to feel deeply revitalised and soothed. A perfect getaway to escape and de-stress from daily life.
+                                                    </p>
+                                                </div>
+                                            </div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            4. Blissful Sen Shine Day package -
+                                                            <span>4hrs 05’'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>3,450,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted">
+                                                    <p>
+                                                        An unforgettable half day package consisting of five treatments created by Sen Shine. Begin with a sauna or herbal bath. Saunas help relieve stress,
+                                                        relax aching muscles, cleanse the skin and improve cardiovascular performance, while a local herbal bath of helps improve blood circulation, sleeping and breathing. This is followed by a Relaxation Treatment combining massage with essential oils.
+                                                        Next comes Sen Shine Body Scrub to cleanse and exfoliate the skin concluding with a moisturizing face mask leaving your skin smooth and glowing.&nbsp; The Blissful Sen Shine Day package is a wonderful treat for the mind, body and soul.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="four-hands-massage-by-la-spa">
+                                        <!-- Nội dung của Four-hands Massage by Sen Shine -->
+                                        <div class="small text-uppercase text-white bg-primary d-flex py-2 px-5">
+                                            <span>Four-hands Massage by Sen Shine</span>
+                                            <span class="ml-auto">Price (VND)</span>
+                                        </div>
+                                        <div class="py-4 px-5">
+                                            <div class="mb-2"><span>A luxurious relaxing treat for your body. Two therapists, four hands, 10 fingers work in choreographed synchronized movements applying sensations of touch to the skin leading to complete and total relaxation. The body falls into a state of optimal rest releasing aches and muscle tension, improving blood circulation, reducing stress and anxiety, and leading to the overall improvement in one's mood. It is a powerful treatment particularly suitable if you find it hard to let go during spa treatments. The Sen Shine team have perfected the technique making our four-hands massage particularly special.</span></div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            Four-hands Massage by Sen Shine -
+                                                            <span>60'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>1,565,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="relaxing-moment">
+                                        <!-- Nội dung của Relaxing moment -->
+                                        <div class="small text-uppercase text-white bg-primary d-flex py-2 px-5">
+                                            <span>Relaxing Moment</span>
+                                            <span class="ml-auto">Price (VND)</span>
+                                        </div>
+                                        <div class="py-4 px-5">
+                                            <div class="mb-2">
+                                                <span>
+                                                    If your time is limited, we have a number of short treatments to help you make the most of your time. <br>
+                                                    Select the most suitable treatment(s) for you:
+                                                </span>
+                                            </div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            1. Head, neck, back &amp; shoulders massage -
+                                                            <span>45'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>630,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted"></div>
+                                            </div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            2. Hand, head, neck &amp; shoulders massage -
+                                                            <span>30'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>395,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted"></div>
+                                            </div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            3. Foot Rest Massage -
+                                                            <span>30'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>395,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="facial">
+                                        <!-- Nội dung của Facial -->
+                                        <div class="small text-uppercase text-white bg-primary d-flex py-2 px-5">
+                                            <span>Facial</span>
+                                            <span class="ml-auto">Price (VND)</span>
+                                        </div>
+                                        <div class="py-4 px-5">
+                                            <div class="mb-2"><span></span></div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            1. Basic Facial Care -
+                                                            <span>45'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>630,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted"><p>A reviving facial which includes a deep cleanse, exfoliation, soothing facial massage and finally moisturizing treatment using the finest of skin care products leaving your skin refreshed and nourished.</p></div>
+                                            </div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            2. Natural Skin Dream -
+                                                            <span>60'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>850,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted"><p>This facial has been described as an experience in its own right. Using a natural yoghurt-based face mask, this all-in-once facial cleanses, soothes, nourishes and balances the skin leaving it radiant and glowing.</p></div>
+                                            </div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            3. Silky Beauty -
+                                                            <span>60'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>995,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted"><p>Begin with a skin cleanse and massage followed by the application of a thin, rich, velvety cream mask.&nbsp;A head massage stimulates the nerves and blood vessels beneath the skin whilst also calming muscle tension.&nbsp;The cream mask is then removed and your face is moisturized leaving the skin soft and silky smooth.</p></div>
+                                            </div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            4. Lifting Feather -
+                                                            <span>60'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>995,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted"><p>Experience complete relaxation with a Vietnamese manual facelift technique. The clay mask is then applied to draw out excess oil from the pores while retaining moisture and hydration. This facial treatment is tailored to make your skin feeling light as a feather.</p></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="body-massage">
+                                        <!-- Nội dung của Body Massage -->
+                                        <div class="small text-uppercase text-white bg-primary d-flex py-2 px-5">
+                                            <span>Body Massage</span>
+                                            <span class="ml-auto">Price (VND)</span>
+                                        </div>
+                                        <div class="py-4 px-5">
+                                            <div class="mb-2"><span></span></div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            1. Relaxation treatment -
+                                                            <span>60'</span>
+                                                            <span>90'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>790,000</span>
+                                                            <span>1,085,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted"><p>Applying gentle soothing massage techniques with local aromatic oils, the aim is to remove overall tension, relieve swollen or painful joints and balance one’s emotions.</p></div>
+                                            </div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            2. Tension Relief Therapy -
+                                                            <span>60'</span>
+                                                            <span>90'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>850,000</span>
+                                                            <span>1,130,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted"><p>Using strong massage techniques combined with essential oils, this treatment targets key muscle groups to relieve aches and pains. Smooth flowing rhythmic movements also help improve circulation and stimulate an overall sense of wellbeing and balance.</p></div>
+                                            </div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            3. Hot stone Massage -
+                                                            <span>60'</span>
+                                                            <span>90'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>935,000</span>
+                                                            <span>1,240,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted"><p>Hot stone massage melts away muscle tension and stress through the application of warm smooth stones placed on key areas of the body to heat the muscles, promote an overall relaxed sense of wellbeing and calm.</p></div>
+                                            </div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            4. Himalayan Salt Stone Massage -
+                                                            <span>60'</span>
+                                                            <span>90'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>970,000</span>
+                                                            <span>1,315,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted">
+                                                    <p>
+                                                        This special therapy uses a blend of pure essential oil and natural salt rock crystal formed
+                                                        250million years ago in ancient seas beneath the Himalayan Mountains. The healing massage technique combined with warm salt stones balances the central nervous system. It gently soothes the accumulation of stress and tension, helps remove toxins while infusing healthy minerals into the skin.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="foot-treatment">
+                                        <!-- Nội dung của Foot Treatment -->
+                                        <div class="small text-uppercase text-white bg-primary d-flex py-2 px-5">
+                                            <span>Foot Treatment</span>
+                                            <span class="ml-auto">Price (VND)</span>
+                                        </div>
+                                        <div class="py-4 px-5">
+                                            <div class="mb-2"><span></span></div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            1. Essential Oils Foot Therapy -
+                                                            <span>60'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>710,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted"><p>Experience overall healing and wellbeing as your therapist focuses on the pressure points of your feet through deep tissue massage with essential oils. The process is similar to Reflexology whilst the oil leaves your skin soft and smooth.</p></div>
+                                            </div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            2. Foot Remedy -
+                                                            <span>60'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>750,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted"><p>A foot Massage using hot stones applied to your legs and feet. Feet can typically take a lot of heat and the combination of pressure massage with the warmth of hot stones instils a sense of relaxation, helping to restore, rebalance and rejuvenate the body.</p></div>
+                                            </div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            3. Total Foot Treatment -
+                                                            <span>75'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>895,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted"><p>A complete care package and ultimate treat for feet. This treatment combines a foot massage focusing on pressure points with a dry and wet scrub to remove dead skin, leaving your feet silky smooth. It is an invigorating ‘facelift’ for your feet.</p></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="body-skin-care">
+                                        <!-- Nội dung của Body skin care -->
+                                        <div class="small text-uppercase text-white bg-primary d-flex py-2 px-5">
+                                            <span>Body skin care</span>
+                                            <span class="ml-auto">Price (VND)</span>
+                                        </div>
+                                        <div class="py-4 px-5">
+                                            <div class="mb-2"><span></span></div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            1. Sen Shine Body Scrub -
+                                                            <span>45'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>850,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted"><p>Sen Shine’s moisturizing body scrub provides a deep cleaning and exfoliating treatment. Dead skin cells are removed whilst the growth of healthy new ones are promoted. Mineral sea salt and olive oil help to remove impurities and stimulate blood circulation.</p></div>
+                                            </div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            2. Mud &amp; Milk Body Wrap -
+                                                            <span>45'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>850,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted"><p>Harnessing the power of natural vitamins and minerals this body wrap helps improve the appearance and feel of skin. It draws toxins from the body and helps hydrate, tone and smooth the skin.</p></div>
+                                            </div>
+                                        </div>
+                                    </div><div class="tab-pane fade " id="extra-pampering">
+                                        <div class="small text-uppercase text-white bg-primary d-flex py-2 px-5">
+                                            <span>Extra Pampering</span>
+                                            <span class="ml-auto">Price (VND)</span>
+                                        </div><div class="py-4 px-5">
+                                            <div class="mb-2"><span></span></div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            1. Sauna -
+                                                            <span>20'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>190,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted"></div>
+                                            </div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            2. Steam -
+                                                            <span>20'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>190,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted"></div>
+                                            </div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            3. Herbal bath -
+                                                            <span>20'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>380,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted"></div>
+                                            </div><div class="mb-3">
+                                                <div class="small align-items-baseline mb-1">
+                                                    <div class="d-flex service-option">
+                                                        <strong>
+                                                            4. Jacuzzi -
+                                                            <span>20'</span>
+                                                        </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                            <span>190,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div><div class="small text-muted"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box-shadow accordion-faq d-sm-block d-md-block d-lg-none" id="accordion-faq">
+                        <div class="box-service">
+                            <a class="font-weight-medium d-block border-primary border px-4 py-2 mb-2 text-uppercase collapsed" data-toggle="collapse" href="#collapse-faq-3">
+                                Signature Packages
+                            </a><div id="collapse-faq-3" class="collapse " data-parent="#accordion-faq">
+                                <div class="card-body p-3">
+                                    <div class="mb-2"><span></span></div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    1. Pamper Package -
+                                                    <span>90'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>1,240,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"><p>A combination of Hot Stone full body massage using warm smooth stones followed by a refreshing facial pampering</p></div>
+                                    </div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    2. Cloud 9 Package -
+                                                    <span>90'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>1,240,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"><p>Hot Stone full body massage combined with a soothing foot scrub</p></div>
+                                    </div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    3. Made for Life -
+                                                    <span>2hrs 15''</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>1,785,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"><p>This luxurious face and foot ritual stimulates energy flow, eliminates toxins and tones facial muscles, also promotes a feeling of pure relaxation that extends from head to toe to feel deeply revitalised and soothed. A perfect getaway to escape and de-stress from daily life.</p></div>
+                                    </div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    4. Blissful Sen Shine Day package -
+                                                    <span>4hrs 05’'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>3,450,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"><p>An unforgettable half day package consisting of five treatments created by Sen Shine. Begin with a sauna or herbal bath. Saunas help relieve stress, relax aching muscles, cleanse the skin and improve cardiovascular performance, while a local herbal bath of helps improve blood circulation, sleeping and breathing. This is followed by a Relaxation Treatment combining massage with essential oils. Next comes Sen Shine Body Scrub to cleanse and exfoliate the skin concluding with a moisturizing face mask leaving your skin smooth and glowing.&nbsp; The Blissful Sen Shine Day package is a wonderful treat for the mind, body and soul.</p></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="box-service">
+                            <a class="font-weight-medium d-block border-primary border px-4 py-2 mb-2 text-uppercase collapsed" data-toggle="collapse" href="#collapse-faq-4">
+                                Four-hands Massage by Sen Shine
+                            </a><div id="collapse-faq-4" class="collapse " data-parent="#accordion-faq">
+                                <div class="card-body p-3">
+                                    <div class="mb-2"><span>A luxurious relaxing treat for your body. Two therapists, four hands, 10 fingers work in choreographed synchronized movements applying sensations of touch to the skin leading to complete and total relaxation. The body falls into a state of optimal rest releasing aches and muscle tension, improving blood circulation, reducing stress and anxiety, and leading to the overall improvement in one's mood. It is a powerful treatment particularly suitable if you find it hard to let go during spa treatments. The Sen Shine team have perfected the technique making our four-hands massage particularly special.</span></div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    1. Four-hands Massage by Sen Shine -
+                                                    <span>60'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>1,565,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="box-service">
+                            <a class="font-weight-medium d-block border-primary border px-4 py-2 mb-2 text-uppercase collapsed" data-toggle="collapse" href="#collapse-faq-7">
+                                Relaxing moment
+                            </a><div id="collapse-faq-7" class="collapse " data-parent="#accordion-faq">
+                                <div class="card-body p-3">
+                                    <div class="mb-2">
+                                        <span>
+                                            If your time is limited, we have a number of short treatments to help you make the most of your time.
+                                            Select the most suitable treatment(s) for you:
+                                        </span>
+                                    </div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    1. Head, neck, back &amp; shoulders massage -
+                                                    <span>45'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>630,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"></div>
+                                    </div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    2. Hand, head, neck &amp; shoulders massage -
+                                                    <span>30'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>395,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"></div>
+                                    </div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    3. Foot Rest Massage -
+                                                    <span>30'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>395,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="box-service">
+                            <a class="font-weight-medium d-block border-primary border px-4 py-2 mb-2 text-uppercase collapsed" data-toggle="collapse" href="#collapse-faq-8">
+                                Facial
+                            </a><div id="collapse-faq-8" class="collapse " data-parent="#accordion-faq">
+                                <div class="card-body p-3">
+                                    <div class="mb-2"><span></span></div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    1. Basic Facial Care -
+                                                    <span>45'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>630,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"><p>A reviving facial which includes a deep cleanse, exfoliation, soothing facial massage and finally moisturizing treatment using the finest of skin care products leaving your skin refreshed and nourished.</p></div>
+                                    </div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    2. Natural Skin Dream -
+                                                    <span>60'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>850,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"><p>This facial has been described as an experience in its own right. Using a natural yoghurt-based face mask, this all-in-once facial cleanses, soothes, nourishes and balances the skin leaving it radiant and glowing.</p></div>
+                                    </div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    3. Silky Beauty -
+                                                    <span>60'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>995,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"><p>Begin with a skin cleanse and massage followed by the application of a thin, rich, velvety cream mask.&nbsp;A head massage stimulates the nerves and blood vessels beneath the skin whilst also calming muscle tension.&nbsp;The cream mask is then removed and your face is moisturized leaving the skin soft and silky smooth.</p></div>
+                                    </div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    4. Lifting Feather -
+                                                    <span>60'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>995,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"><p>Experience complete relaxation with a Vietnamese manual facelift technique. The clay mask is then applied to draw out excess oil from the pores while retaining moisture and hydration. This facial treatment is tailored to make your skin feeling light as a feather.</p></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="box-service">
+                            <a class="font-weight-medium d-block border-primary border px-4 py-2 mb-2 text-uppercase collapsed" data-toggle="collapse" href="#collapse-faq-9">
+                                Body Massage
+                            </a><div id="collapse-faq-9" class="collapse " data-parent="#accordion-faq">
+                                <div class="card-body p-3">
+                                    <div class="mb-2"><span></span></div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    1. Relaxation treatment -
+                                                    <span>60'</span>
+                                                    <span>90'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>790,000</span>
+                                                    <span>1,085,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"><p>Applying gentle soothing massage techniques with local aromatic oils, the aim is to remove overall tension, relieve swollen or painful joints and balance one’s emotions.</p></div>
+                                    </div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    2. Tension Relief Therapy -
+                                                    <span>60'</span>
+                                                    <span>90'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>850,000</span>
+                                                    <span>1,130,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"><p>Using strong massage techniques combined with essential oils, this treatment targets key muscle groups to relieve aches and pains. Smooth flowing rhythmic movements also help improve circulation and stimulate an overall sense of wellbeing and balance.</p></div>
+                                    </div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    3. Hot stone Massage -
+                                                    <span>60'</span>
+                                                    <span>90'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>935,000</span>
+                                                    <span>1,240,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"><p>Hot stone massage melts away muscle tension and stress through the application of warm smooth stones placed on key areas of the body to heat the muscles, promote an overall relaxed sense of wellbeing and calm.</p></div>
+                                    </div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    4. Himalayan Salt Stone Massage -
+                                                    <span>60'</span>
+                                                    <span>90'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>970,000</span>
+                                                    <span>1,315,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"><p>This special therapy uses a blend of pure essential oil and natural salt rock crystal formed 250million years ago in ancient seas beneath the Himalayan Mountains. The healing massage technique combined with warm salt stones balances the central nervous system. It gently soothes the accumulation of stress and tension, helps remove toxins while infusing healthy minerals into the skin.</p></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="box-service">
+                            <a class="font-weight-medium d-block border-primary border px-4 py-2 mb-2 text-uppercase collapsed" data-toggle="collapse" href="#collapse-faq-10">
+                                Foot Treatment
+                            </a><div id="collapse-faq-10" class="collapse " data-parent="#accordion-faq">
+                                <div class="card-body p-3">
+                                    <div class="mb-2"><span></span></div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    1. Essential Oils Foot Therapy -
+                                                    <span>60'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>710,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"><p>Experience overall healing and wellbeing as your therapist focuses on the pressure points of your feet through deep tissue massage with essential oils. The process is similar to Reflexology whilst the oil leaves your skin soft and smooth.</p></div>
+                                    </div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    2. Foot Remedy -
+                                                    <span>60'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>750,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"><p>A foot Massage using hot stones applied to your legs and feet. Feet can typically take a lot of heat and the combination of pressure massage with the warmth of hot stones instils a sense of relaxation, helping to restore, rebalance and rejuvenate the body.</p></div>
+                                    </div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    3. Total Foot Treatment -
+                                                    <span>75'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>895,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"><p>A complete care package and ultimate treat for feet. This treatment combines a foot massage focusing on pressure points with a dry and wet scrub to remove dead skin, leaving your feet silky smooth. It is an invigorating ‘facelift’ for your feet.</p></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="box-service">
+                            <a class="font-weight-medium d-block border-primary border px-4 py-2 mb-2 text-uppercase collapsed" data-toggle="collapse" href="#collapse-faq-11">
+                                Body skin care
+                            </a><div id="collapse-faq-11" class="collapse " data-parent="#accordion-faq">
+                                <div class="card-body p-3">
+                                    <div class="mb-2"><span></span></div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    1. Sen Shine Body Scrub -
+                                                    <span>45'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>850,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"><p>Sen Shine’s moisturizing body scrub provides a deep cleaning and exfoliating treatment. Dead skin cells are removed whilst the growth of healthy new ones are promoted. Mineral sea salt and olive oil help to remove impurities and stimulate blood circulation.</p></div>
+                                    </div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    2. Mud &amp; Milk Body Wrap -
+                                                    <span>45'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>850,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"><p>Harnessing the power of natural vitamins and minerals this body wrap helps improve the appearance and feel of skin. It draws toxins from the body and helps hydrate, tone and smooth the skin.</p></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="box-service">
+                            <a class="font-weight-medium d-block border-primary border px-4 py-2 mb-2 text-uppercase collapsed" data-toggle="collapse" href="#collapse-faq-12">
+                                Extra Pampering
+                            </a><div id="collapse-faq-12" class="collapse " data-parent="#accordion-faq">
+                                <div class="card-body p-3">
+                                    <div class="mb-2"><span></span></div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    1. Sauna -
+                                                    <span>20'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>190,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"></div>
+                                    </div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    2. Steam -
+                                                    <span>20'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>190,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"></div>
+                                    </div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    3. Herbal bath -
+                                                    <span>20'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>380,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"></div>
+                                    </div><div class="mb-3">
+                                        <div class="small align-items-baseline mb-1">
+                                            <div class="d-flex service-option">
+                                                <strong>
+                                                    4. Jacuzzi -
+                                                    <span>20'</span>
+                                                </strong><div class="border-bottom border-custom-white flex-grow-1 mx-2"></div><div class="price_service">
+                                                    <span>190,000</span>
+                                                </div>
+                                            </div>
+                                        </div><div class="small text-muted"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
 </body>
+
 <script src="~/assets/js/jquery.min.js"></script>
 <!-- Bootstrap js-->
 <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
@@ -107,6 +970,14 @@
 <!-- Theme js-->
 <script src="~/assets/js/script.js"></script>
 <script>
+    $(document).ready(function () {
+        $('.nav-item').click(function () {
+            $('.nav-item').removeClass('active');
+            $(this).addClass('active');
+        });
+    });
+
+
     document.addEventListener('DOMContentLoaded', function () {
         // Khởi tạo sự kiện click cho tất cả các liên kết tab
         var tabLinks = document.querySelectorAll('.nav-tabs a');
@@ -156,40 +1027,3 @@
 
 
 
-<style>
-    element.style {
-    }
-
-    .pb-5, .py-5 {
-        padding-bottom: 3rem !important;
-    }
-
-    .pt-5, .py-5 {
-        padding-top: 3rem !important;
-    }
-
-    article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
-        display: block;
-    }
-
-    * {
-        outline: none !important;
-    }
-
-    *, :after, :before {
-        box-sizing: border-box;
-    }
-
-    user agent stylesheet
-    section {
-        display: block;
-        unicode-bidi: isolate;
-    }
-
-    body {
-        font-family: 'Playfair Display';
-        font-size: 1.125rem;
-        color: #333;
-    }
-
-</style>
