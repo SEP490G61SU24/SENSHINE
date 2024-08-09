@@ -1,0 +1,195 @@
+﻿@{
+
+    Layout = null;
+}
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="pixelstrap">
+    <link rel="icon" href="~/assets/images/landing/landinglogo.png" type="image/x-icon">
+    <link rel="shortcut icon" href="~/assets/images/landing/landinglogo.png" type="image/x-icon">
+    <title>SenShine Spa</title>
+    <!-- Google font-->
+    <link href="https://fonts.googleapis.com/css?family=Rubik:400,400i,500,500i,700,700i&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i,900&amp;display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
+    <link rel="icon" href="~/assets/svg/landing-icons.svg">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/styles_HomePage.css">
+    <!-- Bootstrap css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
+    <!-- App css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
+    <!-- Responsive css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+</head>
+@{
+    ViewData["Title"] = "Our Services";
+}
+<body class="landing-page">
+    <!-- tap on top starts -->
+    <div class="tap-top"><i data-feather="chevrons-up"></i></div>
+    <!-- tap on top ends -->
+    <!-- page-wrapper Start -->
+    <!-- Page Body Start -->
+    <div class="landing-home" id="home">
+        <div class="container-fluid">
+            <div class="sticky-header">
+                <header>
+                    <nav class="navbar navbar-b navbar-dark navbar-trans navbar-expand-xl fixed-top nav-padding" id="sidebar-menu">
+                        <a class="navbar-brand p-0" href="@Url.Action("HomePage", "Home")">
+                            <img class="img-fluid" src="~/assets/images/landing/landinglogo.png" alt="Landing Page Logo">
+                        </a>
+                        <button class="navbar-toggler navabr_btn-set custom_nav" type="button" data-bs-toggle="collapse" data-bs-target="#navbarDefault" aria-controls="navbarDefault" aria-expanded="false" aria-label="Toggle navigation">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </button>
+                        <div class="navbar-collapse justify-content-center collapse hidenav" id="navbarDefault">
+                            <ul class="navbar-nav navbar_nav_modify" id="scroll-spy">
+                                <li class="nav-item"><a class="nav-link" href="@Url.Action("NewsPage", "Home")">News</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#">Promotions</a></li>
+                                <li class="nav-item"><a class="nav-link" id="page" href="@Url.Action("OurService", "Home")">Our Services</a></li>
+                                <li class="nav-item"><a class="nav-link" id="page" href="@Url.Action("AboutUs", "Home")">About US</a></li>
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span id="dropdownMenuButton">SenShineSpa_HaNoi</span>
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="landing-page.html#framework-saigon" onclick="updateDropdown('SenShineSpa_SaiGon')">SenShineSpa_SaiGon</a>
+                                        <a class="dropdown-item" href="landing-page.html#framework-saigon" onclick="updateDropdown('SenShineSpa_BinhThuan')">SenShineSpa_BinhThuan</a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="buy-btn">
+                            <a class="nav-link js-scroll" href="https://themeforest.net/user/pixelstrap/portfolio" target="_blank">Book Now</a>
+                        </div>
+                    </nav>
+                </header>
+            </div>
+        </div>
+</body>
+<script src="~/assets/js/jquery.min.js"></script>
+<!-- Bootstrap js-->
+<script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
+<!-- feather icon js-->
+<script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
+<script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
+<!-- scrollbar js-->
+<script src="~/assets/js/scrollbar/simplebar.js"></script>
+<script src="~/assets/js/scrollbar/custom.js"></script>
+<!-- Sidebar jquery-->
+<script src="~/assets/js/config.js"></script>
+<!-- Plugins JS start-->
+<script src="~/assets/js/sidebar-menu.js"></script>
+<script src="~/assets/js/sidebar-pin.js"></script>
+<script src="~/assets/js/slick/slick.min.js"></script>
+<script src="~/assets/js/slick/slick.js"></script>
+<script src="~/assets/js/header-slick.js"></script>
+<!-- calendar js-->
+<script src="~/assets/js/js-datatables/simple-datatables@latest.js"></script>
+<script src="~/assets/js/custom-list-product.js"></script>
+<script src="~/assets/js/owlcarousel/owl.carousel.js"></script>
+<script src="~/assets/js/ecommerce.js"></script>
+<script src="~/assets/js/tooltip-init.js"></script>
+<!-- Plugins JS Ends-->
+<!-- Theme js-->
+<script src="~/assets/js/script.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Khởi tạo sự kiện click cho tất cả các liên kết tab
+        var tabLinks = document.querySelectorAll('.nav-tabs a');
+        tabLinks.forEach(function (link) {
+            link.addEventListener('click', function (event) {
+                event.preventDefault(); // Ngăn chặn hành vi mặc định của liên kết
+
+                // Lấy id của tab pane từ thuộc tính href của liên kết
+                var targetId = this.getAttribute('href').substring(1);
+
+                // Hiển thị tab pane tương ứng
+                showTab(targetId);
+            });
+        });
+
+        // Hiển thị tab mặc định khi trang tải
+        function showTab(tabId) {
+            // Ẩn tất cả các tab pane
+            var tabPanes = document.querySelectorAll('.tab-pane');
+            tabPanes.forEach(function (pane) {
+                pane.classList.remove('show', 'active');
+            });
+
+            // Bỏ class active khỏi tất cả các liên kết tab
+            var tabs = document.querySelectorAll('.nav-tabs a');
+            tabs.forEach(function (tab) {
+                tab.classList.remove('active');
+            });
+
+            // Hiển thị tab pane tương ứng với id được truyền vào
+            var activeTab = document.getElementById(tabId);
+            if (activeTab) {
+                activeTab.classList.add('show', 'active');
+            }
+
+            // Đánh dấu liên kết tab là active
+            var activeLink = document.querySelector('.nav-tabs a[href="#' + tabId + '"]');
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+
+        // Hiển thị tab mặc định khi trang tải
+        showTab('signature-packages'); // Tab mặc định hiển thị khi trang tải
+    });
+</script>
+
+
+
+<style>
+    element.style {
+    }
+
+    .pb-5, .py-5 {
+        padding-bottom: 3rem !important;
+    }
+
+    .pt-5, .py-5 {
+        padding-top: 3rem !important;
+    }
+
+    article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
+        display: block;
+    }
+
+    * {
+        outline: none !important;
+    }
+
+    *, :after, :before {
+        box-sizing: border-box;
+    }
+
+    user agent stylesheet
+    section {
+        display: block;
+        unicode-bidi: isolate;
+    }
+
+    body {
+        font-family: 'Playfair Display';
+        font-size: 1.125rem;
+        color: #333;
+    }
+
+</style>

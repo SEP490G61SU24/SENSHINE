@@ -55,6 +55,7 @@
             <th>Nhân Viên Thực Hiện</th>
             <th>Dịch Vụ Sử Dụng</th>
             <th>Thời Gian Cuộc Hẹn</th>
+            <th>Số Điện Thoại</th>
             <th>Trạng Thái</th>
             <th>Hành Động</th>
         </tr>
@@ -75,6 +76,7 @@
                     </ul>
                 </td>
                 <td>@appointment.AppointmentDate</td>
+                <td>@appointment.Customer.Phone</td>
                 <td>@appointment.Status</td>
                 <td>
                     <a asp-action="DetailAppointment" asp-route-id="@appointment.Id">Details</a> |
