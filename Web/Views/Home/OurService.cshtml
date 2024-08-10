@@ -49,22 +49,14 @@
         font-size: 1.125rem;
         color: #333;
     }
-
-    .nav-link {
-        color: #006666; /* Màu chữ mặc định cho các tab chưa chọn */
-    }
-
-    .nav-item.active {
-        background-color: #006666 !important; /* Đảm bảo màu nền không bị ghi đè */
-    }
-
-        .nav-item.active .nav-link {
+    
+    .nav-item.active .nav-link {
             color: #BF932E !important; /* Màu chữ của thẻ <a> khi thẻ <li> được nhấp vào */
-        }
-        .nav-link:hover {
+     }
+    .nav-link:hover {
             background-color: #006666; /* Màu nền khi hover */
             color: #BF932E; /* Màu chữ khi hover */
-        }
+     }
        
     .pb-5, .py-5 {
         padding-bottom: 3rem !important;
@@ -77,13 +69,17 @@
     article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
         display: block;
     }
-
+    
     .ml-auto {
         margin-left: auto; /* Tự động căn lề trái để đẩy ra xa */
     }
-
     .border-custom-white {
         border-color: white !important;
+    }
+
+    .dropdown-menu {
+        border: none; /* Ẩn đường viền */
+        box-shadow: none; /* Loại bỏ đổ bóng nếu có */
     }
 </style>
 
@@ -116,11 +112,11 @@
 
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <span id="dropdownMenuButton">SenShineSpa_HaNoi</span>
+                                        <span id="dropdownMenuButton">Sen Shine Spa</span>
                                     </a>
                                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="landing-page.html#framework-saigon" onclick="updateDropdown('SenShineSpa_SaiGon')">SenShineSpa_SaiGon</a>
-                                        <a class="dropdown-item" href="landing-page.html#framework-saigon" onclick="updateDropdown('SenShineSpa_BinhThuan')">SenShineSpa_BinhThuan</a>
+                                        <a class="dropdown-item" href="landing-page.html#framework-saigon" onclick="updateDropdown('SenShineSpa_SaiGon')">Sen Shine Spa Wellness</a>
+                                        <a class="dropdown-item" href="landing-page.html#framework-saigon" onclick="updateDropdown('SenShineSpa_SaiGon')">L’essence Sen Shine</a>
                                     </div>
                                 </li>
                             </ul>
@@ -135,7 +131,7 @@
         <div class="container-fluid">
             <div class="row justify-content-center">
                 <div class="content text-center mb-4">
-                    <h1>Our Services</h1>
+                    <h1 style="color: #006666;">Our Sen Shine Services</h1>
                 </div>
             </div>
             </div>
