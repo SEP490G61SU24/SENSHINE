@@ -59,6 +59,17 @@ namespace API.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> GetCustomer(string name)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var customers = _mapper.Map<List<EmployeeDTO>>(_employeeService.GetCustomer(name));
+
+            return Ok(customers);
+        }
+
+        [HttpGet]
         public IActionResult GetById(int id)
         {
             if (!_employeeService.EmployeeExist(id))
@@ -71,6 +82,7 @@ namespace API.Controllers
 
             return Ok(employee);
         }
+
 
         [HttpPut]
         public async Task<IActionResult> Update(int id, [FromBody] EmployeeDTO employeeDTO)

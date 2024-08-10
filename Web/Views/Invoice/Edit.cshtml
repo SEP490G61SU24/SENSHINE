@@ -1,0 +1,237 @@
+﻿@model API.Dtos.InvoiceDTO
+
+@{
+    ViewData["Title"] = "Chỉnh sửa hóa đơn";
+    var invoiceJson = System.Text.Json.JsonSerializer.Serialize(Model);
+}
+
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
+    <!-- ico-font-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
+    <!-- Themify icon-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/themify.css">
+    <!-- Flag icon-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/flag-icon.css">
+    <!-- Feather icon-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/feather-icon.css">
+    <!-- Plugins css start-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
+    <!-- Plugins css Ends-->
+    <!-- Bootstrap css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
+    <!-- App css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
+    <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
+    <!-- Responsive css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+}
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" action="/invoice/edit/@Model.Id" class="row g-3 needs-validation" novalidate="">
+            <div class="col-md-4 position-relative">
+                <label class="form-label" for="SpaId">Spa</label>
+                <select class="form-select" name="SpaId" id="SpaId" required="">
+                    <option value="">Select Spa...</option>
+                    <!-- Populate options with spa data -->
+                </select>
+                <div class="invalid-tooltip">Select a Spa!</div>
+            </div>
+
+            <div class="col-md-4 position-relative">
+                <label class="form-label" for="CustomerId">Customer</label>
+                <select class="form-select" name="CustomerId" id="CustomerId" required="">
+                    <option value="">Select Customer...</option>
+                    <!-- Populate options with customer data -->
+                </select>
+                <div class="invalid-tooltip">Select a Customer!</div>
+            </div>
+
+            <div class="col-md-4 position-relative">
+                <label class="form-label" for="PromotionId">Promotion</label>
+                <select class="form-select" name="PromotionId" id="PromotionId">
+                    <option value="">Select Promotion...</option>
+                    <!-- Populate options with promotion data -->
+                </select>
+                <div class="invalid-tooltip">Select a Promotion!</div>
+            </div>
+
+            <div class="col-md-4 position-relative">
+                <label class="form-label" for="Amount">Amount</label>
+                <input class="form-control" name="Amount" id="Amount" type="number" step="0.01" placeholder="Enter Amount" value="@Model.Amount" required="">
+                <div class="invalid-tooltip">Enter a valid amount!</div>
+            </div>
+
+            <div class="col-md-4 position-relative">
+                <label class="form-label" for="InvoiceDate">Invoice Date</label>
+                <input class="form-control" name="InvoiceDate" id="InvoiceDate" type="date" value="@Model.InvoiceDate.ToString("yyyy-MM-dd")" required="">
+                <div class="invalid-tooltip">Select an invoice date!</div>
+            </div>
+
+            <div class="col-md-4 position-relative">
+                <label class="form-label" for="Status">Trạng Thái</label>
+                <select class="form-select" name="Status" id="Status" required="">
+                    <option value="">Chọn trạng thái...</option>
+                    <option value="Pending">Đang chờ</option>
+                    <option value="Paid">Đã thanh toán</option>
+                    <option value="Cancelled">Đã hủy</option>
+                </select>
+                <div class="invalid-tooltip">Chọn trạng thái hóa đơn.</div>
+            </div>
+
+            <div class="col-md-12 position-relative">
+                <label class="form-label" for="Description">Description</label>
+                <textarea class="form-control" name="Description" id="Description" placeholder="Enter Description">@Model.Description</textarea>
+            </div>
+
+            <div class="col-md-4 position-relative">
+                <label class="form-label" for="CardIds">Cards</label>
+                <select class="form-select" name="CardIds" id="CardIds" multiple>
+                    <!-- Populate options with card data -->
+                </select>
+            </div>
+
+            <div class="col-md-4 position-relative">
+                <label class="form-label" for="ComboIds">Combos</label>
+                <select class="form-select" name="ComboIds" id="ComboIds" multiple>
+                    <!-- Populate options with combo data -->
+                </select>
+            </div>
+
+            <div class="col-md-4 position-relative">
+                <label class="form-label" for="ServiceIds">Services</label>
+                <select class="form-select" name="ServiceIds" id="ServiceIds" multiple>
+                    <!-- Populate options with service data -->
+                </select>
+            </div>
+
+            <div class="col-12">
+                <button class="btn btn-primary" type="submit">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/assets/js/jquery.min.js"></script>
+    <!-- Bootstrap js-->
+    <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
+    <!-- feather icon js-->
+    <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
+    <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
+    <!-- scrollbar js-->
+    <script src="~/assets/js/scrollbar/simplebar.js"></script>
+    <script src="~/assets/js/scrollbar/custom.js"></script>
+    <!-- Sidebar jquery-->
+    <script src="~/assets/js/config.js"></script>
+    <!-- Plugins JS start-->
+    <script src="~/assets/js/sidebar-menu.js"></script>
+    <script src="~/assets/js/sidebar-pin.js"></script>
+    <script src="~/assets/js/slick/slick.min.js"></script>
+    <script src="~/assets/js/slick/slick.js"></script>
+    <script src="~/assets/js/header-slick.js"></script>
+    <!-- calendar js-->
+    <script src="~/assets/js/form-validation-custom.js"></script>
+    <script src="~/assets/js/height-equal.js"></script>
+    <!-- Plugins JS Ends-->
+    <!-- Theme js-->
+    <script src="~/assets/js/script.js"></script>
+
+        <script>
+              $(document).ready(function () {
+                  // Load Spa options via AJAX
+                  $.ajax({
+                      url: '/api/spas',
+                      type: 'GET',
+                      success: function (spas) {
+                          spas.forEach(spa => {
+                              $('#SpaId').append(new Option(spa.name, spa.id));
+                          });
+                          $('#SpaId').val(@Model.SpaId);  // Set selected value
+                      },
+                      error: function (xhr, status, error) {
+                          console.error("Failed to load spas:", error);
+                      }
+                  });
+
+                  // Load Customer options via AJAX
+                  $.ajax({
+                      url: '/api/customers',
+                      type: 'GET',
+                      success: function (customers) {
+                          customers.forEach(customer => {
+                              $('#CustomerId').append(new Option(customer.name, customer.id));
+                          });
+                          $('#CustomerId').val(@Model.CustomerId);  // Set selected value
+                      },
+                      error: function (xhr, status, error) {
+                          console.error("Failed to load customers:", error);
+                      }
+                  });
+
+                  // Load Promotion options via AJAX
+                  $.ajax({
+                      url: '/api/promotions',
+                      type: 'GET',
+                      success: function (promotions) {
+                          promotions.forEach(promotion => {
+                              $('#PromotionId').append(new Option(promotion.name, promotion.id));
+                          });
+                          $('#PromotionId').val(@Model.PromotionId);  // Set selected value
+                      },
+                      error: function (xhr, status, error) {
+                          console.error("Failed to load promotions:", error);
+                      }
+                  });
+
+                  // Load Card options via AJAX
+                  $.ajax({
+                      url: '/api/cards',
+                      type: 'GET',
+                      success: function (cards) {
+                          cards.forEach(card => {
+                              $('#CardIds').append(new Option(card.name, card.id));
+                          });
+                          $('#CardIds').val(@Model.CardIds);  // Set selected values
+                      },
+                      error: function (xhr, status, error) {
+                          console.error("Failed to load cards:", error);
+                      }
+                  });
+
+                  // Load Combo options via AJAX
+                  $.ajax({
+                      url: '/api/combos',
+                      type: 'GET',
+                      success: function (combos) {
+                          combos.forEach(combo => {
+                              $('#ComboIds').append(new Option(combo.name, combo.id));
+                          });
+                          $('#ComboIds').val(@Model.ComboIds);  // Set selected values
+                      },
+                      error: function (xhr, status, error) {
+                          console.error("Failed to load combos:", error);
+                      }
+                  });
+
+                  // Load Service options via AJAX
+                  $.ajax({
+                      url: '/api/services',
+                      type: 'GET',
+                      success: function (services) {
+                          services.forEach(service => {
+                              $('#ServiceIds').append(new Option(service.name, service.id));
+                          });
+                          $('#ServiceIds').val(@Model.ServiceIds);  // Set selected values
+                      },
+                      error: function (xhr, status, error) {
+                          console.error("Failed to load services:", error);
+                      }
+                  });
+              });
+    </script>
+}
