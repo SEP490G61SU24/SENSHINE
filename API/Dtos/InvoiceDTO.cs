@@ -13,9 +13,10 @@ namespace API.Dtos
         public decimal? Amount { get; set; }
         public DateTime InvoiceDate { get; set; }
         public string? Description { get; set; }
+		public string? Status { get; set; }
 
-        
-        public string? CustomerName { get; set; }
+
+		public string? CustomerName { get; set; }
         public string? PromotionName { get; set; }
         public string? SpaName { get; set; }
 

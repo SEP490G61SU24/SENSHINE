@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Text;
 using Web.Models;
 
 namespace Web.Controllers
@@ -41,73 +42,227 @@ namespace Web.Controllers
             return View(viewList);
         }
 
-        // GET: InvoiceController/Details/5
-        public ActionResult Details(int id)
+        private async Task<List<BranchViewModel>> LoadSpasAsync()
         {
-            return View();
+            List<BranchViewModel> spas = new List<BranchViewModel>();
+            HttpResponseMessage response = await _httpClient.GetAsync("/api/Branch/GetAll");
+            if (response.IsSuccessStatusCode)
+            {
+                string data = await response.Content.ReadAsStringAsync();
+                spas = JsonConvert.DeserializeObject<List<BranchViewModel>>(data);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while fetching spas.");
+            }
+            return spas;
         }
 
-        // GET: InvoiceController/Create
-        public ActionResult Create()
+        
+
+        private async Task<List<PromotionViewModel>> LoadPromotionsAsync()
         {
-            return View();
+            List<PromotionViewModel> promotions = new List<PromotionViewModel>();
+            HttpResponseMessage response = await _httpClient.GetAsync("/api/ListAllPromotion");
+            if (response.IsSuccessStatusCode)
+            {
+                string data = await response.Content.ReadAsStringAsync();
+                promotions = JsonConvert.DeserializeObject<List<PromotionViewModel>>(data);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while fetching promotions.");
+            }
+            return promotions;
         }
 
-        // POST: InvoiceController/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        private async Task<List<CardViewModel>> LoadCardsAsync()
+        {
+            List<CardViewModel> cards = new List<CardViewModel>();
+            HttpResponseMessage response = await _httpClient.GetAsync("/api/Card/GetAll");
+            if (response.IsSuccessStatusCode)
+            {
+                string data = await response.Content.ReadAsStringAsync();
+                cards = JsonConvert.DeserializeObject<List<CardViewModel>>(data);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while fetching cards.");
+            }
+            return cards;
+        }
+
+        private async Task<List<ComboViewModel>> LoadCombosAsync()
+        {
+            List<ComboViewModel> combos = new List<ComboViewModel>();
+            HttpResponseMessage response = await _httpClient.GetAsync("/api/Combo/GetAllCombo");
+            if (response.IsSuccessStatusCode)
+            {
+                string data = await response.Content.ReadAsStringAsync();
+                combos = JsonConvert.DeserializeObject<List<ComboViewModel>>(data);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while fetching combos.");
+            }
+            return combos;
+        }
+
+        private async Task<List<ServiceViewModel>> LoadServicesAsync()
+        {
+            List<ServiceViewModel> services = new List<ServiceViewModel>();
+            HttpResponseMessage response = await _httpClient.GetAsync("/api/Service/GetAllServices");
+            if (response.IsSuccessStatusCode)
+            {
+                string data = await response.Content.ReadAsStringAsync();
+                services = JsonConvert.DeserializeObject<List<ServiceViewModel>>(data);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while fetching services.");
+            }
+            return services;
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> Add()
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                // Load data asynchronously and handle errors
+                var spas = await LoadSpasAsync();
+                ViewBag.Spas = spas ?? new List<BranchViewModel>();
+
+              
+
+                var promotions = await LoadPromotionsAsync();
+                ViewBag.Promotions = promotions ?? new List<PromotionViewModel>();
+
+                var cards = await LoadCardsAsync();
+                ViewBag.Cards = cards ?? new List<CardViewModel>();
+
+                var combos = await LoadCombosAsync();
+                ViewBag.Combos = combos ?? new List<ComboViewModel>();
+
+                var services = await LoadServicesAsync();
+                ViewBag.Services = services ?? new List<ServiceViewModel>();
+            }
+            catch (Exception ex)
+            {
+                
+                ModelState.AddModelError(string.Empty, "An error occurred while loading data.");
+            }
+
+            return View();
+        }
+
+
+
+        [HttpPost]
+        
+        public async Task<IActionResult> Add(InvoiceDTO invoiceDto)
+        {
+            
+
+            try
+            {
+                string jsonData = JsonConvert.SerializeObject(invoiceDto);
+                StringContent content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await _httpClient.PostAsync("/api/AddInvoice", content);
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction(nameof(InvoiceList));
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "An error occurred while creating the invoice.");
+                }
             }
             catch
             {
-                return View();
+                ModelState.AddModelError(string.Empty, "An exception occurred while creating the invoice.");
             }
+
+            return View(invoiceDto);
         }
 
         // GET: InvoiceController/Edit/5
-        public ActionResult Edit(int id)
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
         {
-            return View();
+            InvoiceDTO invoice = null;
+
+            HttpResponseMessage response = await _httpClient.GetAsync($"/api/GetInvoice/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                string data = await response.Content.ReadAsStringAsync();
+                invoice = JsonConvert.DeserializeObject<InvoiceDTO>(data);
+            }
+            else
+            {
+                return NotFound();
+            }
+
+            return View(invoice);
         }
 
         // POST: InvoiceController/Edit/5
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        
+        public async Task<IActionResult> Edit(int id, InvoiceDTO invoiceDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(invoiceDto);
+            }
+
             try
             {
-                return RedirectToAction(nameof(Index));
+                string jsonData = JsonConvert.SerializeObject(invoiceDto);
+                StringContent content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await _httpClient.PutAsync($"/api/UpdateInvoice/{id}", content);
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction(nameof(InvoiceList));
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "An error occurred while updating the invoice.");
+                }
             }
             catch
             {
-                return View();
+                ModelState.AddModelError(string.Empty, "An exception occurred while updating the invoice.");
             }
+
+            return View(invoiceDto);
         }
 
-        // GET: InvoiceController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: InvoiceController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        [HttpDelete]
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                var response = await _httpClient.DeleteAsync($"/api/DeleteProduct/{id}");
+
+                if (response.IsSuccessStatusCode)
+                {
+
+                    return Json(new { success = true });
+                }
+
+
+                return Json(new { success = false, message = "An error occurred while deleting the product." });
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                return Json(new { success = false, message = "An unexpected error occurred." });
             }
         }
+
     }
+
 }

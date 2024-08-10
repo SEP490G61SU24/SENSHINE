@@ -10,7 +10,7 @@ namespace API.Mapping
         public InvoiceMapper()
         {
             CreateMap<Invoice, InvoiceDTO>()
-            .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.FirstName : null))
+            .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.FirstName +src.Customer.MidName+src.Customer.LastName : null))
             .ForMember(dest => dest.PromotionName, opt => opt.MapFrom(src => src.Promotion != null ? src.Promotion.PromotionName : null))
             .ForMember(dest => dest.SpaName, opt => opt.MapFrom(src => src.Spa != null ? src.Spa.SpaName : null))
             .ForMember(dest => dest.Cards, opt => opt.MapFrom(src => src.Cards))
