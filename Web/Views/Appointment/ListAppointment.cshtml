@@ -141,7 +141,7 @@
 
         function highlightFinishedAppointments() {
             appointments.forEach(appointment => {
-                const status = appointment.querySelector('td:nth-child(6)').textContent.trim();
+                const status = appointment.querySelector('td:nth-child(7)').textContent.trim();
 
                 if (status === 'Finished') {
                     appointment.style.backgroundColor = '#d4edda'; // Màu xanh sáng cho trạng thái hoàn thành
