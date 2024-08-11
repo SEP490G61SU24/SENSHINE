@@ -27,5 +27,7 @@ namespace API.Models
         public virtual ICollection<Card> Cards { get; set; }
         public virtual ICollection<Combo> Combos { get; set; }
         public virtual ICollection<Service> Services { get; set; }
+
+
     }
 }
