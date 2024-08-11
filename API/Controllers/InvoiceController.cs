@@ -49,17 +49,17 @@ namespace API.Controllers
 
 
         [HttpPost("AddInvoice")]
-        public async Task<ActionResult<InvoiceDTO>> CreateInvoice([FromBody] InvoiceDTO invoiceDto)
+        public async Task<ActionResult<Invoice>> CreateInvoice([FromBody] InvoiceDTO invoiceDto)
         {
             try
             {
-               
+                
+
                 // Map DTO to Invoice entity
                 var newInvoice = _mapper.Map<Invoice>(invoiceDto);
-
+                
                 // Save the invoice
-                _dbContext.Invoices.Add(newInvoice);
-                await _dbContext.SaveChangesAsync();
+                
 
                 // Handle Cards
                 if (invoiceDto.CardIds != null && invoiceDto.CardIds.Any())
@@ -114,8 +114,9 @@ namespace API.Controllers
                         newInvoice.Combos.Add(combo);
                     }
                 }
+                _dbContext.Invoices.Add(newInvoice);
+                await _dbContext.SaveChangesAsync();
 
-                
 
                 return CreatedAtAction(nameof(GetInvoice), new { id = newInvoice.Id }, newInvoice);
             }
@@ -128,7 +129,7 @@ namespace API.Controllers
 
 
         [HttpPut("EditInvoice/{id}")]
-        public async Task<ActionResult<InvoiceDTO>> EditInvoice(int id, [FromBody] InvoiceDTO invoiceDto)
+        public async Task<ActionResult<Invoice>> EditInvoice(int id, [FromBody] InvoiceDTO invoiceDto)
         {
             try
             {

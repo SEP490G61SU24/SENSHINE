@@ -1,4 +1,4 @@
-﻿@model API.Dtos.InvoiceDTO
+﻿@model Web.Models.InvoiceViewModel
 
 @{
     ViewData["Title"] = "Thêm mới hóa đơn";
@@ -182,12 +182,9 @@
                 <div class="invalid-tooltip">Chọn trạng thái hóa đơn.</div>
             </div>
 
-            <div class="col-md-12 position-relative">
-                <label class="form-label" for="Description">Description</label>
-                <textarea class="form-control" name="Description" id="Description" placeholder="Enter Description"></textarea>
-            </div>
+            
 
-            <!-- Custom Select for Cards -->
+            <!-- Custom Select for Cards 
             <div class="col-md-4 position-relative">
                 <label class="form-label" for="CardIds">Cards</label>
                 <div class="custom-select-wrapper">
@@ -200,11 +197,11 @@
                     </div>
                     <input type="hidden" id="CardIds" name="CardIds">
                 </div>
-            </div>
+            </div> -->
 
             <!-- Custom Select for Combos -->
             <div class="col-md-4 position-relative">
-                <label class="form-label" for="ComboIds">Combos</label>
+                <label class="form-label" for="ComboIdsString">Combos</label>
                 <div class="custom-select-wrapper">
                     <div id="customSelectCombos" class="custom-select">Select Combos...</div>
                     <div id="customOptionsCombos" class="custom-options">
@@ -219,14 +216,15 @@
                             </div>
                         }
                     </div>
-                    <input type="hidden" id="ComboIds" name="ComboIds">
+                    <input type="hidden" id="ComboIdsString" name="ComboIdsString">
+                    
                 </div>
             </div>
 
 
             <!-- Custom Select for Services -->
             <div class="col-md-4 position-relative">
-                <label class="form-label" for="ServiceIds">Services</label>
+                <label class="form-label" for="ServiceIdsString">Services</label>
                 <div class="custom-select-wrapper">
                     <div id="customSelectServices" class="custom-select">Select Services...</div>
                     <div id="customOptionsServices" class="custom-options">
@@ -241,14 +239,19 @@
                             </div>
                         }
                     </div>
-                    <input type="hidden" id="ServiceIds" name="ServiceIds">
+                    <input type="hidden" id="ServiceIdsString" name="ServiceIdsString">
+                    
                 </div>
             </div>
 
-
+            <div class="col-md-12 position-relative">
+                <label class="form-label" for="Description">Description</label>
+                <textarea class="form-control" name="Description" id="Description" placeholder="Enter Description"></textarea>
+            </div>
 
             <div class="col-12">
                 <button class="btn btn-primary" type="submit">Add Invoice</button>
+                <a asp-action="InvoiceList" class="btn btn-secondary spacing-10px ms-2">Back to List</a>
             </div>
         </form>
     </div>
@@ -373,8 +376,8 @@
             }
 
             // Setup custom selects
-            setupCustomSelect('customSelectCombos', 'customOptionsCombos', 'ComboIds');
-            setupCustomSelect('customSelectServices', 'customOptionsServices', 'ServiceIds');
+            setupCustomSelect('customSelectCombos', 'customOptionsCombos', 'ComboIdsString');
+            setupCustomSelect('customSelectServices', 'customOptionsServices', 'ServiceIdsString');
         });
     </script>
     <script>

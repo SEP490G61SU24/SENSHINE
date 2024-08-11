@@ -1,237 +1,283 @@
-﻿@model API.Dtos.InvoiceDTO
+﻿@model Web.Models.InvoiceViewModel
 
 @{
-    ViewData["Title"] = "Chỉnh sửa hóa đơn";
-    var invoiceJson = System.Text.Json.JsonSerializer.Serialize(Model);
+    ViewData["Title"] = "Edit Invoice";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 @section Styles {
     <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
-    <!-- ico-font-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
-    <!-- Themify icon-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/themify.css">
-    <!-- Flag icon-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/flag-icon.css">
-    <!-- Feather icon-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/feather-icon.css">
-    <!-- Plugins css start-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
-    <!-- Plugins css Ends-->
-    <!-- Bootstrap css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
-    <!-- App css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
-    <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 }
+<style>
+    .custom-select-wrapper {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
 
-<div class="card">
-    <div class="card-body">
-        <form method="post" action="/invoice/edit/@Model.Id" class="row g-3 needs-validation" novalidate="">
-            <div class="col-md-4 position-relative">
-                <label class="form-label" for="SpaId">Spa</label>
-                <select class="form-select" name="SpaId" id="SpaId" required="">
-                    <option value="">Select Spa...</option>
-                    <!-- Populate options with spa data -->
-                </select>
-                <div class="invalid-tooltip">Select a Spa!</div>
-            </div>
+    .custom-select {
+        display: flex;
+        flex-wrap: wrap;
+        border: 1px solid #ccc;
+        padding: 0.5rem;
+        border-radius: 4px;
+        background-color: #fff;
+        cursor: pointer;
+        position: relative;
+    }
 
-            <div class="col-md-4 position-relative">
-                <label class="form-label" for="CustomerId">Customer</label>
-                <select class="form-select" name="CustomerId" id="CustomerId" required="">
-                    <option value="">Select Customer...</option>
-                    <!-- Populate options with customer data -->
-                </select>
-                <div class="invalid-tooltip">Select a Customer!</div>
-            </div>
+        .custom-select .btn {
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
 
-            <div class="col-md-4 position-relative">
-                <label class="form-label" for="PromotionId">Promotion</label>
-                <select class="form-select" name="PromotionId" id="PromotionId">
-                    <option value="">Select Promotion...</option>
-                    <!-- Populate options with promotion data -->
-                </select>
-                <div class="invalid-tooltip">Select a Promotion!</div>
-            </div>
+    .custom-options {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        border: 1px solid #ccc;
+        border-top: none;
+        background-color: #fff;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+    }
 
-            <div class="col-md-4 position-relative">
-                <label class="form-label" for="Amount">Amount</label>
-                <input class="form-control" name="Amount" id="Amount" type="number" step="0.01" placeholder="Enter Amount" value="@Model.Amount" required="">
-                <div class="invalid-tooltip">Enter a valid amount!</div>
-            </div>
+        .custom-options.show {
+            display: block;
+        }
 
-            <div class="col-md-4 position-relative">
-                <label class="form-label" for="InvoiceDate">Invoice Date</label>
-                <input class="form-control" name="InvoiceDate" id="InvoiceDate" type="date" value="@Model.InvoiceDate.ToString("yyyy-MM-dd")" required="">
-                <div class="invalid-tooltip">Select an invoice date!</div>
-            </div>
+        .custom-options label {
+            display: block;
+            padding: 0.5rem;
+            cursor: pointer;
+        }
 
-            <div class="col-md-4 position-relative">
-                <label class="form-label" for="Status">Trạng Thái</label>
-                <select class="form-select" name="Status" id="Status" required="">
-                    <option value="">Chọn trạng thái...</option>
-                    <option value="Pending">Đang chờ</option>
-                    <option value="Paid">Đã thanh toán</option>
-                    <option value="Cancelled">Đã hủy</option>
-                </select>
-                <div class="invalid-tooltip">Chọn trạng thái hóa đơn.</div>
-            </div>
+            .custom-options label:hover {
+                background-color: #f0f0f0;
+            }
+            </style>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Edit Invoice</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <div class="col-md-12 position-relative">
-                <label class="form-label" for="Description">Description</label>
-                <textarea class="form-control" name="Description" id="Description" placeholder="Enter Description">@Model.Description</textarea>
-            </div>
+                        <!-- Hidden field for Invoice Id -->
+                        <input asp-for="Id" type="hidden" />
 
-            <div class="col-md-4 position-relative">
-                <label class="form-label" for="CardIds">Cards</label>
-                <select class="form-select" name="CardIds" id="CardIds" multiple>
-                    <!-- Populate options with card data -->
-                </select>
-            </div>
+                        <div class="row">
+                            <!-- Amount -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="Amount" class="control-label">Amount</label>
+                                    <input asp-for="Amount" class="form-control" readonly />
+                                    <span asp-validation-for="Amount" class="text-danger"></span>
+                                </div>
+                            </div>
 
-            <div class="col-md-4 position-relative">
-                <label class="form-label" for="ComboIds">Combos</label>
-                <select class="form-select" name="ComboIds" id="ComboIds" multiple>
-                    <!-- Populate options with combo data -->
-                </select>
-            </div>
+                            <!-- Invoice Date -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="InvoiceDate" class="control-label">Invoice Date</label>
+                                    <input asp-for="InvoiceDate" class="form-control" type="date" />
+                                    <span asp-validation-for="InvoiceDate" class="text-danger"></span>
+                                </div>
+                            </div>
 
-            <div class="col-md-4 position-relative">
-                <label class="form-label" for="ServiceIds">Services</label>
-                <select class="form-select" name="ServiceIds" id="ServiceIds" multiple>
-                    <!-- Populate options with service data -->
-                </select>
-            </div>
+                            <!-- Status -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="Status" class="control-label">Status</label>
+                                    <select asp-for="Status" class="form-control">
+                                        <option value="Pending">Pending</option>
+                                        <option value="Paid">Paid</option>
+                                        <option value="Cancelled">Cancelled</option>
+                                    </select>
+                                    <span asp-validation-for="Status" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
 
-            <div class="col-12">
-                <button class="btn btn-primary" type="submit">Save Changes</button>
+                        <div class="row">
+                            <!-- Display Customer Name -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="control-label">Customer Name</label>
+                                    <!-- Hidden field to store CustomerId for form submission -->
+                                    <input id="CustomerId" type="hidden" name="CustomerId" value="@Model.CustomerId" />
+
+                                    <!-- Display field to show CustomerName in a read-only format -->
+                                    <input type="text" class="form-control" value="@Model.CustomerName" readonly />
+
+                                    <!-- Validation message for CustomerId, if needed -->
+                                    <span asp-validation-for="CustomerId" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                                
+                            
+
+                            <!-- Display Promotion Name -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="PromotionName" class="control-label">Promotion Name</label>
+                                    <input asp-for="PromotionName" class="form-control" readonly />
+                                    <span asp-validation-for="PromotionName" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- Display Spa Name -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="SpaName" class="control-label">Spa Name</label>
+                                    <input asp-for="SpaName" class="form-control" readonly />
+                                    <span asp-validation-for="SpaName" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="form-group">
+                            <label asp-for="Description" class="control-label">Description</label>
+                            <textarea asp-for="Description" class="form-control"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <!-- Combo Selection -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Combos</label>
+                                    <div class="custom-select-wrapper">
+                                        <div id="comboSelect" class="custom-select">
+                                            @foreach (var combo in ViewBag.Combos ?? new List<API.Dtos.ComboDTO2>())
+                                            {
+                                                <button type="button"
+                                                        class="btn @(Model.Combos.Any(c => c.Id == combo.Id) ? "btn-primary" : "btn-default")"
+                                                        data-id="@combo.Id">
+                                                    @combo.Name
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="ComboIdsString" value="@string.Join(",", Model.ComboIds ?? new List<int>())" id="CombosInput" />
+                                    <span asp-validation-for="ComboIdsString" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- Service Selection -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Services</label>
+                                    <div class="custom-select-wrapper">
+                                        <div id="serviceSelect" class="custom-select">
+                                            @foreach (var service in ViewBag.Services ?? new List<API.Dtos.ServiceDTO2>())
+                                            {
+                                                <button type="button"
+                                                        class="btn @(Model.Services.Any(c => c.Id == service.Id) ? "btn-primary" : "btn-default")"
+                                                        data-id="@service.Id">
+                                                    @service.ServiceName
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="ServiceIdsString" value="@string.Join(",", Model.ServiceIds ?? new List<int>())" id="ServicesInput" />
+                                    <span asp-validation-for="ServiceIdsString" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="form-group d-flex justify-content-end">
+                            <input type="submit" value="Update" class="btn btn-primary spacing-10px" />
+                            <a asp-action="InvoiceList" class="btn btn-secondary spacing-10px ms-2">Back to List</a>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 
+
 @section Scripts {
     <script src="~/assets/js/jquery.min.js"></script>
-    <!-- Bootstrap js-->
     <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
-    <!-- feather icon js-->
     <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
     <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
-    <!-- scrollbar js-->
     <script src="~/assets/js/scrollbar/simplebar.js"></script>
     <script src="~/assets/js/scrollbar/custom.js"></script>
-    <!-- Sidebar jquery-->
     <script src="~/assets/js/config.js"></script>
-    <!-- Plugins JS start-->
     <script src="~/assets/js/sidebar-menu.js"></script>
     <script src="~/assets/js/sidebar-pin.js"></script>
     <script src="~/assets/js/slick/slick.min.js"></script>
     <script src="~/assets/js/slick/slick.js"></script>
     <script src="~/assets/js/header-slick.js"></script>
-    <!-- calendar js-->
-    <script src="~/assets/js/form-validation-custom.js"></script>
-    <script src="~/assets/js/height-equal.js"></script>
-    <!-- Plugins JS Ends-->
-    <!-- Theme js-->
+    <script src="~/assets/js/js-datatables/simple-datatables@latest.js"></script>
+    <script src="~/assets/js/custom-list-product.js"></script>
+    <script src="~/assets/js/owlcarousel/owl.carousel.js"></script>
+    <script src="~/assets/js/ecommerce.js"></script>
+    <script src="~/assets/js/tooltip-init.js"></script>
     <script src="~/assets/js/script.js"></script>
+    
+    <script>
+        $(document).ready(function () {
+            // Handle combo selection
+            $('#comboSelect').on('click', 'button', function () {
+                var $button = $(this);
+                var comboId = $button.data('id');
+                var selectedComboIds = $('#CombosInput').val().split(',').filter(Boolean);
+                var index = selectedComboIds.indexOf(comboId.toString());
 
-        <script>
-              $(document).ready(function () {
-                  // Load Spa options via AJAX
-                  $.ajax({
-                      url: '/api/spas',
-                      type: 'GET',
-                      success: function (spas) {
-                          spas.forEach(spa => {
-                              $('#SpaId').append(new Option(spa.name, spa.id));
-                          });
-                          $('#SpaId').val(@Model.SpaId);  // Set selected value
-                      },
-                      error: function (xhr, status, error) {
-                          console.error("Failed to load spas:", error);
-                      }
-                  });
+                if (index === -1) {
+                    selectedComboIds.push(comboId);
+                    $button.removeClass('btn-default').addClass('btn-primary');
+                } else {
+                    selectedComboIds.splice(index, 1);
+                    $button.removeClass('btn-primary').addClass('btn-default');
+                }
 
-                  // Load Customer options via AJAX
-                  $.ajax({
-                      url: '/api/customers',
-                      type: 'GET',
-                      success: function (customers) {
-                          customers.forEach(customer => {
-                              $('#CustomerId').append(new Option(customer.name, customer.id));
-                          });
-                          $('#CustomerId').val(@Model.CustomerId);  // Set selected value
-                      },
-                      error: function (xhr, status, error) {
-                          console.error("Failed to load customers:", error);
-                      }
-                  });
+                $('#CombosInput').val(selectedComboIds.join(','));
+            });
 
-                  // Load Promotion options via AJAX
-                  $.ajax({
-                      url: '/api/promotions',
-                      type: 'GET',
-                      success: function (promotions) {
-                          promotions.forEach(promotion => {
-                              $('#PromotionId').append(new Option(promotion.name, promotion.id));
-                          });
-                          $('#PromotionId').val(@Model.PromotionId);  // Set selected value
-                      },
-                      error: function (xhr, status, error) {
-                          console.error("Failed to load promotions:", error);
-                      }
-                  });
+            // Handle service selection
+            $('#serviceSelect').on('click', 'button', function () {
+                var $button = $(this);
+                var serviceId = $button.data('id');
+                var selectedServiceIds = $('#ServicesInput').val().split(',').filter(Boolean);
+                var index = selectedServiceIds.indexOf(serviceId.toString());
 
-                  // Load Card options via AJAX
-                  $.ajax({
-                      url: '/api/cards',
-                      type: 'GET',
-                      success: function (cards) {
-                          cards.forEach(card => {
-                              $('#CardIds').append(new Option(card.name, card.id));
-                          });
-                          $('#CardIds').val(@Model.CardIds);  // Set selected values
-                      },
-                      error: function (xhr, status, error) {
-                          console.error("Failed to load cards:", error);
-                      }
-                  });
+                if (index === -1) {
+                    selectedServiceIds.push(serviceId);
+                    $button.removeClass('btn-default').addClass('btn-primary');
+                } else {
+                    selectedServiceIds.splice(index, 1);
+                    $button.removeClass('btn-primary').addClass('btn-default');
+                }
 
-                  // Load Combo options via AJAX
-                  $.ajax({
-                      url: '/api/combos',
-                      type: 'GET',
-                      success: function (combos) {
-                          combos.forEach(combo => {
-                              $('#ComboIds').append(new Option(combo.name, combo.id));
-                          });
-                          $('#ComboIds').val(@Model.ComboIds);  // Set selected values
-                      },
-                      error: function (xhr, status, error) {
-                          console.error("Failed to load combos:", error);
-                      }
-                  });
-
-                  // Load Service options via AJAX
-                  $.ajax({
-                      url: '/api/services',
-                      type: 'GET',
-                      success: function (services) {
-                          services.forEach(service => {
-                              $('#ServiceIds').append(new Option(service.name, service.id));
-                          });
-                          $('#ServiceIds').val(@Model.ServiceIds);  // Set selected values
-                      },
-                      error: function (xhr, status, error) {
-                          console.error("Failed to load services:", error);
-                      }
-                  });
-              });
+                $('#ServicesInput').val(selectedServiceIds.join(','));
+            });
+        });
     </script>
+    
 }
