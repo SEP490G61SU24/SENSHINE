@@ -23,52 +23,66 @@
             </div>
             <div class="form-group">
                 <label asp-for="BaseSalary" class="control-label"></label>
-                <input asp-for="BaseSalary" class="form-control" />
+                <div class="input-group">
+                    <input asp-for="BaseSalary" class="form-control" />
+                    <div class="input-group-append">
+                        <span class="input-group-text">VND</span>
+                    </div>
+                </div>
                 <span asp-validation-for="BaseSalary" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Allowances" class="control-label"></label>
-                <input asp-for="Allowances" class="form-control" />
+                <div class="input-group">
+                    <input asp-for="Allowances" class="form-control" />
+                    <div class="input-group-append">
+                        <span class="input-group-text">VND</span>
+                    </div>
+                </div>
                 <span asp-validation-for="Allowances" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Bonus" class="control-label"></label>
-                <input asp-for="Bonus" class="form-control" />
+                <div class="input-group">
+                    <input asp-for="Bonus" class="form-control" />
+                    <div class="input-group-append">
+                        <span class="input-group-text">VND</span>
+                    </div>
+                </div>
                 <span asp-validation-for="Bonus" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Deductions" class="control-label"></label>
-                <input asp-for="Deductions" class="form-control" />
+                <div class="input-group">
+                    <input asp-for="Deductions" class="form-control" />
+                    <div class="input-group-append">
+                        <span class="input-group-text">VND</span>
+                    </div>
+                </div>
                 <span asp-validation-for="Deductions" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="TotalSalary" class="control-label"></label>
-                <input asp-for="TotalSalary" class="form-control" readonly />
+                <div class="input-group">
+                    <input asp-for="TotalSalary" class="form-control" readonly />
+                    <div class="input-group-append">
+                        <span class="input-group-text">VND</span>
+                    </div>
+                </div>
                 <span asp-validation-for="TotalSalary" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="SalaryMonth" class="control-label"></label>
-                <select asp-for="SalaryMonth" class="form-control">
-                    @{
-                        for (int i = 1; i <= 12; i++)
-                        {
-                            <option value="@i">@i</option>
-                        }
-                    }
-                </select>
+                <div class="input-group">
+                    <input asp-for="SalaryMonth" class="form-control" readonly />
+                </div>
                 <span asp-validation-for="SalaryMonth" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="SalaryYear" class="control-label"></label>
-                <select asp-for="SalaryYear" class="form-control">
-                    @{
-                        var currentYear = DateTime.Now.Year;
-                        for (int i = 2021; i <= currentYear; i++)
-                        {
-                            <option value="@i">@i</option>
-                        }
-                    }
-                </select>
+                <div class="input-group">
+                    <input asp-for="SalaryYear" class="form-control" readonly />
+                </div>
                 <span asp-validation-for="SalaryYear" class="text-danger"></span>
             </div>
             <br />
@@ -133,6 +147,14 @@
 
     <script>
         $(document).ready(function () {
+            function convertEmptyFieldsToZero() {
+                $("input").each(function () {
+                    if ($(this).val().trim() === "") {
+                        $(this).val(0); // Convert empty input to 0
+                    }
+                });
+            }
+
             function calculateTotalSalary() {
                 var baseSalary = parseFloat($("input[name='BaseSalary']").val()) || 0;
                 var allowances = parseFloat($("input[name='Allowances']").val()) || 0;
@@ -144,6 +166,10 @@
 
             $("input[name='BaseSalary'], input[name='Allowances'], input[name='Bonus'], input[name='Deductions']").on('input', function () {
                 calculateTotalSalary();
+            });
+
+            $("form").on('submit', function () {
+                convertEmptyFieldsToZero(); // Convert all empty fields to 0 before submitting the form
             });
         });
     </script>

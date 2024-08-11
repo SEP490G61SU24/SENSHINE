@@ -3,7 +3,6 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Text;
 using Web.Models;
-using API.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Web.Controllers
@@ -67,6 +66,8 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateRoom(RoomViewModel room)
         {
+            HttpResponseMessage response1 = _client.GetAsync(_client.BaseAddress + "/Branch/GetAll").Result;
+            var branches = response1.Content.ReadFromJsonAsync<IEnumerable<BranchViewModel>>().Result;
             if (ModelState.IsValid)
             {
                 var json = JsonConvert.SerializeObject(room);
@@ -80,11 +81,14 @@ namespace Web.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Error");
+                    ModelState.AddModelError(string.Empty, "Nhập tên chi nhánh");
+
                     return View(room);
                 }
+
             }
 
+            ViewBag.Spas = new SelectList(branches, "Id", "SpaName");
             return View(room);
         }
 
@@ -121,6 +125,17 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateRoom(RoomViewModel room)
         {
+            HttpResponseMessage response1 = _client.GetAsync(_client.BaseAddress + "/Branch/GetAll").Result;
+            if (response1.IsSuccessStatusCode)
+            {
+                var branches = response1.Content.ReadFromJsonAsync<IEnumerable<BranchViewModel>>().Result;
+                ViewBag.Spas = new SelectList(branches, "Id", "SpaName");
+            }
+            else
+            {
+                Console.WriteLine("Error");
+            }
+
             if (ModelState.IsValid)
             {
                 var json = JsonConvert.SerializeObject(room);

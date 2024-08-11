@@ -2,13 +2,7 @@
 using Newtonsoft.Json;
 using Web.Models;
 using System.Text;
-using API.Models;
-using API.Ultils;
-using System.Net.Http;
-using System.Drawing.Printing;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using AutoMapper.Configuration.Annotations;
-using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using Microsoft.IdentityModel.Tokens;
 using API.Dtos;
@@ -188,27 +182,8 @@ namespace Web.Controllers
                 }
                 else
                 {
-                    var response1 = _client.GetAsync($"http://localhost:5297/api/user/byRole/5").Result;
-                    var response2 = _client.GetAsync($"http://localhost:5297/api/Combo/GetAllCombo").Result;
-                    if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode)
-                    {
-                        var users = response1.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
-                        foreach (var user in users)
-                        {
-                            user.FullName = string.Join(" ", user.FirstName ?? "", user.MidName ?? "", user.LastName ?? "").Trim();
-                            user.FullName = string.Join(", ", user.FullName ?? "", user.Phone ?? "").Trim();
-                        }
-                        ViewBag.Users = new SelectList(users, "Id", "FullName");
-                        var combos = response2.Content.ReadFromJsonAsync<IEnumerable<ComboCardViewModel>>().Result;
-                        foreach (var combo in combos)
-                        {
-                            string formattedNumber = string.Format("{0:N0}", combo.SalePrice);
-                            combo.SalePriceString = formattedNumber + " VNĐ";
-                        }
-                        ViewBag.Combos = combos;
-                        ModelState.AddModelError(string.Empty, "Error");
-                        return View(card);
-                    }
+                    ModelState.AddModelError(string.Empty, "Error");
+                    return View(card);
                 }
             }
 
