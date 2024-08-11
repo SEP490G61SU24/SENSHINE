@@ -78,11 +78,12 @@
                                     <tr>
                                         <td></td>
                                         <td>@item.EmployeeName</td>
-                                        <td>@item.BaseSalary.ToString("N0")</td>
-                                        <td>@item.Allowances.ToString("N0")</td>
-                                        <td>@item.Bonus.ToString("N0")</td>
-                                        <td>@item.Deductions.ToString("N0")</td>
-                                        <td>@item.TotalSalary.ToString("N0")</td>
+                                        <td>@string.Format("{0:N0}", item.BaseSalary)</td>
+                                        <td>@string.Format("{0:N0}", item.Allowances)</td>
+                                        <td>@string.Format("{0:N0}", item.Bonus)</td>
+                                        <td>@string.Format("{0:N0}", item.Deductions)</td>
+                                        <td>@string.Format("{0:N0}", item.TotalSalary)</td>
+
                                         <td>@item.SalaryMonth</td>
                                         <td>@item.SalaryYear</td>
                                         <td>
