@@ -8,13 +8,9 @@ namespace API.Services
         Task<Card> CreateCard(Card card);
         ICollection<Card> GetCards();
         Card GetCard(int id);
-        ICollection<Card> GetCardByNumNamePhone(string input);
-        ICollection<Card> SortCardByDate(string dateFrom, string dateTo);
         Task<Card> UpdateCard(int id, Card card);
         Task<Card> ActiveDeactiveCard(int id);
         bool CardExist(int id);
-        bool CardExistByNumNamePhone(string input);
-        bool CardExistByDate(string dateFrom, string dateTo);
         ICollection<CardCombo> GetCardComboByCard(int id);
         CardCombo GetCardCombo(int id);
         Task<CardCombo> CreateCardCombo(CardCombo cardCombo);

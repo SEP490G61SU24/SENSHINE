@@ -71,34 +71,6 @@ namespace API.Controllers
             return Ok(card);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetByNumNamePhone(string input)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            if (!_cardService.CardExistByNumNamePhone(input))
-                return NotFound();
-
-            var cards = _mapper.Map<List<CardDTO>>(_cardService.GetCardByNumNamePhone(input));
-
-            return Ok(cards);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> SortByDate(string dateFrom, string dateTo)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            if (!_cardService.CardExistByDate(dateFrom, dateTo))
-                return NotFound();
-
-            var cards = _mapper.Map<List<CardDTO>>(_cardService.SortCardByDate(dateFrom, dateTo));
-
-            return Ok(cards);
-        }
-
         [HttpPut]
         public async Task<IActionResult> Update(int id, [FromBody] CardDTO cardDTO)
         {
