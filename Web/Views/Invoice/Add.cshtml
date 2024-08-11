@@ -1,0 +1,420 @@
+﻿@model API.Dtos.InvoiceDTO
+
+@{
+    ViewData["Title"] = "Thêm mới hóa đơn";
+    var spas = ViewBag.Spas as List<BranchViewModel> ?? new List<BranchViewModel>();
+    var promotions = ViewBag.Promotions as List<PromotionViewModel> ?? new List<PromotionViewModel>();
+    var cards = ViewBag.Cards as List<CardViewModel> ?? new List<CardViewModel>();
+    var combos = ViewBag.Combos as List<ComboViewModel> ?? new List<ComboViewModel>();
+    var services = ViewBag.Services as List<ServiceViewModel> ?? new List<ServiceViewModel>();
+}
+
+@section Styles {
+    <!-- Include CSS files here -->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/themify.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/flag-icon.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/feather-icon.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
+    <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    
+
+}
+<style>
+    .custom-select-wrapper {
+        position: relative;
+    }
+
+    .custom-select {
+        cursor: pointer;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 0.25rem;
+        background-color: #fff;
+        display: flex;
+        align-items: center;
+        
+        min-height: 2.5rem;
+    }
+
+        .custom-select::after {
+            content: "\f0d7"; 
+            font-family: 'FontAwesome';
+            font-size: 1rem;
+            color: #333;
+        }
+
+    .custom-options {
+        display: none;
+        position: absolute;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 0.25rem;
+        z-index: 1000;
+        max-height: 200px;
+        overflow-y: auto;
+        width: 100%;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+        .custom-options.show {
+            display: block;
+        }
+
+        .custom-options .combo-option, .custom-options .service-option {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+        }
+
+            .custom-options .combo-option:last-child, .custom-options .service-option:last-child {
+                border-bottom: none;
+            }
+
+        .custom-options label {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            margin-right: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .custom-options input[type="checkbox"] {
+            margin-right: 0.5rem;
+            accent-color: #007bff; 
+        }
+
+        .custom-options .combo-quantity, .custom-options .service-quantity {
+            width: 60px;
+            margin-left: 0.5rem;
+            text-align: center;
+        }
+
+    .custom-select button {
+        margin-right: 0.5rem;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+        cursor: pointer;
+    }
+
+        .custom-select button:hover {
+            background-color: #0056b3;
+        }
+
+    .form-control:readonly {
+        background-color: #e9ecef;
+    }
+</style>
+
+
+
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" action="/invoice/add" class="row g-3 needs-validation" novalidate>
+            <div class="col-md-4 position-relative">
+                <label class="form-label" for="SpaId">Spa</label>
+                <select class="form-select" name="SpaId" id="SpaId" required>
+                    <option selected disabled value="">Select Spa...</option>
+                    @foreach (var spa in spas)
+                    {
+                        <option value="@spa.Id">@spa.SpaName </option>
+                    }
+                </select>
+                <div class="invalid-tooltip">Select a Spa!</div>
+            </div>
+
+            <div class="col-md-4 position-relative">
+                <label class="form-label" for="CustomerId">Customer</label>
+                <select class="form-select select2" name="CustomerId" id="CustomerId" required>
+                    <option selected disabled value="">Select Customer...</option>
+                </select>
+                <div class="invalid-tooltip">Select a Customer!</div>
+            </div>
+
+
+            <div class="col-md-4 position-relative">
+                <label class="form-label" for="PromotionId">Promotion</label>
+                <select class="form-select" name="PromotionId" id="PromotionId">
+                    <option selected disabled value="">Select Promotion...</option>
+                    @foreach (var promotion in promotions)
+                    {
+                        <option value="@promotion.Id">@promotion.PromotionName</option>
+                    }
+                </select>
+                <div class="invalid-tooltip">Select a Promotion!</div>
+            </div>
+
+            <div class="col-md-4 position-relative">
+                <label class="form-label" for="Amount">Amount</label>
+                <input class="form-control" name="Amount" id="Amount" type="number" step="0.01" placeholder="Total Amount" required readonly>
+                <div class="invalid-tooltip">Enter a valid amount!</div>
+            </div>
+
+            <div class="col-md-4 position-relative">
+                <label class="form-label" for="InvoiceDate">Invoice Date</label>
+                <input class="form-control" name="InvoiceDate" id="InvoiceDate" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" required>
+                <div class="invalid-tooltip">Select an invoice date!</div>
+            </div>
+
+            <div class="col-md-4 position-relative">
+                <label class="form-label" for="Status">Trạng Thái</label>
+                <select class="form-select" name="Status" id="Status" required>
+                    <option selected disabled value="">Chọn trạng thái...</option>
+                    <option value="Pending">Đang chờ</option>
+                    <option value="Paid">Đã thanh toán</option>
+                    <option value="Cancelled">Đã hủy</option>
+                </select>
+                <div class="invalid-tooltip">Chọn trạng thái hóa đơn.</div>
+            </div>
+
+            <div class="col-md-12 position-relative">
+                <label class="form-label" for="Description">Description</label>
+                <textarea class="form-control" name="Description" id="Description" placeholder="Enter Description"></textarea>
+            </div>
+
+            <!-- Custom Select for Cards -->
+            <div class="col-md-4 position-relative">
+                <label class="form-label" for="CardIds">Cards</label>
+                <div class="custom-select-wrapper">
+                    <div id="customSelectCards" class="custom-select">Select Cards...</div>
+                    <div id="customOptionsCards" class="custom-options">
+                        @foreach (var card in cards)
+                        {
+                            <label><input type="checkbox" value="@card.Id" > @card.CardNumber </label>
+                        }
+                    </div>
+                    <input type="hidden" id="CardIds" name="CardIds">
+                </div>
+            </div>
+
+            <!-- Custom Select for Combos -->
+            <div class="col-md-4 position-relative">
+                <label class="form-label" for="ComboIds">Combos</label>
+                <div class="custom-select-wrapper">
+                    <div id="customSelectCombos" class="custom-select">Select Combos...</div>
+                    <div id="customOptionsCombos" class="custom-options">
+                        @foreach (var combo in combos)
+                        {
+                            <div class="combo-option">
+                                <label>
+                                    <input type="checkbox" value="@combo.Id" data-price="@combo.SalePrice" class="combo-checkbox">
+                                    @combo.Name
+                                </label>
+                                <input type="number" class="combo-quantity" data-id="@combo.Id" value="0" min="0">
+                            </div>
+                        }
+                    </div>
+                    <input type="hidden" id="ComboIds" name="ComboIds">
+                </div>
+            </div>
+
+
+            <!-- Custom Select for Services -->
+            <div class="col-md-4 position-relative">
+                <label class="form-label" for="ServiceIds">Services</label>
+                <div class="custom-select-wrapper">
+                    <div id="customSelectServices" class="custom-select">Select Services...</div>
+                    <div id="customOptionsServices" class="custom-options">
+                        @foreach (var service in services)
+                        {
+                            <div class="service-option">
+                                <label>
+                                    <input type="checkbox" value="@service.Id" data-price="@service.Amount" class="service-checkbox">
+                                    @service.ServiceName
+                                </label>
+                                <input type="number" class="service-quantity" data-id="@service.Id" value="0" min="0">
+                            </div>
+                        }
+                    </div>
+                    <input type="hidden" id="ServiceIds" name="ServiceIds">
+                </div>
+            </div>
+
+
+
+            <div class="col-12">
+                <button class="btn btn-primary" type="submit">Add Invoice</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Include JS files here -->
+    <script src="~/assets/js/jquery.min.js"></script>
+    <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
+    <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
+    <script src="~/assets/js/scrollbar/simplebar.js"></script>
+    <script src="~/assets/js/scrollbar/custom.js"></script>
+    <script src="~/assets/js/config.js"></script>
+    <script src="~/assets/js/sidebar-menu.js"></script>
+    <script src="~/assets/js/sidebar-pin.js"></script>
+    <script src="~/assets/js/slick/slick.min.js"></script>
+    <script src="~/assets/js/slick/slick.js"></script>
+    <script src="~/assets/js/header-slick.js"></script>
+    <script src="~/assets/js/form-validation-custom.js"></script>
+    <script src="~/assets/js/height-equal.js"></script>
+    <script src="~/assets/js/script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            function setupCustomSelect(selectId, optionsId, hiddenInputId) {
+                const customSelect = document.getElementById(selectId);
+                const customOptions = document.getElementById(optionsId);
+                const hiddenInput = document.getElementById(hiddenInputId);
+                const amountInput = document.getElementById('Amount');
+
+                let selectedItems = [];
+                let totalPrice = 0;
+
+                // Toggle custom options visibility
+                customSelect.addEventListener('click', () => {
+                    customOptions.classList.toggle('show');
+                });
+
+                // Handle checkbox and quantity changes
+                customOptions.addEventListener('change', function (e) {
+                    if (e.target.tagName === 'INPUT') {
+                        if (e.target.type === 'checkbox') {
+                            updateSelectedItems(e.target);
+                        } else if (e.target.classList.contains('service-quantity') || e.target.classList.contains('combo-quantity')) {
+                            updateTotalPrice();
+                        }
+                    }
+                });
+
+                // Update selected items based on checkbox
+                function updateSelectedItems(checkbox) {
+                    const id = checkbox.value;
+                    const text = checkbox.nextSibling.textContent.trim();
+                    const price = parseFloat(checkbox.getAttribute('data-price'));
+                    const quantityInput = checkbox.closest('.service-option')?.querySelector('.service-quantity') ||
+                        checkbox.closest('.combo-option')?.querySelector('.combo-quantity');
+                    const quantity = parseInt(quantityInput ? quantityInput.value : 1, 10);
+
+                    const index = selectedItems.findIndex(item => item.id === id);
+
+                    if (checkbox.checked) {
+                        if (index === -1) {
+                            selectedItems.push({ id, text, price, quantity });
+                        } else {
+                            selectedItems[index].quantity = quantity;
+                        }
+                    } else {
+                        if (index !== -1) {
+                            selectedItems.splice(index, 1);
+                        }
+                    }
+                    updateCustomSelect();
+                }
+
+                // Update the displayed custom select and hidden input
+                function updateCustomSelect() {
+                    customSelect.innerHTML = '';
+                    selectedItems.forEach(item => {
+                        const button = document.createElement('button');
+                        button.type = 'button';
+                        button.className = 'btn btn-primary me-2';
+                        button.textContent = `${item.text} (x${item.quantity})`;
+                        button.dataset.id = item.id;
+                        customSelect.appendChild(button);
+                    });
+
+                    if (selectedItems.length === 0) {
+                        customSelect.appendChild(document.createTextNode('Select...'));
+                    }
+
+                    hiddenInput.value = selectedItems.map(item => item.id).join(',');
+                    updateTotalPrice();
+                }
+
+                // Calculate total price based on selected quantities
+                function updateTotalPrice() {
+                    totalPrice = 0;
+
+                    // Calculate for services
+                    document.querySelectorAll('.custom-options .service-option input.service-quantity').forEach(input => {
+                        const id = input.getAttribute('data-id');
+                        const price = parseFloat(document.querySelector(`input.service-checkbox[value="${id}"]`)?.getAttribute('data-price')) || 0;
+                        const quantity = parseInt(input.value, 10) || 0;
+                        totalPrice += price * quantity;
+                    });
+
+                    // Calculate for combos
+                    document.querySelectorAll('.custom-options .combo-option input.combo-quantity').forEach(input => {
+                        const id = input.getAttribute('data-id');
+                        const price = parseFloat(document.querySelector(`input.combo-checkbox[value="${id}"]`)?.getAttribute('data-price')) || 0;
+                        const quantity = parseInt(input.value, 10) || 0;
+                        totalPrice += price * quantity;
+                    });
+
+                    amountInput.value = totalPrice.toFixed(2);
+                }
+
+                // Initialize the custom select for this section
+                updateCustomSelect();
+            }
+
+            // Setup custom selects
+            setupCustomSelect('customSelectCombos', 'customOptionsCombos', 'ComboIds');
+            setupCustomSelect('customSelectServices', 'customOptionsServices', 'ServiceIds');
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+           
+            $('#CustomerId').select2({
+                placeholder: 'Select Customer...',
+                allowClear: true,
+                minimumInputLength: 1,
+                ajax: {
+                    url: 'http://localhost:5297/api/Employee/GetCustomer',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            name: params.term 
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: data.map(function (customer) {
+                                return {
+                                    id: customer.id,
+                                    text: `${customer.firstName} ${customer.midName || ''} ${customer.lastName}`.trim()
+                                };
+                            })
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+            // Handle the change event when a customer is selected
+            $('#CustomerId').on('select2:select', function (e) {
+                var selectedCustomerId = $(this).val();
+                console.log('Selected Customer ID:', selectedCustomerId);
+               
+            });
+        });
+
+    </script>
+
+}

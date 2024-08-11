@@ -340,7 +340,11 @@ namespace API.Models
 
                 entity.Property(e => e.Amount).HasColumnType("decimal(15, 2)");
 
-                entity.Property(e => e.InvoiceDate)
+				entity.Property(e => e.Status)
+		              .HasMaxLength(50)
+		            .HasDefaultValue("Pending");
+
+				entity.Property(e => e.InvoiceDate)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
 
