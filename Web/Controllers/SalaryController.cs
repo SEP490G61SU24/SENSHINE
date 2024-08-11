@@ -96,8 +96,26 @@ namespace Web.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Error");
-                    return View(salary);
+                    ModelState.AddModelError(string.Empty, "Nhân viên này đã có lương tháng " + salary.SalaryMonth + " năm " + salary.SalaryYear);
+                    var response1 = _client.GetAsync($"http://localhost:5297/api/user/byRole/3").Result;
+                    var response2 = _client.GetAsync($"http://localhost:5297/api/user/byRole/4").Result;
+                    if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode)
+                    {
+                        var users1 = response1.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
+                        var users2 = response2.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
+                        var combinedUsers = users1.Concat(users2);
+                        foreach (var user in combinedUsers)
+                        {
+                            user.FullName = string.Join(" ", user.FirstName ?? "", user.MidName ?? "", user.LastName ?? "").Trim();
+                            user.FullName = string.Join(", ", user.FullName ?? "", user.Phone ?? "").Trim();
+                        }
+                        ViewBag.Users = new SelectList(combinedUsers, "Id", "FullName");
+                        return View(salary);
+                    }
+                    else
+                    {
+                        return View("Error");
+                    }
                 }
             }
 

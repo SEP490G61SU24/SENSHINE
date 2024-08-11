@@ -36,6 +36,16 @@ namespace API.Services.Impl
             return _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices).Where(c => c.Id == id).FirstOrDefault();
         }
 
+        public ICollection<Card> GetCardByNumNamePhone(string input)
+        {
+            input = input.ToLower();
+            var cards = _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices);
+
+            return cards.Where(c => c.CardNumber.ToLower().Contains(input)
+                                 || (c.Customer.FirstName + " " + c.Customer.MidName + " " + c.Customer.LastName).ToLower().Contains(input)
+                                 || c.Customer.Phone.Contains(input)).ToList();
+        }
+
         public async Task<Card> UpdateCard(int id, Card card)
         {
             var cardUpdate = await _context.Cards.FirstOrDefaultAsync(c => c.Id == id);
@@ -65,6 +75,16 @@ namespace API.Services.Impl
         public bool CardExist(int id)
         {
             return _context.Cards.Any(c => c.Id == id);
+        }
+
+        public bool CardExistByNumNamePhone(string input)
+        {
+            input = input.ToLower();
+            var cards = _context.Cards.Include(c => c.Customer);
+
+            return cards.Any(c => c.CardNumber.ToLower().Contains(input)
+                                 || (c.Customer.FirstName + " " + c.Customer.MidName + " " + c.Customer.LastName).ToLower().Contains(input)
+                                 || c.Customer.Phone.Contains(input));
         }
 
         public ICollection<CardCombo> GetCardComboByCard(int id)

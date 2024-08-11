@@ -155,14 +155,12 @@ namespace Web.Controllers
                 {
                     if (string.IsNullOrEmpty(selectedCardIds) || selectedCardIds == "[]")
                     {
-                        Console.WriteLine("null " + selectedCardIds);
                         return RedirectToAction("ListCard");
                     }
                     else
                     {
-                        Console.WriteLine("k null " + selectedCardIds);
-                        HttpResponseMessage response3 = _client.GetAsync(_client.BaseAddress + "/Card/GetByNumNamePhone?input=" + card.CardNumber).Result;
-                        string data = response3.Content.ReadAsStringAsync().Result;
+                        HttpResponseMessage response1 = _client.GetAsync(_client.BaseAddress + "/Card/GetByNumNamePhone?input=" + card.CardNumber).Result;
+                        string data = response1.Content.ReadAsStringAsync().Result;
                         List<CardViewModel> cardCreated = JsonConvert.DeserializeObject<List<CardViewModel>>(data);
                         int idd = 0;
                         foreach (var cct in cardCreated)
@@ -190,8 +188,27 @@ namespace Web.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Error");
-                    return View(card);
+                    var response1 = _client.GetAsync($"http://localhost:5297/api/user/byRole/5").Result;
+                    var response2 = _client.GetAsync($"http://localhost:5297/api/Combo/GetAllCombo").Result;
+                    if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode)
+                    {
+                        var users = response1.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
+                        foreach (var user in users)
+                        {
+                            user.FullName = string.Join(" ", user.FirstName ?? "", user.MidName ?? "", user.LastName ?? "").Trim();
+                            user.FullName = string.Join(", ", user.FullName ?? "", user.Phone ?? "").Trim();
+                        }
+                        ViewBag.Users = new SelectList(users, "Id", "FullName");
+                        var combos = response2.Content.ReadFromJsonAsync<IEnumerable<ComboCardViewModel>>().Result;
+                        foreach (var combo in combos)
+                        {
+                            string formattedNumber = string.Format("{0:N0}", combo.SalePrice);
+                            combo.SalePriceString = formattedNumber + " VNĐ";
+                        }
+                        ViewBag.Combos = combos;
+                        ModelState.AddModelError(string.Empty, "Error");
+                        return View(card);
+                    }
                 }
             }
 
@@ -203,20 +220,20 @@ namespace Web.Controllers
         {
             CardCreateModel card = null;
             HttpResponseMessage response = await _client.GetAsync(_client.BaseAddress + "/Card/GetById?id=" + id);
-            var response2 = _client.GetAsync($"http://localhost:5297/api/user/byRole/5").Result;
-            var response3 = _client.GetAsync($"http://localhost:5297/api/Combo/GetAllCombo").Result;
-            if (response.IsSuccessStatusCode && response2.IsSuccessStatusCode && response3.IsSuccessStatusCode)
+            var response1 = _client.GetAsync($"http://localhost:5297/api/user/byRole/5").Result;
+            var response2 = _client.GetAsync($"http://localhost:5297/api/Combo/GetAllCombo").Result;
+            if (response.IsSuccessStatusCode && response1.IsSuccessStatusCode && response2.IsSuccessStatusCode)
             {
                 string data = await response.Content.ReadAsStringAsync();
                 card = JsonConvert.DeserializeObject<CardCreateModel>(data);
-                var users = response2.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
+                var users = response1.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
                 foreach (var user in users)
                 {
                     user.FullName = string.Join(" ", user.FirstName ?? "", user.MidName ?? "", user.LastName ?? "").Trim();
                     user.FullName = string.Join(", ", user.FullName ?? "", user.Phone ?? "").Trim();
                 }
                 ViewBag.Users = new SelectList(users, "Id", "FullName");
-                var combos = response3.Content.ReadFromJsonAsync<IEnumerable<ComboCardViewModel>>().Result;
+                var combos = response2.Content.ReadFromJsonAsync<IEnumerable<ComboCardViewModel>>().Result;
                 foreach (var combo in combos)
                 {
                     string formattedNumber = string.Format("{0:N0}", combo.SalePrice);
@@ -254,8 +271,8 @@ namespace Web.Controllers
                     else
                     {
                         Console.WriteLine("k null " + selectedCardIds);
-                        HttpResponseMessage response3 = _client.GetAsync(_client.BaseAddress + "/Card/GetByNumNamePhone?input=" + card.CardNumber).Result;
-                        string data = response3.Content.ReadAsStringAsync().Result;
+                        HttpResponseMessage response1 = _client.GetAsync(_client.BaseAddress + "/Card/GetByNumNamePhone?input=" + card.CardNumber).Result;
+                        string data = response1.Content.ReadAsStringAsync().Result;
                         List<CardViewModel> cardUpdated = JsonConvert.DeserializeObject<List<CardViewModel>>(data);
                         int idd = 0;
                         foreach (var cct in cardUpdated)
@@ -283,13 +300,27 @@ namespace Web.Controllers
                 }
                 else
                 {
-                    // Log detailed error information
-                    string errorResponse = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine("Error Response Content: " + errorResponse);
-
-                    Console.WriteLine("Cannot update card");
-                    ModelState.AddModelError(string.Empty, "Có lỗi xảy ra khi cập nhật thẻ");
-                    return View(card);
+                    var response1 = _client.GetAsync($"http://localhost:5297/api/user/byRole/5").Result;
+                    var response2 = _client.GetAsync($"http://localhost:5297/api/Combo/GetAllCombo").Result;
+                    if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode)
+                    {
+                        var users = response1.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
+                        foreach (var user in users)
+                        {
+                            user.FullName = string.Join(" ", user.FirstName ?? "", user.MidName ?? "", user.LastName ?? "").Trim();
+                            user.FullName = string.Join(", ", user.FullName ?? "", user.Phone ?? "").Trim();
+                        }
+                        ViewBag.Users = new SelectList(users, "Id", "FullName");
+                        var combos = response2.Content.ReadFromJsonAsync<IEnumerable<ComboCardViewModel>>().Result;
+                        foreach (var combo in combos)
+                        {
+                            string formattedNumber = string.Format("{0:N0}", combo.SalePrice);
+                            combo.SalePriceString = formattedNumber + " VNĐ";
+                        }
+                        ViewBag.Combos = combos;
+                        ModelState.AddModelError(string.Empty, "Error");
+                        return View(card);
+                    }
                 }
             }
 

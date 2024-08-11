@@ -1,6 +1,7 @@
 ﻿using API.Dtos;
 using API.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace API.Services.Impl
 {
@@ -19,6 +20,18 @@ namespace API.Services.Impl
             await _context.SaveChangesAsync();
 
             return salary;
+        }
+
+        public async Task<bool> SalaryExistByEMY(Salary salary)
+        {
+            if (_context.Salaries.Any(s => s.EmployeeId == salary.EmployeeId && s.SalaryMonth == salary.SalaryMonth && s.SalaryYear == salary.SalaryYear))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public ICollection<Salary> GetSalaries()

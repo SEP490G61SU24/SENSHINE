@@ -27,9 +27,16 @@ namespace API.Controllers
             try
             {
                 var salaryMap = _mapper.Map<Salary>(salaryDTO);
-                var createdSalary = await _salaryService.CreateSalary(salaryMap);
+                if (await _salaryService.SalaryExistByEMY(salaryMap))
+                {
+                    return StatusCode(500, $"Nhân viên này đã có lương tháng {salaryMap.SalaryMonth} năm {salaryMap.SalaryYear}");
+                }
+                else
+                {
+                    var createdSalary = await _salaryService.CreateSalary(salaryMap);
 
-                return Ok($"Tạo thành công");
+                    return Ok($"Tạo thành công");
+                }
             }
             catch (Exception ex)
             {
