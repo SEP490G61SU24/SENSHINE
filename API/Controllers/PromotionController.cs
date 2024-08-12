@@ -69,7 +69,7 @@ namespace API.Controllers
 
                 return Ok(promotion);
             }
-
+        
 
         [HttpGet("GetPromotionsByFilter")]
         public async Task<ActionResult<IEnumerable<PromotionDTORespond>>> GetPromotionsByFilter(

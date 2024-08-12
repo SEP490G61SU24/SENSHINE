@@ -75,5 +75,28 @@ namespace API.Services.Impl
         {
             return _context.Users.Any(e => e.Id == id);
         }
-    }
+
+        public ICollection<User> GetCustomer(string name)
+        {
+            var customersQuery = _context.Users
+             .Where(c => c.Roles.Any(r => r.RoleName == "CUSTOMER"))
+             .AsQueryable();
+
+            // If name is provided, filter by FirstName, LastName, or MidName
+            if (!string.IsNullOrEmpty(name))
+            {
+                customersQuery = customersQuery.Where(c =>
+                    c.FirstName.Contains(name) ||
+                    c.LastName.Contains(name) ||
+                    c.MidName.Contains(name)
+                );
+            }
+
+            // Execute the query and return the results
+            return customersQuery.ToList();
+
+        }
+
+
+        }
 }
