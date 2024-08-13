@@ -33,12 +33,20 @@ namespace API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var bed = _mapper.Map<Bed>(bedDTO);
-            var addedBed = await _bedService.AddBed(bed);
-            var addedBedDTO = _mapper.Map<BedDTO>(addedBed);
+            try
+            {
+                var bed = _mapper.Map<Bed>(bedDTO);
+                var addedBed = await _bedService.AddBed(bed);
+                var addedBedDTO = _mapper.Map<BedDTO>(addedBed);
 
-            return CreatedAtAction(nameof(GetBedById), new { id = addedBedDTO.Id }, addedBedDTO);
+                return CreatedAtAction(nameof(GetBedById), new { id = addedBedDTO.Id }, addedBedDTO);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message); // Return a 400 status code with the error message
+            }
         }
+
 
         [HttpPut]
         [Route("/api/[controller]/[action]/{id}")]
@@ -49,15 +57,22 @@ namespace API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var updatedBed = await _bedService.UpdateBed(id, bedDTO.BedNumber);
-            if (updatedBed == null)
+            try
             {
-                return NotFound();
-            }
+                var updatedBedDTO = await _bedService.UpdateBedAsync(id, bedDTO);
+                if (updatedBedDTO == null)
+                {
+                    return NotFound();
+                }
 
-            var updatedBedDTO = _mapper.Map<BedDTO>(updatedBed);
-            return Ok(updatedBedDTO);
+                return Ok(updatedBedDTO);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBed(int id)
