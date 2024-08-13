@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json.Linq;
 using Microsoft.IdentityModel.Tokens;
 using API.Dtos;
+using API.Models;
 
 namespace Web.Controllers
 {
@@ -89,6 +90,11 @@ namespace Web.Controllers
                 string data = await response.Content.ReadAsStringAsync();
                 string data1 = await response1.Content.ReadAsStringAsync();
                 card = JsonConvert.DeserializeObject<CardViewModel>(data);
+                HttpResponseMessage response4 = await client.GetAsync($"{apiUrl}/Branch/GetById?id=" + card.BranchId);
+                string data4 = await response4.Content.ReadAsStringAsync();
+                var branchName = JsonConvert.DeserializeObject<BranchViewModel>(data4).SpaName;
+                ViewBag.BranchName = branchName;
+
                 cardCombos = JsonConvert.DeserializeObject<List<CardComboViewModel>>(data1);
 
                 HttpResponseMessage response2 = await client.GetAsync($"{apiUrl}/user/" + card.CustomerId);
@@ -97,6 +103,7 @@ namespace Web.Controllers
                     string response2Body = response2.Content.ReadAsStringAsync().Result;
                     JObject json2 = JObject.Parse(response2Body);
                     card.CustomerName = json2["firstName"].ToString() + " " + json2["midName"].ToString() + " " + json2["lastName"].ToString();
+                    card.CustomerPhone = json2["phone"].ToString();
                 }
                 else
                 {
