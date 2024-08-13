@@ -42,7 +42,7 @@
         <div class="col-md-8 offset-md-2">
             <form asp-action="CreateAppointment">
                 <div class="form-group">
-                    <label asp-for="CustomerId" class="control-label">Customer</label>
+                    <label asp-for="CustomerId" class="control-label">Tên Khách Hàng</label>
                     <select asp-for="CustomerId" class="form-control" id="customerSelect">
                         <option value="">Select Customer</option>
                         @if (customers != null)
@@ -56,7 +56,7 @@
                     <span asp-validation-for="CustomerId" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="EmployeeId" class="control-label">Employee</label>
+                    <label asp-for="EmployeeId" class="control-label">Nhân Viên Phục Vụ</label>
                     <select asp-for="EmployeeId" class="form-control" id="employeeSelect">
                         <option value="">Select Employee</option>
 
@@ -71,12 +71,12 @@
                     <span asp-validation-for="EmployeeId" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="AppointmentDate" class="control-label">Appointment Date</label>
+                    <label asp-for="AppointmentDate" class="control-label">Thời Gian Cuộc Hẹn</label>
                     <input asp-for="AppointmentDate" class="form-control" type="datetime-local" />
                     <span asp-validation-for="AppointmentDate" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="SelectedServiceIds" class="control-label">Services</label>
+                    <label asp-for="SelectedServiceIds" class="control-label">Dịch Vụ Sử Dụng</label>
                     <select asp-for="SelectedServiceIds" class="form-control" multiple id="serviceSelect">
                         @if (services != null)
                         {
@@ -89,7 +89,7 @@
                     <span asp-validation-for="SelectedServiceIds" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="SelectedProductIds" class="control-label">Products</label>
+                    <label asp-for="SelectedProductIds" class="control-label">Sản Phẩm Sử Dụng</label>
                     <select asp-for="SelectedProductIds" class="form-control" multiple id="productSelect">
                         @if (products != null)
                         {
@@ -101,7 +101,7 @@
                     </select>
                     <span asp-validation-for="SelectedProductIds" class="text-danger"></span>
                 </div>
-
+                <div class="row">
                 <div class="col-md-3 position-relative">
                     <label class="form-label" for="provinceDropdown">Chọn Phòng Phục Vụ</label>
                     <select class="form-select" name="RoomId" id="provinceDropdown" required="">
@@ -116,9 +116,10 @@
                     </select>
                     <div class="invalid-tooltip">Vui lòng chọn giường phục vụ</div>
                 </div>
+                </div>
 
                 <div class="form-group">
-                    <label asp-for="Status" class="control-label">Status</label>
+                    <label asp-for="Status" class="control-label">Trạng Thái</label>
                     <select asp-for="Status" class="form-control" id="statusSelect">
                         <option value="Cancel">Cancelled</option>
                         <option value="Pending">Pending</option>
@@ -189,7 +190,7 @@
                 if (roomId) {
                     // Gọi API để lấy danh sách giường dựa vào roomId
                     $.ajax({
-                        url: `http://localhost:5297/api/beds/ByRoomId/${roomId}`,  // Sử dụng roomId để gọi API
+                        url: `http://localhost:5297/api/Bed/GetByRoomId/ByRoomId/${roomId}`,  // Sử dụng roomId để gọi API
                         type: 'GET',
                         success: function (beds) {
                             // Làm rỗng danh sách giường và thêm option mặc định
