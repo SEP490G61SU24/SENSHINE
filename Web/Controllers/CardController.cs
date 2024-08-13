@@ -9,29 +9,51 @@ using API.Dtos;
 
 namespace Web.Controllers
 {
-    public class CardController : Controller
+    public class CardController : BaseController
     {
-        Uri baseAddress = new Uri("http://localhost:5297/api");
-        private readonly HttpClient _client;
+        private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _clientFactory;
+        private readonly ILogger<UserController> _logger;
 
-        public CardController()
+        public CardController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<UserController> logger)
+             : base(configuration, clientFactory, logger)
         {
-            _client = new HttpClient();
-            _client.BaseAddress = baseAddress;
+            _configuration = configuration;
+            _clientFactory = clientFactory;
+            _logger = logger;
         }
 
         [HttpGet]
         public async Task<IActionResult> ListCard(string? status)
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             List<CardViewModel> cards = new List<CardViewModel>();
             UserDTO user = new UserDTO();
             BranchViewModel branch = new BranchViewModel();
-            HttpResponseMessage response = _client.GetAsync(_client.BaseAddress + "/Card/GetAll").Result;
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Card/GetAll");
+            int? spaId = 1;
+            var token = HttpContext.Session.GetString("Token");
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                var userProfile = await GetUserProfileAsync(token);
+                if (userProfile != null)
+                {
+                    spaId = userProfile.SpaId;
+                }
+                else
+                {
+                    ViewData["Error"] = "Failed to retrieve user profile.";
+                }
+            }
 
             if (response.IsSuccessStatusCode)
             {
                 string data = response.Content.ReadAsStringAsync().Result;
                 cards = JsonConvert.DeserializeObject<List<CardViewModel>>(data);
+                cards = cards.Where(c => c.BranchId == spaId).ToList();
+
                 if (!status.IsNullOrEmpty())
                 {
                     cards = cards.Where(c => c.Status.Equals(status, StringComparison.OrdinalIgnoreCase)).ToList();
@@ -40,15 +62,11 @@ namespace Web.Controllers
 
             foreach (var card in cards)
             {
-                HttpResponseMessage response1 = _client.GetAsync(_client.BaseAddress + "/user/" + card.CustomerId).Result;
-                HttpResponseMessage response2 = _client.GetAsync(_client.BaseAddress + "/Branch/GetById?id=" + card.BranchId).Result;
+                HttpResponseMessage response1 = await client.GetAsync($"{apiUrl}/user/" + card.CustomerId);
                 string data1 = response1.Content.ReadAsStringAsync().Result;
                 user = JsonConvert.DeserializeObject<UserDTO>(data1);
-                string data2 = response2.Content.ReadAsStringAsync().Result;
-                branch = JsonConvert.DeserializeObject<BranchViewModel>(data2);
                 card.CustomerName = user.FirstName + " " + user.MidName + " " + user.LastName;
                 card.CustomerPhone = user.Phone;
-                card.BranchName = branch.SpaName;
             }
 
             return View(cards);
@@ -57,12 +75,14 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> DetailCard(int id)
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             CardViewModel card = new CardViewModel();
             List<CardComboViewModel> cardCombos = new List<CardComboViewModel>();
             ComboViewModel combo = new ComboViewModel();
 
-            HttpResponseMessage response = await _client.GetAsync(_client.BaseAddress + "/Card/GetById?id=" + id);
-            HttpResponseMessage response1 = await _client.GetAsync(_client.BaseAddress + "/Card/GetCardComboByCard?id=" + id);
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Card/GetById?id=" + id);
+            HttpResponseMessage response1 = await client.GetAsync($"{apiUrl}/Card/GetCardComboByCard?id=" + id);
 
             if (response.IsSuccessStatusCode && response1.IsSuccessStatusCode)
             {
@@ -71,7 +91,7 @@ namespace Web.Controllers
                 card = JsonConvert.DeserializeObject<CardViewModel>(data);
                 cardCombos = JsonConvert.DeserializeObject<List<CardComboViewModel>>(data1);
 
-                HttpResponseMessage response2 = _client.GetAsync(_client.BaseAddress + "/user/" + card.CustomerId).Result;
+                HttpResponseMessage response2 = await client.GetAsync($"{apiUrl}/user/" + card.CustomerId);
                 if (response2.IsSuccessStatusCode)
                 {
                     string response2Body = response2.Content.ReadAsStringAsync().Result;
@@ -84,7 +104,7 @@ namespace Web.Controllers
                 }
                 foreach (var cc in cardCombos)
                 {
-                    HttpResponseMessage response3 = await _client.GetAsync(_client.BaseAddress + "/Combo/GetByID?IdCombo=" + cc.ComboId);
+                    HttpResponseMessage response3 = await client.GetAsync($"{apiUrl}/Combo/GetByID?IdCombo=" + cc.ComboId);
                     string data3 = await response3.Content.ReadAsStringAsync();
                     combo = JsonConvert.DeserializeObject<ComboViewModel>(data3);
                     cc.ComboName = combo.Name;
@@ -101,13 +121,31 @@ namespace Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult CreateCard()
+        public async Task<IActionResult> CreateCard()
         {
-            var response = _client.GetAsync($"http://localhost:5297/api/user/byRole/5").Result;
-            var response2 = _client.GetAsync($"http://localhost:5297/api/Combo/GetAllCombo").Result;
+            int? spaId = 1;
+            var token = HttpContext.Session.GetString("Token");
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                var userProfile = await GetUserProfileAsync(token);
+                if (userProfile != null)
+                {
+                    spaId = userProfile.SpaId;
+                }
+                else
+                {
+                    ViewData["Error"] = "Failed to retrieve user profile.";
+                }
+            }
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
+            var response = await client.GetAsync($"{apiUrl}/user/byRole/5");
+            var response2 = await client.GetAsync($"{apiUrl}/Combo/GetAllCombo");
             if (response.IsSuccessStatusCode && response2.IsSuccessStatusCode)
             {
                 var users = response.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
+                users = users.Where(u => u.SpaId == spaId).ToList();
                 foreach (var user in users)
                 {
                     user.FullName = string.Join(" ", user.FirstName ?? "", user.MidName ?? "", user.LastName ?? "").Trim();
@@ -118,7 +156,7 @@ namespace Web.Controllers
                 foreach (var combo in combos)
                 {
                     string formattedNumber = string.Format("{0:N0}", combo.SalePrice);
-                    combo.SalePriceString = formattedNumber + " VNĐ";
+                    combo.SalePriceString = formattedNumber + " VND";
                 }
                 ViewBag.Combos = combos;
 
@@ -133,17 +171,34 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateCard(CardCreateModel card, string selectedCardIds)
         {
+            int? spaId = 1;
+            var token = HttpContext.Session.GetString("Token");
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                var userProfile = await GetUserProfileAsync(token);
+                if (userProfile != null)
+                {
+                    spaId = userProfile.SpaId;
+                }
+                else
+                {
+                    ViewData["Error"] = "Failed to retrieve user profile.";
+                }
+            }
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             card.Id = 0;
             card.CardNumber = "SenVip" + DateTime.Now.ToString("yyyyMMddHHmmss");
             card.CreateDate = DateTime.Now;
             card.Status = "Active";
-            card.BranchId = 1;
+            card.BranchId = spaId;
 
             if (ModelState.IsValid)
             {
                 var json = JsonConvert.SerializeObject(card);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
-                HttpResponseMessage response = await _client.PostAsync(_client.BaseAddress + "/Card/Create", content);
+                HttpResponseMessage response = await client.PostAsync($"{apiUrl}/Card/Create", content);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -153,7 +208,7 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        HttpResponseMessage response1 = _client.GetAsync(_client.BaseAddress + "/Card/GetByNumNamePhone?input=" + card.CardNumber).Result;
+                        HttpResponseMessage response1 = await client.GetAsync($"{apiUrl}/Card/GetByNumNamePhone?input=" + card.CardNumber);
                         string data = response1.Content.ReadAsStringAsync().Result;
                         List<CardViewModel> cardCreated = JsonConvert.DeserializeObject<List<CardViewModel>>(data);
                         int idd = 0;
@@ -175,7 +230,7 @@ namespace Web.Controllers
                             var json2 = JsonConvert.SerializeObject(cardCombo);
                             Console.WriteLine(json2);
                             var content2 = new StringContent(json2, Encoding.UTF8, "application/json");
-                            HttpResponseMessage response2 = await _client.PostAsync(_client.BaseAddress + "/Card/AddCombo", content2);
+                            HttpResponseMessage response2 = await client.PostAsync($"{apiUrl}/Card/AddCombo", content2);
                         }
                     }
                     return RedirectToAction("ListCard");
@@ -193,15 +248,33 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> UpdateCard(int id, string selectedCardIds)
         {
+            int? spaId = 1;
+            var token = HttpContext.Session.GetString("Token");
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                var userProfile = await GetUserProfileAsync(token);
+                if (userProfile != null)
+                {
+                    spaId = userProfile.SpaId;
+                }
+                else
+                {
+                    ViewData["Error"] = "Failed to retrieve user profile.";
+                }
+            }
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             CardCreateModel card = null;
-            HttpResponseMessage response = await _client.GetAsync(_client.BaseAddress + "/Card/GetById?id=" + id);
-            var response1 = _client.GetAsync($"http://localhost:5297/api/user/byRole/5").Result;
-            var response2 = _client.GetAsync($"http://localhost:5297/api/Combo/GetAllCombo").Result;
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Card/GetById?id=" + id);
+            var response1 = await client.GetAsync($"{apiUrl}/user/byRole/5");
+            var response2 = await client.GetAsync($"{apiUrl}/Combo/GetAllCombo");
             if (response.IsSuccessStatusCode && response1.IsSuccessStatusCode && response2.IsSuccessStatusCode)
             {
                 string data = await response.Content.ReadAsStringAsync();
                 card = JsonConvert.DeserializeObject<CardCreateModel>(data);
                 var users = response1.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
+                users = users.Where(u => u.SpaId == spaId).ToList();
                 foreach (var user in users)
                 {
                     user.FullName = string.Join(" ", user.FirstName ?? "", user.MidName ?? "", user.LastName ?? "").Trim();
@@ -228,13 +301,14 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateCard(CardCreateModel card, string selectedCardIds)
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             if (ModelState.IsValid)
             {
                 var json = JsonConvert.SerializeObject(card);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
-                string requestUrl = _client.BaseAddress + "/Card/Update?id=" + card.Id;
 
-                HttpResponseMessage response = await _client.PutAsync(requestUrl, content);
+                HttpResponseMessage response = await client.PutAsync($"{apiUrl}/Card/Update?id=" + card.Id, content);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -246,7 +320,7 @@ namespace Web.Controllers
                     else
                     {
                         Console.WriteLine("k null " + selectedCardIds);
-                        HttpResponseMessage response1 = _client.GetAsync(_client.BaseAddress + "/Card/GetByNumNamePhone?input=" + card.CardNumber).Result;
+                        HttpResponseMessage response1 = await client.GetAsync($"{apiUrl}/Card/GetByNumNamePhone?input=" + card.CardNumber);
                         string data = response1.Content.ReadAsStringAsync().Result;
                         List<CardViewModel> cardUpdated = JsonConvert.DeserializeObject<List<CardViewModel>>(data);
                         int idd = 0;
@@ -268,15 +342,15 @@ namespace Web.Controllers
                             var json2 = JsonConvert.SerializeObject(cardCombo);
                             Console.WriteLine(json2);
                             var content2 = new StringContent(json2, Encoding.UTF8, "application/json");
-                            HttpResponseMessage response2 = await _client.PostAsync(_client.BaseAddress + "/Card/AddCombo", content2);
+                            HttpResponseMessage response2 = await client.PostAsync($"{apiUrl}/Card/AddCombo", content2);
                         }
                     }
                     return RedirectToAction("ListCard");
                 }
                 else
                 {
-                    var response1 = _client.GetAsync($"http://localhost:5297/api/user/byRole/5").Result;
-                    var response2 = _client.GetAsync($"http://localhost:5297/api/Combo/GetAllCombo").Result;
+                    var response1 = await client.GetAsync($"{apiUrl}/user/byRole/5");
+                    var response2 = await client.GetAsync($"{apiUrl}/Combo/GetAllCombo");
                     if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode)
                     {
                         var users = response1.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
@@ -305,9 +379,11 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ChangeStateCard(int id)
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             var json = JsonConvert.SerializeObject(id);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            HttpResponseMessage response = await _client.PutAsync(_client.BaseAddress + "/Card/ActiveDeactive?id=" + id, content);
+            HttpResponseMessage response = await client.PutAsync($"{apiUrl}/Card/ActiveDeactive?id=" + id, content);
 
             if (response.IsSuccessStatusCode)
             {

@@ -59,5 +59,11 @@ namespace API.Services.Impl
         {
             return _context.Spas.Any(s => s.Id == id);
         }
+
+        public int? GetBranchIdByUserId(int id)
+        {
+            var user = _context.Users.FirstOrDefault(s => s.Id == id);
+            return user.SpaId;
+        }
     }
 }

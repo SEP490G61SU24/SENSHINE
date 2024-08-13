@@ -24,7 +24,7 @@
                                         </div>
                                     </th>
                                     <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.RoomName)</span></th>
-                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.SpaName)</span></th>
+@*                                     <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.SpaName)</span></th> *@
                                     <th> <span class="f-light f-w-600">Thao tác</span></th>
                                 </tr>
                             </thead>
@@ -34,7 +34,7 @@
                                     <tr>
                                         <td></td>
                                         <td>@item.RoomName</td>
-                                        <td>@item.SpaName</td>
+@*                                         <td>@item.SpaName</td> *@
                                         <td>
                                             @Html.ActionLink("Cập nhật", "UpdateRoom", new { id = item.Id }, new { @href = "http://localhost:5129/Room/UpdateRoom?id=" + item.Id })
                                         </td>

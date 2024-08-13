@@ -7,21 +7,27 @@ using Web.Models;
 
 namespace Web.Controllers
 {
-    public class BranchController : Controller
+    public class BranchController : BaseController
     {
-        Uri baseAddress = new Uri("http://localhost:5297/api");
-        private readonly HttpClient _client;
+        private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _clientFactory;
+        private readonly ILogger<UserController> _logger;
 
-        public BranchController()
+        public BranchController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<UserController> logger)
+             : base(configuration, clientFactory, logger)
         {
-            _client = new HttpClient();
-            _client.BaseAddress = baseAddress;
+            _configuration = configuration;
+            _clientFactory = clientFactory;
+            _logger = logger;
         }
+
         [HttpGet]
         public async Task<IActionResult> ListBranch()
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             List<BranchViewModel> branchs = new List<BranchViewModel>();
-            HttpResponseMessage response = _client.GetAsync(_client.BaseAddress + "/Branch/GetAll").Result;
+            HttpResponseMessage response = client.GetAsync($"{apiUrl}/Branch/GetAll").Result;
 
             if (response.IsSuccessStatusCode)
             {
@@ -29,9 +35,9 @@ namespace Web.Controllers
                 branchs = JsonConvert.DeserializeObject<List<BranchViewModel>>(data);
                 foreach (var branch in branchs)
                 {
-                    HttpResponseMessage response1 = _client.GetAsync(_client.BaseAddress + "/provinces/" + branch.ProvinceCode).Result;
-                    HttpResponseMessage response2 = _client.GetAsync(_client.BaseAddress + "/districts/" + branch.DistrictCode).Result;
-                    HttpResponseMessage response3 = _client.GetAsync(_client.BaseAddress + "/wards/" + branch.WardCode).Result;
+                    HttpResponseMessage response1 = client.GetAsync($"{apiUrl}/provinces/" + branch.ProvinceCode).Result;
+                    HttpResponseMessage response2 = client.GetAsync($"{apiUrl}/districts/" + branch.DistrictCode).Result;
+                    HttpResponseMessage response3 = client.GetAsync($"{apiUrl}/wards/" + branch.WardCode).Result;
                     if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode && response3.IsSuccessStatusCode)
                     {
                         string response1Body = response1.Content.ReadAsStringAsync().Result;
@@ -55,7 +61,7 @@ namespace Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult CreateBranch()
+        public async Task<IActionResult> CreateBranch()
         {
             return View();
         }
@@ -63,12 +69,14 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateBranch(BranchViewModel branch)
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             if (ModelState.IsValid)
             {
                 var json = JsonConvert.SerializeObject(branch);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                HttpResponseMessage response = await _client.PostAsync(_client.BaseAddress + "/Branch/Create", content);
+                HttpResponseMessage response = await client.PostAsync($"{apiUrl}/Branch/Create", content);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -87,8 +95,10 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> UpdateBranch(int id)
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             BranchViewModel branch = null;
-            HttpResponseMessage response = await _client.GetAsync(_client.BaseAddress + "/Branch/GetById?id=" + id);
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Branch/GetById?id=" + id);
 
             if (response.IsSuccessStatusCode)
             {
@@ -107,12 +117,14 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateBranch(BranchViewModel branch)
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             if (ModelState.IsValid)
             {
                 var json = JsonConvert.SerializeObject(branch);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                HttpResponseMessage response = await _client.PutAsync(_client.BaseAddress + "/Branch/Update?id=" + branch.Id, content);
+                HttpResponseMessage response = await client.PutAsync($"{apiUrl}/Branch/Update?id=" + branch.Id, content);
 
                 if (response.IsSuccessStatusCode)
                 {

@@ -5,8 +5,8 @@
     ViewData["Title"] = "Tạo thẻ";
 }
 
-<div class="row">
-    <div class="col-md-12">
+<div class="custom-container">
+    <div class="custom-body">
         <form asp-action="CreateCard" id="createCardForm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
@@ -26,7 +26,7 @@
                     @foreach (var item in ViewBag.Combos)
                     {
                         <div class="col-md-2">
-                            <div class="card" data-id="@item.Id">
+                            <div class="card" data-id="@item.Id" data-name="@item.Name">
                                 <div class="card-body">
                                     @item.Name<br />
                                     @item.Quantity Buổi<br />
@@ -37,6 +37,17 @@
                     }
                 </div>
             </div>
+
+            <!-- Nav Tabs -->
+            <ul class="nav nav-tabs" id="comboTabs" style="display:none;">
+                <!-- Tabs will be dynamically inserted here -->
+            </ul>
+
+            <div class="tab-content" id="comboTabContent">
+                <!-- Tab panes will be dynamically inserted here -->
+            </div>
+            <br />
+
             <div class="form-group">
                 <input type="hidden" id="selectedCardIds" name="selectedCardIds" value="" />
                 <input type="submit" value="Tạo mới" class="btn btn-primary" />
@@ -115,6 +126,32 @@
         .custom-span {
             margin-right: 15px; /* Adjust space between validation and button */
         }
+
+        .custom-container {
+            background-color: white;
+            border: 2px solid #ccc;
+            padding: 20px;
+            margin: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: add a subtle shadow */
+            border-radius: 4px; /* Optional: add border-radius for rounded corners */
+        }
+
+        .custom-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: left;
+            text-align: left;
+        }
+
+        .nav-tabs {
+            margin-top: 20px;
+        }
+
+        .tab-pane {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-top: none;
+        }
     </style>
 }
 
@@ -152,20 +189,78 @@
     </script>
 
     <script>
-        const cards = document.querySelectorAll('.card');
+        document.addEventListener('DOMContentLoaded', function () {
+            const cards = document.querySelectorAll('.card');
+            const tabsContainer = document.getElementById('comboTabs');
+            const tabContentContainer = document.getElementById('comboTabContent');
 
-        cards.forEach(card => {
-            card.addEventListener('click', () => {
-                card.classList.toggle('selected');
+            cards.forEach(card => {
+                card.addEventListener('click', async () => {
+                    const cardId = card.dataset.id;
+                    const cardName = card.dataset.name;
+
+                    if (card.classList.toggle('selected')) {
+                        // Fetch combo details and services from API
+                        const comboDetails = await fetchComboDetails(cardId);
+                        const cardInfo = formatCardInfo(comboDetails);
+
+                        // Create new tab and content if card is selected
+                        const tab = document.createElement('li');
+                        tab.classList.add('nav-item');
+                        tab.innerHTML = `<a class="nav-link" id="tab-${cardId}" data-bs-toggle="tab" href="#pane-${cardId}">${cardName}</a>`;
+                        tabsContainer.appendChild(tab);
+
+                        const tabPane = document.createElement('div');
+                        tabPane.classList.add('tab-pane', 'fade');
+                        tabPane.id = `pane-${cardId}`;
+                        tabPane.innerHTML = `<p>${cardInfo}</p>`;
+                        tabContentContainer.appendChild(tabPane);
+
+                        tabsContainer.style.display = 'flex';
+                        document.getElementById(`tab-${cardId}`).click(); // Activate the new tab
+                    } else {
+                        // Remove tab and content if card is deselected
+                        document.getElementById(`tab-${cardId}`).parentElement.remove();
+                        document.getElementById(`pane-${cardId}`).remove();
+
+                        if (!tabsContainer.querySelectorAll('li').length) {
+                            tabsContainer.style.display = 'none';
+                        }
+                    }
+                });
             });
-        });
-    </script>
 
-    <script>
-        document.getElementById('createCardForm').addEventListener('submit', function (event) {
-            const selectedIds = Array.from(document.querySelectorAll('.card.selected')).map(card => card.dataset.id);
-            const selectedCardIdsInput = document.getElementById('selectedCardIds');
-            selectedCardIdsInput.value = JSON.stringify(selectedIds);
+            document.getElementById('createCardForm').addEventListener('submit', function (event) {
+                const selectedIds = Array.from(document.querySelectorAll('.card.selected')).map(card => card.dataset.id);
+                document.getElementById('selectedCardIds').value = JSON.stringify(selectedIds);
+            });
+
+            async function fetchComboDetails(comboId) {
+                const response = await fetch(`http://localhost:5297/api/Combo/GetByID?IdCombo=${comboId}`);
+                const data = await response.json();
+                return data;
+            }
+
+            function formatCardInfo(comboDetails) {
+                // Format numbers to VND
+                const formatNumber = num => new Intl.NumberFormat('en-US').format(num);
+
+                // Format overall combo details
+                let comboInfo = `<strong>Combo:</strong> ${comboDetails.name}<br />`;
+                comboInfo += `<strong>Số buổi:</strong> ${comboDetails.quantity}<br />`;
+                comboInfo += `<strong>Giá gốc:</strong> ${formatNumber(comboDetails.price)} VND<br />`;
+                comboInfo += `<strong>Giảm giá:</strong> ${comboDetails.discount}%<br />`;
+                comboInfo += `<strong>Giá bán:</strong> ${formatNumber(comboDetails.salePrice)} VND<br />`;
+                comboInfo += `<hr />`;
+
+                // Format services included in the combo
+                comboInfo += `<strong>Services included:</strong><br /><ul>`;
+                comboDetails.services.forEach(service => {
+                    comboInfo += `<li><strong>${service.serviceName}:</strong> ${formatNumber(service.amount)} VND<br /><em>Mô tả:</em> ${service.description}</li>`;
+                });
+                comboInfo += '</ul>';
+                return comboInfo;
+            }
         });
     </script>
 }

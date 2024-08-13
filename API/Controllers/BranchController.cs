@@ -63,6 +63,17 @@ namespace API.Controllers
             return Ok(branch);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetBranchByUser(int id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var branchId = _branchService.GetBranchIdByUserId(id);
+
+            return Ok(branchId);
+        }
+
         [HttpPut]
         public async Task<IActionResult> Update(int id, [FromBody] BranchDTO branchDTO)
         {
