@@ -31,6 +31,13 @@
 <h2>Edit Bed</h2>
 
 <form asp-action="Edit" method="post">
+    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+    {
+        <div class="alert alert-danger">
+            @ViewBag.ErrorMessage
+        </div>
+    }
+
     <div class="form-group">
         <label asp-for="RoomId"></label>
         <select asp-for="RoomId" class="form-control">
@@ -54,6 +61,7 @@
     <input type="hidden" asp-for="Id" />
     <button type="submit" class="btn btn-primary">Save Changes</button>
 </form>
+
 
 <script src="~/assets/js/jquery.min.js"></script>
 <!-- Bootstrap js-->
