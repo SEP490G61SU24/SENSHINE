@@ -16,9 +16,17 @@ namespace API.Services.Impl
             _context = context;
         }
 
-       
+
         public async Task<Bed> AddBed(Bed bed)
         {
+            // Check if the BedNumber already exists in the same room
+            var existingBed = await _context.Beds
+                .FirstOrDefaultAsync(b => b.RoomId == bed.RoomId && b.BedNumber == bed.BedNumber);
+            if (existingBed != null)
+            {
+                throw new InvalidOperationException("A bed with the same BedNumber already exists in the same room.");
+            }
+
             await _context.Beds.AddAsync(bed);
             await _context.SaveChangesAsync();
             return bed;

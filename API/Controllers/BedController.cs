@@ -33,12 +33,20 @@ namespace API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var bed = _mapper.Map<Bed>(bedDTO);
-            var addedBed = await _bedService.AddBed(bed);
-            var addedBedDTO = _mapper.Map<BedDTO>(addedBed);
+            try
+            {
+                var bed = _mapper.Map<Bed>(bedDTO);
+                var addedBed = await _bedService.AddBed(bed);
+                var addedBedDTO = _mapper.Map<BedDTO>(addedBed);
 
-            return CreatedAtAction(nameof(GetBedById), new { id = addedBedDTO.Id }, addedBedDTO);
+                return CreatedAtAction(nameof(GetBedById), new { id = addedBedDTO.Id }, addedBedDTO);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message); // Return a 400 status code with the error message
+            }
         }
+
 
         [HttpPut]
         [Route("/api/[controller]/[action]/{id}")]
