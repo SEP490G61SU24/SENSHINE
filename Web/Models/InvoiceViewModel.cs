@@ -1,10 +1,8 @@
-﻿using API.Models;
-using System;
-using System.Collections.Generic;
+﻿using API.Dtos;
 
-namespace API.Dtos
+namespace Web.Models
 {
-    public class InvoiceDTO
+    public class InvoiceViewModel
     {
         public int Id { get; set; }
         public int? SpaId { get; set; }
@@ -13,10 +11,10 @@ namespace API.Dtos
         public decimal? Amount { get; set; }
         public DateTime InvoiceDate { get; set; }
         public string? Description { get; set; }
-		public string? Status { get; set; }
+        public string? Status { get; set; }
 
 
-		public string? CustomerName { get; set; }
+        public string? CustomerName { get; set; }
         public string? PromotionName { get; set; }
         public string? SpaName { get; set; }
 
@@ -24,19 +22,11 @@ namespace API.Dtos
         public ICollection<int> CardIds { get; set; } = new List<int>();
         public ICollection<int> ComboIds { get; set; } = new List<int>();
         public ICollection<int> ServiceIds { get; set; } = new List<int>();
-
+        public string ComboIdsString { get; set; }
+        public string ServiceIdsString { get; set; }
 
         public ICollection<CardDTO2>? Cards { get; set; } = new List<CardDTO2>();
         public ICollection<ComboDTO2>? Combos { get; set; } = new List<ComboDTO2>();
         public ICollection<ServiceDTO2>? Services { get; set; } = new List<ServiceDTO2>();
     }
-        public class InvoiceDTO2
-        {
-            public int Id { get; set; }
-            public int? IdCombo { get; set; }
-            public string? NameCombo { get; set; }
-            public int? IdService { get; set; }
-            public string? NameService { get; set; }
-       
-        }
 }

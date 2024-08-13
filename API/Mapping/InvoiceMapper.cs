@@ -10,7 +10,7 @@ namespace API.Mapping
         public InvoiceMapper()
         {
             CreateMap<Invoice, InvoiceDTO>()
-            .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.FirstName +src.Customer.MidName+src.Customer.LastName : null))
+            .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.FirstName + " " + src.Customer.MidName+ " " + src.Customer.LastName : null))
             .ForMember(dest => dest.PromotionName, opt => opt.MapFrom(src => src.Promotion != null ? src.Promotion.PromotionName : null))
             .ForMember(dest => dest.SpaName, opt => opt.MapFrom(src => src.Spa != null ? src.Spa.SpaName : null))
             .ForMember(dest => dest.Cards, opt => opt.MapFrom(src => src.Cards))
@@ -18,7 +18,7 @@ namespace API.Mapping
             .ForMember(dest => dest.Services, opt => opt.MapFrom(src => src.Services))
             .ForMember(dest => dest.CardIds, opt => opt.MapFrom(src => src.Cards.Select(c => c.Id)))
             .ForMember(dest => dest.ComboIds, opt => opt.MapFrom(src => src.Combos.Select(c => c.Id)))
-            .ForMember(dest => dest.ServiceIds, opt => opt.MapFrom(src => src.Services.Select(s => s.Id)));
+            .ForMember(dest => dest.ServiceIds, opt => opt.MapFrom(src => src.Services.Select(s => s.Id))).ReverseMap();
 
 
             CreateMap<InvoiceDTO, Invoice>()

@@ -54,7 +54,7 @@
                             <td>@item.SpaName</td>
                             <td>
                                 <ul class="action">
-                                    <li class="edit"><a href="/invoice/edit/@item.Id"><i class="icon-pencil-alt"></i></a></li>
+                                    <li class="edit"><a href="@Url.Action("Edit", "Invoice", new { id = item.Id })"><i class="icon-pencil-alt"></i></a></li>
                                     <li class="details"><a href="/invoice/details/@item.Id"><i class="icon-eye"></i></a></li>
                                     <li class="delete"><a href="#" onclick="confirmDelete(@item.Id)"><i class="icon-trash"></i></a></li>
                                 </ul>
@@ -114,7 +114,7 @@
             }).then((result) => {
                 if (result) {
                     $.ajax({
-                        url: '/invoice/delete/' + id,
+                        url: 'http://localhost:5297/api/DeleteInvoice/' + id,
                         type: 'DELETE',
                         success: function (response) {
                             swal("Đã xóa!", "Hóa đơn đã xóa thành công.", "success")
