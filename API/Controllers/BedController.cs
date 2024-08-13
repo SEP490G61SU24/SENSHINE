@@ -49,15 +49,22 @@ namespace API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var updatedBed = await _bedService.UpdateBed(id, bedDTO.BedNumber);
-            if (updatedBed == null)
+            try
             {
-                return NotFound();
-            }
+                var updatedBedDTO = await _bedService.UpdateBedAsync(id, bedDTO);
+                if (updatedBedDTO == null)
+                {
+                    return NotFound();
+                }
 
-            var updatedBedDTO = _mapper.Map<BedDTO>(updatedBed);
-            return Ok(updatedBedDTO);
+                return Ok(updatedBedDTO);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBed(int id)
