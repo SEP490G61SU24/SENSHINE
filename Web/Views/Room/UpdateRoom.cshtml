@@ -17,12 +17,12 @@
                 <input asp-for="RoomName" class="form-control" />
                 <span asp-validation-for="RoomName" class="text-danger"></span>
             </div>
-            <b>Chọn chi nhánh</b>
+@*             <b>Chọn chi nhánh</b>
             <div class="d-flex align-items-center">
                 <select id="selectBranchId" asp-for="SpaId" class="form-control custom-select" asp-items="@ViewBag.Spas"></select>
                 <span asp-validation-for="SpaId" class="text-danger custom-span"></span>
                 <button onclick="window.open('/Branch/CreateBranch', '_blank')" class="btn btn-secondary custom-button">Tạo mới</button>
-            </div>
+            </div> *@
             <br />
             <div class="col-12">
                 <input type="submit" value="Lưu" class="btn btn-primary" />

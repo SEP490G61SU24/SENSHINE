@@ -12,6 +12,7 @@ namespace API.Controllers
     {
         private readonly ISalaryService _salaryService;
         private readonly IMapper _mapper;
+
         public SalaryController(ISalaryService salaryService, IMapper mapper)
         {
             _salaryService = salaryService;
@@ -29,55 +30,63 @@ namespace API.Controllers
                 var salaryMap = _mapper.Map<Salary>(salaryDTO);
                 if (await _salaryService.SalaryExistByEMY(salaryMap))
                 {
-                    return StatusCode(500, $"Nhân viên này đã có lương tháng {salaryMap.SalaryMonth} năm {salaryMap.SalaryYear}");
+                    return StatusCode(500, $"This employee already has a salary record for {salaryMap.SalaryMonth}/{salaryMap.SalaryYear}.");
                 }
                 else
                 {
                     var createdSalary = await _salaryService.CreateSalary(salaryMap);
-
-                    return Ok($"Tạo thành công");
+                    return Ok("Salary created successfully.");
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Có lỗi xảy ra khi tạo: {ex.Message}");
+                return StatusCode(500, $"An error occurred while creating the salary: {ex.Message}");
             }
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var salarys = _mapper.Map<List<SalaryDTO>>(_salaryService.GetSalaries());
-
-            return Ok(salarys);
+            try
+            {
+                var salaries = _mapper.Map<List<SalaryDTO>>(_salaryService.GetSalaries());
+                return Ok(salaries);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving salaries: {ex.Message}");
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> GetById(int id)
         {
-            if (!_salaryService.SalaryExist(id))
-                return NotFound();
+            try
+            {
+                if (!_salaryService.SalaryExist(id))
+                    return NotFound("Salary not found.");
 
-            var salary = _mapper.Map<SalaryDTO>(_salaryService.GetSalary(id));
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            return Ok(salary);
+                var salary = _mapper.Map<SalaryDTO>(_salaryService.GetSalary(id));
+                return Ok(salary);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving the salary: {ex.Message}");
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> GetByMonthYear(int month, int year)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var salarys = _mapper.Map<List<SalaryDTO>>(_salaryService.GetSalariesByMonthAndYear(month, year));
-
-            return Ok(salarys);
+            try
+            {
+                var salaries = _mapper.Map<List<SalaryDTO>>(_salaryService.GetSalariesByMonthAndYear(month, year));
+                return Ok(salaries);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving salaries: {ex.Message}");
+            }
         }
 
         [HttpPut]
@@ -86,11 +95,11 @@ namespace API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!_salaryService.SalaryExist(id))
-                return NotFound();
-
             try
             {
+                if (!_salaryService.SalaryExist(id))
+                    return NotFound("Salary not found.");
+
                 var existingSalary = _salaryService.GetSalary(id);
                 existingSalary.BaseSalary = salaryDTO.BaseSalary;
                 existingSalary.Allowances = salaryDTO.Allowances;
@@ -99,31 +108,39 @@ namespace API.Controllers
                 existingSalary.TotalSalary = salaryDTO.TotalSalary;
                 existingSalary.SalaryMonth = salaryDTO.SalaryMonth;
                 existingSalary.SalaryYear = salaryDTO.SalaryYear;
+
                 var salaryUpdate = await _salaryService.UpdateSalary(id, existingSalary);
 
                 if (salaryUpdate == null)
                 {
-                    return NotFound("Không thể cập nhật");
+                    return NotFound("Failed to update salary.");
                 }
 
-                return Ok($"Cập nhật thành công");
+                return Ok("Salary updated successfully.");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Có lỗi xảy ra khi cập nhật: {ex.Message}");
+                return StatusCode(500, $"An error occurred while updating the salary: {ex.Message}");
             }
         }
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await _salaryService.DeleteSalary(id);
-            if (!result)
+            try
             {
-                return NotFound();
-            }
+                var result = await _salaryService.DeleteSalary(id);
+                if (!result)
+                {
+                    return NotFound("Salary not found.");
+                }
 
-            return NoContent();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while deleting the salary: {ex.Message}");
+            }
         }
     }
 }

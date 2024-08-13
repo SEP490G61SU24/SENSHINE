@@ -4,6 +4,9 @@ using API.Services;
 using API.Services.Impl;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace API.Controllers
 {
@@ -13,6 +16,7 @@ namespace API.Controllers
     {
         private readonly IBranchService _branchService;
         private readonly IMapper _mapper;
+
         public BranchController(IBranchService branchService, IMapper mapper)
         {
             _branchService = branchService;
@@ -29,12 +33,11 @@ namespace API.Controllers
             {
                 var branchMap = _mapper.Map<Spa>(branchDTO);
                 var createdBranch = await _branchService.CreateBranch(branchMap);
-
-                return Ok($"Tạo spa {createdBranch.SpaName} thành công");
+                return Ok($"Spa '{createdBranch.SpaName}' created successfully.");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Có lỗi xảy ra khi tạo spa: {ex.Message}");
+                return StatusCode(500, $"An error occurred while creating the spa: {ex.Message}");
             }
         }
 
@@ -44,23 +47,36 @@ namespace API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var branchs = _mapper.Map<List<BranchDTO>>(_branchService.GetBranchs());
-
-            return Ok(branchs);
+            try
+            {
+                var branches = _mapper.Map<List<BranchDTO>>(_branchService.GetBranchs());
+                return Ok(branches);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving the spas: {ex.Message}");
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> GetById(int id)
         {
-            if (!_branchService.BranchExist(id))
-                return NotFound();
+            try
+            {
+                if (!_branchService.BranchExist(id))
+                    return NotFound("Spa not found.");
 
-            var branch = _mapper.Map<BranchDTO>(_branchService.GetBranch(id));
+                var branch = _mapper.Map<BranchDTO>(_branchService.GetBranch(id));
 
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-            return Ok(branch);
+                return Ok(branch);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving the spa: {ex.Message}");
+            }
         }
 
         [HttpGet]
@@ -69,9 +85,15 @@ namespace API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var branchId = _branchService.GetBranchIdByUserId(id);
-
-            return Ok(branchId);
+            try
+            {
+                var branchId = _branchService.GetBranchIdByUserId(id);
+                return Ok(branchId);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving the spa by user ID: {ex.Message}");
+            }
         }
 
         [HttpPut]
@@ -81,7 +103,7 @@ namespace API.Controllers
                 return BadRequest(ModelState);
 
             if (!_branchService.BranchExist(id))
-                return NotFound();
+                return NotFound("Spa not found.");
 
             try
             {
@@ -94,27 +116,34 @@ namespace API.Controllers
 
                 if (branchUpdate == null)
                 {
-                    return NotFound("Không thể cập nhật spa");
+                    return NotFound("Failed to update spa.");
                 }
 
-                return Ok($"Cập nhật spa {branchUpdate.SpaName} thành công");
+                return Ok($"Spa '{branchUpdate.SpaName}' updated successfully.");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Có lỗi xảy ra khi cập nhật spa: {ex.Message}");
+                return StatusCode(500, $"An error occurred while updating the spa: {ex.Message}");
             }
         }
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await _branchService.DeleteBranch(id);
-            if (!result)
+            try
             {
-                return NotFound();
-            }
+                var result = await _branchService.DeleteBranch(id);
+                if (!result)
+                {
+                    return NotFound("Spa not found.");
+                }
 
-            return NoContent();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while deleting the spa: {ex.Message}");
+            }
         }
     }
 }
