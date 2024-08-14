@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using Microsoft.IdentityModel.Tokens;
 using API.Dtos;
 using API.Models;
+using API.Ultils;
 
 namespace Web.Controllers
 {
@@ -25,16 +26,17 @@ namespace Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ListCard(string? status)
+        public async Task<IActionResult> ListCard(string? status, int pageIndex = 1, int pageSize = 10, string searchTerm = null)
         {
             try
             {
                 var apiUrl = _configuration["ApiUrl"];
+                var url = $"{apiUrl}/Card/GetAll?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}";
                 var client = _clientFactory.CreateClient();
-                List<CardViewModel> cards = new List<CardViewModel>();
+                PaginatedList<CardViewModel> cards = new PaginatedList<CardViewModel>();
                 UserDTO user = new UserDTO();
                 BranchViewModel branch = new BranchViewModel();
-                HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Card/GetAll");
+                HttpResponseMessage response = await client.GetAsync(url);
 
                 int? spaId = 0;
                 var token = HttpContext.Session.GetString("Token");
@@ -55,16 +57,21 @@ namespace Web.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     string data = response.Content.ReadAsStringAsync().Result;
-                    cards = JsonConvert.DeserializeObject<List<CardViewModel>>(data);
-                    cards = cards.Where(c => c.BranchId == spaId).ToList();
+                    cards = JsonConvert.DeserializeObject<PaginatedList< CardViewModel>>(data);
 
-                    if (!status.IsNullOrEmpty())
+                    // Convert to a list to apply LINQ filters
+                    var filteredCards = cards.Items.Where(c => c.BranchId == spaId).ToList();
+
+                    if (!string.IsNullOrEmpty(status))
                     {
-                        cards = cards.Where(c => c.Status.Equals(status, StringComparison.OrdinalIgnoreCase)).ToList();
+                        filteredCards = filteredCards.Where(c => c.Status.Equals(status, StringComparison.OrdinalIgnoreCase)).ToList();
                     }
+
+                    // Re-assign filtered cards back to the PaginatedList if necessary
+                    cards.Items = filteredCards;
                 }
 
-                foreach (var card in cards)
+                foreach (var card in cards.Items)
                 {
                     HttpResponseMessage response1 = await client.GetAsync($"{apiUrl}/users/" + card.CustomerId);
                     string data1 = response1.Content.ReadAsStringAsync().Result;
