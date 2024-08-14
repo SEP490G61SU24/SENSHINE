@@ -114,33 +114,47 @@ namespace API.Models
 
                 entity.Property(e => e.Id).HasColumnName("id");
 
-                entity.Property(e => e.AppointmentDate).HasColumnType("datetime");
+                // Change AppointmentDate type to nvarchar
+                entity.Property(e => e.AppointmentDate)
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
+
+                // Add RoomName and BedNumber properties
+                entity.Property(e => e.RoomName)
+                    .HasMaxLength(100)
+                    .HasColumnType("nvarchar");
+
+                entity.Property(e => e.BedNumber)
+                    .HasMaxLength(50)
+                    .HasColumnType("nvarchar");
 
                 entity.Property(e => e.Status)
+                    .IsRequired()
                     .HasMaxLength(10)
-                    .HasDefaultValueSql("('PENDING')");
+                    .HasDefaultValueSql("('PENDING')")
+                    .HasColumnType("nvarchar");
 
                 entity.HasOne(d => d.Customer)
                     .WithMany(p => p.AppointmentCustomers)
                     .HasForeignKey(d => d.CustomerId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Appointme__Custo__6D0D32F4");
+                    .HasConstraintName("FK__Appointment__Customer__6D0D32F4");
 
                 entity.HasOne(d => d.Employee)
                     .WithMany(p => p.AppointmentEmployees)
                     .HasForeignKey(d => d.EmployeeId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Appointme__Emplo__6E01572D");
+                    .HasConstraintName("FK__Appointment__Employee__6E01572D");
 
                 entity.HasMany(d => d.Products)
                     .WithMany(p => p.Appointments)
                     .UsingEntity<Dictionary<string, object>>(
                         "AppointmentProduct",
-                        l => l.HasOne<Product>().WithMany().HasForeignKey("ProductId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK__Appointme__Produ__75A278F5"),
-                        r => r.HasOne<Appointment>().WithMany().HasForeignKey("AppointmentId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK__Appointme__Appoi__74AE54BC"),
+                        l => l.HasOne<Product>().WithMany().HasForeignKey("ProductId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK__AppointmentProduct__Product__75A278F5"),
+                        r => r.HasOne<Appointment>().WithMany().HasForeignKey("AppointmentId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK__AppointmentProduct__Appointment__74AE54BC"),
                         j =>
                         {
-                            j.HasKey("AppointmentId", "ProductId").HasName("PK__Appointm__458D30AE55C390EC");
+                            j.HasKey("AppointmentId", "ProductId").HasName("PK__AppointmentProduct__458D30AE55C390EC");
 
                             j.ToTable("Appointment_Product");
                         });
@@ -149,15 +163,16 @@ namespace API.Models
                     .WithMany(p => p.Appointments)
                     .UsingEntity<Dictionary<string, object>>(
                         "AppointmentService",
-                        l => l.HasOne<Service>().WithMany().HasForeignKey("ServiceId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK__Appointme__Servi__71D1E811"),
-                        r => r.HasOne<Appointment>().WithMany().HasForeignKey("AppointmentId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK__Appointme__Appoi__70DDC3D8"),
+                        l => l.HasOne<Service>().WithMany().HasForeignKey("ServiceId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK__AppointmentService__Service__71D1E811"),
+                        r => r.HasOne<Appointment>().WithMany().HasForeignKey("AppointmentId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK__AppointmentService__Appointment__70DDC3D8"),
                         j =>
                         {
-                            j.HasKey("AppointmentId", "ServiceId").HasName("PK__Appointm__329C47C2EFDB2B39");
+                            j.HasKey("AppointmentId", "ServiceId").HasName("PK__AppointmentService__329C47C2EFDB2B39");
 
                             j.ToTable("Appointment_Service");
                         });
             });
+
 
             modelBuilder.Entity<Bed>(entity =>
             {
