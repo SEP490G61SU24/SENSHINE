@@ -36,7 +36,37 @@
 <div class="card">
     <div class="card-body">
         <div class="table-responsive custom-scrollbar">
-            <table class="display" id="basic-1">
+            <div class="search-page">
+
+            <form class="theme-form mb-3" method="GET">
+                <div class="dataTables_length" id="table_length">
+                    <label>
+                        Hiển thị
+                        <select aria-controls="table" class="" asp-for="PageSize" name="PageSize" id="PageSize" onchange="this.form.submit()">
+                            @foreach (var pSize in new List<(int Value, string Name)>
+                            {
+                            (Value: 5, Name: "5"),
+                            (Value: 10, Name: "10"),
+                            (Value: 25, Name: "25"),
+                            (Value: 50, Name: "50"),
+                            (Value: 100, Name: "100"),
+                            })
+                            {
+                                <option value="@pSize.Value" selected="@(pSize.Value == Model.PageSize ? "selected" : null)">@pSize.Name</option>
+                            }
+                        </select>
+                        bản ghi
+                    </label>
+                </div>
+
+                <div class="input-group m-0 flex-nowrap">
+                    <input class="form-control-plaintext" name="searchTerm" type="search" value="@(Model.SearchTerm ?? null)" placeholder="Nhập tên, số điện thoại ..."><button class="btn btn-primary input-group-text">Tìm kiếm</button>
+                </div>
+                
+            </form>
+            </div>
+
+            <table class="display" id="table">
                 <thead>
                     <tr>
                     <tr>
@@ -57,7 +87,6 @@
                             <td>@item.UserName</td>
                             <td>@($"{item.FirstName ?? ""} {item.MidName ?? ""} {item.LastName ?? ""}")</td>
                             <td>@(item.Phone ?? "N/A")</td>
-                            @* <td>@(item.BirthDate?.ToString("dd-MM-yyyy") ?? "N/A")</td> *@
                             <td>@(item.RoleName ?? "N/A")</td>
                             <td>@(item.Address ?? "N/A")</td>
                             <td>
@@ -70,6 +99,31 @@
                     }
                 </tbody>
             </table>
+            
+            <div class="dataTables_wrapper no-footer">
+                <div class="dataTables_paginate paging_simple_numbers" id="table_paginate">
+                    <a class="paginate_button previous @(Model.HasPreviousPage ? "" : "disabled")"
+                       aria-controls="table"
+                       href="@(Model.HasPreviousPage ? $"?searchTerm={Model.SearchTerm}&pageIndex={Model.PageIndex - 1}&pageSize={Model.PageSize}" : "javascript:void(0);")"
+                       id="table_previous">« Trước</a>
+
+                    <span>
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <a class="@(i == Model.PageIndex ? "paginate_button current" : "paginate_button")"
+                               aria-controls="table"
+                               href="?searchTerm=@Model.SearchTerm&pageIndex=@i&pageSize=@Model.PageSize"
+                               data-dt-idx="@i">@i</a>
+                        }
+                    </span>
+
+                    <a class="paginate_button next @(Model.HasNextPage ? "" : "disabled")"
+                       aria-controls="table"
+                       href="@(Model.HasNextPage ? $"?searchTerm={Model.SearchTerm}&pageIndex={Model.PageIndex + 1}&pageSize={Model.PageSize}" : "javascript:void(0);")"
+                       id="table_next">Tiếp »</a>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
@@ -93,8 +147,18 @@
     <script src="~/assets/js/slick/slick.js"></script>
     <script src="~/assets/js/header-slick.js"></script>
     <!-- calendar js-->
+    <script src="~/assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
     <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#table').DataTable({
+                paging: false,
+                searching: false
+            });
+        });
+    </script>
 }
