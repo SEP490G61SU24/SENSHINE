@@ -50,7 +50,7 @@
                     <option value="">Chọn...</option>
                     @foreach (var emp in Model.Employees)
                     {
-                        <option value="@emp.Id" selected="@(emp.Id == Model.WorkScheduleData.EmployeeId ? "selected" : null)">@emp.FullName</option>
+                        <option value="@emp.Id" selected="@(emp.Id == Model.WorkScheduleData.EmployeeId ? "selected" : null)">@emp.FullName (@emp.Phone)</option>
                     }
                 </select>
                 <div class="invalid-tooltip">Chọn nhân viên.</div>

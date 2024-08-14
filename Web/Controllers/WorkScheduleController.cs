@@ -1,4 +1,5 @@
 ﻿using API.Dtos;
+using API.Ultils;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Text.Json;
@@ -20,21 +21,26 @@ namespace Web.Controllers
 			_logger = logger;
 		}
 
-		public async Task<IActionResult> Index()
-		{
-			var apiUrl = _configuration["ApiUrl"];
+        public async Task<IActionResult> Index(int pageIndex = 1, int pageSize = 10, string searchTerm = null)
+        {
+            var apiUrl = _configuration["ApiUrl"];
 			var client = _clientFactory.CreateClient();
-			var response = await client.GetAsync($"{apiUrl}/work-schedules");
-			if (response.IsSuccessStatusCode)
-			{
-				var data = await response.Content.ReadFromJsonAsync<IEnumerable<WorkScheduleDTO>>();
-				return View(data);
-			}
-			else
-			{
-				return View("Error");
-			}
-		}
+
+            var url = $"{apiUrl}/work-schedules?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}";
+
+            var response = await client.GetAsync(url);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<WorkScheduleDTO>>();
+                paginatedResult.SearchTerm = searchTerm;
+                return View(paginatedResult);
+            }
+            else
+            {
+                return View("Error");
+            }
+        }
 
 		public async Task<IActionResult> Add()
 		{
@@ -44,7 +50,7 @@ namespace Web.Controllers
 				var client = _clientFactory.CreateClient();
 
 				// Lấy tất cả emp
-				var employeeResponse = await client.GetAsync($"{apiUrl}/user/byRole/4");
+				var employeeResponse = await client.GetAsync($"{apiUrl}/users/role/4");
 				if (!employeeResponse.IsSuccessStatusCode)
 				{
 					return View("Error");
@@ -73,7 +79,7 @@ namespace Web.Controllers
 			{
 				var apiUrl = _configuration["ApiUrl"];
 				using var client = _clientFactory.CreateClient();
-				var employeeResponse = await client.GetAsync($"{apiUrl}/user/byRole/4");
+				var employeeResponse = await client.GetAsync($"{apiUrl}/users/role/4");
 				var employeeData = await employeeResponse.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>();
 
 				if (!ModelState.IsValid)
@@ -135,7 +141,7 @@ namespace Web.Controllers
 				var client = _clientFactory.CreateClient();
 
 				// Lấy tất cả emp
-				var employeeResponse = await client.GetAsync($"{apiUrl}/user/byRole/4");
+				var employeeResponse = await client.GetAsync($"{apiUrl}/users/role/4");
 				if (!employeeResponse.IsSuccessStatusCode)
 				{
 					return View("Error");
@@ -174,7 +180,7 @@ namespace Web.Controllers
 			{
 				var apiUrl = _configuration["ApiUrl"];
 				using var client = _clientFactory.CreateClient();
-				var employeeResponse = await client.GetAsync($"{apiUrl}/user/byRole/4");
+				var employeeResponse = await client.GetAsync($"{apiUrl}/users/role/4");
 				var employeeData = await employeeResponse.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>();
 
 				// Lấy ws

@@ -2,6 +2,7 @@
 using API.Dtos;
 using System.Text;
 using System.Text.Json;
+using API.Ultils;
 
 namespace Web.Controllers
 {
@@ -19,21 +20,26 @@ namespace Web.Controllers
 			_logger = logger;
 		}
 
-		public async Task<IActionResult> Index()
-		{
-			var apiUrl = _configuration["ApiUrl"];
+        public async Task<IActionResult> Index(int pageIndex = 1, int pageSize = 10, string searchTerm = null)
+        {
+            var apiUrl = _configuration["ApiUrl"];
 			var client = _clientFactory.CreateClient();
-			var response = await client.GetAsync($"{apiUrl}/rules");
-			if (response.IsSuccessStatusCode)
-			{
-				var data = await response.Content.ReadFromJsonAsync<IEnumerable<RuleDTO>>();
-				return View(data);
-			}
-			else
-			{
-				return View("Error");
-			}
-		}
+
+            var url = $"{apiUrl}/rules?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}";
+
+            var response = await client.GetAsync(url);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<RuleDTO>>();
+                paginatedResult.SearchTerm = searchTerm;
+                return View(paginatedResult);
+            }
+            else
+            {
+                return View("Error");
+            }
+        }
 
 		public IActionResult Add()
 		{

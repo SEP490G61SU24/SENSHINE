@@ -1,10 +1,12 @@
 ﻿using API.Dtos;
+using API.Ultils;
 
 namespace API.Services
 {
     public interface IRuleService
     {
         Task<IEnumerable<RuleDTO>> GetAllRules();
+        Task<PaginatedList<RuleDTO>> GetRules(int pageIndex, int pageSize, string searchTerm);
         Task<RuleDTO> GetRuleById(int id);
         Task<RuleDTO> AddRule(RuleDTO ruleDto);
         Task<bool> UpdateRule(int id, RuleDTO ruleDto);
