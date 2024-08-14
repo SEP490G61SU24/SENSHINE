@@ -15,6 +15,7 @@ namespace API.Services
         Task<UserDTO> GetById(int id);
         Task<UserDTO> GetByUserName(string username);
         Task<IEnumerable<UserDTO>> GetUsersByRole(int roleId);
+        Task<PaginatedList<UserDTO>> GetUsersByRoleWithPage(int roleId, int pageIndex, int pageSize, string searchTerm);
         Task<string> GetAddress(string wardCode, string districtCode, string provinceCode);
     }
 }

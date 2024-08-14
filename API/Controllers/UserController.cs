@@ -148,23 +148,28 @@ namespace API.Controllers
             }
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> GetAll()
-        //{
-        //    try
-        //    {
-        //        var users = await _userService.GetAll();
-        //        return Ok(users);
-        //    }
-        //    catch (InvalidOperationException ex)
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
-        //    }
-        //}
+        [HttpGet("page/role/{roleId}")]
+        public async Task<IActionResult> GetUsersByRoleWithPage(int roleId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
+        {
+            try
+            {
+                if (pageIndex < 1 || pageSize < 1)
+                {
+                    return BadRequest("Chỉ số trang hoặc kích thước trang không hợp lệ.");
+                }
+
+                var pagedUsers = await _userService.GetUsersByRoleWithPage(roleId, pageIndex, pageSize, searchTerm);
+                return Ok(pagedUsers);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)

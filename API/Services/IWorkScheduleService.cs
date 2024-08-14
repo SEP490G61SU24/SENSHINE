@@ -1,5 +1,6 @@
 ﻿using API.Dtos;
 using API.Models;
+using API.Ultils;
 
 namespace API.Services
 {
@@ -10,5 +11,6 @@ namespace API.Services
         Task<bool> DeleteWorkSchedule(int id);
         Task<WorkScheduleDTO> GetWorkScheduleById(int id);
         Task<IEnumerable<WorkScheduleDTO>> GetAllWorkSchedules();
+        Task<PaginatedList<WorkScheduleDTO>> GetWorkSchedules(int pageIndex, int pageSize, string searchTerm);
     }
 }
