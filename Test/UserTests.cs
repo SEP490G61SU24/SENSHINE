@@ -28,7 +28,7 @@ namespace SenShineSpa
         {
             // Arrange
             var userDto = new UserDTO { UserName = "testUser", Password = "password123" };
-            var user = new User { Id = 1, UserName = "testUser" };
+            var user = new UserDTO { Id = 1, UserName = "testUser" };
             _userServiceMock.Setup(service => service.AddUser(It.IsAny<UserDTO>())).ReturnsAsync(user);
             _mapperMock.Setup(m => m.Map<UserDTO>(It.IsAny<User>())).Returns(userDto);
 
@@ -71,7 +71,7 @@ namespace SenShineSpa
         {
             // Arrange
             var userDto = new UserDTO { UserName = "updatedUser" };
-            var user = new User { Id = 1, UserName = "updatedUser" };
+            var user = new UserDTO { Id = 1, UserName = "updatedUser" };
             _userServiceMock.Setup(service => service.UpdateUser(1, It.IsAny<UserDTO>())).ReturnsAsync(user);
             _mapperMock.Setup(m => m.Map<UserDTO>(It.IsAny<User>())).Returns(userDto);
 
@@ -102,7 +102,7 @@ namespace SenShineSpa
         {
             // Arrange
             _userServiceMock.Setup(service => service.UpdateUser(It.IsAny<int>(), It.IsAny<UserDTO>()))
-                            .ReturnsAsync((User)null);
+                            .ReturnsAsync((UserDTO)null);
 
             // Act
             var result = await _controller.UpdateUser(1, new UserDTO());

@@ -8,7 +8,7 @@ using System.Security.Claims;
 namespace API.Controllers
 {
     [ApiController]
-    [Route("api/user")]
+    [Route("api/users")]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -23,110 +23,194 @@ namespace API.Controllers
         [HttpGet("profile")]
         public async Task<IActionResult> GetProfile()
         {
-            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
+            try
             {
-                return Unauthorized();
-            }
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+                if (userIdClaim == null)
+                {
+                    return Unauthorized();
+                }
 
-            var userName = userIdClaim.Value;
-            var user = await _userService.GetByUserName(userName);
-            if (user == null)
+                var userName = userIdClaim.Value;
+                var user = await _userService.GetByUserName(userName);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                var userProfile = _mapper.Map<UserDTO>(user);
+                return Ok(userProfile);
+            }
+            catch (InvalidOperationException ex)
             {
-                return NotFound();
+                return BadRequest(ex.Message);
             }
-
-            var userProfile = _mapper.Map<UserDTO>(user);
-            return Ok(userProfile);
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
-        [HttpPost("add")]
+        [HttpPost]
         public async Task<IActionResult> AddUser([FromBody] UserDTO userDto)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var user = await _userService.AddUser(userDto);
+
+                var resultDto = _mapper.Map<UserDTO>(user);
+
+                return Ok(resultDto);
             }
-
-            var user = await _userService.AddUser(userDto);
-
-            var resultDto = _mapper.Map<UserDTO>(user);
-
-            return Ok(resultDto);
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
-        [HttpPut("update/{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] UserDTO userDto)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var user = await _userService.UpdateUser(id, userDto);
+
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                var userDtoRes = _mapper.Map<UserDTO>(user);
+                return Ok(userDtoRes);
             }
-
-            //var user = _mapper.Map<User>(userDto);
-            var user = await _userService.UpdateUser(id, userDto);
-
-            if (user == null)
+            catch (InvalidOperationException ex)
             {
-                return NotFound();
+                return BadRequest(ex.Message);
             }
-
-            var userDtoRes = _mapper.Map<UserDTO>(user);
-            return Ok(userDtoRes);
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var result = await _userService.DeleteUser(id);
-            if (!result)
+            try
             {
-                return NotFound();
-            }
+                var result = await _userService.DeleteUser(id);
+                if (!result)
+                {
+                    return NotFound();
+                }
 
-            return NoContent();
+                return NoContent();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
-        [HttpGet("byRole/{roleId}")]
+        [HttpGet("role/{roleId}")]
         public async Task<IActionResult> GetUsersByRole(int roleId)
         {
-            
-            var users = await _userService.GetUsersByRole(roleId);
-            if (users == null || !users.Any())
+            try
             {
-                var emptyArray = new UserDTO[0];
-                return Ok(emptyArray);
+                var users = await _userService.GetUsersByRole(roleId);
+                return Ok(users);
             }
-
-            var userDtos = _mapper.Map<IEnumerable<UserDTO>>(users);
-            return Ok(userDtos);
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
-        [HttpGet("all")]
-        public async Task<IActionResult> GetAll()
-        {
-            var users = await _userService.GetAll();
-            if (users == null || !users.Any())
-            {
-                var emptyArray = new UserDTO[0];
-                return Ok(emptyArray);
-            }
+        //[HttpGet]
+        //public async Task<IActionResult> GetAll()
+        //{
+        //    try
+        //    {
+        //        var users = await _userService.GetAll();
+        //        return Ok(users);
+        //    }
+        //    catch (InvalidOperationException ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+        //    }
+        //}
 
-            var userDtos = _mapper.Map<IEnumerable<UserDTO>>(users);
-            return Ok(userDtos);
+        [HttpGet]
+        public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
+        {
+            try
+            {
+                if (pageIndex < 1 || pageSize < 1)
+                {
+                    return BadRequest("Chỉ số trang hoặc kích thước trang không hợp lệ.");
+                }
+
+                var pagedUsers = await _userService.GetUsers(pageIndex, pageSize, searchTerm);
+                return Ok(pagedUsers);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var u = await _userService.GetById(id);
-            if (u == null)
+            try
             {
-                return NotFound();
-            }
+                var u = await _userService.GetById(id);
+                if (u == null)
+                {
+                    return NotFound();
+                }
 
-            var userDto = _mapper.Map<UserDTO>(u);
-            return Ok(userDto);
+                var userDto = _mapper.Map<UserDTO>(u);
+                return Ok(userDto);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
     }
 }
