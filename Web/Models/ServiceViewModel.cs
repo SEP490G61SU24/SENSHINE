@@ -13,7 +13,7 @@ namespace Web.Models
         [DisplayName("Giá Tiền")]
         public decimal Amount { get; set; }
 
-        [DisplayName("Mô Tả Chi Tiết")]
+        [DisplayName("Mô Tả Dịch Vụ")]
         public string? Description { get; set; }
     }
 }
