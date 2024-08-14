@@ -1,113 +1,46 @@
 ﻿
-<!-- CSS links and styles -->
-<link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
-<!-- ico-font-->
-<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
-<!-- Themify icon-->
-<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/themify.css">
-<!-- Flag icon-->
-<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/flag-icon.css">
-<!-- Feather icon-->
-<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/feather-icon.css">
-<!-- Plugins css start-->
-<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
-<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
-<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
-<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
-<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/js-datatables/style.css">
-<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/owlcarousel.css">
-<!-- Plugins css Ends-->
-<!-- Bootstrap css-->
-<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
-<!-- App css-->
-<link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
-<link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
-<link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
-
-<style>
-    .product-container {
-        display: flex;
-        align-items: flex-start;
-        padding: 20px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        background-color: #f9f9f9;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        gap: 20px;
-    }
-
-    .product-image img {
-        width: 350px;
-        height: 250px;
-        border-radius: 8px;
-        object-fit: cover;
-        border: 5px solid black; /* Add black border to the image */
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add shadow to the image */
-    }
-
-    .product-info {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        max-width: 600px;
-    }
-
-        .product-info h4 {
-            font-size: 24px;
-            color: #333;
-        }
-
-        .product-info p {
-            margin: 0;
-            color: #555;
-        }
-
-            .product-info p.date {
-                font-size: 14px;
-                color: #999;
-            }
-</style>
-
 @model IEnumerable<Web.Models.ProductViewModel>
+
+@{
+    ViewData["Title"] = "Danh sách sản phẩm";
+    ViewData["ActionName"] = "Thêm sản phẩm";
+    ViewData["ActionUrl"] = "/product/add";
+    var productsJson = System.Text.Json.JsonSerializer.Serialize(Model);
+}
 @{
     ViewBag.Title = "List Products";
     var categories = ViewBag.Categories as List<CategoryViewModel>;
 }
-<div class="card">
-    <div class="card-body">
-        <div class="product-container">
-            <div class="product-image">
-                <img id="productImage" src="https://via.placeholder.com/150" alt="Product Image">
-            </div>
-            <div class="product-info">
-                <p id="productId"></p>
-                <h4 id="productTitle">Title</h4>
-                <p id="productPrice">Price</p>
-                <p id="productQuantity">Quantity</p>
-                <p id="productCategories">Categories</p>
-                <div style="display: flex; gap: 10px;">
-                    <button id="editProductBtn" class="btn btn-primary" style="height: 35px; width: 150px;">Edit</button>
-                    <button id="deleteProductBtn" class="btn btn-danger" data-id="" onclick="confirmDelete(this)" style="height: 35px; width: 150px;">Delete</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/themify.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/flag-icon.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/feather-icon.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/datatables.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/sweetalert2.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
+    <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+}
 
 <div class="card">
     <div class="card-body">
-        <div class="list-product-header">
+        <div class="list-promotion-header">
             <div>
                 <div class="light-box">
-                    <a data-bs-toggle="collapse" href="list-products.html#collapseProduct"
-                       role="button" aria-expanded="false" aria-controls="collapseProduct">
+                    <a data-bs-toggle="collapse" href="#collapsePromotion" role="button" aria-expanded="false" aria-controls="collapsePromotion">
                         <i class="filter-icon show" data-feather="filter"></i><i class="icon-close filter-close hide"></i>
                     </a>
                 </div>
-                <a class="btn btn-primary" href="@Url.Action("Add", "Product")"><i class="fa fa-plus"></i>Add Product</a>
             </div>
-            <div class="collapse" id="collapseProduct">
-                <div class="card card-body list-product-body">
+            <div class="collapse" id="collapsePromotion">
+                <div class="card card-body list-promotion-body">
                     <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3">
                         <div class="col">
                             <label for="categoryname" class="form-label">Select Category</label>
@@ -149,34 +82,34 @@
                 </div>
             </div>
         </div>
-        <div class="list-product">
-            <table class="table" id="project-status">
+
+        <div class="table-responsive custom-scrollbar">
+            <table class="display" id="products-table">
                 <thead>
                     <tr>
-                        
-                        <th> <span class="f-light f-w-600">Product Name</span></th>
-                        <th> <span class="f-light f-w-600"> Price </span></th>
-                        <th> <span class="f-light f-w-600"> Quantity </span></th>
-                        <th> <span class="f-light f-w-600"> Categories </span></th>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
                         <tr>
+                            <td>@item.Id</td>
+                            <td>@item.ProductName</td>
+                            <td>@item.Price</td>
+                            <td>@item.Quantity</td>
                             
-                            <td><a href="#" class="productTitle" data-id="@item.Id">@item.ProductName</a></td>
-                            <td>@item.Price?.ToString("C2")</td>
-                            <td>@(item.Quantity.HasValue ? item.Quantity.Value.ToString() : "No Quantity")</td>
+                           
                             <td>
-                                @if (item.Categories.Any())
-                                {
-                                    @string.Join(", ", item.Categories.Select(c => c.CategoryName))
-                                }
-                                else
-                                {
-                                    <span>No Categories</span>
-                                }
+                                <ul class="action">
+                                    <li class="edit"><a href="@Url.Action("Edit", "Product", new { id = item.Id })"><i class="icon-pencil-alt"></i></a></li>
+                                    
+                                    <li class="delete"><a href="#" onclick="confirmDelete(@item.Id)"><i class="icon-trash"></i></a></li>
+                                </ul>
                             </td>
                         </tr>
                     }
@@ -186,184 +119,113 @@
     </div>
 </div>
 
-<script src="~/assets/js/jquery.min.js"></script>
-<!-- Bootstrap js-->
-<script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
-<!-- feather icon js-->
-<script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
-<script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
-<!-- scrollbar js-->
-<script src="~/assets/js/scrollbar/simplebar.js"></script>
-<script src="~/assets/js/scrollbar/custom.js"></script>
-<!-- Sidebar jquery-->
-<script src="~/assets/js/config.js"></script>
-<!-- Plugins JS start-->
-<script src="~/assets/js/sidebar-menu.js"></script>
-<script src="~/assets/js/sidebar-pin.js"></script>
-<script src="~/assets/js/slick/slick.min.js"></script>
-<script src="~/assets/js/slick/slick.js"></script>
-<script src="~/assets/js/header-slick.js"></script>
-<!-- calendar js-->
-<script src="~/assets/js/js-datatables/simple-datatables@latest.js"></script>
-<script src="~/assets/js/custom-list-product.js"></script>
-<script src="~/assets/js/owlcarousel/owl.carousel.js"></script>
-<script src="~/assets/js/ecommerce.js"></script>
-<script src="~/assets/js/tooltip-init.js"></script>
-<!-- Plugins JS Ends-->
-<!-- Theme js-->
-<script src="~/assets/js/script.js"></script>
+@section Scripts {
+    <script src="~/assets/js/jquery.min.js"></script>
+    <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
+    <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
+    <script src="~/assets/js/scrollbar/simplebar.js"></script>
+    <script src="~/assets/js/scrollbar/custom.js"></script>
+    <script src="~/assets/js/config.js"></script>
+    <script src="~/assets/js/sidebar-menu.js"></script>
+    <script src="~/assets/js/sidebar-pin.js"></script>
+    <script src="~/assets/js/slick/slick.min.js"></script>
+    <script src="~/assets/js/slick/slick.js"></script>
+    <script src="~/assets/js/header-slick.js"></script>
+    <script src="~/assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
+    <script src="~/assets/js/script.js"></script>
+    <script src="~/assets/js/sweet-alert/sweetalert.min.js"></script>
 
-
-
-<script>
-    $(document).ready(function () {
-        $(".productTitle").click(function (event) {
-            event.preventDefault();
-            var productId = $(this).data("id");
-
-            $.ajax({
-                url: '/Product/GetProductDetail/' + productId,
-                method: 'GET',
-                success: function (data) {
-                    // Use a placeholder or default image if the image URL is not part of the data
-                    var coverImage = data.imageUrl || 'https://via.placeholder.com/150';
-                    var title = data.productName || 'No Title';
-                    var price = data.price !== null ? data.price.toFixed(2) : 'No Price';
-                    var quantity = data.quantity !== null ? data.quantity : '0';
-                    var categories = data.categories ? data.categories.join(', ') : 'No Categories';
-
-                    // Update HTML elements with the API data
-                    $("#productImage").attr("src", coverImage);
-                    $("#productTitle").text('Title: ' + title);
-                    $("#productPrice").text('Price: $' + price);
-                    $("#productQuantity").text('Quantity: ' + quantity);
-                    $("#productCategories").text('Categories: ' + categories);
-                    $("#productId").text('Product ID: ' + data.id);
-                    $("#deleteProductBtn").attr("data-id", data.id);
-
-                    // Update edit button to redirect to edit page
-                    $("#editProductBtn").off('click').on('click', function () {
-                        window.location.href = '/Product/Edit/' + data.id;
-                    });
-                },
-                error: function () {
-                    alert("An error occurred while fetching the product details.");
-                }
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#products-table').DataTable({
+                columns: [
+                    { data: 'id' },
+                    { data: 'productName' },
+                    { data: 'price' },
+                    { data: 'quantity' },
+                    
+                    {
+                        data: null, // Use null as there is no `actions` field in the response
+                        render: function (data, type, row) {
+                            return `
+                            <ul class="action">
+                                <li class="edit"><a href="/product/edit/${row.id}"><i class="icon-pencil-alt"></i></a></li>
+                                >
+                                <li class="delete"><a href="#" onclick="confirmDelete(${row.id})"><i class="icon-trash"></i></a></li>
+                            </ul>
+                        `;
+                        }
+                    }
+                ]
             });
         });
-    });
+        function fetchProductsByFilters() {
+            var categoryName = $('#categoryname').val();
+            var quantityRange = $('#quantity').val();
+            var priceRange = $('#price').val();
 
-    function confirmDelete(button) {
-        var Id = $(button).data("id");
-
-        if (confirm("Are you sure you want to delete this Product item?")) {
             $.ajax({
-                url: '/Product/Delete/' + Id,
-                method: 'DELETE',
+                url: `http://localhost:5297/api/GetFilterProducts?categoryName=${encodeURIComponent(categoryName || '')}&quantityRange=${encodeURIComponent(quantityRange || '')}&priceRange=${encodeURIComponent(priceRange || '')}`,
+                type: 'GET',
                 success: function (response) {
-                    if (response.success) {
-                        alert("Product item deleted successfully.");
-                        window.location.reload();
-                    } else {
-                        alert("Failed to delete the Product item.");
-                    }
+                    // Clear the existing data
+                    var table = $('#products-table').DataTable();
+                    table.clear();
+
+                    // Add new data
+                    table.rows.add(response).draw();
                 },
-                error: function () {
-                    alert("An error occurred while deleting the Product item.");
+                error: function (xhr, status, error) {
+                    console.error("Failed to fetch products:", error);
                 }
             });
         }
-    }
 
 
-
-    
-</script>
-<script>
-    function fetchProductsByFilters() {
-        // Get filter values
-        var categoryName = $('#categoryname').val();
-        var quantityRange = $('#quantity').val();
-        var priceRange = $('#price').val();
-
-        
-        var params = {
-            categoryName: categoryName,
-            quantityRange: quantityRange,
-            priceRange: priceRange
-        };
-
-        // Make AJAX request to fetch filtered products
-        $.ajax({
-            url: '/Product/FilterProducts', // Update this with your actual endpoint
-            method: 'GET',
-            data: params,
-            success: function (data) {
-                var productTableBody = $("#project-status tbody");
-                productTableBody.empty();
-
-                // Populate the table with filtered products
-                data.forEach(function (product) {
-                    var productRow = `
-                            <tr>
-                                <td><a href="#" class="productTitle" data-id="${product.id}">${product.productName}</a></td>
-                                <td>${product.price ? product.price.toFixed(2) : 'No Price'}</td>
-                                <td>${product.quantity || 'No Quantity'}</td>
-                                         <td>
-                ${Array.isArray(product.categories) && product.categories.length > 0
-                            ? product.categories.map(c => c.categoryName).join(', ') 
-                            : 'No Categories'
-                        }
-            </td>
-                            </tr>
-                        `;
-                    productTableBody.append(productRow);
-                });
-
-                // Re-bind the click event for the product titles
-                $(".productTitle").click(function (event) {
-                    event.preventDefault();
-                    var productId = $(this).data("id");
-
+        function confirmDelete(id) {
+            swal({
+                title: 'Bạn có chắc chắn muốn xóa?',
+                text: "Dữ liệu sẽ bị mất khi xác nhận!",
+                icon: 'warning',
+                buttons: {
+                    cancel: {
+                        text: 'Không, hủy bỏ!',
+                        value: null,
+                        visible: true,
+                        className: 'btn btn-secondary',
+                        closeModal: true
+                    },
+                    confirm: {
+                        text: 'Xác nhận!',
+                        value: true,
+                        visible: true,
+                        className: 'btn btn-success',
+                        closeModal: true
+                    }
+                }
+            }).then((result) => {
+                if (result) {
                     $.ajax({
-                        url: '/Product/GetProductDetail/' + productId,
-                        method: 'GET',
-                        success: function (data) {
-                            // Set default values for properties
-                            var coverImage = data.imageUrl || 'https://via.placeholder.com/150';
-                            var title = data.productName || 'No Title';
-                            var price = data.price !== null ? data.price.toFixed(2) : 'No Price';
-                            var quantity = data.quantity !== null ? data.quantity : '0';
-                            var categories = data.categories ? data.categories.join(', ') : 'No Categories';
-
-                            // Update HTML elements with the API data
-                            $("#productImage").attr("src", coverImage);
-                            $("#productName").text('ProductName: ' + title);
-                            $("#productPrice").text('Price: $' + price);
-                            $("#productQuantity").text('Quantity: ' + quantity);
-                            $("#productCategories").text('Categories: ' + categories);
-                            $("#productId").text('Product ID: ' + data.id);
-                            $("#deleteProductBtn").attr("data-id", data.id);
-
-                            // Update edit button to redirect to edit page
-                            $("#editProductBtn").off('click').on('click', function () {
-                                window.location.href = '/Product/Edit/' + data.id;
-                            });
+                        url: 'http://localhost:5297/api/DeleteProduct/' + id,
+                        type: 'DELETE',
+                        success: function (response) {
+                            swal("Đã xóa!", "Sản phẩm đã xóa thành công.", "success")
+                                .then(() => {
+                                    location.reload();
+                                });
                         },
-                        error: function () {
-                            alert("An error occurred while fetching the product details.");
+                        error: function (xhr, status, error) {
+                            swal("Lỗi!", "Sản phẩm xóa thất bại.", "error");
                         }
                     });
-                });
-            },
-            error: function () {
-                alert("An error occurred while fetching the filtered products.");
-            }
-        });
-    }
-
-    // Attach the fetch function to a button or form submission
-    $(document).ready(function () {
-        $('#filterButton').click(fetchProductsByFilters);
-    });
-</script>
+                } else {
+                    swal("Đã hủy", "Dữ liệu của bạn không thay đổi.", "info");
+                }
+            });
+        }
+       
+      
+    </script>
+}

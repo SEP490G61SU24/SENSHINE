@@ -48,7 +48,7 @@ namespace API
             builder.Services.AddScoped<ISalaryService, SalaryService>();
             builder.Services.AddScoped<IRuleService, RuleService>();
             builder.Services.AddScoped<IRoleService, RoleService>();
-            builder.Services.AddScoped<IInvoiceService, InvoiceService>();
+            builder.Services.AddScoped<IInvoiceService, InvoicesService>();
             builder.Services.AddScoped<CustomAddressResolver>();
 
             builder.Services.AddAutoMapper(typeof(InvoiceMapper));

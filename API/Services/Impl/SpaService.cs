@@ -57,8 +57,8 @@ namespace API.Services.Impl
 
         public async Task<List<Service>> GetServicesByInvoiceIdAsync(int id)
         {
-            var services = await _dbContext.Services.Include(c => c.Invoices)
-                .Where(p => p.Invoices.Any(c => c.Id == id)).ToListAsync();
+            var services = await _dbContext.Services.Include(c => c.InvoiceServices)
+                .Where(p => p.InvoiceServices.Any(c => c.InvoiceId == id)).ToListAsync();
             return services;
         }
     }

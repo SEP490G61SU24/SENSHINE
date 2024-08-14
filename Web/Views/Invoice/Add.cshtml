@@ -153,10 +153,11 @@
                     <option selected disabled value="">Select Promotion...</option>
                     @foreach (var promotion in promotions)
                     {
-                        <option value="@promotion.Id">@promotion.PromotionName</option>
+                        <option value="@promotion.Id" data-discount="@promotion.DiscountPercentage">@promotion.PromotionName</option>
                     }
                 </select>
                 <div class="invalid-tooltip">Select a Promotion!</div>
+                
             </div>
 
             <div class="col-md-4 position-relative">
@@ -194,10 +195,9 @@
                         {
                             <label><input type="checkbox" value="@card.Id" > @card.CardNumber </label>
                         }
-                    </div>
-                    <input type="hidden" id="CardIds" name="CardIds">
-                </div>
-            </div> -->
+                    </div>-->
+                    <input type="hidden" id="CardIds" name="CardIds" value= null>
+                
 
             <!-- Custom Select for Combos -->
             <div class="col-md-4 position-relative">
@@ -212,7 +212,7 @@
                                     <input type="checkbox" value="@combo.Id" data-price="@combo.SalePrice" class="combo-checkbox">
                                     @combo.Name
                                 </label>
-                                <input type="number" class="combo-quantity" data-id="@combo.Id" value="0" min="0">
+                                <input type="number" class="combo-quantity" name="ComboQuantities[@combo.Id]" data-id="@combo.Id" value="0" min="0">
                             </div>
                         }
                     </div>
@@ -235,7 +235,7 @@
                                     <input type="checkbox" value="@service.Id" data-price="@service.Amount" class="service-checkbox">
                                     @service.ServiceName
                                 </label>
-                                <input type="number" class="service-quantity" data-id="@service.Id" value="0" min="0">
+                                <input type="number" class="service-quantity" name="ServiceQuantities[@service.Id]" data-id="@service.Id" value="0" min="0">
                             </div>
                         }
                     </div>
@@ -309,7 +309,7 @@
                     const text = checkbox.nextSibling.textContent.trim();
                     const price = parseFloat(checkbox.getAttribute('data-price'));
                     const quantityInput = checkbox.closest('.service-option')?.querySelector('.service-quantity') ||
-                        checkbox.closest('.combo-option')?.querySelector('.combo-quantity');
+                    checkbox.closest('.combo-option')?.querySelector('.combo-quantity');
                     const quantity = parseInt(quantityInput ? quantityInput.value : 1, 10);
 
                     const index = selectedItems.findIndex(item => item.id === id);
@@ -367,8 +367,9 @@
                         const quantity = parseInt(input.value, 10) || 0;
                         totalPrice += price * quantity;
                     });
+                    
+                    amountInput.value = totalPrice .toFixed(2);
 
-                    amountInput.value = totalPrice.toFixed(2);
                 }
 
                 // Initialize the custom select for this section
@@ -378,6 +379,7 @@
             // Setup custom selects
             setupCustomSelect('customSelectCombos', 'customOptionsCombos', 'ComboIdsString');
             setupCustomSelect('customSelectServices', 'customOptionsServices', 'ServiceIdsString');
+
         });
     </script>
     <script>
@@ -418,6 +420,27 @@
             });
         });
 
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const promotionSelect = document.getElementById('PromotionId');
+            const amountInput = document.getElementById('Amount');
+            const promotionOptions = promotionSelect.options;
+
+            // Handle promotion change
+            promotionSelect.addEventListener('change', function () {
+                const selectedOption = promotionOptions[promotionSelect.selectedIndex];
+                const discountPercentage = parseFloat(selectedOption.getAttribute('data-discount')) || 0;
+                const totalAmount = parseFloat(amountInput.value) || 0;
+
+                // Calculate discount
+                const discount = (discountPercentage / 100) * totalAmount;
+                const finalAmount = totalAmount - discount;
+
+                // Update amount input with the discounted amount
+                amountInput.value = finalAmount.toFixed(2);
+            });
+        });
     </script>
 
 }

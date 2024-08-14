@@ -27,6 +27,29 @@
 
 <div class="card">
     <div class="card-body">
+        <div class="list-promotion-header">
+            <div>
+                <div class="light-box">
+                    <a data-bs-toggle="collapse" href="#collapsePromotion" role="button" aria-expanded="false" aria-controls="collapsePromotion">
+                        <i class="filter-icon show" data-feather="filter"></i><i class="icon-close filter-close hide"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="collapse" id="collapsePromotion">
+                <div class="card card-body list-promotion-body">
+                    <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3 mt-3">
+                        <div class="col">
+                            <label for="fromDate" class="form-label">From Date</label>
+                            <input type="date" id="fromDate" class="form-control" aria-label="From Date" onchange="fetchInvoiceByDate()">
+                        </div>
+                        <div class="col">
+                            <label for="toDate" class="form-label">To Date</label>
+                            <input type="date" id="toDate" class="form-control" aria-label="To Date" onchange="fetchInvoiceByDate()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="table-responsive custom-scrollbar">
             <table class="display" id="invoice-table">
                 <thead>
@@ -55,7 +78,7 @@
                             <td>
                                 <ul class="action">
                                     <li class="edit"><a href="@Url.Action("Edit", "Invoice", new { id = item.Id })"><i class="icon-pencil-alt"></i></a></li>
-                                    <li class="details"><a href="/invoice/details/@item.Id"><i class="icon-eye"></i></a></li>
+                                    
                                     <li class="delete"><a href="#" onclick="confirmDelete(@item.Id)"><i class="icon-trash"></i></a></li>
                                 </ul>
                             </td>
@@ -87,7 +110,64 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-            $('#invoice-table').DataTable();
+            var invoiceTable = $('#invoice-table').DataTable({
+                columns: [
+                    { data: 'id' },
+                    { data: 'amount' },
+                    {
+                        data: 'invoiceDate',
+                        render: function (data) {
+                            var date = new Date(data);
+                            if (isNaN(date.getTime())) {
+                                return data;
+                            }
+                            var day = ('0' + date.getDate()).slice(-2);
+                            var month = ('0' + (date.getMonth() + 1)).slice(-2);
+                            var year = date.getFullYear();
+                            return `${day}-${month}-${year}`;
+                        }
+                    },
+                    { data: 'description' },
+                    { data: 'customerName' },
+                    { data: 'promotionName' },
+                    { data: 'spaName' },
+                    {
+                        data: null,
+                        render: function (data, type, row) {
+                            return `
+                                        <ul class="action">
+                                            <li class="edit"><a href="/invoice/edit/${row.id}"><i class="icon-pencil-alt"></i></a></li>
+                                           
+                                            <li class="delete"><a href="#" onclick="confirmDelete(${row.id})"><i class="icon-trash"></i></a></li>
+                                        </ul>
+                                    `;
+                        }
+                    }
+                ]
+            });
+
+            function fetchInvoiceByDate() {
+                var fromDate = $('#fromDate').val();
+                var toDate = $('#toDate').val();
+
+                if (fromDate && toDate) {
+                    $.ajax({
+                        url: `http://localhost:5297/api/GetInvoiceByDate?from=${fromDate}&to=${toDate}`,
+                        type: 'GET',
+                        success: function (response) {
+                            invoiceTable.clear();
+                            invoiceTable.rows.add(response).draw();
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Failed to fetch invoices:", error);
+                        }
+                    });
+                }
+            }
+
+            $('#fromDate, #toDate').on('change', function () {
+                fetchInvoiceByDate();
+            });
         });
 
         function confirmDelete(id) {
