@@ -118,8 +118,8 @@ namespace Web.Controllers
                 }
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
-                var response1 = client.GetAsync($"{apiUrl}/user/byRole/3").Result;
-                var response2 = client.GetAsync($"{apiUrl}/user/byRole/4").Result;
+                var response1 = client.GetAsync($"{apiUrl}/users/role/3").Result;
+                var response2 = client.GetAsync($"{apiUrl}/users/role/4").Result;
                 if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode)
                 {
                     var users1 = response1.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
@@ -169,8 +169,8 @@ namespace Web.Controllers
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
 
-                var response1 = client.GetAsync($"{apiUrl}/user/byRole/3").Result;
-                var response2 = client.GetAsync($"{apiUrl}/user/byRole/4").Result;
+                var response1 = client.GetAsync($"{apiUrl}/users/role/3").Result;
+                var response2 = client.GetAsync($"{apiUrl}/users/role/4").Result;
                 if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode)
                 {
                     var users1 = response1.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;

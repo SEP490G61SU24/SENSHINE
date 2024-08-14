@@ -166,7 +166,7 @@ namespace Web.Controllers
                 }
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
-                var response = await client.GetAsync($"{apiUrl}/user/byRole/5");
+                var response = await client.GetAsync($"{apiUrl}/users/role/5");
                 var response2 = await client.GetAsync($"{apiUrl}/Combo/GetAllCombo");
                 if (response.IsSuccessStatusCode && response2.IsSuccessStatusCode)
                 {
@@ -309,7 +309,7 @@ namespace Web.Controllers
                 var client = _clientFactory.CreateClient();
                 CardCreateModel card = null;
                 HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Card/GetById?id=" + id);
-                var response1 = await client.GetAsync($"{apiUrl}/user/byRole/5");
+                var response1 = await client.GetAsync($"{apiUrl}/users/role/5");
                 var response2 = await client.GetAsync($"{apiUrl}/Combo/GetAllCombo");
                 if (response.IsSuccessStatusCode && response1.IsSuccessStatusCode && response2.IsSuccessStatusCode)
                 {

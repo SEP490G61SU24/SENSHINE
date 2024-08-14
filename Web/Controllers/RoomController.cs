@@ -129,7 +129,7 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, "Nhập tên chi nhánh");
+                        ModelState.AddModelError(string.Empty, "Chi nhánh không tồn tại");
 
                         return View(room);
                     }
