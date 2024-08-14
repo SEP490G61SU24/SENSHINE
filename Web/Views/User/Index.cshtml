@@ -1,4 +1,4 @@
-﻿@model IEnumerable<API.Dtos.UserDTO>
+﻿@model API.Ultils.PaginatedList<API.Dtos.UserDTO>
 
 @{
     ViewData["Title"] = "Quản Lý Người Dùng";
@@ -50,7 +50,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model)
+                    @foreach (var item in Model.Items)
                     {
                         <tr>
                             <td>@item.Id</td>
@@ -93,7 +93,6 @@
     <script src="~/assets/js/slick/slick.js"></script>
     <script src="~/assets/js/header-slick.js"></script>
     <!-- calendar js-->
-    <script src="~/assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
     <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
