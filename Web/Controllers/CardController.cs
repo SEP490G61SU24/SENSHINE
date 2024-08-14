@@ -66,7 +66,7 @@ namespace Web.Controllers
 
                 foreach (var card in cards)
                 {
-                    HttpResponseMessage response1 = await client.GetAsync($"{apiUrl}/user/" + card.CustomerId);
+                    HttpResponseMessage response1 = await client.GetAsync($"{apiUrl}/users/" + card.CustomerId);
                     string data1 = response1.Content.ReadAsStringAsync().Result;
                     user = JsonConvert.DeserializeObject<UserDTO>(data1);
                     card.CustomerName = user.FirstName + " " + user.MidName + " " + user.LastName;
@@ -108,7 +108,7 @@ namespace Web.Controllers
 
                     cardCombos = JsonConvert.DeserializeObject<List<CardComboViewModel>>(data1);
 
-                    HttpResponseMessage response2 = await client.GetAsync($"{apiUrl}/user/" + card.CustomerId);
+                    HttpResponseMessage response2 = await client.GetAsync($"{apiUrl}/users/" + card.CustomerId);
                     if (response2.IsSuccessStatusCode)
                     {
                         string response2Body = response2.Content.ReadAsStringAsync().Result;

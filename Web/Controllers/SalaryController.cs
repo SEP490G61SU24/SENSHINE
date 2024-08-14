@@ -73,7 +73,7 @@ namespace Web.Controllers
 
                     foreach (var salary in salaries)
                     {
-                        HttpResponseMessage response1 = client.GetAsync($"{apiUrl}/user/" + salary.EmployeeId).Result;
+                        HttpResponseMessage response1 = client.GetAsync($"{apiUrl}/users/" + salary.EmployeeId).Result;
                         if (response1.IsSuccessStatusCode)
                         {
                             string response1Body = response1.Content.ReadAsStringAsync().Result;
@@ -231,7 +231,7 @@ namespace Web.Controllers
                 {
                     string data = await response.Content.ReadAsStringAsync();
                     salary = JsonConvert.DeserializeObject<SalaryViewModel>(data);
-                    HttpResponseMessage response1 = client.GetAsync($"{apiUrl}/user/" + salary.EmployeeId).Result;
+                    HttpResponseMessage response1 = client.GetAsync($"{apiUrl}/users/" + salary.EmployeeId).Result;
                     if (response1.IsSuccessStatusCode)
                     {
                         string response1Body = response1.Content.ReadAsStringAsync().Result;
