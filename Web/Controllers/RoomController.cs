@@ -32,7 +32,7 @@ namespace Web.Controllers
                 List<RoomViewModel> rooms = new List<RoomViewModel>();
                 List<BranchViewModel> branches = new List<BranchViewModel>();
                 HttpResponseMessage response = client.GetAsync($"{apiUrl}/Room/GetAll").Result;
-                int? spaId = 1;
+                int? spaId = 0;
                 var token = HttpContext.Session.GetString("Token");
 
                 if (!string.IsNullOrEmpty(token))
@@ -97,7 +97,7 @@ namespace Web.Controllers
         {
             try
             {
-                int? spaId = 1;
+                int? spaId = 0;
                 var token = HttpContext.Session.GetString("Token");
 
                 if (!string.IsNullOrEmpty(token))
@@ -180,7 +180,7 @@ namespace Web.Controllers
         {
             try
             {
-                int? spaId = 1;
+                int? spaId = 0;
                 var token = HttpContext.Session.GetString("Token");
 
                 if (!string.IsNullOrEmpty(token))

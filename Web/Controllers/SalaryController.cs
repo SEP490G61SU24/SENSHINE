@@ -29,7 +29,7 @@ namespace Web.Controllers
         {
             try
             {
-                int? spaId = 1;
+                int? spaId = 0;
                 var token = HttpContext.Session.GetString("Token");
 
                 if (!string.IsNullOrEmpty(token))
@@ -38,6 +38,7 @@ namespace Web.Controllers
                     if (userProfile != null)
                     {
                         spaId = userProfile.SpaId;
+                        
                     }
                     else
                     {
@@ -100,7 +101,7 @@ namespace Web.Controllers
         {
             try
             {
-                int? spaId = 1;
+                int? spaId = 0;
                 var token = HttpContext.Session.GetString("Token");
 
                 if (!string.IsNullOrEmpty(token))
@@ -150,7 +151,7 @@ namespace Web.Controllers
         {
             try
             {
-                int? spaId = 1;
+                int? spaId = 0;
                 var token = HttpContext.Session.GetString("Token");
 
                 if (!string.IsNullOrEmpty(token))
@@ -201,7 +202,7 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, "Nhân viên này đã có lương tháng " + salary.SalaryMonth + " năm " + salary.SalaryYear);
+                        ModelState.AddModelError(string.Empty, "Nhân viên này đã có lương tháng " + salary.SalaryMonth + " năm " + salary.SalaryYear + " hoặc nhân viên không tồn tại");
                         return View(salary);
 
                     }

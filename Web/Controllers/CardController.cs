@@ -35,7 +35,8 @@ namespace Web.Controllers
                 UserDTO user = new UserDTO();
                 BranchViewModel branch = new BranchViewModel();
                 HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Card/GetAll");
-                int? spaId = 1;
+
+                int? spaId = 0;
                 var token = HttpContext.Session.GetString("Token");
 
                 if (!string.IsNullOrEmpty(token))
@@ -148,7 +149,7 @@ namespace Web.Controllers
         {
             try
             {
-                int? spaId = 1;
+                int? spaId = 0;
                 var token = HttpContext.Session.GetString("Token");
 
                 if (!string.IsNullOrEmpty(token))
@@ -204,7 +205,7 @@ namespace Web.Controllers
         {
             try
             {
-                int? spaId = 1;
+                int? spaId = 0;
                 var token = HttpContext.Session.GetString("Token");
 
                 if (!string.IsNullOrEmpty(token))
@@ -289,7 +290,7 @@ namespace Web.Controllers
         {
             try
             {
-                int? spaId = 1;
+                int? spaId = 0;
                 var token = HttpContext.Session.GetString("Token");
 
                 if (!string.IsNullOrEmpty(token))

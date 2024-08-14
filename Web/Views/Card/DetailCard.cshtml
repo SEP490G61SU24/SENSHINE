@@ -51,35 +51,26 @@
                 </dd>
             </dl>
         </div>
-        <div class="card">
+        <div class="card mt-4">
             <div class="card-body">
-                <table class="table">
-                    @if (cardCombos != null && cardCombos.Any())
-                    {
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Combo</th>
-                                    <th>Số buổi đã sử dụng</th>
-                                    <th>Số buổi còn lại</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var cardCombo in cardCombos)
-                                {
-                                    <tr>
-                                        <td>@cardCombo.ComboName</td>
-                                        <td>@cardCombo.SessionDone</td>
-                                        <td>@cardCombo.SessionLeft</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    }
-                    else
-                    {
-                        <p>No combos available.</p>
-                    }
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Combo</th>
+                            <th>Số buổi đã sử dụng</th>
+                            <th>Số buổi còn lại</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var cardCombo in cardCombos)
+                        {
+                            <tr>
+                                <td>@cardCombo.ComboName</td>
+                                <td>@cardCombo.SessionDone</td>
+                                <td>@cardCombo.SessionLeft</td>
+                            </tr>
+                        }
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -113,6 +104,12 @@
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
     <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+
+    <style>
+        .table tbody tr:last-child td {
+            border-bottom: 1px solid #dee2e6;
+        }
+    </style>
 }
 
 @section Scripts {
