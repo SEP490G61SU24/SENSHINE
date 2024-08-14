@@ -10,5 +10,6 @@ namespace API.Services
         Task<Spa> UpdateBranch(int id, Spa branch);
         Task<bool> DeleteBranch(int id);
         bool BranchExist(int id);
+        int? GetBranchIdByUserId(int id);
     }
 }
