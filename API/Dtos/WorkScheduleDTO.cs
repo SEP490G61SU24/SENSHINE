@@ -12,5 +12,6 @@ namespace API.Dtos
 		public DateTime? EndDateTime { get; set; }
         public string? Status { get; set; }
         public string? EmployeeName { get; set; }
+        public string? Phone { get; set; }
     }
 }

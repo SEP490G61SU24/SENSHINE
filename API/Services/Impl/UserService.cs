@@ -197,6 +197,38 @@ namespace API.Services.Impl
             return _mapper.Map<IEnumerable<UserDTO>>(users);
         }
 
+        public async Task<PaginatedList<UserDTO>> GetUsersByRoleWithPage(int roleId, int pageIndex = 1, int pageSize = 10, string searchTerm = null)
+        {
+            // Tạo query cơ bản
+            IQueryable<User> query = _context.Users.Include(u => u.Roles).Where(u => u.Roles.Any(r => r.Id == roleId));
+
+            // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(u => u.UserName.Contains(searchTerm) ||
+                                         u.Phone.Contains(searchTerm) ||
+                                         u.FirstName.Contains(searchTerm) ||
+                                         u.LastName.Contains(searchTerm));
+            }
+
+            // Đếm tổng số bản ghi để tính tổng số trang
+            var count = await query.CountAsync();
+
+            // Lấy danh sách với phân trang
+            var users = await query.Skip((pageIndex - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync();
+            var userDtos = _mapper.Map<IEnumerable<UserDTO>>(users);
+
+            return new PaginatedList<UserDTO>
+            {
+                Items = userDtos,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = count,
+            };
+        }
+
         public async Task<IEnumerable<UserDTO>> GetAll()
         {
             var users = await (from user in _context.Users.Include(u => u.Roles).Where(u => u.Roles.All(r => r.Id != 5))
@@ -219,7 +251,7 @@ namespace API.Services.Impl
         public async Task<PaginatedList<UserDTO>> GetUsers(int pageIndex = 1, int pageSize = 10, string searchTerm = null)
         {
             // Tạo query cơ bản
-            var query = _context.Users.Include(u => u.Roles).Where(u => u.Roles.All(r => r.Id != 5));
+            IQueryable<User> query = _context.Users.Include(u => u.Roles).Where(u => u.Roles.All(r => r.Id != 5));
 
             // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
             if (!string.IsNullOrEmpty(searchTerm))

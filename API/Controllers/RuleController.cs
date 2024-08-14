@@ -19,10 +19,26 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
         {
-            var rules = await _ruleService.GetAllRules();
-            return Ok(rules);
+            try
+            {
+                if (pageIndex < 1 || pageSize < 1)
+                {
+                    return BadRequest("Chỉ số trang hoặc kích thước trang không hợp lệ.");
+                }
+
+                var paged = await _ruleService.GetRules(pageIndex, pageSize, searchTerm);
+                return Ok(paged);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
         [HttpGet("{id}")]

@@ -37,33 +37,31 @@
     <div class="card-body">
         <div class="table-responsive custom-scrollbar">
             <div class="search-page">
+                <form class="theme-form mb-3" method="GET">
+                    <div class="dataTables_length" id="table_length">
+                        <label>
+                            Hiển thị
+                            <select aria-controls="table" class="" asp-for="PageSize" name="PageSize" id="PageSize" onchange="this.form.submit()">
+                                @foreach (var pSize in new List<(int Value, string Name)>
+                                {
+                                (Value: 5, Name: "5"),
+                                (Value: 10, Name: "10"),
+                                (Value: 25, Name: "25"),
+                                (Value: 50, Name: "50"),
+                                (Value: 100, Name: "100"),
+                                })
+                                {
+                                    <option value="@pSize.Value" selected="@(pSize.Value == Model.PageSize ? "selected" : null)">@pSize.Name</option>
+                                }
+                            </select>
+                            bản ghi
+                        </label>
+                    </div>
 
-            <form class="theme-form mb-3" method="GET">
-                <div class="dataTables_length" id="table_length">
-                    <label>
-                        Hiển thị
-                        <select aria-controls="table" class="" asp-for="PageSize" name="PageSize" id="PageSize" onchange="this.form.submit()">
-                            @foreach (var pSize in new List<(int Value, string Name)>
-                            {
-                            (Value: 5, Name: "5"),
-                            (Value: 10, Name: "10"),
-                            (Value: 25, Name: "25"),
-                            (Value: 50, Name: "50"),
-                            (Value: 100, Name: "100"),
-                            })
-                            {
-                                <option value="@pSize.Value" selected="@(pSize.Value == Model.PageSize ? "selected" : null)">@pSize.Name</option>
-                            }
-                        </select>
-                        bản ghi
-                    </label>
-                </div>
-
-                <div class="input-group m-0 flex-nowrap">
-                    <input class="form-control-plaintext" name="searchTerm" type="search" value="@(Model.SearchTerm ?? null)" placeholder="Nhập tên, số điện thoại ..."><button class="btn btn-primary input-group-text">Tìm kiếm</button>
-                </div>
-                
-            </form>
+                    <div class="input-group m-0 flex-nowrap">
+                        <input class="form-control-plaintext" name="searchTerm" type="search" value="@(Model.SearchTerm ?? null)" placeholder="Nhập tên, số điện thoại ..."><button class="btn btn-primary input-group-text">Tìm kiếm</button>
+                    </div>
+                </form>
             </div>
 
             <table class="display" id="table">

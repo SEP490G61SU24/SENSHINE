@@ -2,6 +2,7 @@
 using API.Dtos;
 using API.Models;
 using Microsoft.EntityFrameworkCore;
+using API.Ultils;
 
 namespace API.Services.Impl
 {
@@ -20,6 +21,38 @@ namespace API.Services.Impl
         {
             var rules = await _context.Rules.ToListAsync();
             return _mapper.Map<IEnumerable<RuleDTO>>(rules);
+        }
+
+        public async Task<PaginatedList<RuleDTO>> GetRules(int pageIndex, int pageSize, string searchTerm)
+        {
+            // Tạo query cơ bản
+            IQueryable<Rule> query = _context.Rules;
+
+            // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(r => r.Title.Contains(searchTerm) ||
+                                         r.Path.Contains(searchTerm) ||
+                                         r.Remark.Contains(searchTerm));
+            }
+
+            // Đếm tổng số bản ghi để tính tổng số trang
+            var count = await query.CountAsync();
+
+            // Lấy danh sách với phân trang
+            var dataRules = await query.Skip((pageIndex - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync();
+
+            var ruleDtos = _mapper.Map<IEnumerable<RuleDTO>>(dataRules);
+
+            return new PaginatedList<RuleDTO>
+            {
+                Items = ruleDtos,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = count,
+            };
         }
 
         public async Task<RuleDTO> GetRuleById(int id)

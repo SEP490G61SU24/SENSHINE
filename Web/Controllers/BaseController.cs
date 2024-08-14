@@ -29,7 +29,7 @@ namespace Web.Controllers
                 using var client = _clientFactory.CreateClient();
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-                var response = await client.GetAsync($"{apiUrl}/user/profile");
+                var response = await client.GetAsync($"{apiUrl}/users/profile");
 
                 if (response.IsSuccessStatusCode)
                 {

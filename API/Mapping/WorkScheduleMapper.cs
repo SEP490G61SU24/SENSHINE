@@ -10,6 +10,7 @@ namespace API.Mapping
         {
             CreateMap<WorkSchedule, WorkScheduleDTO>()
                    .ForMember(dest => dest.EmployeeName, opt => opt.MapFrom(src => src.Employee.FirstName + " " + src.Employee.MidName + " " + src.Employee.LastName))
+                   .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.Employee.Phone))
                    .ReverseMap();
         }
     }

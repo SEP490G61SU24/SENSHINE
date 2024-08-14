@@ -4,6 +4,7 @@ using API.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using API.Ultils;
 
 namespace API.Services.Impl
 {
@@ -71,6 +72,39 @@ namespace API.Services.Impl
                 .ToListAsync();
 
             return _mapper.Map<IEnumerable<WorkScheduleDTO>>(workSchedules);
+        }
+
+        public async Task<PaginatedList<WorkScheduleDTO>> GetWorkSchedules(int pageIndex, int pageSize, string searchTerm)
+        {
+            // Tạo query cơ bản
+            IQueryable<WorkSchedule> query = _context.WorkSchedules.Include(ws => ws.Employee);
+
+            // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(u => u.Employee.UserName.Contains(searchTerm) ||
+                                         u.Employee.Phone.Contains(searchTerm) ||
+                                         u.Employee.FirstName.Contains(searchTerm) ||
+                                         u.Employee.LastName.Contains(searchTerm));
+            }
+
+            // Đếm tổng số bản ghi để tính tổng số trang
+            var count = await query.CountAsync();
+
+            // Lấy danh sách với phân trang
+            var wsList = await query.Skip((pageIndex - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync();
+
+            var wsDtos = _mapper.Map<IEnumerable<WorkScheduleDTO>>(wsList);
+
+            return new PaginatedList<WorkScheduleDTO>
+            {
+                Items = wsDtos,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = count,
+            };
         }
     }
 }
