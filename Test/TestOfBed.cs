@@ -48,6 +48,5 @@ namespace API.UnitTests.Controllers
             Assert.AreEqual("B1", returnValue.BedNumber);
         }
 
-       
     }
 }
