@@ -38,7 +38,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h4 class="card-title">Service List</h4>
                         <a class="btn btn-primary" href="@Url.Action("CreateService", "Service")">
-                            <i class="fa fa-plus"></i> Add New Service
+                            <i class="fa fa-plus"></i> Tạo Dịch Vụ Mới
                         </a>
                     </div>
 
@@ -63,11 +63,11 @@
                                             <div class="d-flex">
                                                 <form asp-action="EditService" method="get" class="me-2">
                                                     <input type="hidden" name="id" value="@item.Id" />
-                                                    <button type="submit" class="btn btn-link text-warning">Edit</button>
+                                                    <button type="submit" class="btn btn-link text-warning">Chỉnh Sửa</button>
                                                 </form>
                                                 <form asp-action="DetailService" method="get" class="me-2">
                                                     <input type="hidden" name="id" value="@item.Id" />
-                                                    <button type="submit" class="btn btn-link text-info">Details</button>
+                                                    <button type="submit" class="btn btn-link text-info">Chi Tiết</button>
                                                 </form>
                                                 <form asp-action="DeleteService1" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Are you sure you want to delete this service?');">
                                                     <button type="submit" class="btn btn-link text-danger">Delete</button>

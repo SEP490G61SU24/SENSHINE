@@ -51,7 +51,7 @@ namespace API.Controllers
             return Ok(new { Token = tokenString });
         }
 
-        private string GenerateJwtToken(User user)
+        private string GenerateJwtToken(UserDTO user)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);

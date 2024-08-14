@@ -142,13 +142,13 @@
                         url: '/rule/delete/' + id,
                         type: 'DELETE',
                         success: function (response) {
-                            swal("Đã xóa!", "Key cài đặt đã xóa thành công.", "success")
+                            swal("Đã xóa!", "Đã xóa thành công.", "success")
                                 .then(() => {
                                     location.reload();
                                 });
                         },
                         error: function (xhr, status, error) {
-                            swal("Lỗi!", "Key cài đặt xóa thất bại.", "error");
+                            swal("Lỗi!", "Xóa thất bại.", "error");
                         }
                     });
                 } else {

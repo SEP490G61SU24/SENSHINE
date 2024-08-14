@@ -6,6 +6,7 @@
 
 @{
     List<CardComboViewModel> cardCombos = ViewBag.CardCombos;
+    string branchName = ViewBag.BranchName;
 }
 
 <div class="card">
@@ -13,60 +14,63 @@
         <div>
             <dl class="row">
                 <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.CardNumber)
+                    @Html.DisplayNameFor(model => model.CardNumber):
                 </dt>
                 <dd class="col-sm-10">
                     @Html.DisplayFor(model => model.CardNumber)
                 </dd>
                 <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.CustomerName)
+                    @Html.DisplayNameFor(model => model.CustomerName):
                 </dt>
                 <dd class="col-sm-10">
                     @Html.DisplayFor(model => model.CustomerName)
                 </dd>
                 <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.CreateDate)
+                    @Html.DisplayNameFor(model => model.CustomerPhone):
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.CustomerPhone)
+                </dd>
+                <dt class="col-sm-2">
+                    Chi nhánh:
+                </dt>
+                <dd class="col-sm-10">
+                    @branchName
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.CreateDate):
                 </dt>
                 <dd class="col-sm-10">
                     @Html.DisplayFor(model => model.CreateDate)
                 </dd>
                 <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.Status)
+                    @Html.DisplayNameFor(model => model.Status):
                 </dt>
                 <dd class="col-sm-10">
                     @Html.DisplayFor(model => model.Status)
                 </dd>
             </dl>
         </div>
-        <div class="card">
+        <div class="card mt-4">
             <div class="card-body">
-                <table class="table">
-                    @if (cardCombos != null && cardCombos.Any())
-                    {
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Combo</th>
-                                    <th>Số buổi đã sử dụng</th>
-                                    <th>Số buổi còn lại</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var cardCombo in cardCombos)
-                                {
-                                    <tr>
-                                        <td>@cardCombo.ComboName</td>
-                                        <td>@cardCombo.SessionDone</td>
-                                        <td>@cardCombo.SessionLeft</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    }
-                    else
-                    {
-                        <p>No combos available.</p>
-                    }
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Combo</th>
+                            <th>Số buổi đã sử dụng</th>
+                            <th>Số buổi còn lại</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var cardCombo in cardCombos)
+                        {
+                            <tr>
+                                <td>@cardCombo.ComboName</td>
+                                <td>@cardCombo.SessionDone</td>
+                                <td>@cardCombo.SessionLeft</td>
+                            </tr>
+                        }
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -100,6 +104,12 @@
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
     <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+
+    <style>
+        .table tbody tr:last-child td {
+            border-bottom: 1px solid #dee2e6;
+        }
+    </style>
 }
 
 @section Scripts {
@@ -121,8 +131,8 @@
     <script src="~/assets/js/slick/slick.js"></script>
     <script src="~/assets/js/header-slick.js"></script>
     <!-- calendar js-->
-    <script src="~/assets/js/da tatable/datatables/jquery.dataTables.min.js"></script>
-    <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
+    <script src="~/assets/js/form-validation-custom.js"></script>
+    <script src="~/assets/js/height-equal.js"></script>
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
