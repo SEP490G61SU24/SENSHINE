@@ -79,10 +79,7 @@ namespace API.Controllers
         {
             var promotions = await _promotionService.GetPromotionsByFilter(spaLocation, startDate, endDate);
 
-            if (promotions == null || !promotions.Any())
-            {
-                return NotFound();
-            }
+            
             return Ok(promotions);
         }
 

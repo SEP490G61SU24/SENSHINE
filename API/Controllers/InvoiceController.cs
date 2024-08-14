@@ -49,95 +49,80 @@ namespace API.Controllers
 
 
         [HttpPost("AddInvoice")]
-        public async Task<ActionResult<Invoice>> CreateInvoice([FromBody] InvoiceDTO invoiceDto)
+        public async Task<ActionResult<InvoiceDTO>> CreateInvoice([FromBody] InvoiceDTO invoiceDto)
         {
             try
             {
-                
-
                 // Map DTO to Invoice entity
                 var newInvoice = _mapper.Map<Invoice>(invoiceDto);
-                
-                // Save the invoice
-                
 
-                // Handle Cards
-                if (invoiceDto.CardIds != null && invoiceDto.CardIds.Any())
-                {
-                    var existingCards = await _dbContext.Cards
-                      .Where(c => invoiceDto.CardIds.Contains(c.Id))
-                      .ToListAsync();
+                // Add the invoice to the context
+                _dbContext.Invoices.Add(newInvoice);
 
-                    if (existingCards.Count != invoiceDto.CardIds.Count)
-                    {
-                        return BadRequest("Một hoặc nhiều thẻ không tồn tại.");
-                    }
-
-                    foreach (var card in existingCards)
-                    {
-                        newInvoice.Cards.Add(card);
-                    }
-                }
+                // Save changes to get the Id for the new invoice
+                await _dbContext.SaveChangesAsync();
 
                 // Handle Services
                 if (invoiceDto.ServiceIds != null && invoiceDto.ServiceIds.Any())
                 {
-                    var existingServices = await _dbContext.Services
-                      .Where(c => invoiceDto.ServiceIds.Contains(c.Id))
-                      .ToListAsync();
+                    var serviceQuantities = invoiceDto.ServiceQuantities ?? new Dictionary<int, int?>();
 
-                    if (existingServices.Count != invoiceDto.ServiceIds.Count)
+                    foreach (var serviceId in invoiceDto.ServiceIds)
                     {
-                        return BadRequest("Một hoặc nhiều dịch vụ không tồn tại.");
-                    }
-
-                    foreach (var service in existingServices)
-                    {
-                        newInvoice.Services.Add(service);
+                        newInvoice.InvoiceServices.Add(new InvoiceService
+                        {
+                            InvoiceId = newInvoice.Id,
+                            ServiceId = serviceId,
+                            Quantity = serviceQuantities.ContainsKey(serviceId) ? serviceQuantities[serviceId] : null
+                        });
                     }
                 }
 
                 // Handle Combos
                 if (invoiceDto.ComboIds != null && invoiceDto.ComboIds.Any())
                 {
-                    var existingCombos = await _dbContext.Combos
-                      .Where(c => invoiceDto.ComboIds.Contains(c.Id)) 
-                      .ToListAsync();
+                    var comboQuantities = invoiceDto.ComboQuantities ?? new Dictionary<int, int?>();
 
-                    if (existingCombos.Count != invoiceDto.ComboIds.Count)
+                    foreach (var comboId in invoiceDto.ComboIds)
                     {
-                        return BadRequest("Một hoặc nhiều gói dịch vụ không tồn tại.");
-                    }
-
-                    foreach (var combo in existingCombos)
-                    {
-                        newInvoice.Combos.Add(combo);
+                        newInvoice.InvoiceCombos.Add(new InvoiceCombo
+                        {
+                            InvoiceId = newInvoice.Id,
+                            ComboId = comboId,
+                            Quantity = comboQuantities.ContainsKey(comboId) ? comboQuantities[comboId] : null
+                        });
                     }
                 }
-                _dbContext.Invoices.Add(newInvoice);
+
+                // Save changes again to persist InvoiceServices and InvoiceCombos
                 await _dbContext.SaveChangesAsync();
 
-
-                return CreatedAtAction(nameof(GetInvoice), new { id = newInvoice.Id }, newInvoice);
+                // Map back to DTO to return
+                var createdInvoiceDto = _mapper.Map<InvoiceDTO>(newInvoice);
+                return CreatedAtAction(nameof(GetInvoice), new { id = newInvoice.Id }, createdInvoiceDto);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                // Log the exception (implement logging as needed)
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
 
 
+
+
+
+
         [HttpPut("EditInvoice/{id}")]
-        public async Task<ActionResult<Invoice>> EditInvoice(int id, [FromBody] InvoiceDTO invoiceDto)
+        public async Task<ActionResult<InvoiceDTO>> EditInvoice(int id, [FromBody] InvoiceDTO invoiceDto)
         {
             try
             {
                 // Retrieve the existing invoice with related entities
                 var existingInvoice = await _dbContext.Invoices
-                    .Include(i => i.Cards)
-                    .Include(i => i.Services)
-                    .Include(i => i.Combos)
+                    .Include(i => i.InvoiceServices)
+                    .Include(i => i.InvoiceCombos)
                     .FirstOrDefaultAsync(i => i.Id == id);
 
                 if (existingInvoice == null)
@@ -148,70 +133,42 @@ namespace API.Controllers
                 // Map basic properties from DTO to existing invoice
                 _mapper.Map(invoiceDto, existingInvoice);
 
-                // Update Cards
-                if (invoiceDto.CardIds != null)
-                {
-                    var existingCards = await _dbContext.Cards
-                        .Where(c => invoiceDto.CardIds.Contains(c.Id))
-                        .ToListAsync();
-
-                    if (existingCards.Count != invoiceDto.CardIds.Count)
-                    {
-                        return BadRequest("One or more cards do not exist.");
-                    }
-
-                    // Clear existing cards and add the new ones
-                    existingInvoice.Cards.Clear();
-                    foreach (var card in existingCards)
-                    {
-                        existingInvoice.Cards.Add(card);
-                    }
-                }
-
                 // Update Services
+                existingInvoice.InvoiceServices.Clear();
                 if (invoiceDto.ServiceIds != null)
                 {
-                    var existingServices = await _dbContext.Services
-                        .Where(s => invoiceDto.ServiceIds.Contains(s.Id))
-                        .ToListAsync();
-
-                    if (existingServices.Count != invoiceDto.ServiceIds.Count)
+                    var serviceQuantities = invoiceDto.ServiceQuantities ?? new Dictionary<int, int?>();
+                    foreach (var serviceId in invoiceDto.ServiceIds)
                     {
-                        return BadRequest("One or more services do not exist.");
-                    }
-
-                    // Clear existing services and add the new ones
-                    existingInvoice.Services.Clear();
-                    foreach (var service in existingServices)
-                    {
-                        existingInvoice.Services.Add(service);
+                        existingInvoice.InvoiceServices.Add(new InvoiceService
+                        {
+                            InvoiceId = existingInvoice.Id,
+                            ServiceId = serviceId,
+                            Quantity = serviceQuantities.ContainsKey(serviceId) ? serviceQuantities[serviceId] : null
+                        });
                     }
                 }
 
                 // Update Combos
+                existingInvoice.InvoiceCombos.Clear();
                 if (invoiceDto.ComboIds != null)
                 {
-                    var existingCombos = await _dbContext.Combos
-                        .Where(c => invoiceDto.ComboIds.Contains(c.Id))
-                        .ToListAsync();
-
-                    if (existingCombos.Count != invoiceDto.ComboIds.Count)
+                    var comboQuantities = invoiceDto.ComboQuantities ?? new Dictionary<int, int?>();
+                    foreach (var comboId in invoiceDto.ComboIds)
                     {
-                        return BadRequest("One or more combos do not exist.");
-                    }
-
-                    // Clear existing combos and add the new ones
-                    existingInvoice.Combos.Clear();
-                    foreach (var combo in existingCombos)
-                    {
-                        existingInvoice.Combos.Add(combo);
+                        existingInvoice.InvoiceCombos.Add(new InvoiceCombo
+                        {
+                            InvoiceId = existingInvoice.Id,
+                            ComboId = comboId,
+                            Quantity = comboQuantities.ContainsKey(comboId) ? comboQuantities[comboId] : null
+                        });
                     }
                 }
 
                 // Save the updated invoice
                 await _dbContext.SaveChangesAsync();
 
-                // Return the updated invoice DTO
+                // Map back to DTO to return
                 var updatedInvoiceDto = _mapper.Map<InvoiceDTO>(existingInvoice);
                 return Ok(updatedInvoiceDto);
             }
@@ -231,8 +188,8 @@ namespace API.Controllers
                 // Retrieve the existing invoice with related entities
                 var existingInvoice = await _dbContext.Invoices
                     .Include(i => i.Cards)
-                    .Include(i => i.Services)
-                    .Include(i => i.Combos)
+                    .Include(i => i.InvoiceServices)
+                    .Include(i => i.InvoiceCombos)
                     .FirstOrDefaultAsync(i => i.Id == id);
 
                 if (existingInvoice == null)
@@ -242,8 +199,8 @@ namespace API.Controllers
 
                 // Clear related entities (optional, depending on cascade delete configuration)
                 existingInvoice.Cards.Clear();
-                existingInvoice.Services.Clear();
-                existingInvoice.Combos.Clear();
+                existingInvoice.InvoiceServices.Clear();
+                existingInvoice.InvoiceCombos.Clear();
 
                 // Remove the invoice from the database
                 _dbContext.Invoices.Remove(existingInvoice);

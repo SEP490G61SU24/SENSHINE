@@ -168,7 +168,7 @@ namespace Web.Controllers
                 // Convert ComboIdsString and ServiceIdsString to lists of integers
                 invoiceDto.ComboIds = invoiceDto.ComboIdsString?.Split(',').Select(int.Parse).ToList();
                 invoiceDto.ServiceIds = invoiceDto.ServiceIdsString?.Split(',').Select(int.Parse).ToList();
-
+               
                 
 
                 // Create a JSON content for the HTTP POST request
