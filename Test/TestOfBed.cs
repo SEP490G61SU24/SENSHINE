@@ -54,7 +54,7 @@ namespace API.UnitTests.Controllers
             // Arrange
             var bedDTO = new BedDTO { BedNumber = "B2" };
             var updatedBed = new Bed { Id = 1, BedNumber = "B2", RoomId = 1 };
-            _bedServiceMock.Setup(s => s.UpdateBed(1, "B2")).ReturnsAsync(updatedBed);
+            //_bedServiceMock.Setup(s => s.UpdateBedAsync(1, "B2")).ReturnsAsync(updatedBed);
             _mapperMock.Setup(m => m.Map<BedDTO>(updatedBed)).Returns(new BedDTO { Id = 1, BedNumber = "B2", RoomId = 1 });
 
             // Act

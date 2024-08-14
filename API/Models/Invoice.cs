@@ -8,8 +8,8 @@ namespace API.Models
         public Invoice()
         {
             Cards = new HashSet<Card>();
-            Combos = new HashSet<Combo>();
-            Services = new HashSet<Service>();
+            InvoiceServices = new HashSet<InvoiceService>();
+            InvoiceCombos = new HashSet<InvoiceCombo>();
         }
 
         public int Id { get; set; }
@@ -23,10 +23,10 @@ namespace API.Models
 		public virtual User? Customer { get; set; }
         public virtual Promotion? Promotion { get; set; }
         public virtual Spa? Spa { get; set; }
+        public virtual ICollection<InvoiceCombo> InvoiceCombos { get; set; }
+        public virtual ICollection<InvoiceService> InvoiceServices { get; set; }
 
         public virtual ICollection<Card> Cards { get; set; }
-        public virtual ICollection<Combo> Combos { get; set; }
-        public virtual ICollection<Service> Services { get; set; }
 
 
     }

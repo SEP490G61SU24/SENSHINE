@@ -143,6 +143,9 @@
                                     <label asp-for="PromotionName" class="control-label">Promotion Name</label>
                                     <input asp-for="PromotionName" class="form-control" readonly />
                                     <span asp-validation-for="PromotionName" class="text-danger"></span>
+
+                                    <input type="hidden" id="PromotionDiscount" value="@Model.DiscountPercentage" />
+
                                 </div>
                             </div>
 
@@ -172,11 +175,18 @@
                                         <div id="comboSelect" class="custom-select">
                                             @foreach (var combo in ViewBag.Combos ?? new List<API.Dtos.ComboDTO2>())
                                             {
-                                                <button type="button"
-                                                        class="btn @(Model.Combos.Any(c => c.Id == combo.Id) ? "btn-primary" : "btn-default")"
-                                                        data-id="@combo.Id">
-                                                    @combo.Name
-                                                </button>
+                                                var selectedCombo = Model.InvoiceCombos.FirstOrDefault(s => s.ComboId == combo.Id);
+                                                var quantitycombo = selectedCombo?.Quantity ?? 0;
+                                                <div>
+                                                    <button type="button"
+                                                            class="btn @(Model.InvoiceCombos.Any(c => c.ComboId == combo.Id) ? "btn-primary" : "btn-default")"
+                                                            data-id="@combo.Id" data-price="@combo.SalePrice">
+                                                        @combo.Name
+                                                    </button>
+                                                    <input type="number" 
+                                                           name="ComboQuantities[@combo.Id]" value="@quantitycombo"
+                                                           min="0"  />
+                                                </div>
                                             }
                                         </div>
                                     </div>
@@ -193,11 +203,19 @@
                                         <div id="serviceSelect" class="custom-select">
                                             @foreach (var service in ViewBag.Services ?? new List<API.Dtos.ServiceDTO2>())
                                             {
-                                                <button type="button"
-                                                        class="btn @(Model.Services.Any(c => c.Id == service.Id) ? "btn-primary" : "btn-default")"
-                                                        data-id="@service.Id">
-                                                    @service.ServiceName
-                                                </button>
+                                                var selectedService = Model.InvoiceServices.FirstOrDefault(s => s.ServiceId == service.Id);
+                                                var quantity = selectedService?.Quantity ?? 0;
+                                               
+                                               <div>
+                                                    <button type="button"
+                                                            class="btn @(Model.InvoiceServices.Any(c => c.ServiceId == service.Id) ? "btn-primary" : "btn-default")"
+                                                            data-id="@service.Id" data-price="@service.Amount">
+                                                        @service.ServiceName
+                                                    </button>
+                                                    <input type="number" 
+                                                           name="ServiceQuantities[@service.Id]" value="@quantity"
+                                                           min="0"  />
+                                                    </div>
                                             }
                                         </div>
                                     </div>
@@ -239,9 +257,39 @@
     <script src="~/assets/js/ecommerce.js"></script>
     <script src="~/assets/js/tooltip-init.js"></script>
     <script src="~/assets/js/script.js"></script>
-    
+
     <script>
         $(document).ready(function () {
+            // Function to calculate the total amount
+            function calculateTotalAmount() {
+                var totalAmount = 0;
+
+                // Retrieve selected combo quantities
+                $('#comboSelect').find('button.btn-primary').each(function () {
+                    var comboId = $(this).data('id');
+                    var quantity = $('input[name="ComboQuantities[' + comboId + ']"]').val() || 0;
+                    var price = $(this).data('price') || 0; // Assuming price is stored in the button's data attribute
+                    totalAmount += quantity * price;
+                });
+
+                // Retrieve selected service quantities
+                $('#serviceSelect').find('button.btn-primary').each(function () {
+                    var serviceId = $(this).data('id');
+                    var quantity = $('input[name="ServiceQuantities[' + serviceId + ']"]').val() || 0;
+                    var price = $(this).data('price') || 0; // Assuming price is stored in the button's data attribute
+                    totalAmount += quantity * price;
+                });
+
+                // Apply any promotion discount
+                var discountPercentage = parseFloat($('#PromotionDiscount').val()) || 0;
+                if (discountPercentage > 0) {
+                    totalAmount -= (totalAmount * (discountPercentage / 100));
+                }
+
+                // Update the Amount field
+                $('input[name="Amount"]').val(totalAmount.toFixed(2));
+            }
+
             // Handle combo selection
             $('#comboSelect').on('click', 'button', function () {
                 var $button = $(this);
@@ -258,6 +306,7 @@
                 }
 
                 $('#CombosInput').val(selectedComboIds.join(','));
+                calculateTotalAmount();
             });
 
             // Handle service selection
@@ -276,8 +325,24 @@
                 }
 
                 $('#ServicesInput').val(selectedServiceIds.join(','));
+                calculateTotalAmount();
+            });
+
+            // Handle quantity change
+            $('#comboSelect').on('change', 'input[type="number"]', function () {
+                calculateTotalAmount();
+            });
+
+            $('#serviceSelect').on('change', 'input[type="number"]', function () {
+                calculateTotalAmount();
+            });
+
+            // Handle promotion change if applicable
+            $('#PromotionDiscount').on('change', function () {
+                calculateTotalAmount();
             });
         });
     </script>
+
     
 }
