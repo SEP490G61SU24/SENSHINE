@@ -34,15 +34,8 @@ namespace Web.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    //var options = new JsonSerializerOptions
-                    //{
-                    //    PropertyNameCaseInsensitive = true
-                    //};
-
-                    //var jsonString = await response.Content.ReadAsStringAsync();
-                    //var paginatedResult = JsonSerializer.Deserialize<PaginatedList<UserDTO>>(jsonString, options);
-                    var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<UserDTO>>();
-
+                    var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<UserDTO>>();   
+                    paginatedResult.SearchTerm = searchTerm;
                     return View(paginatedResult);
                 }
                 else

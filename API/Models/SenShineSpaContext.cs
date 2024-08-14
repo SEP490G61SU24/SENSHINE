@@ -863,7 +863,7 @@ namespace API.Models
             {
                 entity.Property(e => e.Id).HasColumnName("id");
 
-                entity.Property(e => e.DayOfWeek).HasMaxLength(20);
+                entity.Property(e => e.Status).HasMaxLength(20);
 
                 entity.Property(e => e.EndDateTime).HasColumnType("datetime");
 
