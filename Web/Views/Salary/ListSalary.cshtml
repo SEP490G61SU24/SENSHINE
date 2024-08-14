@@ -2,100 +2,49 @@
 
 @{
     ViewData["Title"] = "Chi tiết lương";
+    ViewData["ActionName"] = "Tạo lương";
+    ViewData["ActionUrl"] = "/Salary/CreateSalary";
+    var salariesJson = System.Text.Json.JsonSerializer.Serialize(Model);
 }
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="list-product-header">
-                        <div>
-                            <div class="light-box">
-                                <a data-bs-toggle="collapse" href="list-products.html#collapseProduct" role="button" aria-expanded="false" aria-controls="collapseProduct">
-                                    <i class="filter-icon show" data-feather="filter"></i>
-                                    <i class="icon-close filter-close hide"></i>
-                                </a>
-                            </div>
-                            <a class="btn btn-primary" href="@Url.Action("CreateSalary", "Salary")"><i class="fa fa-plus"></i>Tạo lương</a>
-                        </div>
-                        <div class="collapse" id="collapseProduct">
-                            <div class="card card-body list-product-body">
-                                <form method="get" action="@Url.Action("ListSalary", "Salary")">
-                                    <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3">
-                                        <div class="col">
-                                            <select class="form-select" name="month" aria-label="Select Month">
-                                                <option selected="" disabled>Tháng</option>
-                                                @for (int i = 1; i <= 12; i++)
-                                                {
-                                                    <option value="@i">@i</option>
-                                                }
-                                            </select>
-                                        </div>
-                                        <div class="col">
-                                            <select class="form-select" name="year" aria-label="Select Year">
-                                                <option selected="" disabled>Năm</option>
-                                                @for (int y = 2021; y <= DateTime.Now.Year; y++)
-                                                {
-                                                    <option value="@y">@y</option>
-                                                }
-                                            </select>
-                                        </div>
-                                        <div class="col">
-                                            <button type="submit" class="btn btn-primary">Filter</button>
-                                        </div>
-                                        <div class="col">
-                                            <a href="@Url.Action("ListSalary", "Salary")" class="btn btn-secondary">Reset</a>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="list-product">
-                        <table class="table" id="project-status">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        <div class="form-check">
-                                            <input class="form-check-input checkbox-primary" type="checkbox">
-                                        </div>
-                                    </th>
-                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.EmployeeName)</span></th>
-                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.BaseSalary)</span></th>
-                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.Allowances)</span></th>
-                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.Bonus)</span></th>
-                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.Deductions)</span></th>
-                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.TotalSalary)</span></th>
-                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.SalaryMonth)</span></th>
-                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.SalaryYear)</span></th>
-                                    <th> <span class="f-light f-w-600">Thao tác</span></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var item in Model)
-                                {
-                                    <tr>
-                                        <td></td>
-                                        <td>@item.EmployeeName</td>
-                                        <td>@string.Format("{0:N0}", item.BaseSalary)</td>
-                                        <td>@string.Format("{0:N0}", item.Allowances)</td>
-                                        <td>@string.Format("{0:N0}", item.Bonus)</td>
-                                        <td>@string.Format("{0:N0}", item.Deductions)</td>
-                                        <td>@string.Format("{0:N0}", item.TotalSalary)</td>
-
-                                        <td>@item.SalaryMonth</td>
-                                        <td>@item.SalaryYear</td>
-                                        <td>
-                                            @Html.ActionLink("Cập nhật", "UpdateSalary", new { id = item.Id }, new { @href = "http://localhost:5129/Salary/UpdateSalary?id=" + item.Id })
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive custom-scrollbar">
+            <table class="display" id="basic-1">
+                <thead>
+                    <tr>
+                        <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.EmployeeName)</span></th>
+                        <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.BaseSalary)</span></th>
+                        <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.Allowances)</span></th>
+                        <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.Bonus)</span></th>
+                        <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.Deductions)</span></th>
+                        <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.TotalSalary)</span></th>
+                        <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.SalaryMonth)</span></th>
+                        <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.SalaryYear)</span></th>
+                        <th> <span class="f-light f-w-600">Thao tác</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.EmployeeName</td>
+                            <td>@string.Format("{0:N0}", item.BaseSalary)</td>
+                            <td>@string.Format("{0:N0}", item.Allowances)</td>
+                            <td>@string.Format("{0:N0}", item.Bonus)</td>
+                            <td>@string.Format("{0:N0}", item.Deductions)</td>
+                            <td>@string.Format("{0:N0}", item.TotalSalary)</td>
+                            <td>@item.SalaryMonth</td>
+                            <td>@item.SalaryYear</td>
+                            <td>
+                                <ul class="action">
+                                    <li class="edit"><a href="/Salary/UpdateSalary/@item.Id"><i class="icon-pencil-alt"></i></a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -115,19 +64,18 @@
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
-    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/js-datatables/style.css">
-    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/owlcarousel.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/datatables.css">
     <!-- Plugins css Ends-->
     <!-- Bootstrap css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
     <!-- App css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
+    <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 }
 
 @section Scripts {
-    <!-- Container-fluid Ends-->
     <script src="~/assets/js/jquery.min.js"></script>
     <!-- Bootstrap js-->
     <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
@@ -146,11 +94,8 @@
     <script src="~/assets/js/slick/slick.js"></script>
     <script src="~/assets/js/header-slick.js"></script>
     <!-- calendar js-->
-    <script src="~/assets/js/js-datatables/simple-datatables@latest.js"></script>
-    <script src="~/assets/js/custom-list-product.js"></script>
-    <script src="~/assets/js/owlcarousel/owl.carousel.js"></script>
-    <script src="~/assets/js/ecommerce.js"></script>
-    <script src="~/assets/js/tooltip-init.js"></script>
+    <script src="~/assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>

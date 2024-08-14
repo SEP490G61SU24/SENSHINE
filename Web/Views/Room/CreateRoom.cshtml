@@ -13,12 +13,6 @@
                 <input asp-for="RoomName" class="form-control" />
                 <span asp-validation-for="RoomName" class="text-danger"></span>
             </div>
-@*             <b>Chọn chi nhánh</b>
-            <div class="d-flex align-items-center">
-                <select id="selectBranchId" asp-for="SpaId" class="form-control custom-select" asp-items="@ViewBag.Spas"></select>
-                <span asp-validation-for="SpaId" class="text-danger custom-span"></span>
-                <button onclick="window.open('/Branch/CreateBranch', '_blank')" class="btn btn-secondary custom-button">Tạo mới</button>
-            </div> *@
             <br />
             <div class="col-12">
                 <input type="submit" value="Tạo mới" class="btn btn-primary" />
@@ -93,17 +87,9 @@
     <script src="~/assets/js/slick/slick.js"></script>
     <script src="~/assets/js/header-slick.js"></script>
     <!-- calendar js-->
-    <script src="~/assets/js/da tatable/datatables/jquery.dataTables.min.js"></script>
-    <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
+    <script src="~/assets/js/form-validation-custom.js"></script>
+    <script src="~/assets/js/height-equal.js"></script>
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-
-    <script>
-        $(function () {
-            $("#selectBranchId").select2();
-        });
-    </script>
 }

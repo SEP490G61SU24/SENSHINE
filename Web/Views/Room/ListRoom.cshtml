@@ -2,49 +2,35 @@
 
 @{
     ViewData["Title"] = "Quản lý phòng";
+    ViewData["ActionName"] = "Tạo phòng";
+    ViewData["ActionUrl"] = "/Room/CreateRoom";
+    var roomsJson = System.Text.Json.JsonSerializer.Serialize(Model);
 }
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="list-product-header">
-                        <div>
-                            <a class="btn btn-primary" href="@Url.Action("CreateRoom", "Room")"><i class="fa fa-plus"></i>Tạo phòng</a>
-                        </div>
-                    </div>
-                    <div class="list-product">
-                        <table class="table" id="project-status">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        <div class="form-check">
-                                            <input class="form-check-input checkbox-primary" type="checkbox">
-                                        </div>
-                                    </th>
-                                    <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.RoomName)</span></th>
-@*                                     <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.SpaName)</span></th> *@
-                                    <th> <span class="f-light f-w-600">Thao tác</span></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var item in Model)
-                                {
-                                    <tr>
-                                        <td></td>
-                                        <td>@item.RoomName</td>
-@*                                         <td>@item.SpaName</td> *@
-                                        <td>
-                                            @Html.ActionLink("Cập nhật", "UpdateRoom", new { id = item.Id }, new { @href = "http://localhost:5129/Room/UpdateRoom?id=" + item.Id })
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive custom-scrollbar">
+            <table class="display" id="basic-1">
+                <thead>
+                    <tr>
+                        <th> <span class="f-light f-w-600">@Html.DisplayNameFor(model => model.RoomName)</span></th>
+                        <th> <span class="f-light f-w-600">Thao tác</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.RoomName</td>
+                            <td>
+                                <ul class="action">
+                                    <li class="edit"><a href="/Room/UpdateRoom/@item.Id"><i class="icon-pencil-alt"></i></a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -64,19 +50,18 @@
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
-    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/js-datatables/style.css">
-    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/owlcarousel.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/datatables.css">
     <!-- Plugins css Ends-->
     <!-- Bootstrap css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
     <!-- App css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
+    <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 }
 
 @section Scripts {
-    <!-- Container-fluid Ends-->
     <script src="~/assets/js/jquery.min.js"></script>
     <!-- Bootstrap js-->
     <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
@@ -95,11 +80,8 @@
     <script src="~/assets/js/slick/slick.js"></script>
     <script src="~/assets/js/header-slick.js"></script>
     <!-- calendar js-->
-    <script src="~/assets/js/js-datatables/simple-datatables@latest.js"></script>
-    <script src="~/assets/js/custom-list-product.js"></script>
-    <script src="~/assets/js/owlcarousel/owl.carousel.js"></script>
-    <script src="~/assets/js/ecommerce.js"></script>
-    <script src="~/assets/js/tooltip-init.js"></script>
+    <script src="~/assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>

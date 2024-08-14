@@ -6,7 +6,7 @@
 
 <div class="card">
     <div class="card-body">
-        <form asp-action="UpdateSalary">
+        <form asp-action="UpdateSalary" class="row g-3 needs-validation custom-input" novalidate="">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group" type="hidden">
                 <input asp-for="Id" type="hidden" class="form-control" readonly />
@@ -21,64 +21,66 @@
                 <input asp-for="EmployeeName" class="form-control" readonly />
                 <span asp-validation-for="EmployeeName" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="col-md-6 position-relative">
                 <label asp-for="BaseSalary" class="control-label"></label>
                 <div class="input-group">
                     <input asp-for="BaseSalary" class="form-control" />
                     <div class="input-group-append">
-                        <span class="input-group-text">VND</span>
+                        <span class="input-group-text"><strong>VND</strong></span>
                     </div>
                 </div>
                 <span asp-validation-for="BaseSalary" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="col-md-6 position-relative">
                 <label asp-for="Allowances" class="control-label"></label>
                 <div class="input-group">
                     <input asp-for="Allowances" class="form-control" />
                     <div class="input-group-append">
-                        <span class="input-group-text">VND</span>
+                        <span class="input-group-text"><strong>VND</strong></span>
                     </div>
                 </div>
                 <span asp-validation-for="Allowances" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="col-md-6 position-relative">
                 <label asp-for="Bonus" class="control-label"></label>
                 <div class="input-group">
                     <input asp-for="Bonus" class="form-control" />
                     <div class="input-group-append">
-                        <span class="input-group-text">VND</span>
+                        <span class="input-group-text"><strong>VND</strong></span>
                     </div>
                 </div>
                 <span asp-validation-for="Bonus" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="col-md-6 position-relative">
                 <label asp-for="Deductions" class="control-label"></label>
                 <div class="input-group">
                     <input asp-for="Deductions" class="form-control" />
                     <div class="input-group-append">
-                        <span class="input-group-text">VND</span>
+                        <span class="input-group-text"><strong>VND</strong></span>
                     </div>
                 </div>
                 <span asp-validation-for="Deductions" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="col-md-6 position-relative">
                 <label asp-for="TotalSalary" class="control-label"></label>
                 <div class="input-group">
                     <input asp-for="TotalSalary" class="form-control" readonly />
                     <div class="input-group-append">
-                        <span class="input-group-text">VND</span>
+                        <span class="input-group-text"><strong>VND</strong></span>
                     </div>
                 </div>
                 <span asp-validation-for="TotalSalary" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="col-md-6 position-relative">
+            </div>
+            <div class="col-md-6 position-relative">
                 <label asp-for="SalaryMonth" class="control-label"></label>
                 <div class="input-group">
                     <input asp-for="SalaryMonth" class="form-control" readonly />
                 </div>
                 <span asp-validation-for="SalaryMonth" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="col-md-6 position-relative">
                 <label asp-for="SalaryYear" class="control-label"></label>
                 <div class="input-group">
                     <input asp-for="SalaryYear" class="form-control" readonly />
@@ -139,8 +141,8 @@
     <script src="~/assets/js/slick/slick.js"></script>
     <script src="~/assets/js/header-slick.js"></script>
     <!-- calendar js-->
-    <script src="~/assets/js/da tatable/datatables/jquery.dataTables.min.js"></script>
-    <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
+    <script src="~/assets/js/form-validation-custom.js"></script>
+    <script src="~/assets/js/height-equal.js"></script>
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>

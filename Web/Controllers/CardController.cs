@@ -352,6 +352,7 @@ namespace Web.Controllers
             {
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
+
                 if (ModelState.IsValid)
                 {
                     var json = JsonConvert.SerializeObject(card);
@@ -363,15 +364,13 @@ namespace Web.Controllers
                     {
                         if (string.IsNullOrEmpty(selectedCardIds) || selectedCardIds == "[]")
                         {
-                            Console.WriteLine("null " + selectedCardIds);
                             return RedirectToAction("ListCard");
                         }
                         else
                         {
-                            Console.WriteLine("k null " + selectedCardIds);
-                            HttpResponseMessage response1 = await client.GetAsync($"{apiUrl}/Card/GetByNumNamePhone?input=" + card.CardNumber);
-                            string data = response1.Content.ReadAsStringAsync().Result;
-                            List<CardViewModel> cardUpdated = JsonConvert.DeserializeObject<List<CardViewModel>>(data);
+                            HttpResponseMessage response3 = await client.GetAsync($"{apiUrl}/Card/GetByNumNamePhone?input=" + card.CardNumber);
+                            string data3 = response3.Content.ReadAsStringAsync().Result;
+                            List<CardViewModel> cardUpdated = JsonConvert.DeserializeObject<List<CardViewModel>>(data3);
                             int idd = 0;
                             foreach (var cct in cardUpdated)
                             {
@@ -388,37 +387,17 @@ namespace Web.Controllers
                                 cardCombo.CardId = idd;
                                 cardCombo.ComboId = id;
                                 cardCombo.SessionDone = 0;
-                                var json2 = JsonConvert.SerializeObject(cardCombo);
-                                Console.WriteLine(json2);
-                                var content2 = new StringContent(json2, Encoding.UTF8, "application/json");
-                                HttpResponseMessage response2 = await client.PostAsync($"{apiUrl}/Card/AddCombo", content2);
+                                var json4 = JsonConvert.SerializeObject(cardCombo);
+                                var content4 = new StringContent(json4, Encoding.UTF8, "application/json");
+                                HttpResponseMessage response4 = await client.PostAsync($"{apiUrl}/Card/AddCombo", content4);
                             }
                         }
                         return RedirectToAction("ListCard");
                     }
                     else
                     {
-                        var response1 = await client.GetAsync($"{apiUrl}/user/byRole/5");
-                        var response2 = await client.GetAsync($"{apiUrl}/Combo/GetAllCombo");
-                        if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode)
-                        {
-                            var users = response1.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
-                            foreach (var user in users)
-                            {
-                                user.FullName = string.Join(" ", user.FirstName ?? "", user.MidName ?? "", user.LastName ?? "").Trim();
-                                user.FullName = string.Join(", ", user.FullName ?? "", user.Phone ?? "").Trim();
-                            }
-                            ViewBag.Users = new SelectList(users, "Id", "FullName");
-                            var combos = response2.Content.ReadFromJsonAsync<IEnumerable<ComboCardViewModel>>().Result;
-                            foreach (var combo in combos)
-                            {
-                                string formattedNumber = string.Format("{0:N0}", combo.SalePrice);
-                                combo.SalePriceString = formattedNumber + " VNĐ";
-                            }
-                            ViewBag.Combos = combos;
-                            ModelState.AddModelError(string.Empty, "Error");
-                            return View(card);
-                        }
+                        ModelState.AddModelError(string.Empty, "Error");
+                        return View(card);
                     }
                 }
 

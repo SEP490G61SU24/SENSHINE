@@ -115,8 +115,7 @@ namespace Web.Controllers
                 room.SpaId = spaId;
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
-                //HttpResponseMessage response1 = client.GetAsync($"{apiUrl}/Branch/GetAll").Result;
-                //var branches = response1.Content.ReadFromJsonAsync<IEnumerable<BranchViewModel>>().Result;
+
                 if (ModelState.IsValid)
                 {
                     var json = JsonConvert.SerializeObject(room);
@@ -137,7 +136,6 @@ namespace Web.Controllers
 
                 }
 
-                //ViewBag.Spas = new SelectList(branches, "Id", "SpaName");
                 return View(room);
             }
             catch (Exception ex)
@@ -159,16 +157,6 @@ namespace Web.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    //HttpResponseMessage response1 = client.GetAsync($"{apiUrl}/Branch/GetAll").Result;
-                    //if (response1.IsSuccessStatusCode)
-                    //{
-                    //    var branches = response1.Content.ReadFromJsonAsync<IEnumerable<BranchViewModel>>().Result;
-                    //    ViewBag.Spas = new SelectList(branches, "Id", "SpaName");
-                    //}
-                    //else
-                    //{
-                    //    Console.WriteLine("Error");
-                    //}
                     string data = await response.Content.ReadAsStringAsync();
                     room = JsonConvert.DeserializeObject<RoomViewModel>(data);
                 }
@@ -210,16 +198,6 @@ namespace Web.Controllers
                 room.SpaId = spaId;
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
-                //HttpResponseMessage response1 = client.GetAsync($"{apiUrl}/Branch/GetAll").Result;
-                //if (response1.IsSuccessStatusCode)
-                //{
-                //    var branches = response1.Content.ReadFromJsonAsync<IEnumerable<BranchViewModel>>().Result;
-                //    ViewBag.Spas = new SelectList(branches, "Id", "SpaName");
-                //}
-                //else
-                //{
-                //    Console.WriteLine("Error");
-                //}
 
                 if (ModelState.IsValid)
                 {

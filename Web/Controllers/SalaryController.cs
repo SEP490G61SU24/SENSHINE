@@ -167,6 +167,27 @@ namespace Web.Controllers
                 }
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
+
+                var response1 = client.GetAsync($"{apiUrl}/user/byRole/3").Result;
+                var response2 = client.GetAsync($"{apiUrl}/user/byRole/4").Result;
+                if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode)
+                {
+                    var users1 = response1.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
+                    var users2 = response2.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
+                    var combinedUsers = users1.Concat(users2);
+                    combinedUsers = combinedUsers.Where(u => u.SpaId == spaId).ToList();
+                    foreach (var user in combinedUsers)
+                    {
+                        user.FullName = string.Join(" ", user.FirstName ?? "", user.MidName ?? "", user.LastName ?? "").Trim();
+                        user.FullName = string.Join(", ", user.FullName ?? "", user.Phone ?? "").Trim();
+                    }
+                    ViewBag.Users = new SelectList(combinedUsers, "Id", "FullName");
+                }
+                else
+                {
+                    return View("Error");
+                }
+
                 if (ModelState.IsValid)
                 {
                     var json = JsonConvert.SerializeObject(salary);
@@ -181,26 +202,8 @@ namespace Web.Controllers
                     else
                     {
                         ModelState.AddModelError(string.Empty, "Nhân viên này đã có lương tháng " + salary.SalaryMonth + " năm " + salary.SalaryYear);
-                        var response1 = client.GetAsync($"{apiUrl}/user/byRole/3").Result;
-                        var response2 = client.GetAsync($"{apiUrl}/user/byRole/4").Result;
-                        if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode)
-                        {
-                            var users1 = response1.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
-                            var users2 = response2.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
-                            var combinedUsers = users1.Concat(users2);
-                            combinedUsers = combinedUsers.Where(u => u.SpaId == spaId).ToList();
-                            foreach (var user in combinedUsers)
-                            {
-                                user.FullName = string.Join(" ", user.FirstName ?? "", user.MidName ?? "", user.LastName ?? "").Trim();
-                                user.FullName = string.Join(", ", user.FullName ?? "", user.Phone ?? "").Trim();
-                            }
-                            ViewBag.Users = new SelectList(combinedUsers, "Id", "FullName");
-                            return View(salary);
-                        }
-                        else
-                        {
-                            return View("Error");
-                        }
+                        return View(salary);
+
                     }
                 }
 
@@ -271,6 +274,7 @@ namespace Web.Controllers
                 salaryCreate.TotalSalary = salary.TotalSalary;
                 salaryCreate.SalaryMonth = salary.SalaryMonth;
                 salaryCreate.SalaryYear = salary.SalaryYear;
+
                 if (ModelState.IsValid)
                 {
                     var json = JsonConvert.SerializeObject(salaryCreate);

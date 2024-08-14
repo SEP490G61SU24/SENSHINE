@@ -17,7 +17,7 @@
             <div class="d-flex align-items-center">
                 <select id="selectCustomerId" asp-for="CustomerId" class="form-control custom-select" asp-items="@ViewBag.Users"></select>
                 <span asp-validation-for="CustomerId" class="text-danger custom-span"></span>
-                <button onclick="window.open('/User/Add', '_blank')" class="btn btn-secondary custom-button">Tạo mới</button>
+                <button onclick="window.open('/Customer/Add', '_blank')" class="btn btn-secondary custom-button">Tạo mới</button>
             </div>
             <br />
             <b>Chọn combo</b>
@@ -72,7 +72,6 @@
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
-    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/datatables.css">
     <!-- Plugins css Ends-->
     <!-- Bootstrap css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
@@ -110,21 +109,21 @@
         }
 
         .custom-button {
-            height: 45px; /* Set the button height */
+            height: 45px;
             width: 120px;
-            font-size: 0.75rem; /* Smaller font size */
-            line-height: 1.5; /* Adjust line height for vertical centering */
+            font-size: 0.75rem;
+            line-height: 1.5;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .custom-select {
-            margin-right: 15px; /* Adjust space between dropdown and validation */
+            margin-right: 15px;
         }
 
         .custom-span {
-            margin-right: 15px; /* Adjust space between validation and button */
+            margin-right: 15px;
         }
 
         .custom-container {
@@ -132,8 +131,8 @@
             border: 2px solid #ccc;
             padding: 20px;
             margin: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: add a subtle shadow */
-            border-radius: 4px; /* Optional: add border-radius for rounded corners */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
         }
 
         .custom-body {
@@ -174,8 +173,8 @@
     <script src="~/assets/js/slick/slick.js"></script>
     <script src="~/assets/js/header-slick.js"></script>
     <!-- calendar js-->
-    <script src="~/assets/js/da tatable/datatables/jquery.dataTables.min.js"></script>
-    <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
+    <script src="~/assets/js/form-validation-custom.js"></script>
+    <script src="~/assets/js/height-equal.js"></script>
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
