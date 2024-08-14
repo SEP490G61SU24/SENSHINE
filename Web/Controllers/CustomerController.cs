@@ -24,7 +24,7 @@ namespace Web.Controllers
 		{
 			var apiUrl = _configuration["ApiUrl"];
 			var client = _clientFactory.CreateClient();
-			var response = await client.GetAsync($"{apiUrl}/user/byRole/5");
+			var response = await client.GetAsync($"{apiUrl}/users/role/5");
 			if (response.IsSuccessStatusCode)
 			{
 				var users = await response.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>();
@@ -78,7 +78,7 @@ namespace Web.Controllers
 				var content = new StringContent(json, Encoding.UTF8, "application/json");
 
 				using var client = _clientFactory.CreateClient();
-				var response = await client.PostAsync($"{apiUrl}/user/add", content);
+				var response = await client.PostAsync($"{apiUrl}/users", content);
 
 				if (response.IsSuccessStatusCode)
 				{
@@ -108,7 +108,7 @@ namespace Web.Controllers
             {
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
-                var response = await client.GetAsync($"{apiUrl}/user/{id}");
+                var response = await client.GetAsync($"{apiUrl}/users/{id}");
                 if (response.IsSuccessStatusCode)
                 {
                     var user = await response.Content.ReadFromJsonAsync<UserDTO>();
@@ -162,7 +162,7 @@ namespace Web.Controllers
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 using var client = _clientFactory.CreateClient();
-                var response = await client.PutAsync($"{apiUrl}/user/update/{user.Id}", content);
+                var response = await client.PutAsync($"{apiUrl}/users/{user.Id}", content);
 
                 if (response.IsSuccessStatusCode)
                 {

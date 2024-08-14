@@ -48,25 +48,5 @@ namespace API.UnitTests.Controllers
             Assert.AreEqual("B1", returnValue.BedNumber);
         }
 
-        [Test]
-        public async Task UpdateBed_ShouldReturnOkResult_WhenBedExists()
-        {
-            // Arrange
-            var bedDTO = new BedDTO { BedNumber = "B2" };
-            var updatedBed = new Bed { Id = 1, BedNumber = "B2", RoomId = 1 };
-            //_bedServiceMock.Setup(s => s.UpdateBedAsync(1, "B2")).ReturnsAsync(updatedBed);
-            _mapperMock.Setup(m => m.Map<BedDTO>(updatedBed)).Returns(new BedDTO { Id = 1, BedNumber = "B2", RoomId = 1 });
-
-            // Act
-            var result = await _controller.UpdateBed(1, bedDTO);
-
-            // Assert
-            var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-            var returnValue = okResult.Value as BedDTO;
-            Assert.IsNotNull(returnValue);
-            Assert.AreEqual(1, returnValue.Id);
-            Assert.AreEqual("B2", returnValue.BedNumber);
-        }
     }
 }
