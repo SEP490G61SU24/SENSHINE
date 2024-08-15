@@ -113,11 +113,13 @@ namespace API.Models
                 entity.ToTable("Appointment");
 
                 entity.Property(e => e.Id).HasColumnName("id");
-
-                // Change AppointmentDate type to nvarchar
-                entity.Property(e => e.AppointmentDate)
+                entity.Property(e => e.AppointmentDate).HasColumnType("datetime");
+                // Change AppointmentSlot type to nvarchar
+                entity.Property(e => e.AppointmentSlot)
                     .IsRequired()
-                    .HasColumnType("nvarchar(max)");
+                    .HasMaxLength(15)
+                    .HasDefaultValueSql("('SLOT1')")
+                    .HasColumnType("nvarchar");
 
                 // Add RoomName and BedNumber properties
                 entity.Property(e => e.RoomName)

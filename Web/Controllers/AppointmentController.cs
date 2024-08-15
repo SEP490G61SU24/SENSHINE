@@ -133,6 +133,9 @@ namespace Web.Controllers
                 CustomerId = appointmentViewModel.CustomerId,
                 EmployeeId = appointmentViewModel.EmployeeId,
                 AppointmentDate = appointmentViewModel.AppointmentDate,
+                AppointmentSlot = appointmentViewModel.AppointmentSlot,
+                RoomName = appointmentViewModel.RoomName,
+                BedNumber = appointmentViewModel.BedNumber,
                 Status = appointmentViewModel.Status,
                 Services = appointmentViewModel.SelectedServiceIds.Select(id => new ServiceDTO { Id = id, ServiceName = "" }).ToList(),
                 Products = appointmentViewModel.SelectedProductIds.Select(id => new AppointmentDTO.AppointmentProductDTO { ProductId = id, ProductName = "" }).ToList()
@@ -182,6 +185,9 @@ namespace Web.Controllers
                 CustomerId = appointmentDTO.CustomerId,
                 EmployeeId = appointmentDTO.EmployeeId,
                 AppointmentDate = appointmentDTO.AppointmentDate ?? DateTime.Now,
+                AppointmentSlot = appointmentDTO.AppointmentSlot,
+                RoomName = appointmentDTO.RoomName,
+                BedNumber = appointmentDTO.BedNumber,
                 Status = appointmentDTO.Status,
                 SelectedServiceIds = appointmentDTO.Services.Select(s => s.Id).ToList(),
                 SelectedProductIds = appointmentDTO.Products.Select(p => p.ProductId).ToList()
@@ -224,6 +230,9 @@ namespace Web.Controllers
                 CustomerId = appointmentViewModel.CustomerId,
                 EmployeeId = appointmentViewModel.EmployeeId,
                 AppointmentDate = appointmentViewModel.AppointmentDate,
+                AppointmentSlot = appointmentViewModel.AppointmentSlot,
+                RoomName = appointmentViewModel.RoomName,
+                BedNumber = appointmentViewModel.BedNumber,
                 Status = appointmentViewModel.Status,
                 Services = appointmentViewModel.SelectedServiceIds.Select(id => new ServiceDTO { Id = id, ServiceName = "" }).ToList(),
                 Products = appointmentViewModel.SelectedProductIds.Select(id => new AppointmentDTO.AppointmentProductDTO { ProductId = id, ProductName = "" }).ToList()
@@ -287,7 +296,7 @@ namespace Web.Controllers
         private async Task<List<EmployeeViewModel>> GetAvailableEmployees()
         {
             List<EmployeeViewModel> employees = new List<EmployeeViewModel>();
-            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/user/byRole/4");
+            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/users/role/4");
 
             if (response.IsSuccessStatusCode)
             {
@@ -301,7 +310,7 @@ namespace Web.Controllers
         private async Task<List<UserDTO>> GetAvailableCustomers()
         {
             List<UserDTO> customers = new List<UserDTO>();
-            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/user/byRole/5");
+            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/users/role/5");
 
             if (response.IsSuccessStatusCode)
             {

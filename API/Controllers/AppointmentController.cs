@@ -67,6 +67,9 @@ namespace API.Controllers
                     CustomerId = appointment.CustomerId,
                     EmployeeId = appointment.EmployeeId,
                     AppointmentDate = appointment.AppointmentDate,
+                    AppointmentSlot = appointment.AppointmentSlot,
+                    RoomName = appointment.RoomName,
+                    BedNumber = appointment.BedNumber,
                     Status = appointment.Status,
                     Customer = new AppointmentUserDTO
                     {
@@ -152,6 +155,9 @@ namespace API.Controllers
                         CustomerId = appointment.CustomerId,
                         EmployeeId = appointment.EmployeeId,
                         AppointmentDate = appointment.AppointmentDate,
+                        AppointmentSlot = appointment.AppointmentSlot,
+                        RoomName = appointment.RoomName,
+                        BedNumber = appointment.BedNumber,
                         Status = appointment.Status,
                         Customer = new AppointmentUserDTO
                         {
@@ -220,17 +226,36 @@ namespace API.Controllers
                         return BadRequest("Employee does not exist.");
                     }
                 }
+                // Kiểm tra thời gian slot của cuộc hẹn
+                var validSlots = new List<string>
+                {
+                            AppointmentSlotUtils.Slot1,
+                            AppointmentSlotUtils.Slot2,
+                            AppointmentSlotUtils.Slot3,
+                            AppointmentSlotUtils.Slot4,
+                            AppointmentSlotUtils.Slot5,
+                            AppointmentSlotUtils.Slot6,
+                            AppointmentSlotUtils.Slot7,
+                            AppointmentSlotUtils.Slot8,
+                            AppointmentSlotUtils.Slot9
+                };
+
+                if (!validSlots.Contains(appointmentDTO.AppointmentSlot))
+                {
+                    return BadRequest("Invalid appointment slot.");
+                }
+
 
                 // Kiểm tra trạng thái cuộc hẹn
                 var validStatuses = new List<string>
                 {
-                AppointmentStatusUtils.Cancelled,
-                AppointmentStatusUtils.Pending,
-                AppointmentStatusUtils.Doing,
-                AppointmentStatusUtils.Finished,
-                AppointmentStatusUtils.Combo
+                        AppointmentStatusUtils.Cancelled,
+                        AppointmentStatusUtils.Pending,
+                        AppointmentStatusUtils.Doing,
+                        AppointmentStatusUtils.Finished,
+                        AppointmentStatusUtils.Combo
 
-        };
+                };
 
                 if (!validStatuses.Contains(appointmentDTO.Status))
                 {
@@ -330,6 +355,25 @@ namespace API.Controllers
                 if (!validStatuses.Contains(appointmentDTO.Status))
                 {
                     return BadRequest("Invalid status value.");
+                }
+
+                // Kiểm tra thời gian slot của cuộc hẹn
+                var validSlots = new List<string>
+        {
+            AppointmentSlotUtils.Slot1,
+            AppointmentSlotUtils.Slot2,
+            AppointmentSlotUtils.Slot3,
+            AppointmentSlotUtils.Slot4,
+            AppointmentSlotUtils.Slot5,
+            AppointmentSlotUtils.Slot6,
+            AppointmentSlotUtils.Slot7,
+            AppointmentSlotUtils.Slot8,
+            AppointmentSlotUtils.Slot9
+        };
+
+                if (!validSlots.Contains(appointmentDTO.AppointmentSlot))
+                {
+                    return BadRequest("Invalid appointment slot.");
                 }
 
                 // Kiểm tra sự tồn tại của khách hàng
