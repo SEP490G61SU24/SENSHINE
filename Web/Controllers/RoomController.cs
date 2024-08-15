@@ -46,7 +46,7 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ViewData["Error"] = "Failed to retrieve user profile.";
+                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
                     }
                 }
 
@@ -72,7 +72,7 @@ namespace Web.Controllers
                         }
                         else
                         {
-                            Console.WriteLine("Error");
+                            ViewData["Error"] = "Có lỗi xảy ra";
                         }
                     }
                 }
@@ -81,7 +81,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }
@@ -95,7 +96,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }
@@ -117,7 +119,7 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ViewData["Error"] = "Failed to retrieve user profile.";
+                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
                     }
                 }
                 room.SpaId = spaId;
@@ -137,8 +139,7 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, "Chi nhánh không tồn tại");
-
+                        ViewData["Error"] = "Chi nhánh không tồn tại";
                         return View(room);
                     }
 
@@ -148,7 +149,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }
@@ -171,14 +173,16 @@ namespace Web.Controllers
 
                 if (room == null)
                 {
-                    return NotFound("room không tồn tại");
+                    ViewData["Error"] = "phòng không tồn tại";
+                    return NotFound();
                 }
 
                 return View(room);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }
@@ -200,7 +204,7 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ViewData["Error"] = "Failed to retrieve user profile.";
+                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
                     }
                 }
                 room.SpaId = spaId;
@@ -220,7 +224,7 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, "Có lỗi xảy ra khi cập nhật room");
+                        ViewData["Error"] = "Có lỗi xảy ra khi cập nhật phòng";
                         return View(room);
                     }
                 }
@@ -229,7 +233,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }

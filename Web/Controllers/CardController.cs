@@ -50,14 +50,14 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ViewData["Error"] = "Failed to retrieve user profile.";
+                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
                     }
                 }
 
                 if (response.IsSuccessStatusCode)
                 {
                     string data = response.Content.ReadAsStringAsync().Result;
-                    cards = JsonConvert.DeserializeObject<PaginatedList< CardViewModel>>(data);
+                    cards = JsonConvert.DeserializeObject<PaginatedList<CardViewModel>>(data);
 
                     // Convert to a list to apply LINQ filters
                     var filteredCards = cards.Items.Where(c => c.BranchId == spaId).ToList();
@@ -84,8 +84,9 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
-                return View("Error");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
+                return View();
             }
         }
 
@@ -125,7 +126,7 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        Console.WriteLine("Error");
+                        ViewData["Error"] = "Có lỗi xảy ra";
                     }
                     foreach (var cc in cardCombos)
                     {
@@ -139,14 +140,15 @@ namespace Web.Controllers
 
                 if (card == null)
                 {
-                    return NotFound("Không tìm thấy card");
+                    ViewData["Error"] = "Không tìm thấy thẻ";
                 }
                 ViewBag.CardCombos = cardCombos;
                 return View(card);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }
@@ -168,7 +170,7 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ViewData["Error"] = "Failed to retrieve user profile.";
+                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
                     }
                 }
                 var apiUrl = _configuration["ApiUrl"];
@@ -197,12 +199,14 @@ namespace Web.Controllers
                 }
                 else
                 {
+                    ViewData["Error"] = "Có lỗi xảy ra";
                     return View("Error");
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }
@@ -224,7 +228,7 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ViewData["Error"] = "Failed to retrieve user profile.";
+                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
                     }
                 }
                 var apiUrl = _configuration["ApiUrl"];
@@ -278,7 +282,7 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, "Error");
+                        ViewData["Error"] = "Có lỗi xảy ra";
                         return View(card);
                     }
                 }
@@ -287,7 +291,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }
@@ -309,7 +314,7 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ViewData["Error"] = "Failed to retrieve user profile.";
+                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
                     }
                 }
                 var apiUrl = _configuration["ApiUrl"];
@@ -341,14 +346,15 @@ namespace Web.Controllers
 
                 if (card == null)
                 {
-                    return NotFound("Thẻ không tồn tại");
+                    ViewData["Error"] = "Thẻ không tồn tại";
                 }
 
                 return View(card);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }
@@ -404,7 +410,7 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, "Error");
+                        ViewData["Error"] = "Có lỗi xảy ra";
                         return View(card);
                     }
                 }
@@ -413,7 +419,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }
@@ -435,12 +442,14 @@ namespace Web.Controllers
                 }
                 else
                 {
-                    return BadRequest("Có lỗi xảy ra khi đổi trạng thái.");
+                    ViewData["Error"] = "Có lỗi xảy ra khi đổi trạng thái.";
+                    return BadRequest();
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }

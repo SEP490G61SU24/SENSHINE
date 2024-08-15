@@ -56,7 +56,7 @@ namespace Web.Controllers
                         }
                         else
                         {
-                            Console.WriteLine("Error");
+                            ViewData["Error"] = "Có lỗi xảy ra";
                         }
                     }
                 }
@@ -65,7 +65,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }
@@ -79,7 +80,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }
@@ -104,7 +106,7 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, "Error");
+                        ViewData["Error"] = "Có lỗi xảy ra";
                         return View(branch);
                     }
                 }
@@ -113,7 +115,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }
@@ -136,14 +139,16 @@ namespace Web.Controllers
 
                 if (branch == null)
                 {
-                    return NotFound("branch không tồn tại");
+                    ViewData["Error"] = "chi nhánh không tồn tại";
+                    return NotFound();
                 }
 
                 return View(branch);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }
@@ -168,7 +173,7 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, "Có lỗi xảy ra khi cập nhật branch");
+                        ViewData["Error"] = "Có lỗi xảy ra khi cập nhật chi nhánh";
                         return View(branch);
                     }
                 }
@@ -177,7 +182,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }
