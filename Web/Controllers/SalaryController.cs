@@ -1,5 +1,6 @@
 ﻿using API.Dtos;
 using API.Models;
+using API.Ultils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
@@ -25,7 +26,7 @@ namespace Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ListSalary(int? month, int? year)
+        public async Task<IActionResult> ListSalary(int? month, int? year, int pageIndex = 1, int pageSize = 10, string searchTerm = null)
         {
             try
             {
@@ -46,8 +47,9 @@ namespace Web.Controllers
                     }
                 }
                 var apiUrl = _configuration["ApiUrl"];
+                var url = $"{apiUrl}/Salary/GetAll?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}";
                 var client = _clientFactory.CreateClient();
-                List<SalaryViewModel> salaries = new List<SalaryViewModel>();
+                PaginatedList<SalaryViewModel> salaries = new PaginatedList<SalaryViewModel>();
                 HttpResponseMessage response = null;
                 if (month.HasValue && year.HasValue)
                 {
@@ -55,23 +57,26 @@ namespace Web.Controllers
                 }
                 else
                 {
-                    response = client.GetAsync($"{apiUrl}/Salary/GetAll").Result;
+                    response = client.GetAsync(url).Result;
                 }
                 if (response.IsSuccessStatusCode)
                 {
                     string data = response.Content.ReadAsStringAsync().Result;
-                    salaries = JsonConvert.DeserializeObject<List<SalaryViewModel>>(data);
+                    salaries = JsonConvert.DeserializeObject<PaginatedList<SalaryViewModel>>(data);
                     HttpResponseMessage response2 = null;
-                    foreach (var item in salaries)
+                    foreach (var item in salaries.Items)
                     {
                         response2 = client.GetAsync($"{apiUrl}/Branch/GetBranchByUser?id=" + item.EmployeeId).Result;
                         string data2 = response2.Content.ReadAsStringAsync().Result;
                         int BranchId = JsonConvert.DeserializeObject<int>(data2);
                         item.BranchId = BranchId;
                     }
-                    salaries = salaries.Where(s => s.BranchId == spaId).ToList();
 
-                    foreach (var salary in salaries)
+                    var filteredSalaries = salaries.Items.Where(r => r.BranchId == spaId).ToList();
+                    // Re-assign filtered cards back to the PaginatedList if necessary
+                    salaries.Items = filteredSalaries;
+
+                    foreach (var salary in salaries.Items)
                     {
                         HttpResponseMessage response1 = client.GetAsync($"{apiUrl}/users/" + salary.EmployeeId).Result;
                         if (response1.IsSuccessStatusCode)

@@ -22,20 +22,22 @@ namespace Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ListBranch()
+        public async Task<IActionResult> ListBranch(int pageIndex = 1, int pageSize = 10, string searchTerm = null)
         {
             try
             {
                 var apiUrl = _configuration["ApiUrl"];
+                var url = $"{apiUrl}/Branch/GetAll?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}";
                 var client = _clientFactory.CreateClient();
-                List<BranchViewModel> branchs = new List<BranchViewModel>();
-                HttpResponseMessage response = client.GetAsync($"{apiUrl}/Branch/GetAll").Result;
+                PaginatedList<BranchViewModel> branches = new PaginatedList<BranchViewModel>();
+                HttpResponseMessage response = client.GetAsync(url).Result;
 
                 if (response.IsSuccessStatusCode)
                 {
                     string data = response.Content.ReadAsStringAsync().Result;
-                    branchs = JsonConvert.DeserializeObject<List<BranchViewModel>>(data);
-                    foreach (var branch in branchs)
+                    branches = JsonConvert.DeserializeObject<PaginatedList<BranchViewModel>>(data);
+
+                    foreach (var branch in branches.Items)
                     {
                         HttpResponseMessage response1 = client.GetAsync($"{apiUrl}/provinces/" + branch.ProvinceCode).Result;
                         HttpResponseMessage response2 = client.GetAsync($"{apiUrl}/districts/" + branch.DistrictCode).Result;
@@ -59,7 +61,7 @@ namespace Web.Controllers
                     }
                 }
 
-                return View(branchs);
+                return View(branches);
             }
             catch (Exception ex)
             {

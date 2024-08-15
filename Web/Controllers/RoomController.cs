@@ -5,6 +5,7 @@ using System.Text;
 using Web.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
+using API.Ultils;
 
 namespace Web.Controllers
 {
@@ -23,15 +24,16 @@ namespace Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ListRoom()
+        public async Task<IActionResult> ListRoom(int pageIndex = 1, int pageSize = 10, string searchTerm = null)
         {
             try
             {
                 var apiUrl = _configuration["ApiUrl"];
+                var url = $"{apiUrl}/Room/GetAll?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}";
                 var client = _clientFactory.CreateClient();
-                List<RoomViewModel> rooms = new List<RoomViewModel>();
+                PaginatedList<RoomViewModel> rooms = new PaginatedList<RoomViewModel>();
                 List<BranchViewModel> branches = new List<BranchViewModel>();
-                HttpResponseMessage response = client.GetAsync($"{apiUrl}/Room/GetAll").Result;
+                HttpResponseMessage response = client.GetAsync(url).Result;
                 int? spaId = 0;
                 var token = HttpContext.Session.GetString("Token");
 
@@ -51,9 +53,15 @@ namespace Web.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     string data = response.Content.ReadAsStringAsync().Result;
-                    rooms = JsonConvert.DeserializeObject<List<RoomViewModel>>(data);
-                    rooms = rooms.Where(r => r.SpaId == spaId).ToList();
-                    foreach (var room in rooms)
+                    rooms = JsonConvert.DeserializeObject<PaginatedList<RoomViewModel>>(data);
+
+                    // Convert to a list to apply LINQ filters
+                    var filteredRooms = rooms.Items.Where(r => r.SpaId == spaId).ToList();
+
+                    // Re-assign filtered cards back to the PaginatedList if necessary
+                    rooms.Items = filteredRooms;
+
+                    foreach (var room in rooms.Items)
                     {
                         HttpResponseMessage response1 = client.GetAsync($"{apiUrl}/Branch/GetById?id=" + room.SpaId).Result;
                         if (response1.IsSuccessStatusCode)
