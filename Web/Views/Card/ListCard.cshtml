@@ -1,4 +1,5 @@
-﻿@model API.Ultils.PaginatedList<Web.Models.CardViewModel>
+﻿@using API.Dtos
+@model API.Ultils.PaginatedList<Web.Models.CardViewModel>
 
 @{
     ViewData["Title"] = "Quản lý thẻ";
@@ -12,28 +13,64 @@
         <div class="table-responsive custom-scrollbar">
             <div class="search-page">
                 <form class="theme-form mb-3" method="GET">
-                    <div class="dataTables_length" id="table_length">
-                        <label>
-                            Hiển thị
-                            <select aria-controls="table" class="" asp-for="PageSize" name="PageSize" id="PageSize" onchange="this.form.submit()">
-                                @foreach (var pSize in new List<(int Value, string Name)>
-                                {
-                                (Value: 5, Name: "5"),
-                                (Value: 10, Name: "10"),
-                                (Value: 25, Name: "25"),
-                                (Value: 50, Name: "50"),
-                                (Value: 100, Name: "100"),
-                                })
-                                {
-                                    <option value="@pSize.Value" selected="@(pSize.Value == Model.PageSize ? "selected" : null)">@pSize.Name</option>
-                                }
-                            </select>
-                            bản ghi
-                        </label>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="dataTables_length" id="table_length">
+                            <label>
+                                Hiển thị
+                                <select aria-controls="table" class="" asp-for="PageSize" name="PageSize" id="PageSize" onchange="this.form.submit()">
+                                    @foreach (var pSize in new List<(int Value, string Name)>
+                                    {
+                                    (Value: 5, Name: "5"),
+                                    (Value: 10, Name: "10"),
+                                    (Value: 25, Name: "25"),
+                                    (Value: 50, Name: "50"),
+                                    (Value: 100, Name: "100"),
+                                    })
+                                    {
+                                        <option value="@pSize.Value" selected="@(pSize.Value == Model.PageSize ? "selected" : null)">@pSize.Name</option>
+                                    }
+                                </select>
+                                bản ghi
+                            </label>
+                        </div>
+
+                        <!-- Filter Toggle Icon -->
+                        <div>
+                            <a data-bs-toggle="collapse" href="#collapseFilter" role="button" aria-expanded="false" aria-controls="collapseFilter">
+                                <i class="filter-icon" data-feather="filter"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Collapsible Filter Section -->
+                    <div class="collapse mt-3" id="collapseFilter">
+                        <div class="card card-body">
+                            <div class="row g-3">
+                                <!-- Filter by Status -->
+                                <div class="col">
+                                    <select class="form-select" name="status" aria-label="Select Status" onchange="this.form.submit()">
+                                        <option value="" selected disabled>Trạng thái</option>
+                                        <option value="Active">Hoạt động</option>
+                                        <option value="Deactive">Không hoạt động</option>
+                                    </select>
+                                </div>
+
+                                <!-- Filter by Customer -->
+                                <div class="col">
+                                    <select class="form-select" name="customer" aria-label="Select Customer" onchange="this.form.submit()">
+                                        <option value="" selected disabled>Khách hàng</option>
+                                        @foreach (var user in ViewBag.Users as IEnumerable<UserDTO>)
+                                        {
+                                            <option value="@user.Id">@user.FullName</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="input-group m-0 flex-nowrap">
-                        <input class="form-control-plaintext" name="searchTerm" type="search" value="@(Model.SearchTerm ?? null)" placeholder="Nhập tên, số điện thoại ..."><button class="btn btn-primary input-group-text">Tìm kiếm</button>
+                        <input class="form-control-plaintext" name="searchTerm" type="search" value="@(Model.SearchTerm ?? null)" placeholder="Nhập mã thẻ, tên khách hàng, số điện thoại ..."><button class="btn btn-primary input-group-text">Tìm kiếm</button>
                     </div>
                 </form>
             </div>
@@ -67,7 +104,7 @@
                             <td>
                                 @Html.DisplayFor(modelItem => item.CreateDate)
                             </td>
-                            <td>
+                            <td data-status="@item.Status">
                                 @Html.DisplayFor(modelItem => item.Status)
                             </td>
                             <td>
@@ -75,7 +112,7 @@
                                     <li class="edit"><a href="/Card/UpdateCard/@item.Id"><i class="icon-pencil-alt"></i></a></li>
                                     <li class="change state">
                                         <a href="/Card/ChangeStateCard/@item.Id" onclick="return confirmChangeState(@item.Id)">
-                                            <i class="icon-pencil-alt"></i>
+                                            <i class="fas fa-sync"></i>
                                         </a>
                                     </li>
                                 </ul>
@@ -137,6 +174,17 @@
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
     <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        .status-active {
+            color: green;
+        }
+
+        .status-deactive {
+            color: red;
+        }
+    </style>
 }
 
 @section Scripts {
@@ -179,6 +227,29 @@
             $('#table').DataTable({
                 paging: false,
                 searching: false
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            // Feather icons initialization
+            feather.replace();
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            // Apply color classes to status cells
+            $('#table tbody tr').each(function () {
+                var statusCell = $(this).find('td[data-status]');
+                var statusText = statusCell.data('status');
+
+                if (statusText === 'Active') {
+                    statusCell.addClass('status-active');
+                } else if (statusText === 'Deactive') {
+                    statusCell.addClass('status-deactive');
+                }
             });
         });
     </script>

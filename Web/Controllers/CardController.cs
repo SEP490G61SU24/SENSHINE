@@ -26,10 +26,14 @@ namespace Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ListCard(string? status, int pageIndex = 1, int pageSize = 10, string searchTerm = null)
+        public async Task<IActionResult> ListCard(string? status, int customer, int pageIndex = 1, int pageSize = 10, string searchTerm = null)
         {
             try
             {
+                // Get filter values from query parameters
+                ViewData["SelectedStatus"] = status;
+                ViewData["SelectedCustomer"] = customer;
+
                 var apiUrl = _configuration["ApiUrl"];
                 var url = $"{apiUrl}/Card/GetAll?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}";
                 var client = _clientFactory.CreateClient();
@@ -59,6 +63,32 @@ namespace Web.Controllers
                     string data = response.Content.ReadAsStringAsync().Result;
                     cards = JsonConvert.DeserializeObject<PaginatedList<CardViewModel>>(data);
 
+                    foreach (var card in cards.Items)
+                    {
+                        HttpResponseMessage response1 = await client.GetAsync($"{apiUrl}/users/" + card.CustomerId);
+                        string data1 = response1.Content.ReadAsStringAsync().Result;
+                        user = JsonConvert.DeserializeObject<UserDTO>(data1);
+                        card.CustomerName = user.FirstName + " " + user.MidName + " " + user.LastName;
+                        card.CustomerPhone = user.Phone;
+                    }
+
+                    var response2 = await client.GetAsync($"{apiUrl}/users/role/5");
+                    if (response2.IsSuccessStatusCode)
+                    {
+                        var users = response2.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
+                        users = users.Where(u => u.SpaId == spaId).ToList();
+                        foreach (var userNew in users)
+                        {
+                            userNew.FullName = string.Join(" ", userNew.FirstName ?? "", userNew.MidName ?? "", userNew.LastName ?? "").Trim();
+                            userNew.FullName = string.Join(", ", userNew.FullName ?? "", userNew.Phone ?? "").Trim();
+                        }
+                        ViewBag.Users = users;
+                    }
+                    else
+                    {
+                        ViewData["Error"] = "Có lỗi xảy ra";
+                    }
+
                     // Convert to a list to apply LINQ filters
                     var filteredCards = cards.Items.Where(c => c.BranchId == spaId).ToList();
 
@@ -67,17 +97,13 @@ namespace Web.Controllers
                         filteredCards = filteredCards.Where(c => c.Status.Equals(status, StringComparison.OrdinalIgnoreCase)).ToList();
                     }
 
+                    if (!customer.Equals(0))
+                    {
+                        filteredCards = filteredCards.Where(c => c.CustomerId.Equals(customer)).ToList();
+                    }
+
                     // Re-assign filtered cards back to the PaginatedList if necessary
                     cards.Items = filteredCards;
-                }
-
-                foreach (var card in cards.Items)
-                {
-                    HttpResponseMessage response1 = await client.GetAsync($"{apiUrl}/users/" + card.CustomerId);
-                    string data1 = response1.Content.ReadAsStringAsync().Result;
-                    user = JsonConvert.DeserializeObject<UserDTO>(data1);
-                    card.CustomerName = user.FirstName + " " + user.MidName + " " + user.LastName;
-                    card.CustomerPhone = user.Phone;
                 }
 
                 return View(cards);

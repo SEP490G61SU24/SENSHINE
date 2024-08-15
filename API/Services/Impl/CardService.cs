@@ -165,8 +165,7 @@ namespace API.Services.Impl
                 var cards = _context.Cards.Include(c => c.Customer);
 
                 return cards.Any(c => c.CardNumber.ToLower().Contains(input)
-                                     || (c.Customer.FirstName + " " + c.Customer.MidName + " " + c.Customer.LastName)
-                                        .ToLower().Contains(input)
+                                     || (c.Customer.FirstName + " " + c.Customer.MidName + " " + c.Customer.LastName).ToLower().Contains(input)
                                      || c.Customer.Phone.Contains(input));
             }
             catch (Exception ex)

@@ -26,7 +26,7 @@ namespace Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ListSalary(int? month, int? year, int pageIndex = 1, int pageSize = 10, string searchTerm = null)
+        public async Task<IActionResult> ListSalary(int month, int year, int employee, int pageIndex = 1, int pageSize = 10, string searchTerm = null)
         {
             try
             {
@@ -50,46 +50,57 @@ namespace Web.Controllers
                 var url = $"{apiUrl}/Salary/GetAll?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}";
                 var client = _clientFactory.CreateClient();
                 PaginatedList<SalaryViewModel> salaries = new PaginatedList<SalaryViewModel>();
-                HttpResponseMessage response = null;
-                if (month.HasValue && year.HasValue)
-                {
-                    response = client.GetAsync($"{apiUrl}/Salary/GetByMonthYear?month=" + month + "&year=" + year).Result;
-                }
-                else
-                {
-                    response = client.GetAsync(url).Result;
-                }
+                HttpResponseMessage response = await client.GetAsync(url);
+
                 if (response.IsSuccessStatusCode)
                 {
                     string data = response.Content.ReadAsStringAsync().Result;
                     salaries = JsonConvert.DeserializeObject<PaginatedList<SalaryViewModel>>(data);
-                    HttpResponseMessage response2 = null;
-                    foreach (var item in salaries.Items)
-                    {
-                        response2 = client.GetAsync($"{apiUrl}/Branch/GetBranchByUser?id=" + item.EmployeeId).Result;
-                        string data2 = response2.Content.ReadAsStringAsync().Result;
-                        int BranchId = JsonConvert.DeserializeObject<int>(data2);
-                        item.BranchId = BranchId;
-                    }
-
-                    var filteredSalaries = salaries.Items.Where(r => r.BranchId == spaId).ToList();
-                    // Re-assign filtered cards back to the PaginatedList if necessary
-                    salaries.Items = filteredSalaries;
-
+                    HttpResponseMessage response1 = null;
                     foreach (var salary in salaries.Items)
                     {
-                        HttpResponseMessage response1 = client.GetAsync($"{apiUrl}/users/" + salary.EmployeeId).Result;
-                        if (response1.IsSuccessStatusCode)
-                        {
-                            string response1Body = response1.Content.ReadAsStringAsync().Result;
-                            JObject json1 = JObject.Parse(response1Body);
-                            salary.EmployeeName = json1["firstName"].ToString() + " " + json1["midName"].ToString() + " " + json1["lastName"].ToString();
-                        }
-                        else
-                        {
-                            ViewData["Error"] = "Có lỗi xảy ra";
-                        }
+                        response1 = client.GetAsync($"{apiUrl}/users/" + salary.EmployeeId).Result;
+                        string response1Body = response1.Content.ReadAsStringAsync().Result;
+                        JObject json1 = JObject.Parse(response1Body);
+                        salary.EmployeeName = json1["firstName"].ToString() + " " + json1["midName"].ToString() + " " + json1["lastName"].ToString();
+                        salary.BranchId = Int32.Parse(json1["spaId"].ToString());
                     }
+
+                    var response4 = client.GetAsync($"{apiUrl}/users/role/3").Result;
+                    var response3 = client.GetAsync($"{apiUrl}/users/role/4").Result;
+                    if (response4.IsSuccessStatusCode && response3.IsSuccessStatusCode)
+                    {
+                        var users4 = response4.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
+                        var users3 = response3.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
+                        var combinedUsers = users4.Concat(users3);
+                        combinedUsers = combinedUsers.Where(u => u.SpaId == spaId).ToList();
+                        foreach (var user in combinedUsers)
+                        {
+                            user.FullName = string.Join(" ", user.FirstName ?? "", user.MidName ?? "", user.LastName ?? "").Trim();
+                            user.FullName = string.Join(", ", user.FullName ?? "", user.Phone ?? "").Trim();
+                        }
+                        ViewBag.Users = combinedUsers;
+                    }
+                    else
+                    {
+                        ViewData["Error"] = "Có lỗi xảy ra";
+                    }
+
+                    // Convert to a list to apply LINQ filters
+                    var filteredSalaries = salaries.Items.Where(s => s.BranchId == spaId).ToList();
+
+                    if (!month.Equals(0) && !year.Equals(0))
+                    {
+                        filteredSalaries = filteredSalaries.Where(s => s.SalaryMonth == month && s.SalaryYear == year).ToList();
+                    }
+
+                    if (!employee.Equals(0))
+                    {
+                        filteredSalaries = filteredSalaries.Where(s => s.EmployeeId.Equals(employee)).ToList();
+                    }
+
+                    // Re-assign filtered cards back to the PaginatedList if necessary
+                    salaries.Items = filteredSalaries;
                 }
 
                 return View(salaries);
@@ -209,7 +220,7 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ViewData["Error"] = "Nhân viên này đã có lương tháng " + salary.SalaryMonth + " năm " + salary.SalaryYear + " hoặc nhân viên không tồn tại";
+                        ViewData["Error"] = "Nhân viên này đã có lương tháng " + salary.SalaryMonth + " năm " + salary.SalaryYear;
                         return View(salary);
 
                     }

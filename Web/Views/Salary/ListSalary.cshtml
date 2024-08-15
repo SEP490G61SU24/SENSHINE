@@ -1,10 +1,12 @@
-﻿@model API.Ultils.PaginatedList<Web.Models.SalaryViewModel>
+﻿@using API.Dtos
+@model API.Ultils.PaginatedList<Web.Models.SalaryViewModel>
 
 @{
     ViewData["Title"] = "Chi tiết lương";
     ViewData["ActionName"] = "Tạo lương";
     ViewData["ActionUrl"] = "/Salary/CreateSalary";
     var salariesJson = System.Text.Json.JsonSerializer.Serialize(Model);
+    var currentYear = DateTime.Now.Year;
 }
 
 <div class="card">
@@ -12,28 +14,77 @@
         <div class="table-responsive custom-scrollbar">
             <div class="search-page">
                 <form class="theme-form mb-3" method="GET">
-                    <div class="dataTables_length" id="table_length">
-                        <label>
-                            Hiển thị
-                            <select aria-controls="table" class="" asp-for="PageSize" name="PageSize" id="PageSize" onchange="this.form.submit()">
-                                @foreach (var pSize in new List<(int Value, string Name)>
-                                {
-                                (Value: 5, Name: "5"),
-                                (Value: 10, Name: "10"),
-                                (Value: 25, Name: "25"),
-                                (Value: 50, Name: "50"),
-                                (Value: 100, Name: "100"),
-                                })
-                                {
-                                    <option value="@pSize.Value" selected="@(pSize.Value == Model.PageSize ? "selected" : null)">@pSize.Name</option>
-                                }
-                            </select>
-                            bản ghi
-                        </label>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="dataTables_length" id="table_length">
+                            <label>
+                                Hiển thị
+                                <select aria-controls="table" class="" asp-for="PageSize" name="PageSize" id="PageSize" onchange="this.form.submit()">
+                                    @foreach (var pSize in new List<(int Value, string Name)>
+                                    {
+                                    (Value: 5, Name: "5"),
+                                    (Value: 10, Name: "10"),
+                                    (Value: 25, Name: "25"),
+                                    (Value: 50, Name: "50"),
+                                    (Value: 100, Name: "100"),
+                                    })
+                                    {
+                                        <option value="@pSize.Value" selected="@(pSize.Value == Model.PageSize ? "selected" : null)">@pSize.Name</option>
+                                    }
+                                </select>
+                                bản ghi
+                            </label>
+                        </div>
+
+                        <!-- Filter Toggle Icon -->
+                        <div>
+                            <a data-bs-toggle="collapse" href="#collapseFilter" role="button" aria-expanded="false" aria-controls="collapseFilter">
+                                <i class="filter-icon" data-feather="filter"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Collapsible Filter Section -->
+                    <div class="collapse mt-3" id="collapseFilter">
+                        <div class="card card-body">
+                            <div class="row g-3">
+                                <!-- Filter by Month -->
+                                <div class="col">
+                                    <select id="monthSelect" class="form-select" name="month" aria-label="Select Month">
+                                        <option value="" selected disabled>Chọn tháng</option>
+                                        @for (int month = 1; month <= 12; month++)
+                                        {
+                                            <option value="@month">@month</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <!-- Filter by Year -->
+                                <div class="col">
+                                    <select id="yearSelect" class="form-select" name="year" aria-label="Select Year">
+                                        <option value="" selected disabled>Chọn năm</option>
+                                        @for (int year = 2020; year <= currentYear; year++)
+                                        {
+                                            <option value="@year">@year</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <!-- Filter by Employee -->
+                                <div class="col">
+                                    <select class="form-select" name="employee" aria-label="Select Employee" onchange="this.form.submit()">
+                                        <option value="" selected disabled>Nhân viên</option>
+                                        @foreach (var user in ViewBag.Users as IEnumerable<UserDTO>)
+                                        {
+                                            <option value="@user.Id">@user.FullName</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="input-group m-0 flex-nowrap">
-                        <input class="form-control-plaintext" name="searchTerm" type="search" value="@(Model.SearchTerm ?? null)" placeholder="Nhập tên, số điện thoại ..."><button class="btn btn-primary input-group-text">Tìm kiếm</button>
+                        <input class="form-control-plaintext" name="searchTerm" type="search" value="@(Model.SearchTerm ?? null)" placeholder="Nhập tên nhân viên, số điện thoại ..."><button class="btn btn-primary input-group-text">Tìm kiếm</button>
                     </div>
                 </form>
             </div>
@@ -41,11 +92,12 @@
             <table class="display" id="table">
                 <thead>
                     <tr>
-                        <th>Lương cơ bản</th>
-                        <th>Trợ cấp</th>
-                        <th>Thưởng</th>
-                        <th>Phạt</th>
-                        <th>Lương thực nhận</th>
+                        <th>Nhân viên</th>
+                        <th>Lương cơ bản (VND)</th>
+                        <th>Trợ cấp (VND)</th>
+                        <th>Thưởng (VND)</th>
+                        <th>Phạt (VND)</th>
+                        <th>Lương thực nhận (VND)</th>
                         <th>Tháng</th>
                         <th>Năm</th>
                         <th>Thao tác</th>
@@ -157,6 +209,22 @@
             $('#table').DataTable({
                 paging: false,
                 searching: false
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            // Feather icons initialization
+            feather.replace();
+
+            // Bind change event for filters
+            $('#monthSelect, #yearSelect').on('change', function () {
+                var month = $('#monthSelect').val();
+                var year = $('#yearSelect').val();
+                if (month && year) {
+                    $('form').submit();
+                }
             });
         });
     </script>

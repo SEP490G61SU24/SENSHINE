@@ -156,7 +156,8 @@ namespace API.Services.Impl
             {
                 query = query.Where(s => s.Employee.FirstName.Contains(searchTerm) ||
                                          s.Employee.MidName.Contains(searchTerm) ||
-                                         s.Employee.LastName.Contains(searchTerm));
+                                         s.Employee.LastName.Contains(searchTerm) ||
+                                         s.Employee.Phone.Contains(searchTerm));
             }
 
             // Đếm tổng số bản ghi để tính tổng số trang
