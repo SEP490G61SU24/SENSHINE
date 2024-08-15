@@ -123,7 +123,7 @@ namespace API.Controllers
             }
         }
 
-        [HttpGet("BySpaId/{spaId}")]
+        [HttpGet]
         public async Task<IActionResult> GetBySpaId(int spaId)
         {
             try

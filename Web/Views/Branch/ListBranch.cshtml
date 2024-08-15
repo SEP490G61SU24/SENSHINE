@@ -52,7 +52,11 @@
                     @foreach (var item in Model.Items)
                     {
                         <tr>
-                            <td>@item.SpaName</td>
+                            <td>
+                                <a href="@Url.Action("DetailBranch", "Branch", new { id = item.Id })">
+                                    @item.SpaName
+                                </a>
+                            </td>
                             <td>@item.ProvinceName</td>
                             <td>@item.DistrictName</td>
                             <td>@item.WardName</td>

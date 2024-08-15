@@ -49,7 +49,11 @@
                     @foreach (var item in Model.Items)
                     {
                         <tr>
-                            <td>@item.RoomName</td>
+                            <td>
+                                <a href="@Url.Action("DetailRoom", "Room", new { id = item.Id })">
+                                    @item.RoomName
+                                </a>
+                            </td>
                             <td>
                                 <ul class="action">
                                     <li class="edit"><a href="/Room/UpdateRoom/@item.Id"><i class="icon-pencil-alt"></i></a></li>

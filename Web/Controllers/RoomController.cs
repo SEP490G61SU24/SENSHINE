@@ -88,6 +88,54 @@ namespace Web.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> DetailRoom(int id)
+        {
+            try
+            {
+                var apiUrl = _configuration["ApiUrl"];
+                var client = _clientFactory.CreateClient();
+                RoomViewModel room = new RoomViewModel();
+                List<BedViewModel> beds = new List<BedViewModel>();
+
+                HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Room/GetById?id=" + id);
+                HttpResponseMessage response1 = await client.GetAsync($"{apiUrl}/Bed/GetByRoomId/ByRoomId/" + id);
+
+                if (response.IsSuccessStatusCode && response1.IsSuccessStatusCode)
+                {
+                    string data = await response.Content.ReadAsStringAsync();
+                    string data1 = await response1.Content.ReadAsStringAsync();
+                    room = JsonConvert.DeserializeObject<RoomViewModel>(data);
+                    beds = JsonConvert.DeserializeObject<List<BedViewModel>>(data1);
+
+                    HttpResponseMessage response2 = client.GetAsync($"{apiUrl}/Branch/GetById?id=" + room.SpaId).Result;
+                    if (response2.IsSuccessStatusCode)
+                    {
+                        string response2Body = response2.Content.ReadAsStringAsync().Result;
+                        JObject json2 = JObject.Parse(response2Body);
+                        room.SpaName = json2["spaName"].ToString();
+                    }
+                    else
+                    {
+                        ViewData["Error"] = "Có lỗi xảy ra";
+                    }
+                }
+
+                if (room == null)
+                {
+                    ViewData["Error"] = "Không tìm thấy thẻ";
+                }
+                ViewBag.Beds = beds;
+                return View(room);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
+                return View("Error");
+            }
+        }
+
+        [HttpGet]
         public async Task<IActionResult> CreateRoom()
         {
             try

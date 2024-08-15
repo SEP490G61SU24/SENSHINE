@@ -72,6 +72,62 @@ namespace Web.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> DetailBranch(int id)
+        {
+            try
+            {
+                var apiUrl = _configuration["ApiUrl"];
+                var client = _clientFactory.CreateClient();
+                BranchViewModel branch = new BranchViewModel();
+                List<RoomViewModel> rooms = new List<RoomViewModel>();
+
+                HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Branch/GetById?id=" + id);
+                HttpResponseMessage response1 = await client.GetAsync($"{apiUrl}/Room/GetBySpaId?spaId=" + id);
+
+                if (response.IsSuccessStatusCode && response1.IsSuccessStatusCode)
+                {
+                    string data = await response.Content.ReadAsStringAsync();
+                    string data1 = await response1.Content.ReadAsStringAsync();
+                    branch = JsonConvert.DeserializeObject<BranchViewModel>(data);
+                    rooms = JsonConvert.DeserializeObject<List<RoomViewModel>>(data1);
+
+                    HttpResponseMessage response2 = client.GetAsync($"{apiUrl}/provinces/" + branch.ProvinceCode).Result;
+                    HttpResponseMessage response3 = client.GetAsync($"{apiUrl}/districts/" + branch.DistrictCode).Result;
+                    HttpResponseMessage response4 = client.GetAsync($"{apiUrl}/wards/" + branch.WardCode).Result;
+                    if (response2.IsSuccessStatusCode && response3.IsSuccessStatusCode && response4.IsSuccessStatusCode)
+                    {
+                        string response2Body = response2.Content.ReadAsStringAsync().Result;
+                        string response3Body = response3.Content.ReadAsStringAsync().Result;
+                        string response4Body = response4.Content.ReadAsStringAsync().Result;
+                        JObject json2 = JObject.Parse(response2Body);
+                        JObject json3 = JObject.Parse(response3Body);
+                        JObject json4 = JObject.Parse(response4Body);
+                        branch.ProvinceName = json2["name"].ToString();
+                        branch.DistrictName = json3["name"].ToString();
+                        branch.WardName = json4["name"].ToString();
+                    }
+                    else
+                    {
+                        ViewData["Error"] = "Có lỗi xảy ra";
+                    }
+                }
+
+                if (branch == null)
+                {
+                    ViewData["Error"] = "Không tìm thấy thẻ";
+                }
+                ViewBag.Rooms = rooms;
+                return View(branch);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
+                return View("Error");
+            }
+        }
+
+        [HttpGet]
         public async Task<IActionResult> CreateBranch()
         {
             try

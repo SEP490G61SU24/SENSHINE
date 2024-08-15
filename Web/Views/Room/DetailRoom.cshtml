@@ -1,12 +1,11 @@
-﻿@model Web.Models.CardViewModel
+﻿@model Web.Models.RoomViewModel
 
 @{
-    ViewData["Title"] = "Chi tiết thẻ";
+    ViewData["Title"] = "Chi tiết phòng";
 }
 
 @{
-    List<CardComboViewModel> cardCombos = ViewBag.CardCombos;
-    string branchName = ViewBag.BranchName;
+    List<BedViewModel> beds = ViewBag.Beds;
 }
 
 <div class="card">
@@ -14,40 +13,16 @@
         <div>
             <dl class="row">
                 <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.CardNumber):
+                    @Html.DisplayNameFor(model => model.RoomName):
                 </dt>
                 <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.CardNumber)
+                    @Html.DisplayFor(model => model.RoomName)
                 </dd>
                 <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.CustomerName):
+                    @Html.DisplayNameFor(model => model.SpaName):
                 </dt>
                 <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.CustomerName)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.CustomerPhone):
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.CustomerPhone)
-                </dd>
-                <dt class="col-sm-2">
-                    Chi nhánh:
-                </dt>
-                <dd class="col-sm-10">
-                    @branchName
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.CreateDate):
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.CreateDate)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.Status):
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.Status)
+                    @Html.DisplayFor(model => model.SpaName)
                 </dd>
             </dl>
         </div>
@@ -56,18 +31,16 @@
                 <table class="table table-bordered table-hover">
                     <thead class="thead-dark">
                         <tr>
-                            <th>Combo</th>
-                            <th>Số buổi đã sử dụng</th>
-                            <th>Số buổi còn lại</th>
+                            <th>Giường</th>
+                            <th>Trạng thái</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var cardCombo in cardCombos)
+                        @foreach (var bed in beds)
                         {
                             <tr>
-                                <td>@cardCombo.ComboName</td>
-                                <td>@cardCombo.SessionDone</td>
-                                <td>@cardCombo.SessionLeft</td>
+                                <td>@bed.BedNumber</td>
+                                <td>@bed.StatusWorking</td>
                             </tr>
                         }
                     </tbody>
@@ -75,8 +48,8 @@
             </div>
         </div>
         <div>
-            <a href="@Url.Action("ListCard", "Card")" class="btn btn-primary">Danh sách</a>
-            <a href="@Url.Action("UpdateCard", "Card", new { id = Model.Id })" class="btn btn-primary">Cập nhật</a>
+            <a href="@Url.Action("ListRoom", "Room")" class="btn btn-primary">Danh sách</a>
+            <a href="@Url.Action("UpdateRoom", "Room", new { id = Model.Id })" class="btn btn-primary">Cập nhật</a>
         </div>
     </div>
 </div>
