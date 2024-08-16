@@ -91,12 +91,29 @@ namespace Web.Controllers
 
         public async Task<IActionResult> GetBeds(int roomId)
         {
-            var apiUrl = _configuration["ApiUrl"];
-            var client = _clientFactory.CreateClient();
-            HttpResponseMessage response1 = await client.GetAsync($"{apiUrl}/Bed/GetByRoomId/ByRoomId/" + roomId);
-            string data1 = await response1.Content.ReadAsStringAsync();
-            var beds = JsonConvert.DeserializeObject<List<BedViewModel>>(data1);
-            return PartialView("_BedsPartial", beds);
+            try
+            {
+                var apiUrl = _configuration["ApiUrl"];
+                var client = _clientFactory.CreateClient();
+                HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Bed/GetByRoomId/ByRoomId/" + roomId);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string data = await response.Content.ReadAsStringAsync();
+                    var beds = JsonConvert.DeserializeObject<List<BedViewModel>>(data);
+
+                    return PartialView("_BedsPartial", beds);
+                }
+
+                ViewData["Error"] = "Không lấy được dữ liệu phòng";
+                return View("Error");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
+                return View("Error");
+            }
         }
 
 

@@ -114,7 +114,7 @@ namespace Web.Controllers
 
                 if (branch == null)
                 {
-                    ViewData["Error"] = "Không tìm thấy thẻ";
+                    ViewData["Error"] = "Không tìm thấy chi nhánh";
                 }
                 ViewBag.Rooms = rooms;
                 return View(branch);
