@@ -296,7 +296,7 @@ namespace Web.Controllers
         private async Task<List<EmployeeViewModel>> GetAvailableEmployees()
         {
             List<EmployeeViewModel> employees = new List<EmployeeViewModel>();
-            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/users/role/4");
+            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/api/users/role/4");
 
             if (response.IsSuccessStatusCode)
             {
@@ -310,7 +310,7 @@ namespace Web.Controllers
         private async Task<List<UserDTO>> GetAvailableCustomers()
         {
             List<UserDTO> customers = new List<UserDTO>();
-            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/users/role/5");
+            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/api/users/role/5");
 
             if (response.IsSuccessStatusCode)
             {
