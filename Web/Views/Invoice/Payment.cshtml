@@ -1,0 +1,245 @@
+﻿@model Web.Models.InvoiceViewModel
+
+@{
+    ViewData["Title"] = "Payment";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/themify.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/flag-icon.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/feather-icon.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
+    <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+}
+
+<table style="width: 100%;">
+    <!-- Header -->
+    <tr>
+        <td>
+            <table style="width: 100%;">
+                <tr style="display: flex; justify-content: space-between;">
+                    <td>
+                        <h4 style="font-size:42px; font-weight: 600; margin:0;">Hóa đơn</h4>
+                        <ul style="list-style: none; padding: 0; margin: 20px 0;">
+                            <li style="font-size: 18px; font-weight: 600; opacity: 0.8;">Tên khách hàng : @Model.CustomerName</li>
+                            <input type="hidden" id="content" value="@Model.CustomerName"/>
+                            <input type="hidden" id="price" value="@Model.Amount"/>
+                            <input type="hidden" id="id" value="@Model.Id"/>
+                            <input type="hidden" id="status" value="@Model.Status" />
+                        </ul>
+                    </td>
+                    <td>
+                        <img src="~/assets/images/Logo Senshine.png" alt="SenShine Spa" style="max-width: 150px;" />
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+
+    <!-- Invoice Details -->
+    <tr>
+        <td>
+            <table style="width: 100%; border-spacing: 4px; margin-bottom: 20px;">
+                <tr>
+                    <td style="padding: 15px 25px;">
+                        <p style="font-size:16px; font-weight:500; opacity:0.8; margin:0; line-height: 2;">Ngày :</p>
+                        <span style="font-size: 18px; font-weight: 600;">@Model.InvoiceDate.ToString("dd/MM/yyyy")</span>
+                    </td>
+
+                    <td style="padding: 15px 25px;">
+                        <p style="font-size:16px; font-weight:500; opacity:0.8; margin:0; line-height: 2;">Invoice No :</p>
+                        <span style="font-size: 18px; font-weight: 600;">@Model.Id</span>
+                    </td>
+                    <td style="padding: 15px 25px;">
+                        <p style="font-size:16px; font-weight:500; opacity:0.8; margin:0; line-height: 2;">Trạng thái :</p>
+                        <span style="font-size: 18px; font-weight: 600;">@Model.Status</span>
+                    </td>
+                    
+                </tr>
+            </table>
+        </td>
+    </tr>
+
+    <!-- Items List -->
+    <tr>
+        <td>
+            <table style="width: 100%; border-spacing:0;">
+                <thead>
+                    <tr style="background: #006666;">
+                        <th style="padding: 18px 15px;text-align: left; border-top-left-radius: 10px;">
+                            <span style="color: #fff; font-size: 18px; font-weight: 600;">Tên sản phẩm</span>
+                        </th>
+                        <th style="padding: 18px 15px;text-align: center;">
+                            <span style="color: #fff; font-size: 18px; font-weight: 600;">Giá</span>
+                        </th>
+                        <th style="padding: 18px 15px;text-align: center;">
+                            <span style="color: #fff; font-size: 18px; font-weight: 600;">Số lượng</span>
+                        </th>
+                        <th style="padding: 18px 15px;text-align: center;">
+                            <span style="color: #fff; font-size: 18px; font-weight: 600;">Tổng phụ</span>
+                        </th>
+                    </tr>
+                </thead>
+                
+                <tbody>
+                    @foreach (var service in Model.InvoiceServices)
+                    {
+                        if (service.Service != null)
+                        {
+                            var totalAmount = service.Quantity * service.Service.Amount;
+                            <tr>
+                                <td style="padding: 30px;">
+                                    <h4 style="font-weight:600; margin:4px 0px; font-size: 18px;">@service.Service.ServiceName</h4>
+                                </td>
+                                <td style="width: 12%; text-align: center;">
+                                    <span style="opacity: 0.8;">@service.Service.Amount</span>
+                                </td>
+                                <td style="width: 12%; text-align: center;">
+                                    <span style="opacity: 0.8;">@service.Quantity</span>
+                                </td>
+                                <td style="width: 12%; text-align: center;">
+                                    <span style="font-weight: 600; opacity: 0.9;">$@totalAmount</span>
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" style="color: red; text-align: center;">
+                                    <strong>Error:</strong> Service information is missing.
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+                
+            </table>
+
+        </td>
+    </tr>
+    <tr style="height: 2px; background-color: #ccc;">
+        <td colspan="3"></td>
+    </tr>
+    <!-- Footer -->
+    <tr>
+        <td>
+            <table style="width: 100%; border-spacing: 5px;">
+                <tr>
+                    <td>
+                        <ul style="list-style: none; margin: 0; padding: 0;">
+                            <li>
+                                <img src="@ViewBag.QRCodeUrl" alt="QR Code" style="width: 500px; height: 500px;margin-top : 50px;" />
+                            </li>
+                        </ul>
+                        <div id="result"></div>
+
+                    </td>
+                    <td style="text-align: right;">
+                        <table style="width: 100%; text-align: right;">
+                            <tr>
+                                <td style="padding: 5px 0;">
+                                    <p style="font-size: 16px; font-weight: 600; margin: 0;">Giảm giá (%):</p>
+                                    <span style="font-size: 18px; font-weight: 600;">@Model.DiscountPercentage %</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 5px 0;">
+                                    <p style="font-size: 16px; font-weight: 600; margin: 0;">Tổng cộng:</p>
+                                    <span style="font-size: 18px; font-weight: 600;">@Model.Amount VND</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+@section Scripts {
+    <script src="~/assets/js/jquery.min.js"></script>
+    <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
+    <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
+    <script src="~/assets/js/scrollbar/simplebar.js"></script>
+    <script src="~/assets/js/scrollbar/custom.js"></script>
+    <script src="~/assets/js/config.js"></script>
+    <script src="~/assets/js/sidebar-menu.js"></script>
+    <script src="~/assets/js/sidebar-pin.js"></script>
+    <script src="~/assets/js/slick/slick.min.js"></script>
+    <script src="~/assets/js/slick/slick.js"></script>
+    <script src="~/assets/js/header-slick.js"></script>
+    <script src="~/assets/js/js-datatables/simple-datatables@latest.js"></script>
+    <script src="~/assets/js/custom-list-product.js"></script>
+    <script src="~/assets/js/owlcarousel/owl.carousel.js"></script>
+    <script src="~/assets/js/ecommerce.js"></script>
+    <script src="~/assets/js/tooltip-init.js"></script>
+    <script src="~/assets/js/script.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            // Define a function to check payment status
+            function checkPayment() {
+                var content = $('#content').val();
+                var status = $('#status').val();
+                var price = parseFloat($('#price').val());
+                var id = parseInt($('#id').val());
+                $.ajax({
+                    url: '@Url.Action("CheckPayment", "Invoice")',
+                    type: 'GET',
+                    data: {
+                        content: content,
+                        price: price
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            var createAtFormatted = new Date(response.record.createAt).toLocaleString();
+                            // Call updateInvoiceStatus with the status from the response
+                            updateInvoiceStatus(id, status);
+                        } else {
+                            $('#result').text(response.message);
+                        }
+                    },
+                    error: function () {
+                        $('#result').text("Error checking payment status.");
+                    }
+                });
+            }
+
+            function updateInvoiceStatus(id, status) {
+                if (status === "Pending") {
+                    $.ajax({
+                        url: `http://localhost:5297/api/UpdateInvoiceStatus?id=${id}`,
+                        type: 'PUT',
+                        success: function (response) {
+                            if (response.success) {
+                                $('#result').text("Invoice status updated successfully.");
+                            } else {
+                                $('#result').text(response.message);
+                            }
+                        },
+                        error: function () {
+                            $('#result').text("Error updating invoice status.");
+                        }
+                    });
+                }
+            }
+
+            checkPayment();
+        });
+
+        
+       
+    </script>
+
+    
+}

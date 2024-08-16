@@ -66,7 +66,7 @@ namespace API.Controllers
                     Id = appointment.Id,
                     CustomerId = appointment.CustomerId,
                     EmployeeId = appointment.EmployeeId,
-                    AppointmentDate = appointment.AppointmentDate,
+                    //AppointmentDate = appointment.AppointmentDate,
                     Status = appointment.Status,
                     Customer = new AppointmentUserDTO
                     {
@@ -151,7 +151,7 @@ namespace API.Controllers
                         Id = appointment.Id,
                         CustomerId = appointment.CustomerId,
                         EmployeeId = appointment.EmployeeId,
-                        AppointmentDate = appointment.AppointmentDate,
+                        //AppointmentDate = appointment.AppointmentDate,
                         Status = appointment.Status,
                         Customer = new AppointmentUserDTO
                         {

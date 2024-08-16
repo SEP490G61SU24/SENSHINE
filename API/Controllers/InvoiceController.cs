@@ -214,9 +214,26 @@ namespace API.Controllers
             }
         }
 
+        [HttpPut("UpdateInvoiceStatus")]
+        public async Task<IActionResult> UpdateInvoiceStatus(int id)
+        {
+            var invoice = await _dbContext.Invoices.FindAsync(id);
 
+            if (invoice == null)
+            {
+                return NotFound("Invoice not found.");
+            }
+            string status = "Paid";
+            invoice.Status = status;
 
-        [HttpGet("GetInvoiceByDate")]
+            _dbContext.Invoices.Update(invoice);
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new { Message = "Invoice status updated successfully." });
+        }
+    
+
+    [HttpGet("GetInvoiceByDate")]
         public async Task<ActionResult<IEnumerable<InvoiceDTO>>> GetInvoicesByDateRange([FromQuery] DateTime from, [FromQuery] DateTime to)
         {
             var invoices = await _invoiceService.InvoicesByDateRange(from, to);
