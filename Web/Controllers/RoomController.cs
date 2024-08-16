@@ -6,6 +6,8 @@ using Web.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
 using API.Ultils;
+using Microsoft.EntityFrameworkCore;
+using API.Models;
 
 namespace Web.Controllers
 {
@@ -87,6 +89,17 @@ namespace Web.Controllers
             }
         }
 
+        public async Task<IActionResult> GetBeds(int roomId)
+        {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
+            HttpResponseMessage response1 = await client.GetAsync($"{apiUrl}/Bed/GetByRoomId/ByRoomId/" + roomId);
+            string data1 = await response1.Content.ReadAsStringAsync();
+            var beds = JsonConvert.DeserializeObject<List<BedViewModel>>(data1);
+            return PartialView("_BedsPartial", beds);
+        }
+
+
         [HttpGet]
         public async Task<IActionResult> DetailRoom(int id)
         {
@@ -122,10 +135,22 @@ namespace Web.Controllers
 
                 if (room == null)
                 {
-                    ViewData["Error"] = "Không tìm thấy thẻ";
+                    ViewData["Error"] = "Không tìm thấy phòng";
                 }
-                ViewBag.Beds = beds;
-                return View(room);
+
+                var roomViewModel = new RoomViewModel
+                {
+                    Id = room.Id,
+                    RoomName = room.RoomName,
+                    SpaName = room.SpaName,
+                    Beds = beds.Select(b => new BedViewModel
+                    {
+                        BedNumber = b.BedNumber,
+                        StatusWorking = b.StatusWorking
+                    }).ToList()
+                };
+
+                return View(roomViewModel);
             }
             catch (Exception ex)
             {

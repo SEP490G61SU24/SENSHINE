@@ -28,19 +28,8 @@
         </div>
         <div class="card mt-4">
             <div class="card-body">
-                <div class="row">
-                    @foreach (var bed in beds)
-                    {
-                        var backgroundColor = bed.StatusWorking == "OK" ? "green" : "red";
-                        <div class="col-12 col-md-4 col-lg-2 mb-4 text-center">
-                            <a class="bed-icon" style="background-color: @backgroundColor; border: 2px solid black; padding: 10px; border-radius: 5px;">
-                                <img src="https://cdn-icons-png.flaticon.com/512/492/492883.png" alt="Bed Icon" class="img-fluid" />
-                                <div class="bed-name-overlay">
-                                    @bed.BedNumber
-                                </div>
-                            </a>
-                        </div>
-                    }
+                <div id="bedsContainer" class="row">
+                    @Html.Partial("_BedsPartial", Model.Beds)
                 </div>
             </div>
         </div>
@@ -133,4 +122,19 @@
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
+
+    <script>
+        function loadBeds() {
+            $.ajax({
+                url: '@Url.Action("GetBeds", "Room", new { roomId = Model.Id })',
+                type: 'GET',
+                success: function (result) {
+                    $('#bedsContainer').html(result);
+                }
+            });
+        }
+
+        // Reload beds every 5 seconds
+        setInterval(loadBeds, 5000);
+    </script>
 }
