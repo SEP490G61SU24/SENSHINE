@@ -1,7 +1,6 @@
 ﻿using API.Dtos;
 using API.Models;
 using API.Services;
-using API.Services.Impl;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,6 +12,7 @@ namespace API.Controllers
     {
         private readonly IRoomService _roomService;
         private readonly IMapper _mapper;
+
         public RoomController(IRoomService roomService, IMapper mapper)
         {
             _roomService = roomService;
@@ -30,37 +30,43 @@ namespace API.Controllers
                 var roomMap = _mapper.Map<Room>(roomDTO);
                 var createdRoom = await _roomService.CreateRoom(roomMap);
 
-                return Ok($"Tạo room {createdRoom.RoomName} thành công");
+                return Ok($"Room {createdRoom.RoomName} created successfully.");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Có lỗi xảy ra khi tạo room: {ex.Message}");
+                return StatusCode(500, $"An error occurred while creating the room: {ex.Message}");
             }
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var rooms = _mapper.Map<List<RoomDTO>>(_roomService.GetRooms());
-
-            return Ok(rooms);
+            try
+            {
+                var rooms = _mapper.Map<List<RoomDTO>>(_roomService.GetRooms());
+                return Ok(rooms);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving rooms: {ex.Message}");
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> GetById(int id)
         {
-            if (!_roomService.RoomExist(id))
-                return NotFound();
+            try
+            {
+                if (!_roomService.RoomExist(id))
+                    return NotFound("Room not found.");
 
-            var room = _mapper.Map<RoomDTO>(_roomService.GetRoom(id));
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            return Ok(room);
+                var room = _mapper.Map<RoomDTO>(_roomService.GetRoom(id));
+                return Ok(room);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving the room: {ex.Message}");
+            }
         }
 
         [HttpPut]
@@ -69,11 +75,11 @@ namespace API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!_roomService.RoomExist(id))
-                return NotFound();
-
             try
             {
+                if (!_roomService.RoomExist(id))
+                    return NotFound("Room not found.");
+
                 var existingRoom = _roomService.GetRoom(id);
                 existingRoom.RoomName = roomDTO.RoomName;
                 existingRoom.SpaId = roomDTO.SpaId;
@@ -81,39 +87,52 @@ namespace API.Controllers
 
                 if (roomUpdate == null)
                 {
-                    return NotFound("Không thể cập nhật room");
+                    return NotFound("Room could not be updated.");
                 }
 
-                return Ok($"Cập nhật room {roomUpdate.RoomName} thành công");
+                return Ok($"Room {roomUpdate.RoomName} updated successfully.");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Có lỗi xảy ra khi cập nhật room: {ex.Message}");
+                return StatusCode(500, $"An error occurred while updating the room: {ex.Message}");
             }
         }
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await _roomService.DeleteRoom(id);
-            if (!result)
+            try
             {
-                return NotFound();
-            }
+                var result = await _roomService.DeleteRoom(id);
+                if (!result)
+                {
+                    return NotFound("Room not found.");
+                }
 
-            return NoContent();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while deleting the room: {ex.Message}");
+            }
         }
 
-        //Lay ra danh sach phong theo spa Id
         [HttpGet("BySpaId/{spaId}")]
         public async Task<IActionResult> GetBySpaId(int spaId)
         {
-            var rooms = await _roomService.GetRoomBySpaId(spaId);
-            if (rooms == null)
+            try
             {
-                return NotFound();
+                var rooms = await _roomService.GetRoomBySpaId(spaId);
+                if (rooms == null || !rooms.Any())
+                {
+                    return NotFound("No rooms found for the specified Spa.");
+                }
+                return Ok(_mapper.Map<IEnumerable<RoomDTO>>(rooms));
             }
-            return Ok(_mapper.Map<IEnumerable<RoomDTO>>(rooms));
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving rooms: {ex.Message}");
+            }
         }
     }
 }

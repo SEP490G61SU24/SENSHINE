@@ -3,7 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using API.Models;
 using AutoMapper;
 using API.Dtos;
-using API.Services.Impl;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace API.Controllers
 {
@@ -13,6 +16,7 @@ namespace API.Controllers
     {
         private readonly ICardService _cardService;
         private readonly IMapper _mapper;
+
         public CardController(ICardService cardService, IMapper mapper)
         {
             _cardService = cardService;
@@ -25,11 +29,11 @@ namespace API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var cards = _cardService.GetCards().Where(c => c.CardNumber.Trim().ToUpper() == cardDTO.CardNumber.Trim().ToUpper()).FirstOrDefault();
+            var card = _cardService.GetCards().Where(c => c.CardNumber.Trim().ToUpper() == cardDTO.CardNumber.Trim().ToUpper()).FirstOrDefault();
 
-            if (cards != null)
+            if (card != null)
             {
-                ModelState.AddModelError("", "Thẻ đã tồn tại");
+                ModelState.AddModelError("", "The card already exists.");
                 return StatusCode(422, ModelState);
             }
 
@@ -38,11 +42,11 @@ namespace API.Controllers
                 var cardMap = _mapper.Map<Card>(cardDTO);
                 var createdCard = await _cardService.CreateCard(cardMap);
 
-                return Ok($"Tạo thẻ {createdCard.CardNumber} thành công");
+                return Ok($"Card '{createdCard.CardNumber}' created successfully.");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Có lỗi xảy ra khi tạo thẻ: {ex.Message}");
+                return StatusCode(500, $"An error occurred while creating the card: {ex.Message}");
             }
         }
 
@@ -52,23 +56,36 @@ namespace API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var cards = _mapper.Map<List<CardDTO>>(_cardService.GetCards());
-
-            return Ok(cards);
+            try
+            {
+                var cards = _mapper.Map<List<CardDTO>>(_cardService.GetCards());
+                return Ok(cards);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving the cards: {ex.Message}");
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> GetById(int id)
         {
-            if (!_cardService.CardExist(id))
-                return NotFound();
+            try
+            {
+                if (!_cardService.CardExist(id))
+                    return NotFound("Card not found.");
 
-            var card = _mapper.Map<CardDTO>(_cardService.GetCard(id));
+                var card = _mapper.Map<CardDTO>(_cardService.GetCard(id));
 
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-            return Ok(card);
+                return Ok(card);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving the card: {ex.Message}");
+            }
         }
 
         [HttpGet]
@@ -77,26 +94,19 @@ namespace API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!_cardService.CardExistByNumNamePhone(input))
-                return NotFound();
+            try
+            {
+                if (!_cardService.CardExistByNumNamePhone(input))
+                    return NotFound("Card not found.");
 
-            var cards = _mapper.Map<List<CardDTO>>(_cardService.GetCardByNumNamePhone(input));
+                var cards = _mapper.Map<List<CardDTO>>(_cardService.GetCardByNumNamePhone(input));
 
-            return Ok(cards);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> SortByDate(string dateFrom, string dateTo)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            if (!_cardService.CardExistByDate(dateFrom, dateTo))
-                return NotFound();
-
-            var cards = _mapper.Map<List<CardDTO>>(_cardService.SortCardByDate(dateFrom, dateTo));
-
-            return Ok(cards);
+                return Ok(cards);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving the cards: {ex.Message}");
+            }
         }
 
         [HttpPut]
@@ -105,11 +115,11 @@ namespace API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!_cardService.CardExist(id))
-                return NotFound();
-
             try
             {
+                if (!_cardService.CardExist(id))
+                    return NotFound("Card not found.");
+
                 var existingCard = _cardService.GetCard(id);
                 existingCard.CustomerId = cardDTO.CustomerId;
                 existingCard.Status = cardDTO.Status;
@@ -117,14 +127,14 @@ namespace API.Controllers
 
                 if (cardUpdate == null)
                 {
-                    return NotFound("Không thể cập nhật thẻ");
+                    return NotFound("Failed to update card.");
                 }
 
-                return Ok($"Cập nhật thẻ {cardUpdate.CardNumber} thành công");
+                return Ok($"Card '{cardUpdate.CardNumber}' updated successfully.");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Có lỗi xảy ra khi cập nhật thẻ: {ex.Message}");
+                return StatusCode(500, $"An error occurred while updating the card: {ex.Message}");
             }
         }
 
@@ -134,23 +144,23 @@ namespace API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!_cardService.CardExist(id))
-                return NotFound();
-
             try
             {
+                if (!_cardService.CardExist(id))
+                    return NotFound("Card not found.");
+
                 var cardActive = await _cardService.ActiveDeactiveCard(id);
 
                 if (cardActive == null)
                 {
-                    return NotFound("Không thể chuyển trạng thái thẻ");
+                    return NotFound("Failed to change card status.");
                 }
 
-                return Ok($"Chuyển trạng thái thẻ {cardActive.CardNumber} thành công");
+                return Ok($"Card '{cardActive.CardNumber}' status changed successfully.");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Có lỗi xảy ra khi chuyển trạng thái thẻ: {ex.Message}");
+                return StatusCode(500, $"An error occurred while changing card status: {ex.Message}");
             }
         }
 
@@ -160,9 +170,15 @@ namespace API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var combo = _mapper.Map<List<CardComboDTO>>(_cardService.GetCardComboByCard(id));
-
-            return Ok(combo);
+            try
+            {
+                var combo = _mapper.Map<List<CardComboDTO>>(_cardService.GetCardComboByCard(id));
+                return Ok(combo);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving the card combo: {ex.Message}");
+            }
         }
 
         [HttpPost]
@@ -176,11 +192,11 @@ namespace API.Controllers
                 var cardComboMap = _mapper.Map<CardCombo>(cardComboDTO);
                 var createdCardCombo = await _cardService.CreateCardCombo(cardComboMap);
 
-                return Ok($"Thêm combo thành công");
+                return Ok("Combo added successfully.");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Có lỗi xảy ra khi thêm combo: {ex.Message}");
+                return StatusCode(500, $"An error occurred while adding the combo: {ex.Message}");
             }
         }
     }

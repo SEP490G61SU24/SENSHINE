@@ -61,6 +61,7 @@ namespace Web.Controllers
 
             string errorMessage = await response.Content.ReadAsStringAsync();
             ModelState.AddModelError(string.Empty, errorMessage);
+            ViewBag.ErrorMessage = "Cannot create two beds with the same BedNumber in the same room.";
             var roomsList = await GetAvailableRooms();
             ViewBag.Rooms = roomsList;
             return View(bedViewModel);
@@ -103,6 +104,7 @@ namespace Web.Controllers
 
             string errorMessage = await response.Content.ReadAsStringAsync();
             ModelState.AddModelError(string.Empty, errorMessage);
+            ViewBag.ErrorMessage = "Cannot create two beds with the same BedNumber in the same room.";
             var roomsList = await GetAvailableRooms();
             ViewBag.Rooms = roomsList;
             return View(bedViewModel);

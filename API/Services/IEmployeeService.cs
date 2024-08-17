@@ -7,6 +7,7 @@ namespace API.Services
     {
         Task<User> CreateEmployee(User employee);
         ICollection<User> GetEmployees();
+        ICollection<User> GetCustomer(string name);
         User GetEmployee(int id);
         Role GetRole(int id);
         Task<User> UpdateEmployee(int id, User employee);

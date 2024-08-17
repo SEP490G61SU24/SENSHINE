@@ -9,6 +9,7 @@ namespace API.Services
         Task<Promotion> EditPromotion(int id, PromotionDTORequest PromotionDto);
         Task<IEnumerable<PromotionDTORespond>> ListPromotion();
         Task<PromotionDTORespond> GetPromotionDetail(int id);
+       
         Task<IEnumerable<PromotionDTORespond>> GetPromotionsByFilter(string spaLocation, DateTime? startDate, DateTime? endDate);
         Task<bool> DeletePromotion(int id);
     }
