@@ -24,7 +24,7 @@
 <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
 <!-- Responsive css-->
 <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
-
+@model Web.Models.UserViewModel
 <!-- Container-fluid starts-->
 <div class="container-fluid">
     <div class="user-profile">
@@ -48,27 +48,27 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="ttl-info text-start">
-                                            <h6><i class="fa fa-calendar"></i>   BOD</h6><span>02 January 1988</span>
+                                            <h6><i class="fa fa-calendar"></i>   BOD</h6><span>@Model.BirthDate?.ToString("dd/MM/yyyy")</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-sm-12 col-lg-4 order-sm-0 order-xl-1">
                                 <div class="user-designation">
-                                    <div class="title"><a target="_blank" href="user-profile.html">Mark jecno</a></div>
-                                    <div class="desc">Lễ tân</div>
+                                    <div class="title"><a target="_blank" href="user-profile.html">@Model.FullName</a></div>
+                                    <div class="desc">@Model.RoleName</div>
                                 </div>
                             </div>
                             <div class="col-sm-6 col-lg-4 order-sm-2 order-xl-2">
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="ttl-info text-start">
-                                            <h6><i class="fa fa-phone"></i>   Contact Us</h6><span>India +91 123-456-7890</span>
+                                            <h6><i class="fa fa-phone"></i> Số điện thoại</h6><span>@Model.Phone</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="ttl-info text-start">
-                                            <h6><i class="fa fa-location-arrow"></i>   Location</h6><span>B69 Near Schoool Demo Home</span>
+                                            <h6><i class="fa fa-location-arrow"></i> Địa chỉ</h6><span>@Model.Address</span>
                                         </div>
                                     </div>
                                 </div>
@@ -258,8 +258,4 @@
 <!-- Plugins JS Ends-->
 <!-- Theme js-->
 <script src="~/assets/js/script.js"></script>
-<<<<<<< HEAD
 <script src="~/assets/js/theme-customizer/customizer.js"></script>
-=======
-<script src="~/assets/js/theme-customizer/customizer.js"></script>
->>>>>>> 2dfcdc0d13c96ff08522ef183cf4d6a228792e49
