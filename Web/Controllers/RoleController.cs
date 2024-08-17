@@ -91,7 +91,7 @@ namespace Web.Controllers
 				var roleData = await roleResponse.Content.ReadFromJsonAsync<RoleDTO>();
 
 				// Lấy tất cả rules
-				var rulesResponse = await client.GetAsync($"{apiUrl}/rules");
+				var rulesResponse = await client.GetAsync($"{apiUrl}/rules/all");
 				if (!rulesResponse.IsSuccessStatusCode)
 				{
 					return View("Error");

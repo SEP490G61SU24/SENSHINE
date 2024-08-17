@@ -12,5 +12,7 @@ namespace API.Services
         Task<bool> UpdateRule(int id, RuleDTO ruleDto);
         Task<bool> DeleteRule(int id);
         Task<IEnumerable<RuleDTO>> GetRulesByRoleId(int roleId);
-	}
+        Task<IEnumerable<RuleDTO>> ExcludeId(int id);
+        Task<IEnumerable<MenuDTO>> GetMenuItemsByRoleAsync(int roleId);
+    }
 }

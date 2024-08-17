@@ -4,6 +4,8 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using API.Dtos;
 using API.Ultils;
+using NuGet.Common;
+using System;
 
 namespace Web.Controllers
 {
@@ -35,12 +37,40 @@ namespace Web.Controllers
                 {
                     //var jsonString = await response.Content.ReadAsStringAsync();
                     //var userProfile = JsonSerializer.Deserialize<UserDTO>(jsonString);
-                    var userProfile = await response.Content.ReadFromJsonAsync<UserDTO>();
+                    UserDTO userProfile = await response.Content.ReadFromJsonAsync<UserDTO>();
                     return userProfile;
                 }
                 else
                 {
                     _logger.LogError($"Failed to fetch user profile. Status code: {response.StatusCode}");
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during get profile");
+                ViewData["Error"] = "An error occurred";
+                return null;
+            }
+        }
+
+        protected async Task<IEnumerable<MenuDTO>> GetMenuByRole(int? roleId = 1)
+        {
+            try
+            {
+                var apiUrl = _configuration["ApiUrl"];
+                using var client = _clientFactory.CreateClient();
+
+                var response = await client.GetAsync($"{apiUrl}/rules/menu/{roleId}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var data = await response.Content.ReadFromJsonAsync<IEnumerable<MenuDTO>>();
+                    return data;
+                }
+                else
+                {
+                    _logger.LogError($"Failed to fetch menu. Status code: {response.StatusCode}");
                     return null;
                 }
             }
@@ -58,12 +88,20 @@ namespace Web.Controllers
 
             if (!string.IsNullOrEmpty(token))
             {
-                var userProfile = await GetUserProfileAsync(token);
+                UserDTO userProfile = await GetUserProfileAsync(token);
                 if (userProfile != null)
                 {
                     ViewData["UserProfile"] = userProfile;
                 }
+
+                IEnumerable<MenuDTO> menus = await GetMenuByRole(userProfile.RoleId);
+                ViewData["UserMenu"] = menus;
+            } else
+            {
+                IEnumerable<MenuDTO> menus = new List<MenuDTO>();
+                ViewData["UserMenu"] = menus;
             }
+            
 
             await base.OnActionExecutionAsync(context, next);
         }
