@@ -30,6 +30,13 @@
 <h2>Create Bed</h2>
 
 <form asp-action="Create" method="post">
+    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+    {
+        <div class="alert alert-danger">
+            @ViewBag.ErrorMessage
+        </div>
+    }
+
     <div class="form-group">
         <label asp-for="RoomId"></label>
         <select asp-for="RoomId" class="form-control">
@@ -52,6 +59,7 @@
     </div>
     <button type="submit" class="btn btn-primary">Create</button>
 </form>
+
 <script src="~/assets/js/jquery.min.js"></script>
 <!-- Bootstrap js-->
 <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>

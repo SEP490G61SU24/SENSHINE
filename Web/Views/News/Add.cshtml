@@ -1,7 +1,4 @@
-﻿@model API.Dtos.NewsDTO
-
-
-
+﻿@model Web.Models.NewsViewModel
 
 @section Styles {
     <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
@@ -33,7 +30,7 @@
     }
 
         .spacing-10px:last-of-type {
-            margin-right: 10;
+            margin-right: 10px;
         }
 
 
@@ -69,7 +66,7 @@
                     <form asp-action="Add" method="post">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="row g-3">
-                           
+
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label asp-for="Title" class="control-label">Title</label>
@@ -77,9 +74,9 @@
                                     <span asp-validation-for="Title" class="text-danger"></span>
                                 </div>
                             </div>
-                            
 
-                            
+
+
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label asp-for="PublishedDate" class="control-label">Published Date</label>
@@ -89,19 +86,22 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label asp-for="Cover" class="control-label">Cover</label>
-                                    
-                                    <label for="imageUrl" class="control-label">Image URL</label>
+                                    <label for="Cover" class="control-label">Image URL</label>
                                     <input type="text" id="imageUrl" class="form-control" placeholder="Enter image URL" />
+
+                                    <!-- Hidden input to store the actual value of the Cover field -->
+                                    <input asp-for="Cover" type="hidden" id="Cover" />
 
                                     <div id="imagePreview" class="image-preview mt-2">
                                         <img src="#" alt="Image Preview" class="img-thumbnail d-none" id="imagePreviewImg" />
                                     </div>
 
-                                    <textarea asp-for="Cover" class="form-control d-none" rows="1"></textarea>
                                     <span asp-validation-for="Cover" class="text-danger"></span>
                                 </div>
                             </div>
+
+
+
 
                             <div class="col-md-12">
                                 <div class="form-group">
@@ -127,68 +127,51 @@
 
 
 
-    <script src="~/assets/js/jquery.min.js"></script>
-    <!-- Bootstrap js-->
-    <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
-    <!-- feather icon js-->
-    <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
-    <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
-    <!-- scrollbar js-->
-    <script src="~/assets/js/scrollbar/simplebar.js"></script>
-    <script src="~/assets/js/scrollbar/custom.js"></script>
-    <!-- Sidebar jquery-->
-    <script src="~/assets/js/config.js"></script>
-    <!-- Plugins JS start-->
-    <script src="~/assets/js/sidebar-menu.js"></script>
-    <script src="~/assets/js/sidebar-pin.js"></script>
-    <script src="~/assets/js/slick/slick.min.js"></script>
-    <script src="~/assets/js/slick/slick.js"></script>
-    <script src="~/assets/js/header-slick.js"></script>
-    <!-- calendar js-->
-    <script src="~/assets/js/js-datatables/simple-datatables@latest.js"></script>
-    <script src="~/assets/js/custom-list-product.js"></script>
-    <script src="~/assets/js/owlcarousel/owl.carousel.js"></script>
-    <script src="~/assets/js/ecommerce.js"></script>
-    <script src="~/assets/js/tooltip-init.js"></script>
-    <!-- Plugins JS Ends-->
-    <!-- Theme js-->
-    <script src="~/assets/js/script.js"></script>
+<script src="~/assets/js/jquery.min.js"></script>
+<!-- Bootstrap js-->
+<script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
+<!-- feather icon js-->
+<script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
+<script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
+<!-- scrollbar js-->
+<script src="~/assets/js/scrollbar/simplebar.js"></script>
+<script src="~/assets/js/scrollbar/custom.js"></script>
+<!-- Sidebar jquery-->
+<script src="~/assets/js/config.js"></script>
+<!-- Plugins JS start-->
+<script src="~/assets/js/sidebar-menu.js"></script>
+<script src="~/assets/js/sidebar-pin.js"></script>
+<script src="~/assets/js/slick/slick.min.js"></script>
+<script src="~/assets/js/slick/slick.js"></script>
+<script src="~/assets/js/header-slick.js"></script>
+<!-- calendar js-->
+<script src="~/assets/js/js-datatables/simple-datatables@latest.js"></script>
+<script src="~/assets/js/custom-list-product.js"></script>
+<script src="~/assets/js/owlcarousel/owl.carousel.js"></script>
+<script src="~/assets/js/ecommerce.js"></script>
+<script src="~/assets/js/tooltip-init.js"></script>
+<!-- Plugins JS Ends-->
+<!-- Theme js-->
+<script src="~/assets/js/script.js"></script>
 <script>
-    document.getElementById('imageUrl').addEventListener('change', function (event) {
-        const file = event.target.files[0];
-        const previewImg = document.getElementById('imagePreviewImg');
-        const textarea = document.querySelector('textarea[asp-for="Cover"]');
-
-        if (file) {
-            const reader = new FileReader();
-
-            reader.onload = function (e) {
-                previewImg.src = e.target.result;
-                previewImg.classList.remove('d-none');
-                textarea.value = e.target.result;
-            }
-
-            reader.readAsDataURL(file);
-        } else {
-            previewImg.src = '#';
-            previewImg.classList.add('d-none');
-            textarea.value = '';
-        }
-    });
-
     document.getElementById('imageUrl').addEventListener('input', function (event) {
         const url = event.target.value;
         const previewImg = document.getElementById('imagePreviewImg');
-        const textarea = document.querySelector('textarea[asp-for="Cover"]');
+        const coverInput = document.getElementById('Cover');
 
         if (url) {
             previewImg.src = url;
             previewImg.classList.remove('d-none');
-            textarea.value = url;
+            coverInput.value = url;  // Update the hidden input value
         } else {
             previewImg.src = '#';
             previewImg.classList.add('d-none');
-            textarea.value = '';
+            coverInput.value = '';  // Clear the hidden input value
         }
+
+        // Trigger change event to ensure validation picks up the new value
+        coverInput.dispatchEvent(new Event('change'));
     });
+
+
 </script>

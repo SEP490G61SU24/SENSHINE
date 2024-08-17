@@ -1,23 +1,51 @@
 ﻿using API.Dtos;
 using API.Models;
+using API.Ultils;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System;
+using System.Net.Http;
 using System.Text;
 using Web.Models;
 namespace Web.Controllers
 {
-    public class NewsController : Controller
+    public class NewsController : BaseController
     {
-        private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _clientFactory;
+        private readonly ILogger<UserController> _logger;
 
-        public NewsController(IConfiguration configuration)
+        public NewsController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<UserController> logger) : base(configuration, clientFactory, logger)
         {
             _configuration = configuration;
-            var apiUrl = _configuration.GetValue<string>("ApiUrl");
-            _httpClient = new HttpClient { BaseAddress = new Uri(apiUrl) };
+            _clientFactory = clientFactory;
+            _logger = logger;
         }
+        
+
+
         [HttpGet]
+        public async Task<IActionResult> NewsList(int pageIndex = 1, int pageSize = 10, string searchTerm = null)
+        {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
+            var url = $"{apiUrl}/GetNewsPaging?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}";
+            HttpResponseMessage response = await client.GetAsync(url);
+            
+
+            if (response.IsSuccessStatusCode)
+            {
+                var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<NewsViewModel>>();
+                paginatedResult.SearchTerm = searchTerm;
+                return View(paginatedResult);
+            }
+            else
+            {
+                return View("Error");
+            }
+        }
+
+        /*[HttpGet]
         public async Task<IActionResult> NewsList()
         {
             List<NewsViewModel> viewList = new List<NewsViewModel>();
@@ -36,7 +64,7 @@ namespace Web.Controllers
 
             ViewData["Title"] = "List News";
             return View(viewList);
-        }
+        }*/
 
         [HttpGet]
         public IActionResult Add()
@@ -47,6 +75,8 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(NewsDTO newsDto)
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             if (!ModelState.IsValid)
             {
                 return View(newsDto);
@@ -54,7 +84,7 @@ namespace Web.Controllers
 
             string json = JsonConvert.SerializeObject(newsDto);
             StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
-            HttpResponseMessage response = await _httpClient.PostAsync("api/AddNews", content);
+            HttpResponseMessage response = await client.PostAsync("{apiUrl}/AddNews", content);
 
             if (response.IsSuccessStatusCode)
             {
@@ -69,7 +99,9 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            HttpResponseMessage response = await _httpClient.GetAsync($"/api/GetNewsDetail/{id}");
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/GetNewsDetail/{id}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -99,6 +131,8 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(int id, NewsDTO newsDto)
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             if (!ModelState.IsValid)
             {
                 var newsViewModel = new NewsViewModel
@@ -115,7 +149,7 @@ namespace Web.Controllers
             string json = JsonConvert.SerializeObject(newsDto);
             StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            HttpResponseMessage response = await _httpClient.PutAsync($"/api/EditNews/{id}", content);
+            HttpResponseMessage response = await client.PutAsync($"{apiUrl}/EditNews/{id}", content);
 
             if (response.IsSuccessStatusCode)
             {
@@ -141,7 +175,9 @@ namespace Web.Controllers
                 [HttpGet]
                 public async Task<IActionResult> GetNewsDetail(int id)
                 {
-                    HttpResponseMessage response = await _httpClient.GetAsync($"/api/GetNewsDetail/{id}");
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/GetNewsDetail/{id}");
 
                     if (response.IsSuccessStatusCode)
                     {
@@ -166,10 +202,11 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> NewsByDate(DateTime from, DateTime to)
         {
+            var apiUrl = _configuration["ApiUrl"];
             string fromDateString = from.ToString("s");
             string toDateString = to.ToString("s");
-
-            HttpResponseMessage response = await _httpClient.GetAsync($"/api/NewsByDate?from={fromDateString}&to={toDateString}");
+            var client = _clientFactory.CreateClient();
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/NewsByDate?from={fromDateString}&to={toDateString}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -186,9 +223,11 @@ namespace Web.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             try
             {
-                var response = await _httpClient.DeleteAsync($"/api/DeleteNews/{id}");
+                var response = await client.DeleteAsync($"{apiUrl}/DeleteNews/{id}");
 
                 if (response.IsSuccessStatusCode)
                 {

@@ -32,7 +32,40 @@
     <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
     <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+<style>
+        .intro-section {
+            padding: 50px 0;
+            background-color: #f8f8f8;
+        }
 
+        .text-title {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .text-description {
+            font-size: 1.2rem;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .benefits-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+            .benefits-list li {
+                font-size: 1.1rem;
+                color: #333;
+                margin-bottom: 10px;
+            }
+
+                .benefits-list li strong {
+                    color: #006837;
+                }
+
+</style>
 </head>
 
 <body class="landing-page">
@@ -56,14 +89,16 @@
                                 <ul class="navbar-nav navbar_nav_modify" id="scroll-spy">
                                     <li class="nav-item"><a class="nav-link" href="@Url.Action("NewsPage", "Home")">News</a></li>
                                     <li class="nav-item"><a class="nav-link" href="#">Promotions</a></li>
-                                    <li class="nav-item"> <a class="nav-link" id="page" href="#">Our Services</a></li>
+                                    <li class="nav-item"> <a class="nav-link" id="page" href="@Url.Action("OurService", "Home")">Our Services</a></li>
+                                    <li class="nav-item"> <a class="nav-link" id="page" href="@Url.Action("AboutUs", "Home")">About Us</a></li>
+
                                     <li class="nav-item dropdown">
                                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <span id="dropdownMenuButton">SenShineSpa_HaNoi</span>
+                                            <span id="dropdownMenuButton">Sen Shine Spa</span>
                                         </a>
                                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                            <a class="dropdown-item" href="landing-page.html#framework-saigon" onclick="updateDropdown('SenShineSpa_SaiGon')">SenShineSpa_SaiGon</a>
-                                            <a class="dropdown-item" href="landing-page.html#framework-saigon" onclick="updateDropdown('SenShineSpa_SaiGon')">SenShineSpa_BinhThuan</a>
+                                            <a class="dropdown-item" href="landing-page.html#framework-saigon" onclick="updateDropdown('SenShineSpa_SaiGon')">Sen Shine Spa Wellness</a>
+                                            <a class="dropdown-item" href="landing-page.html#framework-saigon" onclick="updateDropdown('SenShineSpa_SaiGon')">L’essence Sen Shine</a>
                                         </div>
                                     </li>
                                 </ul>
@@ -115,6 +150,25 @@
             </div>
         </div>
         
+        <section class="intro-section" id="intro" style="padding: 50px 0; background-color: #f8f8f8;">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <img src="https://le-cdn.hibuwebsites.com/0448e9cf581f4ecc89a66c438f1b5906/dms3rep/multi/opt/spa-tique-day-spa-hero-home-1920w.jpg" alt="Spa Image" class="img-fluid" style="border-radius: 10px;">
+                    </div>
+                    <div class="col-md-6">
+                        <h2 class="text-title">Trải Nghiệm Spa Hoàn Hảo</h2>
+                        <p class="text-description">Tại SenShine Spa, quý khách sẽ được tận hưởng những dịch vụ spa cao cấp với các liệu pháp truyền thống kết hợp với nguyên liệu tự nhiên, giúp thư giãn và phục hồi cơ thể. Với không gian sang trọng, yên tĩnh, và đội ngũ chuyên viên giàu kinh nghiệm, chúng tôi cam kết mang lại sự hài lòng tuyệt đối.</p>
+                        <ul class="benefits-list">
+                            <li><strong>Không gian:</strong> Sang trọng, đẳng cấp, yên tĩnh, nhẹ nhàng.</li>
+                            <li><strong>Dịch vụ:</strong> Spa trị liệu bằng phương pháp cổ truyền.</li>
+                            <li><strong>Nguyên liệu:</strong> Thảo dược hoàn toàn từ thiên nhiên.</li>
+                            <li><strong>Con người:</strong> Thân thiện, nhẹ nhàng, giỏi chuyên môn.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <section class="demo-section section-py-space" id="demo">
             <div class="title text-center">

@@ -174,6 +174,15 @@ namespace API.Services.Impl
 
             return comboDTOs;
         }
+        public async Task<List<Combo>> GetCombosByInvoiceIdAsync(int id)
+        {
+            // Retrieve the combos associated with the provided invoice ID from the database
+            var combos = await _dbContext.Combos.Include(c => c.InvoiceCombos)
+                .Where(p => p.InvoiceCombos.Any(c => c.InvoiceId == id)).ToListAsync();
+                
+
+            return combos;
+        }
 
     }
 }

@@ -1,5 +1,6 @@
 ﻿using API.Dtos;
 using API.Models;
+using API.Ultils;
 using AutoMapper;
 using AutoMapper.Internal.Mappers;
 using Microsoft.EntityFrameworkCore;
@@ -93,6 +94,35 @@ namespace API.Services.Impl
 
             return true;
         }
+        public async Task<PaginatedList<NewsDTO>> GetNews(int pageIndex = 1, int pageSize = 10, string searchTerm = null)
+        {
+            // Tạo query cơ bản
+            IQueryable<News> query = _context.News;
 
+
+            // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(u => u.Title.Contains(searchTerm) ||
+                                         u.Content.Contains(searchTerm));
+            }
+
+            // Đếm tổng số bản ghi để tính tổng số trang
+            var count = await query.CountAsync();
+
+            // Lấy danh sách với phân trang
+            var news = await query.Skip((pageIndex - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync();
+            var newsDtos = mapper.Map<IEnumerable<NewsDTO>>(news);
+
+            return new PaginatedList<NewsDTO>
+            {
+                Items = newsDtos,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = count,
+            };
+        }
     }
 }

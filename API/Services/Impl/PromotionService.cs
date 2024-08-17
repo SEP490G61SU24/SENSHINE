@@ -45,7 +45,7 @@ namespace API.Services.Impl
 
         public async Task<IEnumerable<PromotionDTORespond>> ListPromotion()
         {
-            var promotions = await _context.Promotions.Include(x=>x.Spa).ToListAsync();
+            var promotions = await _context.Promotions.Include(x => x.Spa).ToListAsync();
             return _mapper.Map<IEnumerable<PromotionDTORespond>>(promotions);
         }
 
@@ -104,5 +104,13 @@ namespace API.Services.Impl
 
             return true;
         }
+
+        
+
+
+
+
     }
 }
+
+

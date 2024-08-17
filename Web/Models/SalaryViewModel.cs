@@ -22,5 +22,6 @@ namespace Web.Models
         public int? SalaryYear { get; set; }
         [DisplayName("Nhân viên")]
         public string? EmployeeName { get; set; }
+        public int? BranchId {  get; set; }
     }
 }

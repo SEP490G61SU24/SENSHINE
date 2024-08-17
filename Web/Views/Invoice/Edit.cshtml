@@ -1,0 +1,348 @@
+﻿@model Web.Models.InvoiceViewModel
+
+@{
+    ViewData["Title"] = "Edit Invoice";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/themify.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/flag-icon.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/feather-icon.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
+    <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+}
+<style>
+    .custom-select-wrapper {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+
+    .custom-select {
+        display: flex;
+        flex-wrap: wrap;
+        border: 1px solid #ccc;
+        padding: 0.5rem;
+        border-radius: 4px;
+        background-color: #fff;
+        cursor: pointer;
+        position: relative;
+    }
+
+        .custom-select .btn {
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+    .custom-options {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        border: 1px solid #ccc;
+        border-top: none;
+        background-color: #fff;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+    }
+
+        .custom-options.show {
+            display: block;
+        }
+
+        .custom-options label {
+            display: block;
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+
+            .custom-options label:hover {
+                background-color: #f0f0f0;
+            }
+            </style>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Edit Invoice</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <!-- Hidden field for Invoice Id -->
+                        <input asp-for="Id" type="hidden" />
+
+                        <div class="row">
+                            <!-- Amount -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="Amount" class="control-label">Amount</label>
+                                    <input asp-for="Amount" class="form-control" readonly />
+                                    <span asp-validation-for="Amount" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- Invoice Date -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="InvoiceDate" class="control-label">Invoice Date</label>
+                                    <input asp-for="InvoiceDate" class="form-control" type="date" />
+                                    <span asp-validation-for="InvoiceDate" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- Status -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="Status" class="control-label">Status</label>
+                                    <select asp-for="Status" class="form-control">
+                                        <option value="Pending">Pending</option>
+                                        <option value="Paid">Paid</option>
+                                        <option value="Cancelled">Cancelled</option>
+                                    </select>
+                                    <span asp-validation-for="Status" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Display Customer Name -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="control-label">Customer Name</label>
+                                    <!-- Hidden field to store CustomerId for form submission -->
+                                    <input id="CustomerId" type="hidden" name="CustomerId" value="@Model.CustomerId" />
+
+                                    <!-- Display field to show CustomerName in a read-only format -->
+                                    <input type="text" class="form-control" value="@Model.CustomerName" readonly />
+
+                                    <!-- Validation message for CustomerId, if needed -->
+                                    <span asp-validation-for="CustomerId" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                                
+                            
+
+                            <!-- Display Promotion Name -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="PromotionName" class="control-label">Promotion Name</label>
+                                    <input asp-for="PromotionName" class="form-control" readonly />
+                                    <span asp-validation-for="PromotionName" class="text-danger"></span>
+
+                                    <input type="hidden" id="PromotionDiscount" value="@Model.DiscountPercentage" />
+
+                                </div>
+                            </div>
+
+                            <!-- Display Spa Name -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="SpaName" class="control-label">Spa Name</label>
+                                    <input asp-for="SpaName" class="form-control" readonly />
+                                    <span asp-validation-for="SpaName" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="form-group">
+                            <label asp-for="Description" class="control-label">Description</label>
+                            <textarea asp-for="Description" class="form-control"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <!-- Combo Selection -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Combos</label>
+                                    <div class="custom-select-wrapper">
+                                        <div id="comboSelect" class="custom-select">
+                                            @foreach (var combo in ViewBag.Combos ?? new List<API.Dtos.ComboDTO2>())
+                                            {
+                                                var selectedCombo = Model.InvoiceCombos.FirstOrDefault(s => s.ComboId == combo.Id);
+                                                var quantitycombo = selectedCombo?.Quantity ?? 0;
+                                                <div>
+                                                    <button type="button"
+                                                            class="btn @(Model.InvoiceCombos.Any(c => c.ComboId == combo.Id) ? "btn-primary" : "btn-default")"
+                                                            data-id="@combo.Id" data-price="@combo.SalePrice">
+                                                        @combo.Name
+                                                    </button>
+                                                    <input type="number" 
+                                                           name="ComboQuantities[@combo.Id]" value="@quantitycombo"
+                                                           min="0"  />
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="ComboIdsString" value="@string.Join(",", Model.ComboIds ?? new List<int>())" id="CombosInput" />
+                                    <span asp-validation-for="ComboIdsString" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- Service Selection -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Services</label>
+                                    <div class="custom-select-wrapper">
+                                        <div id="serviceSelect" class="custom-select">
+                                            @foreach (var service in ViewBag.Services ?? new List<API.Dtos.ServiceDTO2>())
+                                            {
+                                                var selectedService = Model.InvoiceServices.FirstOrDefault(s => s.ServiceId == service.Id);
+                                                var quantity = selectedService?.Quantity ?? 0;
+                                               
+                                               <div>
+                                                    <button type="button"
+                                                            class="btn @(Model.InvoiceServices.Any(c => c.ServiceId == service.Id) ? "btn-primary" : "btn-default")"
+                                                            data-id="@service.Id" data-price="@service.Amount">
+                                                        @service.ServiceName
+                                                    </button>
+                                                    <input type="number" 
+                                                           name="ServiceQuantities[@service.Id]" value="@quantity"
+                                                           min="0"  />
+                                                    </div>
+                                            }
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="ServiceIdsString" value="@string.Join(",", Model.ServiceIds ?? new List<int>())" id="ServicesInput" />
+                                    <span asp-validation-for="ServiceIdsString" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="form-group d-flex justify-content-end">
+                            <input type="submit" value="Update" class="btn btn-primary spacing-10px" />
+                            <a asp-action="InvoiceList" class="btn btn-secondary spacing-10px ms-2">Back to List</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="~/assets/js/jquery.min.js"></script>
+    <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
+    <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
+    <script src="~/assets/js/scrollbar/simplebar.js"></script>
+    <script src="~/assets/js/scrollbar/custom.js"></script>
+    <script src="~/assets/js/config.js"></script>
+    <script src="~/assets/js/sidebar-menu.js"></script>
+    <script src="~/assets/js/sidebar-pin.js"></script>
+    <script src="~/assets/js/slick/slick.min.js"></script>
+    <script src="~/assets/js/slick/slick.js"></script>
+    <script src="~/assets/js/header-slick.js"></script>
+    <script src="~/assets/js/js-datatables/simple-datatables@latest.js"></script>
+    <script src="~/assets/js/custom-list-product.js"></script>
+    <script src="~/assets/js/owlcarousel/owl.carousel.js"></script>
+    <script src="~/assets/js/ecommerce.js"></script>
+    <script src="~/assets/js/tooltip-init.js"></script>
+    <script src="~/assets/js/script.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Function to calculate the total amount
+            function calculateTotalAmount() {
+                var totalAmount = 0;
+
+                // Retrieve selected combo quantities
+                $('#comboSelect').find('button.btn-primary').each(function () {
+                    var comboId = $(this).data('id');
+                    var quantity = $('input[name="ComboQuantities[' + comboId + ']"]').val() || 0;
+                    var price = $(this).data('price') || 0; // Assuming price is stored in the button's data attribute
+                    totalAmount += quantity * price;
+                });
+
+                // Retrieve selected service quantities
+                $('#serviceSelect').find('button.btn-primary').each(function () {
+                    var serviceId = $(this).data('id');
+                    var quantity = $('input[name="ServiceQuantities[' + serviceId + ']"]').val() || 0;
+                    var price = $(this).data('price') || 0; // Assuming price is stored in the button's data attribute
+                    totalAmount += quantity * price;
+                });
+
+                // Apply any promotion discount
+                var discountPercentage = parseFloat($('#PromotionDiscount').val()) || 0;
+                if (discountPercentage > 0) {
+                    totalAmount -= (totalAmount * (discountPercentage / 100));
+                }
+
+                // Update the Amount field
+                $('input[name="Amount"]').val(totalAmount.toFixed(2));
+            }
+
+            // Handle combo selection
+            $('#comboSelect').on('click', 'button', function () {
+                var $button = $(this);
+                var comboId = $button.data('id');
+                var selectedComboIds = $('#CombosInput').val().split(',').filter(Boolean);
+                var index = selectedComboIds.indexOf(comboId.toString());
+
+                if (index === -1) {
+                    selectedComboIds.push(comboId);
+                    $button.removeClass('btn-default').addClass('btn-primary');
+                } else {
+                    selectedComboIds.splice(index, 1);
+                    $button.removeClass('btn-primary').addClass('btn-default');
+                }
+
+                $('#CombosInput').val(selectedComboIds.join(','));
+                calculateTotalAmount();
+            });
+
+            // Handle service selection
+            $('#serviceSelect').on('click', 'button', function () {
+                var $button = $(this);
+                var serviceId = $button.data('id');
+                var selectedServiceIds = $('#ServicesInput').val().split(',').filter(Boolean);
+                var index = selectedServiceIds.indexOf(serviceId.toString());
+
+                if (index === -1) {
+                    selectedServiceIds.push(serviceId);
+                    $button.removeClass('btn-default').addClass('btn-primary');
+                } else {
+                    selectedServiceIds.splice(index, 1);
+                    $button.removeClass('btn-primary').addClass('btn-default');
+                }
+
+                $('#ServicesInput').val(selectedServiceIds.join(','));
+                calculateTotalAmount();
+            });
+
+            // Handle quantity change
+            $('#comboSelect').on('change', 'input[type="number"]', function () {
+                calculateTotalAmount();
+            });
+
+            $('#serviceSelect').on('change', 'input[type="number"]', function () {
+                calculateTotalAmount();
+            });
+
+            // Handle promotion change if applicable
+            $('#PromotionDiscount').on('change', function () {
+                calculateTotalAmount();
+            });
+        });
+    </script>
+
+    
+}
