@@ -1,4 +1,5 @@
 ﻿using API.Dtos;
+using Newtonsoft.Json;
 
 namespace Web.Models
 {
@@ -32,4 +33,29 @@ namespace Web.Models
         public ICollection<InvoiceComboDTO>? InvoiceCombos { get; set; } = new List<InvoiceComboDTO>();
         public ICollection<InvoiceServiceDTO>? InvoiceServices { get; set; } = new List<InvoiceServiceDTO>();
     }
+    public class PaymentResponse
+    {
+        [JsonProperty("data")]
+        public List<PaymentRecord> Data { get; set; }
+
+        [JsonProperty("error")]
+        public bool Error { get; set; }
+    }
+
+    public class PaymentRecord
+    {
+        [JsonProperty("content")]
+        public string Content { get; set; }
+
+        [JsonProperty("price")]
+        public decimal Price { get; set; }
+
+        [JsonProperty("createAt")]
+        public DateTime CreateAt { get; set; }
+    }
+    public class PaymentViewModel
+    {
+        public List<PaymentRecord> PaymentRecords { get; set; }
+    }
+
 }

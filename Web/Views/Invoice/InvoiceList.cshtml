@@ -55,12 +55,12 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Amount</th>
-                        <th>Invoice Date</th>
-                        <th>Description</th>
-                        <th>Customer Name</th>
-                        <th>Promotion Name</th>
-                        <th>Spa Name</th>
+                        <th>Tổng Tiền</th>
+                        <th>Ngày Tạo Hóa Đơn</th>
+                        <th>Tên Khách Hàng</th>
+                        <th>Mã Giảm Giá</th>
+                        <th>Cơ sở Spa</th>
+                        <th>Trạng Thái</th>
                         <th>Hành Động</th>
                     </tr>
                 </thead>
@@ -71,14 +71,14 @@
                             <td>@item.Id</td>
                             <td>@item.Amount</td>
                             <td>@item.InvoiceDate.ToString("dd/MM/yyyy")</td>
-                            <td>@item.Description</td>
                             <td>@item.CustomerName</td>
                             <td>@item.PromotionName</td>
                             <td>@item.SpaName</td>
+                            <td>@item.Status</td>
                             <td>
                                 <ul class="action">
                                     <li class="edit"><a href="@Url.Action("Edit", "Invoice", new { id = item.Id })"><i class="icon-pencil-alt"></i></a></li>
-                                    
+                                    <li class="payment"><a href="@Url.Action("Payment", "Invoice", new { id = item.Id })"><i class="icon-eye"></i></a></li>
                                     <li class="delete"><a href="#" onclick="confirmDelete(@item.Id)"><i class="icon-trash"></i></a></li>
                                 </ul>
                             </td>
@@ -111,6 +111,8 @@
     <script type="text/javascript">
         $(document).ready(function () {
             var invoiceTable = $('#invoice-table').DataTable({
+                paging: false,
+                searching: false,
                 columns: [
                     { data: 'id' },
                     { data: 'amount' },
@@ -126,18 +128,18 @@
                             var year = date.getFullYear();
                             return `${day}-${month}-${year}`;
                         }
-                    },
-                    { data: 'description' },
+                    },                   
                     { data: 'customerName' },
                     { data: 'promotionName' },
                     { data: 'spaName' },
+                    { data: 'status' },
                     {
                         data: null,
                         render: function (data, type, row) {
                             return `
                                         <ul class="action">
                                             <li class="edit"><a href="/invoice/edit/${row.id}"><i class="icon-pencil-alt"></i></a></li>
-                                           
+                                                    <li class="payment"><a href="/invoice/payment/${row.id}"><i class="icon-eye"></i></a></li>
                                             <li class="delete"><a href="#" onclick="confirmDelete(${row.id})"><i class="icon-trash"></i></a></li>
                                         </ul>
                                     `;

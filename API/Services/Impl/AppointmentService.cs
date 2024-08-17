@@ -41,7 +41,7 @@ namespace API.Services.Impl
                     Id = appointment.Id,
                     CustomerId = appointment.CustomerId,
                     EmployeeId = appointment.EmployeeId,
-                    AppointmentDate = appointment.AppointmentDate,
+                    //AppointmentDate = appointment.AppointmentDate,
                     Status = appointment.Status,
                     Customer = new AppointmentUserDTO
                     {
@@ -100,7 +100,7 @@ namespace API.Services.Impl
                     Id = appointment.Id,
                     CustomerId = appointment.CustomerId,
                     EmployeeId = appointment.EmployeeId,
-                    AppointmentDate = appointment.AppointmentDate,
+                    //AppointmentDate = appointment.AppointmentDate,
                     Status = appointment.Status,
                     Customer = new AppointmentUserDTO
                     {
@@ -140,7 +140,7 @@ namespace API.Services.Impl
                 .Include(a => a.Employee)
                 .Include(a => a.Services)
                 .Include(a => a.Products)
-                .Where(a => a.AppointmentDate.Date == appointmentDate.Date)
+                //.Where(a => a.AppointmentDate.Date == appointmentDate.Date)
                 .ToListAsync();
         }
 
