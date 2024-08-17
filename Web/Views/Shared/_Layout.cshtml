@@ -1,6 +1,11 @@
 @{
     var userProfile = ViewData["UserProfile"] as API.Dtos.UserDTO;
 }
+
+@{
+    IEnumerable<API.Dtos.MenuDTO> menus = ViewData["UserMenu"] as IEnumerable<API.Dtos.MenuDTO>;
+}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -360,173 +365,89 @@
                                     <h6>Pinned</h6>
                                 </div>
                             </li>
+                            
+                            @foreach (var menu in menus)
+                            {
+                                <li class="sidebar-main-title">
+                                    <div>
+                                        <h6>@menu.Menu.Title</h6>
+                                    </div>
+                                </li>
 
-                            <li class="sidebar-main-title">
-                                <div>
-                                    <h6>Bảng điều khiển</h6>
-                                </div>
-                            </li>
-
-                            <li class="sidebar-list">
-                                <i class="fa fa-thumb-tack"></i>
-                                <a class="sidebar-link sidebar-title link-nav" href="/user/index">
-                                    <svg class="stroke-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#stroke-file"></use>
-                                    </svg>
-                                    <svg class="fill-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#fill-file"></use>
-                                    </svg><span>Quản lý người dùng</span>
-                                </a>
-                            </li>
-                            <li class="sidebar-list">
-                                <i class="fa fa-thumb-tack"></i>
-                                <a class="sidebar-link sidebar-title link-nav" href="/customer/index">
-                                    <svg class="stroke-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#stroke-file"></use>
-                                    </svg>
-                                    <svg class="fill-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#fill-file"></use>
-                                    </svg><span>Quản lý khách hàng</span>
-                                </a>
-                            </li>
-                            <li class="sidebar-list">
-                                <i class="fa fa-thumb-tack"></i>
-                                <a class="sidebar-link sidebar-title link-nav" href="/setting/index">
-                                    <svg class="stroke-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#stroke-file"></use>
-                                    </svg>
-                                    <svg class="fill-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#fill-file"></use>
-                                    </svg><span>Quản lý khóa cài đặt</span>
-                                </a>
-                            </li>
-                            <li class="sidebar-list">
-                                <i class="fa fa-thumb-tack"></i>
-                                <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "Combo")">
-                                    <svg class="stroke-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#stroke-file"></use>
-                                    </svg>
-                                    <svg class="fill-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#fill-file"></use>
-                                    </svg><span>Quản lý combo</span>
-                                </a>
-                            </li>
-                            <li class="sidebar-list">
-                                <i class="fa fa-thumb-tack"></i>
-                                <a class="sidebar-link sidebar-title link-nav" href="/Card/ListCard">
-                                    <svg class="stroke-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#stroke-file"></use>
-                                    </svg>
-                                    <svg class="fill-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#fill-file"></use>
-                                    </svg><span>Quản lý thẻ</span>
-                                </a>
-                            </li>
-                            <li class="sidebar-list">
-                                <i class="fa fa-thumb-tack"></i>
-                                <a class="sidebar-link sidebar-title link-nav" href="/Room/ListRoom">
-                                    <svg class="stroke-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#stroke-file"></use>
-                                    </svg>
-                                    <svg class="fill-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#fill-file"></use>
-                                    </svg><span>Quản lý phòng</span>
-                                </a>
-                            </li>
-                            <li class="sidebar-list">
-                                <i class="fa fa-thumb-tack"></i>
-                                <a class="sidebar-link sidebar-title link-nav" href="/Salary/ListSalary">
-                                    <svg class="stroke-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#stroke-file"></use>
-                                    </svg>
-                                    <svg class="fill-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#fill-file"></use>
-                                    </svg><span>Quản lý lương</span>
-                                </a>
-                            </li>
-                            <li class="sidebar-list">
-                                <i class="fa fa-thumb-tack"></i>
-                                <a class="sidebar-link sidebar-title link-nav" href="/Branch/ListBranch">
-                                    <svg class="stroke-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#stroke-file"></use>
-                                    </svg>
-                                    <svg class="fill-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#fill-file"></use>
-                                    </svg><span>Quản lý chi nhánh</span>
-                                </a>
-                            </li>
-                            <li class="sidebar-list">
-                                <i class="fa fa-thumb-tack"></i>
-                                <a class="sidebar-link sidebar-title link-nav" href="/setting/index">
-                                    <svg class="stroke-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#stroke-file"></use>
-                                    </svg>
-                                    <svg class="fill-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#fill-file"></use>
-                                    </svg><span>Quản lý hoá đơn</span>
-                                </a>
-                            </li>
-                            <li class="sidebar-list">
-                                <i class="fa fa-thumb-tack"></i>
-                                <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("ProductList", "Product")">
-                                    <svg class="stroke-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#stroke-file"></use>
-                                    </svg>
-                                    <svg class="fill-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#fill-file"></use>
-                                    </svg><span>Quản lý Sản Phẩm</span>
-                                </a>
-                            </li>
-                            <li class="sidebar-list">
-                                <i class="fa fa-thumb-tack"></i>
-                                <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("NewsList", "News")">
-                                    <svg class="stroke-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#stroke-file"></use>
-                                    </svg>
-                                    <svg class="fill-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#fill-file"></use>
-                                    </svg><span>Quản lý Bản Tin</span>
-                                </a>
-                            </li>
-                            <li class="sidebar-list">
-                                <i class="fa fa-thumb-tack"></i>
-                                <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("ListPromotion", "Promotions")">
-                                    <svg class="stroke-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#stroke-file"></use>
-                                    </svg>
-                                    <svg class="fill-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#fill-file"></use>
-                                    </svg><span>Quản lý Mã Giảm Giá</span>
-                                </a>
-                            </li>
-                            <li class="sidebar-list">
-                                <i class="fa fa-thumb-tack"></i>
-                                <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "Category")">
-                                    <svg class="stroke-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#stroke-file"></use>
-                                    </svg>
-                                    <svg class="fill-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#fill-file"></use>
-                                    </svg><span>Quản lý danh mục</span>
-                                </a>
-                            </li>
-                            <li class="sidebar-list">
-                                <i class="fa fa-thumb-tack"></i>
-                                <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "Bed")">
-                                    <svg class="stroke-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#stroke-file"></use>
-                                    </svg>
-                                    <svg class="fill-icon">
-                                        <use href="~/assets/svg/icon-sprite.svg#fill-file"></use>
-                                    </svg><span>Quản lý giường</span>
-                                </a>
-                            </li>
-                            <li class="sidebar-main-title">
-                                <div>
-                                    <h6>Thống kê</h6>
-                                </div>
-                            </li>
-
+                                @if (menu.Children.Any())
+                                {
+                                    @foreach (var childMenu in menu.Children)
+                                    {
+                                        <li class="sidebar-list">
+                                            
+                                            @if(childMenu.Menu.Path != "#")
+                                            {
+                                                <a class="sidebar-link sidebar-title link-nav" href="@childMenu.Menu.Path">
+                                                    <i class="@childMenu.Menu.Icon"></i>
+                                                    <span>@childMenu.Menu.Title</span>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a class="sidebar-link sidebar-title" href="#">
+                                                    <i class="@childMenu.Menu.Icon"></i>
+                                                    <span>@childMenu.Menu.Title</span>
+                                                    @if (childMenu.Children.Any())
+                                                    {
+                                                        <div class="according-menu"><i class="fa fa-angle-right"></i></div>
+                                                    }
+                                                </a>
+                                                @if (childMenu.Children.Any())
+                                                {
+                                                    <ul class="sidebar-submenu">
+                                                        @foreach (var subChild in childMenu.Children)
+                                                        {
+                                                            <li>
+                                                                @if (subChild.Children.Any())
+                                                                {
+                                                                    <a class="submenu-title" href="#">
+                                                                        <i class="@subChild.Menu.Icon"></i>
+                                                                        @subChild.Menu.Title
+                                                                        <div class="according-menu"><i class="fa fa-angle-right"></i></div>
+                                                                    </a>
+                                                                    <ul class="nav-sub-childmenu submenu-content">
+                                                                        @foreach (var subSubChild in subChild.Children)
+                                                                        {
+                                                                            <li>
+                                                                                <a href="@subSubChild.Menu.Path"><i class="@subSubChild.Menu.Icon"></i>@subSubChild.Menu.Title</a>
+                                                                            </li>
+                                                                        }
+                                                                    </ul>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <a href="@subChild.Menu.Path"><i class="@subChild.Menu.Icon"></i>@subChild.Menu.Title</a>
+                                                                }
+                                                            </li>
+                                                        }
+                                                    </ul>
+                                                }
+                                                else
+                                                {
+                                                    <ul class="sidebar-link sidebar-title link-nav">
+                                                        <li><a href="@childMenu.Menu.Path"><i class="@childMenu.Menu.Icon"></i>@childMenu.Menu.Title</a></li>
+                                                    </ul>
+                                                }
+                                                
+                                            }
+                                        </li>
+                                    }
+                                }
+                                else
+                                {
+                                    <li class="sidebar-list">
+                                        <i class="@menu.Menu.Icon"></i>
+                                        <a class="sidebar-link sidebar-title link-nav" href="@menu.Menu.Path">
+                                            <span>@menu.Menu.Title</span>
+                                        </a>
+                                    </li>
+                                }
+                            }
                         </ul>
                         <div class="right-arrow" id="right-arrow"><i data-feather="arrow-right"></i></div>
                     </div>

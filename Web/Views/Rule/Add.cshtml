@@ -1,4 +1,4 @@
-﻿@model API.Dtos.RuleDTO
+﻿@model Web.Models.RuleEditViewModel
 
 @{
 	ViewData["Title"] = "Thêm quy tắc mới";
@@ -20,6 +20,8 @@
 	<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
 	<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
 	<!-- Plugins css Ends-->
+	<!-- SELECT 2 CSS -->
+	<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/select2.css">
 	<!-- Bootstrap css-->
 	<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
 	<!-- App css-->
@@ -32,40 +34,51 @@
 <div class="card">
 	<div class="card-body">
 		<form method="post" action="/rule/add" class="row g-3 needs-validation custom-input" novalidate="">
-			<div class="col-md-6 position-relative">
+			<!-- <div class="col-md-6 position-relative">
 				<label class="form-label" for="Type">Type</label>
-				<input class="form-control" name="Type" id="Type" type="text" placeholder="" required="" value="file">
+				<input class="form-control" name="ruleDTO.Type" id="Type" type="text" placeholder="" required="" value="file">
 				<div class="invalid-tooltip">Điền type!</div>
-			</div>
+			</div> -->
+			<input class="form-control" name="ruleDTO.Type" id="Type" type="hidden" placeholder="" value="file">
 			<div class="col-md-6 position-relative">
 				<label class="form-label" for="Pid">Cấp trên</label>
-				<select class="form-select" name="Pid" id="Pid" required="">
+				<select class="form-select" name="ruleDTO.Pid" id="Pid" required="">
 					<option selected value="0">Không có cấp trên</option>
+					@foreach (var parent in Model.parentRulesDTO)
+					{
+						<option value="@parent.Id">@parent.Title (@parent.Path)</option>
+					}
 				</select>
 				<div class="invalid-tooltip">Chọn cấp trên.</div>
 			</div>
 			<div class="col-md-6 position-relative">
 				<label class="form-label" for="Path">Đường dẫn</label>
-				<input class="form-control" name="Path" id="Path" type="text" placeholder="Ví dụ: /user/index" required="">
+				<input class="form-control" name="ruleDTO.Path" id="Path" type="text" placeholder="Ví dụ: /user/index" required="">
 				<div class="invalid-tooltip">Điền đường dẫn!</div>
 			</div>
 			<div class="col-md-6 position-relative">
 				<label class="form-label" for="Title">Tiêu đề</label>
-				<input class="form-control" name="Title" id="Title" type="text" placeholder="Quản lý người dùng" required="">
+				<input class="form-control" name="ruleDTO.Title" id="Title" type="text" placeholder="Quản lý người dùng" required="">
 				<div class="invalid-tooltip">Điền tiêu đề!</div>
 			</div>
 			<div class="col-md-6 position-relative">
 				<label class="form-label" for="Icon">Icon</label>
-				<input class="form-control" name="Icon" id="Icon" type="text" placeholder="">
+				<select class="form-select" name="ruleDTO.Icon" id="Icon" required="">
+					<option selected value="0">Không có icon</option>
+					@foreach (var icon in Model.iconList)
+					{
+						<option value="@icon">@icon</option>
+					}
+				</select>
 			</div>
 			<div class="col-md-6 position-relative">
 				<label class="form-label" for="Remark">Mô tả</label>
-				<input class="form-control" name="Remark" id="Remark" type="text" placeholder="">
+				<input class="form-control" name="ruleDTO.Remark" id="Remark" type="text" placeholder="">
 			</div>
 
 			<div class="col-md-6 position-relative">
 				<label class="form-label" for="Ismenu">Có là menu hay không</label>
-				<select class="form-select" name="Ismenu" id="Ismenu" required>
+				<select class="form-select" name="ruleDTO.Ismenu" id="Ismenu" required>
 					<option selected value="yes">Là menu</option>
 					<option value="no">Không phải menu</option>
 				</select>
@@ -101,6 +114,24 @@
 	<script src="~/assets/js/form-validation-custom.js"></script>
 	<script src="~/assets/js/height-equal.js"></script>
 	<!-- Plugins JS Ends-->
+
+	<!-- SELECT 2 -->
+	<script src="~/assets/js/select2/select2.full.min.js"></script>
+
 	<!-- Theme js-->
 	<script src="~/assets/js/script.js"></script>
+
+	<script>
+		$(document).ready(function () {
+			$('#Pid').select2({
+				placeholder: "Chọn cấp trên",
+				allowClear: true
+			});
+
+			$('#Icon').select2({
+				placeholder: "Chọn icon",
+				allowClear: true
+			});
+		});
+	</script>
 }
