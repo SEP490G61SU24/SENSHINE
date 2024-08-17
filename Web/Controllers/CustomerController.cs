@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Globalization;
 using API.Dtos;
+using API.Ultils;
 
 namespace Web.Controllers
 {
@@ -20,23 +21,37 @@ namespace Web.Controllers
 			_logger = logger;
 		}
 
-		public async Task<IActionResult> Index()
-		{
-			var apiUrl = _configuration["ApiUrl"];
-			var client = _clientFactory.CreateClient();
-			var response = await client.GetAsync($"{apiUrl}/user/byRole/5");
-			if (response.IsSuccessStatusCode)
-			{
-				var users = await response.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>();
-				return View(users);
-			}
-			else
-			{
-				return View("Error");
-			}
-		}
+        public async Task<IActionResult> Index(int pageIndex = 1, int pageSize = 10, string searchTerm = null)
+        {
+            try
+            {
+                var apiUrl = _configuration["ApiUrl"];
+                var client = _clientFactory.CreateClient();
 
-		public IActionResult Add()
+                var url = $"{apiUrl}/users/page/role/5?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}";
+
+                var response = await client.GetAsync(url);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<UserDTO>>();
+                    paginatedResult.SearchTerm = searchTerm;
+                    return View(paginatedResult);
+                }
+                else
+                {
+                    return View("Error");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during login");
+                ViewData["Error"] = "An error occurred";
+                return View();
+            }
+        }
+
+        public IActionResult Add()
 		{
 			return View();
 		}
@@ -78,7 +93,7 @@ namespace Web.Controllers
 				var content = new StringContent(json, Encoding.UTF8, "application/json");
 
 				using var client = _clientFactory.CreateClient();
-				var response = await client.PostAsync($"{apiUrl}/user/add", content);
+				var response = await client.PostAsync($"{apiUrl}/users", content);
 
 				if (response.IsSuccessStatusCode)
 				{
@@ -108,7 +123,7 @@ namespace Web.Controllers
             {
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
-                var response = await client.GetAsync($"{apiUrl}/user/{id}");
+                var response = await client.GetAsync($"{apiUrl}/users/{id}");
                 if (response.IsSuccessStatusCode)
                 {
                     var user = await response.Content.ReadFromJsonAsync<UserDTO>();
@@ -162,7 +177,7 @@ namespace Web.Controllers
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 using var client = _clientFactory.CreateClient();
-                var response = await client.PutAsync($"{apiUrl}/user/update/{user.Id}", content);
+                var response = await client.PutAsync($"{apiUrl}/users/{user.Id}", content);
 
                 if (response.IsSuccessStatusCode)
                 {

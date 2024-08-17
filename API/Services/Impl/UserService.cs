@@ -1,20 +1,24 @@
 ﻿using API.Dtos;
 using API.Models;
 using API.Ultils;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace API.Services.Impl
 {
     public class UserService : IUserService
     {
         private readonly SenShineSpaContext _context;
+        private readonly IMapper _mapper;
 
-        public UserService(SenShineSpaContext context)
+        public UserService(SenShineSpaContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
-        public async Task<User> Authenticate(string username, string password)
+        public async Task<UserDTO> Authenticate(string username, string password)
         {
             var user = await _context.Users
                                      .Include(r => r.Roles)
@@ -25,17 +29,26 @@ namespace API.Services.Impl
                 return null;
             }
 
-            return user;
+            return _mapper.Map<UserDTO>(user);
         }
 
-        public async Task<User> AddUser(UserDTO userDto)
+        public async Task<UserDTO> AddUser(UserDTO userDto)
         {
             if (!string.IsNullOrEmpty(userDto.UserName))
             {
                 var existingUser = await _context.Users.SingleOrDefaultAsync(u => u.UserName == userDto.UserName);
                 if (existingUser != null)
                 {
-                    throw new ArgumentException("Username already exists.");
+                    throw new InvalidOperationException("Tên người dùng đã tồn tại.");
+                }
+            }
+
+            if (!string.IsNullOrEmpty(userDto.Phone))
+            {
+                var existingUser = await _context.Users.SingleOrDefaultAsync(u => u.Phone == userDto.Phone);
+                if (existingUser != null)
+                {
+                    throw new InvalidOperationException("Số điện thoại đã tồn tại.");
                 }
             }
 
@@ -72,7 +85,7 @@ namespace API.Services.Impl
                 role = await _context.Roles.FindAsync(userDto.RoleId.Value);
                 if (role == null)
                 {
-                    throw new ArgumentException("Role not found.");
+                    throw new InvalidOperationException("Không tìm thấy vai trò.");
                 }
             }
             else
@@ -80,7 +93,7 @@ namespace API.Services.Impl
                 role = await _context.Roles.SingleOrDefaultAsync(r => r.RoleName == "STAFF");
                 if (role == null)
                 {
-                    throw new ArgumentException("Default role 'STAFF' not found.");
+                    throw new InvalidOperationException("Vai trò mặc định 'STAFF' không tìm thấy.");
                 }
             }
 
@@ -88,10 +101,10 @@ namespace API.Services.Impl
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-            return user;
+            return _mapper.Map<UserDTO>(user);
         }
 
-        public async Task<User> UpdateUser(int id, UserDTO userDto)
+        public async Task<UserDTO> UpdateUser(int id, UserDTO userDto)
         {
             var user = await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == id);
             if (user == null)
@@ -104,7 +117,20 @@ namespace API.Services.Impl
                 user.Password = PasswordUtils.HashPassword(userDto.Password);
             }
 
-            user.Phone = userDto.Phone;
+            if (!string.IsNullOrEmpty(userDto.Phone))
+            {
+                bool phoneExists = await _context.Users
+                    .Where(u => u.Phone == userDto.Phone && u.Id != id)
+                    .AnyAsync();
+
+                if (phoneExists)
+                {
+                    throw new InvalidOperationException("Số điện thoại đã tồn tại.");
+                }
+
+                user.Phone = userDto.Phone;
+            }
+
             user.FirstName = userDto.FirstName;
             user.MidName = userDto.MidName;
             user.LastName = userDto.LastName;
@@ -126,7 +152,7 @@ namespace API.Services.Impl
                 role = await _context.Roles.FindAsync(userDto.RoleId);
                 if (role == null)
                 {
-                    throw new ArgumentException("Role not found.");
+                    throw new InvalidOperationException("Không tìm thấy vai trò.");
                 }
             }
             else
@@ -134,7 +160,7 @@ namespace API.Services.Impl
                 role = await _context.Roles.SingleOrDefaultAsync(r => r.RoleName == "STAFF");
                 if (role == null)
                 {
-                    throw new ArgumentException("Default role 'STAFF' not found.");
+                    throw new InvalidOperationException("Vai trò mặc định 'STAFF' không tìm thấy.");
                 }
             }
 
@@ -142,7 +168,7 @@ namespace API.Services.Impl
 
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
-            return user;
+            return _mapper.Map<UserDTO>(user);
         }
 
         public async Task<bool> DeleteUser(int id)
@@ -158,87 +184,116 @@ namespace API.Services.Impl
             return true;
         }
 
-        public async Task<IEnumerable<User>> GetUsersByRole(int roleId)
+        public async Task<IEnumerable<UserDTO>> GetUsersByRole(int roleId)
         {
-            return await _context.Users
+            var users = await _context.Users
                                  .Include(u => u.Roles)
                                  .Where(u => u.Roles.Any(r => r.Id == roleId))
                                  .ToListAsync();
+            if (users == null)
+            {
+                return Enumerable.Empty<UserDTO>();
+            }
+            return _mapper.Map<IEnumerable<UserDTO>>(users);
+        }
+
+        public async Task<PaginatedList<UserDTO>> GetUsersByRoleWithPage(int roleId, int pageIndex = 1, int pageSize = 10, string searchTerm = null)
+        {
+            // Tạo query cơ bản
+            IQueryable<User> query = _context.Users.Include(u => u.Roles).Where(u => u.Roles.Any(r => r.Id == roleId));
+
+            // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(u => u.UserName.Contains(searchTerm) ||
+                                         u.Phone.Contains(searchTerm) ||
+                                         u.FirstName.Contains(searchTerm) ||
+                                         u.LastName.Contains(searchTerm));
+            }
+
+            // Đếm tổng số bản ghi để tính tổng số trang
+            var count = await query.CountAsync();
+
+            // Lấy danh sách với phân trang
+            var users = await query.Skip((pageIndex - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync();
+            var userDtos = _mapper.Map<IEnumerable<UserDTO>>(users);
+
+            return new PaginatedList<UserDTO>
+            {
+                Items = userDtos,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = count,
+            };
         }
 
         public async Task<IEnumerable<UserDTO>> GetAll()
         {
             var users = await (from user in _context.Users.Include(u => u.Roles).Where(u => u.Roles.All(r => r.Id != 5))
-							   join ward in _context.Wards on user.WardCode equals ward.Code into wardsJoined
+                               join ward in _context.Wards on user.WardCode equals ward.Code into wardsJoined
                                from ward in wardsJoined.DefaultIfEmpty()
                                join district in _context.Districts on ward.DistrictCode equals district.Code into districtsJoined
                                from district in districtsJoined.DefaultIfEmpty()
                                join province in _context.Provinces on district.ProvinceCode equals province.Code into provincesJoined
                                from province in provincesJoined.DefaultIfEmpty()
-                               select new UserDTO
-                               {
-                                   Id = user.Id,
-                                   UserName = user.UserName,
-                                   Password = user.Password,
-                                   FirstName = user.FirstName,
-                                   MidName = user.MidName,
-                                   LastName = user.LastName,
-                                   Phone = user.Phone,
-                                   BirthDate = user.BirthDate,
-                                   Status = user.Status,
-                                   StatusWorking = user.StatusWorking,
-                                   SpaId = user.SpaId,
-                                   ProvinceCode = user.ProvinceCode,
-                                   DistrictCode = user.DistrictCode,
-                                   WardCode = user.WardCode,
-                                   RoleId = user.Roles.Select(ur => ur.Id).FirstOrDefault(),
-                                   RoleName = user.Roles.Select(ur => ur.RoleName).FirstOrDefault(),
-                                   Address = $"{ward.Name ?? "-"} - {district.Name ?? "-"} - {province.Name ?? "-"}"
-                               }).ToListAsync();
+                               select user).ToListAsync();
 
+            if (users == null)
+            {
+                return Enumerable.Empty<UserDTO>();
+            }
 
-            return users;
+            return _mapper.Map<IEnumerable<UserDTO>>(users);
+        }
+
+        public async Task<PaginatedList<UserDTO>> GetUsers(int pageIndex = 1, int pageSize = 10, string searchTerm = null)
+        {
+            // Tạo query cơ bản
+            IQueryable<User> query = _context.Users.Include(u => u.Roles).Where(u => u.Roles.All(r => r.Id != 5));
+
+            // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(u => u.UserName.Contains(searchTerm) ||
+                                         u.Phone.Contains(searchTerm) ||
+                                         u.FirstName.Contains(searchTerm) ||
+                                         u.LastName.Contains(searchTerm));
+            }
+
+            // Đếm tổng số bản ghi để tính tổng số trang
+            var count = await query.CountAsync();
+
+            // Lấy danh sách với phân trang
+            var users = await query.Skip((pageIndex - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync();
+            var userDtos = _mapper.Map<IEnumerable<UserDTO>>(users);
+
+            return new PaginatedList<UserDTO>
+            {
+                Items = userDtos,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = count,
+            };
         }
 
         public async Task<UserDTO> GetById(int id)
         {
-            var userDto = await (from user in _context.Users.Include(u => u.Roles)
-                                 join ward in _context.Wards on user.WardCode equals ward.Code into wardsJoined
-                                 from ward in wardsJoined.DefaultIfEmpty()
-                                 join district in _context.Districts on ward.DistrictCode equals district.Code into districtsJoined
-                                 from district in districtsJoined.DefaultIfEmpty()
-                                 join province in _context.Provinces on district.ProvinceCode equals province.Code into provincesJoined
-                                 from province in provincesJoined.DefaultIfEmpty()
-                                 where user.Id == id
-                                 select new UserDTO
-                                 {
-                                     Id = user.Id,
-                                     UserName = user.UserName,
-                                     Password = user.Password,
-                                     FirstName = user.FirstName,
-                                     MidName = user.MidName,
-                                     LastName = user.LastName,
-                                     Phone = user.Phone,
-                                     BirthDate = user.BirthDate,
-                                     Status = user.Status,
-                                     StatusWorking = user.StatusWorking,
-                                     SpaId = user.SpaId,
-                                     ProvinceCode = user.ProvinceCode,
-                                     DistrictCode = user.DistrictCode,
-                                     WardCode = user.WardCode,
-                                     RoleId = user.Roles.Select(ur => ur.Id).FirstOrDefault(),
-                                     RoleName = user.Roles.Select(ur => ur.RoleName).FirstOrDefault(),
-                                     Address = $"{ward.Name ?? "-"} - {district.Name ?? "-"} - {province.Name ?? "-"}"
-                                 }).FirstOrDefaultAsync();
-            return userDto;
+            var user = await _context.Users
+                          .Include(u => u.Roles)
+                          .FirstOrDefaultAsync(u => u.Id == id);
+            return _mapper.Map<UserDTO>(user);
         }
 
-
-        public async Task<User> GetByUserName(string username)
+        public async Task<UserDTO> GetByUserName(string username)
         {
-            return await _context.Users
+            var user = await _context.Users
                                 .Include(u => u.Roles)
                                 .SingleOrDefaultAsync(u => u.UserName == username);
+            return _mapper.Map<UserDTO>(user);
         }
 
         public async Task<string> GetAddress(string wardCode, string districtCode, string provinceCode)

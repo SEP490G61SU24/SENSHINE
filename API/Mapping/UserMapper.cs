@@ -7,12 +7,13 @@ public class UserMapper : Profile
 {
     public UserMapper()
     {
-        CreateMap<User, UserDTO>();
-        CreateMap<UserDTO, User>();
-
-        CreateMap<User, UserDTO>()
+        _ = CreateMap<User, UserDTO>()
            .ForMember(dest => dest.Roles, opt => opt.MapFrom(src => src.Roles))
-           .ForMember(dest => dest.Address, opt => opt.MapFrom<CustomAddressResolver>());
+           .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.Roles.FirstOrDefault().Id))
+           .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Roles.FirstOrDefault().RoleName))
+           .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FirstName + " " + src.MidName + " " + src.LastName))
+           .ForMember(dest => dest.Address, opt => opt.MapFrom<CustomAddressResolver>())
+           .ReverseMap();
     }
 }
 

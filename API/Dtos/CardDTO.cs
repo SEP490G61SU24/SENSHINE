@@ -14,6 +14,7 @@ namespace API.Dtos
         public List<int>? CardComboId { get; set; }
         public List<int>? InvoiceId { get; set; }
     }
+
     public class CardDTO2
     {
         public int Id { get; set; }
@@ -22,7 +23,5 @@ namespace API.Dtos
         public DateTime? CreateDate { get; set; }
         public string? Status { get; set; }
         public int? BranchId { get; set; }
-
-        
     }
 }

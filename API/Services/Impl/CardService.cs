@@ -20,111 +20,183 @@ namespace API.Services.Impl
 
         public async Task<Card> CreateCard(Card card)
         {
-            await _context.Cards.AddAsync(card);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.Cards.AddAsync(card);
+                await _context.SaveChangesAsync();
 
-            return card;
+                return card;
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new Exception("Error creating card.", ex);
+            }
         }
 
         public ICollection<Card> GetCards()
         {
-            return _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices).ToList();
+            try
+            {
+                return _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices).ToList();
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new Exception("Error retrieving cards.", ex);
+            }
         }
 
         public Card GetCard(int id)
         {
-            return _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices).Where(c => c.Id == id).FirstOrDefault();
+            try
+            {
+                return _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices)
+                                      .Where(c => c.Id == id).FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new Exception($"Error retrieving card with ID {id}.", ex);
+            }
         }
 
         public ICollection<Card> GetCardByNumNamePhone(string input)
         {
-            input = input.ToLower();
-            var cards = _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices);
+            try
+            {
+                input = input.ToLower();
+                var cards = _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices);
 
-            return cards.Where(c => c.CardNumber.ToLower().Contains(input)
-                                 || (c.Customer.FirstName + " " + c.Customer.MidName + " " + c.Customer.LastName).ToLower().Contains(input)
-                                 || c.Customer.Phone.Contains(input)).ToList();
-        }
-
-        public ICollection<Card> SortCardByDate(string dateFrom, string dateTo)
-        {
-            DateTime parsedDateFrom = FormatDateTimeUtils.ParseDateTimeLikeSSMS(dateFrom);
-            DateTime parsedDateTo = FormatDateTimeUtils.ParseDateTimeLikeSSMS(dateTo);
-
-            return _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices).Where(c => c.CreateDate >= parsedDateFrom
-                                                                                          && c.CreateDate <= parsedDateTo).ToList();
+                return cards.Where(c => c.CardNumber.ToLower().Contains(input)
+                                     || (c.Customer.FirstName + " " + c.Customer.MidName + " " + c.Customer.LastName)
+                                        .ToLower().Contains(input)
+                                     || c.Customer.Phone.Contains(input)).ToList();
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new Exception("Error searching cards by number, name, or phone.", ex);
+            }
         }
 
         public async Task<Card> UpdateCard(int id, Card card)
         {
-            var cardUpdate = await _context.Cards.FirstOrDefaultAsync(c => c.Id == id);
-            cardUpdate.CustomerId = card.CustomerId;
-            cardUpdate.Status = card.Status;
-            await _context.SaveChangesAsync();
+            try
+            {
+                var cardUpdate = await _context.Cards.FirstOrDefaultAsync(c => c.Id == id);
+                cardUpdate.CustomerId = card.CustomerId;
+                cardUpdate.Status = card.Status;
+                await _context.SaveChangesAsync();
 
-            return cardUpdate;
+                return cardUpdate;
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new Exception($"Error updating card with ID {id}.", ex);
+            }
         }
 
         public async Task<Card> ActiveDeactiveCard(int id)
         {
-            var card = await _context.Cards.FirstOrDefaultAsync(c => c.Id == id);
-            if (card.Status == "Active")
+            try
             {
-                card.Status = "Deactive";
-            }
-            else
-            {
-                card.Status = "Active";
-            }
-            await _context.SaveChangesAsync();
+                var card = await _context.Cards.FirstOrDefaultAsync(c => c.Id == id);
+                if (card.Status == "Active")
+                {
+                    card.Status = "Deactive";
+                }
+                else
+                {
+                    card.Status = "Active";
+                }
+                await _context.SaveChangesAsync();
 
-            return card;
+                return card;
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new Exception($"Error activating/deactivating card with ID {id}.", ex);
+            }
         }
 
         public bool CardExist(int id)
         {
-            return _context.Cards.Any(c => c.Id == id);
+            try
+            {
+                return _context.Cards.Any(c => c.Id == id);
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new Exception($"Error checking existence of card with ID {id}.", ex);
+            }
         }
 
         public bool CardExistByNumNamePhone(string input)
         {
-            input = input.ToLower();
-            var cards = _context.Cards.Include(c => c.Customer);
+            try
+            {
+                input = input.ToLower();
+                var cards = _context.Cards.Include(c => c.Customer);
 
-            return cards.Any(c => c.CardNumber.ToLower().Contains(input)
-                                 || (c.Customer.FirstName + " " + c.Customer.MidName + " " + c.Customer.LastName).ToLower().Contains(input)
-                                 || c.Customer.Phone.Contains(input));
-        }
-
-        public bool CardExistByDate(string dateFrom, string dateTo)
-        {
-            DateTime parsedDateFrom = FormatDateTimeUtils.ParseDateTimeLikeSSMS(dateFrom);
-            DateTime parsedDateTo = FormatDateTimeUtils.ParseDateTimeLikeSSMS(dateTo);
-
-            return _context.Cards.Any(c => c.CreateDate <= parsedDateTo
-                                        && c.CreateDate >= parsedDateFrom);
+                return cards.Any(c => c.CardNumber.ToLower().Contains(input)
+                                     || (c.Customer.FirstName + " " + c.Customer.MidName + " " + c.Customer.LastName)
+                                        .ToLower().Contains(input)
+                                     || c.Customer.Phone.Contains(input));
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new Exception("Error checking card existence by number, name, or phone.", ex);
+            }
         }
 
         public ICollection<CardCombo> GetCardComboByCard(int id)
         {
-            // Fetch all related card combos in one go
-            var cardCombos = _context.CardCombos.Include(c => c.Combo).Where(c => c.CardId == id).ToList();
+            try
+            {
+                // Fetch all related card combos in one go
+                var cardCombos = _context.CardCombos.Include(c => c.Combo).Where(c => c.CardId == id).ToList();
 
-            return cardCombos;
+                return cardCombos;
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new Exception($"Error retrieving card combos for card ID {id}.", ex);
+            }
         }
-
 
         public CardCombo GetCardCombo(int id)
         {
-            return _context.CardCombos.Where(c => c.Id == id).FirstOrDefault();
+            try
+            {
+                return _context.CardCombos.Where(c => c.Id == id).FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new Exception($"Error retrieving card combo with ID {id}.", ex);
+            }
         }
 
         public async Task<CardCombo> CreateCardCombo(CardCombo cardCombo)
         {
-            await _context.CardCombos.AddAsync(cardCombo);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.CardCombos.AddAsync(cardCombo);
+                await _context.SaveChangesAsync();
 
-            return cardCombo;
+                return cardCombo;
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new Exception("Error creating card combo.", ex);
+            }
         }
     }
 }

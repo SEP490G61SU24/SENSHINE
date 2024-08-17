@@ -7,10 +7,10 @@ namespace API.Models
     {
         public Service()
         {
+            InvoiceServices = new HashSet<InvoiceService>();
             Reviews = new HashSet<Review>();
             Appointments = new HashSet<Appointment>();
             Combos = new HashSet<Combo>();
-            Invoices = new HashSet<Invoice>();
         }
 
         public int Id { get; set; }
@@ -18,10 +18,10 @@ namespace API.Models
         public decimal Amount { get; set; }
         public string? Description { get; set; }
 
+        public virtual ICollection<InvoiceService> InvoiceServices { get; set; }
         public virtual ICollection<Review> Reviews { get; set; }
 
         public virtual ICollection<Appointment> Appointments { get; set; }
         public virtual ICollection<Combo> Combos { get; set; }
-        public virtual ICollection<Invoice> Invoices { get; set; }
     }
 }

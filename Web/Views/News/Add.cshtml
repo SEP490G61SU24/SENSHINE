@@ -1,4 +1,4 @@
-﻿@model API.Dtos.NewsDTO
+﻿@model Web.Models.NewsViewModel
 
 @section Styles {
     <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
@@ -30,7 +30,7 @@
     }
 
         .spacing-10px:last-of-type {
-            margin-right: 10;
+            margin-right: 10px;
         }
 
 
@@ -172,7 +172,6 @@
         // Trigger change event to ensure validation picks up the new value
         coverInput.dispatchEvent(new Event('change'));
     });
-
 
 
 </script>

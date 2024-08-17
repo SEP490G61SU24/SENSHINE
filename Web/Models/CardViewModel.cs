@@ -15,8 +15,6 @@ namespace Web.Models
         public int? BranchId { get; set; }
         [DisplayName("Khách hàng")]
         public string? CustomerName { get; set; }
-        [DisplayName("Chi nhánh")]
-        public string? BranchName { get; set; }
         [DisplayName("Số điện thoại")]
         public string? CustomerPhone { get; set; }
     }

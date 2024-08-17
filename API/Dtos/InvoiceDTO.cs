@@ -19,16 +19,19 @@ namespace API.Dtos
 		public string? CustomerName { get; set; }
         public string? PromotionName { get; set; }
         public string? SpaName { get; set; }
+        public decimal? DiscountPercentage { get; set; }
 
 
-        public ICollection<int> CardIds { get; set; } = new List<int>();
+        /*public ICollection<int> CardIds { get; set; } = new List<int>();*/
         public ICollection<int> ComboIds { get; set; } = new List<int>();
         public ICollection<int> ServiceIds { get; set; } = new List<int>();
+        public Dictionary<int, int?>? ServiceQuantities { get; set; }
+        public Dictionary<int, int?>? ComboQuantities { get; set; }
 
-
-        public ICollection<CardDTO2>? Cards { get; set; } = new List<CardDTO2>();
-        public ICollection<ComboDTO2>? Combos { get; set; } = new List<ComboDTO2>();
-        public ICollection<ServiceDTO2>? Services { get; set; } = new List<ServiceDTO2>();
+        //public ICollection<CardDTO2>? Cards { get; set; } = new List<CardDTO2>();
+        public ICollection<InvoiceComboDTO>? InvoiceCombos { get; set; }
+        public ICollection<InvoiceServiceDTO>? InvoiceServices { get; set; }
+        public ICollection<CardDTO2>? Cards { get; set; }
     }
         public class InvoiceDTO2
         {
@@ -39,4 +42,31 @@ namespace API.Dtos
             public string? NameService { get; set; }
        
         }
+    
+        public class InvoiceComboDTO
+        {
+            public int InvoiceId { get; set; }
+            public int ComboId { get; set; }
+            public int? Quantity { get; set; }
+
+            
+            public ComboDTO2? Combo { get; set; }
+        }
+
+
+        public class InvoiceServiceDTO
+        {
+            public int InvoiceId { get; set; }
+            public int ServiceId { get; set; }
+            public int? Quantity { get; set; }
+
+            
+            public ServiceDTO2? Service { get; set; }
+        }
+    public class UpdateInvoiceStatus
+    {
+        public string Status { get; set; }
+    }
 }
+
+

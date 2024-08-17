@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using API.Dtos;
+using API.Ultils;
 
 namespace Web.Controllers
 {
@@ -28,13 +29,13 @@ namespace Web.Controllers
                 using var client = _clientFactory.CreateClient();
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-                var response = await client.GetAsync($"{apiUrl}/user/profile");
+                var response = await client.GetAsync($"{apiUrl}/users/profile");
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var jsonString = await response.Content.ReadAsStringAsync();
-                    var userProfile = JsonSerializer.Deserialize<UserDTO>(jsonString);
-
+                    //var jsonString = await response.Content.ReadAsStringAsync();
+                    //var userProfile = JsonSerializer.Deserialize<UserDTO>(jsonString);
+                    var userProfile = await response.Content.ReadFromJsonAsync<UserDTO>();
                     return userProfile;
                 }
                 else

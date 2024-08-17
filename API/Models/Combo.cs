@@ -8,7 +8,7 @@ namespace API.Models
         public Combo()
         {
             CardCombos = new HashSet<CardCombo>();
-            Invoices = new HashSet<Invoice>();
+            InvoiceCombos = new HashSet<InvoiceCombo>();
             Services = new HashSet<Service>();
         }
 
@@ -21,8 +21,8 @@ namespace API.Models
         public decimal? SalePrice { get; set; }
 
         public virtual ICollection<CardCombo> CardCombos { get; set; }
+        public virtual ICollection<InvoiceCombo> InvoiceCombos { get; set; }
 
-        public virtual ICollection<Invoice> Invoices { get; set; }
         public virtual ICollection<Service> Services { get; set; }
     }
 }
