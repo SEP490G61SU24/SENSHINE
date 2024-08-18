@@ -309,5 +309,29 @@ namespace API.Services.Impl
             var addressString = $"{wardName} - {districtName} - {provinceName}";
             return addressString;
         }
-    }
+
+		public async Task<bool> ChangePassword(string userName, string currentPassword, string newPassword, bool userChange)
+		{
+			var user = await _context.Users.SingleOrDefaultAsync(u => u.UserName == userName); 
+            
+            if (user == null)
+			{
+				throw new InvalidOperationException("Người dùng không tồn tại.");
+			}
+
+            if(userChange)
+            {
+			    if (!PasswordUtils.VerifyPassword(currentPassword, user.Password))
+			    {
+				    throw new InvalidOperationException("Mật khẩu hiện tại không chính xác.");
+			    }
+            }
+
+			user.Password = PasswordUtils.HashPassword(newPassword);
+			_context.Users.Update(user);
+			await _context.SaveChangesAsync();
+
+			return true;
+		}
+	}
 }
