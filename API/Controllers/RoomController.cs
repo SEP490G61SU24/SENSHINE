@@ -57,7 +57,20 @@ namespace API.Controllers
                 return StatusCode(500, $"An error occurred while retrieving rooms: {ex.Message}");
             }
         }
+        [HttpGet]
+        public async Task<IActionResult> GetAllRoom()
+        {
+            try
+            {
 
+                var rooms = _roomService.GetAllRooms();
+                return Ok(rooms);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving rooms: {ex.Message}");
+            }
+        }
         [HttpGet]
         public async Task<IActionResult> GetById(int id)
         {
