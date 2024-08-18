@@ -7,21 +7,30 @@ using API.Dtos;
 
 namespace Web.Controllers
 {
-    public class ComboController : Controller
+    public class ComboController : BaseController
     {
-        private readonly HttpClient _httpClient;
+        private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _clientFactory;
+        private readonly ILogger<UserController> _logger;
 
-        public ComboController()
+
+        public ComboController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<UserController> logger) : base(configuration, clientFactory, logger)
         {
-            _httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:5297/api") };
+            _configuration = configuration;
+            _clientFactory = clientFactory;
+            _logger = logger;
         }
+    
 
         // Hiển thị danh sách combo
         public async Task<IActionResult> Index()
         {
+
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             List<ComboViewModel> comboList = new List<ComboViewModel>();
 
-            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/Combo/GetAllCombo");
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Combo/GetAllCombo");
 
             if (response.IsSuccessStatusCode)
             {
@@ -43,6 +52,9 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateCombo(ComboViewModel comboViewModel)
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
+
             if (!ModelState.IsValid)
             {
                 var services = await GetAvailableServices();
@@ -64,7 +76,7 @@ namespace Web.Controllers
             string jsonString = JsonConvert.SerializeObject(comboDTO);
             var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
 
-            HttpResponseMessage response = await _httpClient.PostAsync(_httpClient.BaseAddress +$"/Combo/Create", content);
+            HttpResponseMessage response = await client.PostAsync($"{apiUrl}/Combo/Create", content);
 
             if (response.IsSuccessStatusCode)
             {
@@ -80,9 +92,11 @@ namespace Web.Controllers
 
         private async Task<List<ServiceViewModel>> GetAvailableServices()
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             List<ServiceViewModel> services = new List<ServiceViewModel>();
 
-            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/Service/GetAllServices");
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Service/GetAllServices");
 
             if (response.IsSuccessStatusCode)
             {
@@ -95,9 +109,12 @@ namespace Web.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
+
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             try
             {
-                var response = await _httpClient.DeleteAsync($"/api/Combo/DeleteCombo/{id}");
+                var response = await client.DeleteAsync($"{apiUrl}/api/Combo/DeleteCombo/{id}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -131,6 +148,9 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(ComboViewModel comboViewModel)
         {
+
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             if (!ModelState.IsValid)
             {
                 var services = await GetAvailableServices();
@@ -153,7 +173,7 @@ namespace Web.Controllers
             string jsonString = JsonConvert.SerializeObject(comboDTO);
             var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
 
-            HttpResponseMessage response = await _httpClient.PutAsync(_httpClient.BaseAddress + $"/Combo/UpdateCombo/{comboViewModel.Id}", content);
+            HttpResponseMessage response = await client.PutAsync($"{apiUrl}/Combo/UpdateCombo/{comboViewModel.Id}", content);
 
             if (response.IsSuccessStatusCode)
             {
@@ -169,7 +189,11 @@ namespace Web.Controllers
 
         private async Task<ComboViewModel> GetComboById(int id)
         {
-            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + $"/Combo/GetByID?IdCombo={id}");
+
+
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Combo/GetByID?IdCombo={id}");
 
             if (response.IsSuccessStatusCode)
             {
