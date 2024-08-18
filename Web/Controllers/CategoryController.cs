@@ -8,19 +8,26 @@ using Newtonsoft.Json;
 
 namespace Web.Controllers
 {
-    public class CategoryController : Controller
+    public class CategoryController : BaseController
     {
-        private readonly HttpClient _httpClient;
+        private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _clientFactory;
+        private readonly ILogger<UserController> _logger;
 
-        public CategoryController()
+
+        public CategoryController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<UserController> logger) : base(configuration, clientFactory, logger)
         {
-            _httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:5297/api") };
+            _configuration = configuration;
+            _clientFactory = clientFactory;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index()
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             List<CategoryViewModel> categoryList = new List<CategoryViewModel>();
-            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/ListAllCategory");
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/ListAllCategory");
 
             if (response.IsSuccessStatusCode)
             {
@@ -38,9 +45,12 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CategoryViewModel category)
         {
+
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             if (ModelState.IsValid)
             {
-                var response = await _httpClient.PostAsJsonAsync(_httpClient.BaseAddress + "/AddCategory", category);
+                var response = await client.PostAsJsonAsync($"{apiUrl}/AddCategory", category);
                 if (response.IsSuccessStatusCode)
                 {
                     return RedirectToAction(nameof(Index));
@@ -51,7 +61,9 @@ namespace Web.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            var category = await _httpClient.GetFromJsonAsync<CategoryViewModel>(_httpClient.BaseAddress + $"/GetCategoryDetailById/{id}");
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
+            var category = await client.GetFromJsonAsync<CategoryViewModel>( $"{apiUrl}/GetCategoryDetailById/{id}");
             if (category == null)
             {
                 return NotFound();
@@ -62,9 +74,11 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(int id, CategoryViewModel category)
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             if (ModelState.IsValid)
             {
-                var response = await _httpClient.PutAsJsonAsync(_httpClient.BaseAddress + $"/EditCategory/{id}", category);
+                var response = await client.PutAsJsonAsync($"{apiUrl}/EditCategory/{id}", category);
                 if (response.IsSuccessStatusCode)
                 {
                     return RedirectToAction(nameof(Index));
@@ -76,7 +90,9 @@ namespace Web.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
-            var response = await _httpClient.DeleteAsync(_httpClient.BaseAddress + $"/DeleteCategory/{id}");
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
+            var response = await client.DeleteAsync($"{apiUrl}/DeleteCategory/{id}");
             if (response.IsSuccessStatusCode)
             {
                 return Json(new { success = true });

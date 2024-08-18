@@ -5,7 +5,7 @@
         Layout = null;
     }
 
-    <html>
+    
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -35,7 +35,7 @@
         <!-- Responsive css-->
         <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 
-    </head>
+
     <style>
         .card-with-border {
             border: 1px solid #ddd;
@@ -51,9 +51,10 @@
             font-weight: bold;
         }
 
-    .card {
-        margin-bottom: 0 !important;
-    }
+        .card {
+            margin-bottom: 0 !important;
+        }
+
         .card-text {
             font-size: 0.9rem;
         }
@@ -62,150 +63,204 @@
             background-color: #007bff;
             border-color: #007bff;
         }
+
+        .news-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .news-item {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 15px;
+            width: 100%;
+            max-width: 750px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+            .news-item img {
+                width: 230px;
+                height: 150px;
+                object-fit: cover;
+                border-radius: 8px;
+                margin-right: 15px;
+            }
+
+        .news-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .news-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .news-description {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .news-date {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .sidebar {
+            width: 300px;
+            margin-left: 30px;
+        }
+
+        .latest-post {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+            .latest-post img {
+                width: 70px;
+                height: 70px;
+                object-fit: cover;
+                border-radius: 8px;
+                margin-right: 10px;
+            }
+
+        .latest-post-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .latest-post-title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .latest-post-date {
+            font-size: 0.8rem;
+            color: #999;
+        }
     </style>
-    <body class="landing-page">
-        <!-- tap on top starts -->
-        <div class="tap-top"><i data-feather="chevrons-up"></i></div>
-        <!-- tap on top ends -->
-        <!-- page-wrapper Start -->
-        
-            <!-- Page Body Start -->
-            <div class="landing-home" id="home">
-                <div class="container-fluid">
-                    <div class="sticky-header">
-                        <header>
-                            <nav class="navbar navbar-b navbar-dark navbar-trans navbar-expand-xl fixed-top nav-padding" id="sidebar-menu">
-                                <a class="navbar-brand p-0" href="@Url.Action("HomePage", "Home")">
-                                    <img class="img-fluid" src="~/assets/images/landing/landinglogo.png"  alt="Landing Page Logo">
-                                </a>
-                                <button class="navbar-toggler navabr_btn-set custom_nav" type="button" data-bs-toggle="collapse" data-bs-target="#navbarDefault" aria-controls="navbarDefault" aria-expanded="false" aria-label="Toggle navigation">
-                                    <span></span>
-                                    <span></span>
-                                    <span></span>
-                                </button>
-                                <div class="navbar-collapse justify-content-center collapse hidenav" id="navbarDefault">
-                                    <ul class="navbar-nav navbar_nav_modify" id="scroll-spy">
-                                        <li class="nav-item"><a class="nav-link" href="@Url.Action("NewsPage", "Home")">News</a></li>
-                                        <li class="nav-item"><a class="nav-link" href="#">Promotions</a></li>
-                                        <li class="nav-item"><a class="nav-link" id="page" href="@Url.Action("OurService", "Home")">Our Services</a></li>
-                                        <li class="nav-item"><a class="nav-link" href="@Url.Action("AboutUs", "Home")">About Us</a></li>
-                                        <li class="nav-item dropdown">
-                                            <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                <span id="dropdownMenuButton">Sen Shine Spa</span>
-                                            </a>
-                                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+</head>
+<body class="landing-page">
+    <div class="landing-home" id="home" style="height: 40%">
+        <div class="container-fluid">
+            <div class="sticky-header">
+                <header>
+                    <nav class="navbar navbar-b navbar-dark navbar-trans navbar-expand-xl fixed-top nav-padding" id="sidebar-menu">
+                        <a class="navbar-brand p-0" href="landing-page.html#">
+                            <img class="img-fluid" src="~/assets/images/landing/landinglogo.png" alt="">
+                        </a>
+                        <button class="navbar-toggler navabr_btn-set custom_nav" type="button" data-bs-toggle="collapse" data-bs-target="#navbarDefault" aria-controls="navbarDefault" aria-expanded="false" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+                        <div class="navbar-collapse justify-content-center collapse hidenav" id="navbarDefault">
+                            <ul class="navbar-nav navbar_nav_modify" id="scroll-spy">
+                                <li class="nav-item"><a class="nav-link" href="@Url.Action("NewsPage", "Home")">News</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#">Promotions</a></li>
+                                <li class="nav-item"> <a class="nav-link" id="page" href="@Url.Action("OurService", "Home")">Our Services</a></li>
+                                <li class="nav-item"> <a class="nav-link" id="page" href="@Url.Action("AboutUs", "Home")">About Us</a></li>
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span id="dropdownMenuButton">Sen Shine Spa</span>
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                                         <a class="dropdown-item" href="landing-page.html#framework-saigon" onclick="updateDropdown('SenShineSpa_SaiGon')">Sen Shine Spa Wellness</a>
                                         <a class="dropdown-item" href="landing-page.html#framework-saigon" onclick="updateDropdown('SenShineSpa_SaiGon')">L’essence Sen Shine</a>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="buy-btn">
-                                    <a class="nav-link js-scroll" href="https://themeforest.net/user/pixelstrap/portfolio" target="_blank">Book Now</a>
-                                </div>
-                            </nav>
-                        </header>
-                    </div>
-        </div>
-    
-    
-        <div class="container-fluid">
-            <div class="row justify-content-center">
-                <div class="content text-center mb-4">
-                    <h1>News Of SenShine Spa</h1>
-                </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="buy-btn"><a class="nav-link js-scroll" href="https://themeforest.net/user/pixelstrap/portfolio" target="_blank">Book Now</a></div>
+                    </nav>
+                </header>
             </div>
-
-            <div class="row">
-                <!-- Filter Section -->
-                <div class="col-lg-4 col-md-12 mb-4">
-                    <div class="card shadow-sm">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="card-title">Filter News</h5>
-                            </div>
-                            <div class="card card-body">
-                                <div class="mb-3">
-                                    <label for="fromDate" class="form-label">From Date</label>
-                                    <input type="date" id="fromDate" class="form-control" onchange="fetchNewsByDate()">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="toDate" class="form-label">To Date</label>
-                                    <input type="date" id="toDate" class="form-control" onchange="fetchNewsByDate()">
-                                </div>
-                            </div>
-                        </div>
+            <div class="row justify-content-center">
+                <div class="content text-center">
+                    <div>
+                        <h1 class="text-center">
+                            Tin Tức
+                        </h1>
                     </div>
                 </div>
-            
-
-                <!-- News List Section -->
-                <div class="col-lg-8 col-md-12">
-                    <div class="card email-body radius-left">
-                        <div class="card-header d-flex">
-                            <h4 class="mb-0 f-w-600">NEWS</h4>
-                        </div>
-                        <div class="card-body pb-0">
-                            <div class="details-bookmark text-center list-bookmark">
-                                
-                                <div class="row" id="bookmarkData">
-                                    @foreach (var item in Model)
-                                    {
-                                        <div class="col-xxl-6 col-md-12 mb-4">
-                                            <div class="card card-with-border bookmark-card o-hidden d-flex flex-row align-items-center">
-                                                <img class="img-fluid me-4" src="@item.Cover" alt="News Image" style="width: 230px; height: 150px; object-fit: cover; border-radius: 8px;">
-                                                <div class="card-body d-flex flex-column justify-content-center">
-                                                    <h5 class="card-title mb-2">@item.Title</h5>
-                                                    <p class="card-text text-muted mb-1">
-                                                        @(item.Content.Length > 100 ? item.Content.Substring(0, 100) + "..." : item.Content)
-                                                    </p>
-                                                    <p class="card-text mb-1">
-                                                        <small class="text-muted">@item.PublishedDate.ToString("MMM dd, yyyy") - @GetTimeAgo(item.PublishedDate)</small>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                                </div>
-                            
-                        </div>
-                    </div>
+                <div class="user-content">
+                    <span class="text-center">.</span>
                 </div>
             </div>
         </div>
     </div>
+    <section class="intro-section " id="intro" style="padding: 50px 0; background-color: #F3FDFE;">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <!-- Main Content Section -->
+                <div class="modal-lg col-lg-8 col-md-12">
+                    <div class="news-container">
+                        @foreach (var item in Model)
+                        {
+                            <div class="news-item">
+                                <img src="@item.Cover" alt="News Image">
+                                <div class="news-content">
+                                    <h5 class="news-title">@item.Title</h5>
+                                    <p class="news-description">
+                                        @(item.Content.Length > 50 ? item.Content.Substring(0, 70) + "..." : item.Content)
+                                    </p>
+                                    <p class="news-date">@item.PublishedDate.ToString("MMM dd, yyyy") - @GetTimeAgo(item.PublishedDate)</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <!-- Sidebar Section -->
+                <div class="col-lg-4 col-md-12 sidebar">
+                    <h4 class="mb-4">BÀI VIẾT MỚI</h4>
+                    @foreach (var item in Model.Take(5))
+                    {
+                        <div class="latest-post">
+                            <img src="@item.Cover" alt="Latest News Image">
+                            <div class="latest-post-content">
+                                <p class="latest-post-title">@item.Title</p>
+                                <p class="latest-post-date">@item.PublishedDate.ToString("MMM dd, yyyy")</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+<script>
+    @functions {
+        public string GetTimeAgo(DateTime publishedDate)
+        {
+            var timeSpan = DateTime.Now - publishedDate;
 
-           
-    </body>
-    </html>
+            if (timeSpan.TotalMinutes < 1)
+                return "just now";
+            if (timeSpan.TotalMinutes < 60)
+                return $"{(int)timeSpan.TotalMinutes} minutes ago";
+            if (timeSpan.TotalHours < 24)
+                return $"{(int)timeSpan.TotalHours} hours ago";
+            if (timeSpan.TotalDays < 7)
+                return $"{(int)timeSpan.TotalDays} days ago";
+            if (timeSpan.TotalDays < 30)
+                return $"{(int)timeSpan.TotalDays / 7} weeks ago";
+            if (timeSpan.TotalDays < 365)
+                return $"{(int)timeSpan.TotalDays / 30} months ago";
 
-
-    <script>
-        @functions {
-            public string GetTimeAgo(DateTime publishedDate)
-            {
-                var timeSpan = DateTime.Now - publishedDate;
-
-                if (timeSpan.TotalMinutes < 1)
-                    return "just now";
-                if (timeSpan.TotalMinutes < 60)
-                    return $"{(int)timeSpan.TotalMinutes} minutes ago";
-                if (timeSpan.TotalHours < 24)
-                    return $"{(int)timeSpan.TotalHours} hours ago";
-                if (timeSpan.TotalDays < 7)
-                    return $"{(int)timeSpan.TotalDays} days ago";
-                if (timeSpan.TotalDays < 30)
-                    return $"{(int)timeSpan.TotalDays / 7} weeks ago";
-                if (timeSpan.TotalDays < 365)
-                    return $"{(int)timeSpan.TotalDays / 30} months ago";
-
-                return $"{(int)timeSpan.TotalDays / 365} years ago";
-            }
+            return $"{(int)timeSpan.TotalDays / 365} years ago";
         }
+    }
+</script>
 
-        }
-    </script>
     <script src="~/assets/js/jquery.min.js"></script>
     <!-- Bootstrap js-->
     <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
