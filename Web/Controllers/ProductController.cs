@@ -1,4 +1,5 @@
 ﻿using API.Dtos;
+using API.Ultils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -9,22 +10,67 @@ using Web.Models;
 
 namespace Web.Controllers
 {
-    public class ProductController : Controller
+    public class ProductController : BaseController
     {
-        private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
-       
+        private readonly IHttpClientFactory _clientFactory;
+        private readonly ILogger<UserController> _logger;
 
-        public ProductController(IConfiguration configuration)
+
+        public ProductController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<UserController> logger) : base(configuration, clientFactory, logger)
         {
             _configuration = configuration;
-            var apiUrl = _configuration.GetValue<string>("ApiUrl");
-            _httpClient = new HttpClient { BaseAddress = new Uri(apiUrl) };
+            _clientFactory = clientFactory;
+            _logger = logger;
+        }
+        private async Task<UserViewModel> LoadUserAsync()
+        {
+            var user = new UserViewModel();
+            var token = HttpContext.Session.GetString("Token");
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                var userProfile = await GetUserProfileAsync(token);
+
+                if (userProfile != null)
+                {
+                    user.Id = userProfile.Id;
+                    user.UserName = userProfile.UserName;
+                    user.FirstName = userProfile.FirstName;
+                    user.MidName = userProfile.MidName;
+                    user.LastName = userProfile.LastName;
+                    user.Phone = userProfile.Phone;
+                    user.BirthDate = userProfile.BirthDate;
+                    user.Status = userProfile.Status;
+                    user.StatusWorking = userProfile.StatusWorking;
+                    user.SpaId = userProfile.SpaId;
+                    user.ProvinceCode = userProfile.ProvinceCode;
+                    user.DistrictCode = userProfile.DistrictCode;
+                    user.WardCode = userProfile.WardCode;
+                    user.Address = userProfile.Address;
+                    user.Roles = userProfile.Roles;
+                    user.RoleName = userProfile.RoleName;
+                    user.RoleId = userProfile.RoleId;
+                    user.FullName = $"{userProfile.FirstName} {userProfile.MidName} {userProfile.LastName}";
+                }
+                else
+                {
+                    ViewData["Error"] = "Failed to retrieve user profile.";
+                }
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while fetching the user profile.");
+            }
+
+            return user;
         }
         private async Task<List<CategoryViewModel>> LoadCategoriesAsync()
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             List<CategoryViewModel> categories = new List<CategoryViewModel>();
-            HttpResponseMessage categoryResponse = await _httpClient.GetAsync("/api/ListAllCategory");
+            HttpResponseMessage categoryResponse = await client.GetAsync($"{apiUrl}/ListAllCategory");
 
             if (categoryResponse.IsSuccessStatusCode)
             {
@@ -41,8 +87,10 @@ namespace Web.Controllers
         }
         private async Task<List<CategoryViewModel>> LoadCategoriesByProductIdAsync(int productId)
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             List<CategoryViewModel> categories = new List<CategoryViewModel>();
-            HttpResponseMessage categoryResponse = await _httpClient.GetAsync($"api/GetCategoriesByProductId?id={productId}");
+            HttpResponseMessage categoryResponse = await client.GetAsync($"{apiUrl}/GetCategoriesByProductId?id={productId}");
 
             if (categoryResponse.IsSuccessStatusCode)
             {
@@ -59,36 +107,61 @@ namespace Web.Controllers
             return categories;
         }
 
-
-
         [HttpGet]
-        public async Task<IActionResult> ProductList()
+        public async Task<IActionResult> ProductList(int? spaId = null, int pageIndex = 1, int pageSize = 10, string searchTerm = null, string? categoryName = null, string? quantityRange = null, string? priceRange = null)
         {
-            List<ProductViewModel> viewList = new List<ProductViewModel>();
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
+            var use = await LoadUserAsync();
             List<CategoryViewModel> categoryList = await LoadCategoriesAsync();
+            spaId = 1;
+            var urlBuilder = new StringBuilder($"{apiUrl}/GetProductsPaging?");
 
-            HttpResponseMessage response = await _httpClient.GetAsync("/api/ListAllProduct");
+            if (spaId != null)
+            {
+                urlBuilder.Append($"spaId={spaId}&");
+            }
+
+            if (categoryName != null)
+            {
+                urlBuilder.Append($"startDate={categoryName}&");
+            }
+
+            if (quantityRange != null)
+            {
+                urlBuilder.Append($"endDate={quantityRange}&");
+            }
+            if (priceRange != null)
+            {
+                urlBuilder.Append($"endDate={priceRange}&");
+            }
+            urlBuilder.Append($"pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}");
+
+            // Remove the trailing '&' if it exists
+            var url = urlBuilder.ToString().TrimEnd('&');
+
+            HttpResponseMessage response = await client.GetAsync(url);
+
             if (response.IsSuccessStatusCode)
             {
-                string data = await response.Content.ReadAsStringAsync();
-                viewList = JsonConvert.DeserializeObject<List<ProductViewModel>>(data);
+                var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<ProductViewModel>>();
+                paginatedResult.SearchTerm = searchTerm;
+                ViewBag.Categories = categoryList;
+                return View(paginatedResult);
             }
             else
             {
-                // Handle error (e.g., log it)
-                ModelState.AddModelError(string.Empty, "An error occurred while fetching products.");
+                return View("Error");
             }
-
-            // Store categories in ViewBag
-            ViewBag.Categories = categoryList;
-
-            ViewData["Title"] = "List Products";
-            return View(viewList);
         }
+
+        
 
         [HttpGet]
         public async Task<IActionResult> FilterProducts(string categoryName, string quantityRange, string priceRange)
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             // Build the query string for filtering products
             var queryParameters = new List<string>();
 
@@ -106,10 +179,10 @@ namespace Web.Controllers
             }
 
             string queryString = string.Join("&", queryParameters);
-            string requestUri = $"/api/GetFilterProducts?{queryString}";
+            string requestUri = $"{apiUrl}/GetFilterProducts?{queryString}";
 
             // Send the GET request to the API endpoint
-            HttpResponseMessage response = await _httpClient.GetAsync(requestUri);
+            HttpResponseMessage response = await client.GetAsync(requestUri);
 
             if (response.IsSuccessStatusCode)
             {
@@ -126,6 +199,8 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Add()
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             try
             {
                 var categories = await LoadCategoriesAsync();
@@ -142,18 +217,27 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(ProductViewModel productDto)
         {
-           
-
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
+            var user = await LoadUserAsync();
             try
             {
                 // Convert CategoryIdsString to a list of integers
                 productDto.CategoryIds = productDto.CategoryIdsString?.Split(',').Select(int.Parse).ToList();
-
+                if (user.SpaId == null)
+                {
+                    int id = 1;
+                    id = productDto.SpaId;
+                }
+                else
+                {
+                    user.SpaId = productDto.SpaId;
+                }
                 // Create content for the request
                 var content = new StringContent(JsonConvert.SerializeObject(productDto), Encoding.UTF8, "application/json");
 
                 // Send the POST request
-                HttpResponseMessage response = await _httpClient.PostAsync("/api/AddProduct", content);
+                HttpResponseMessage response = await client.PostAsync($"{apiUrl}/AddProduct", content);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -183,12 +267,13 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             var categories = await LoadCategoriesAsync();
             ViewBag.Categories = categories ?? new List<CategoryViewModel>();
 
             // Fetch product details from the API
-            HttpResponseMessage response = await _httpClient.GetAsync($"/api/GetProductDetailById/{id}");
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/GetProductDetailById/{id}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -221,6 +306,8 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(int id, ProductViewModel productDto)
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             // Load categories for the view
             var categories = await LoadCategoriesAsync();
             ViewBag.Categories = categories ?? new List<CategoryViewModel>();
@@ -232,7 +319,7 @@ namespace Web.Controllers
 
 
             var content = new StringContent(JsonConvert.SerializeObject(productDto), Encoding.UTF8, "application/json");
-            HttpResponseMessage response = await _httpClient.PutAsync($"/api/EditProduct/{id}", content);
+            HttpResponseMessage response = await client.PutAsync($"{apiUrl}/EditProduct/{id}", content);
 
             if (response.IsSuccessStatusCode)
             {
@@ -254,7 +341,9 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetProductDetail(int id)
         {
-            HttpResponseMessage response = await _httpClient.GetAsync($"/api/GetProductDetailById/{id}");
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/GetProductDetailById/{id}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -291,7 +380,9 @@ namespace Web.Controllers
         [HttpGet]
     public async Task<IActionResult> ProductsByCategory(int categoryId)
     {
-        HttpResponseMessage response = await _httpClient.GetAsync($"/api/ProductsByCategory/{categoryId}");
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/ProductsByCategory/{categoryId}");
 
         if (response.IsSuccessStatusCode)
         {
@@ -307,9 +398,11 @@ namespace Web.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             try
             {
-                var response = await _httpClient.DeleteAsync($"/api/DeleteProduct/{id}");
+                var response = await client.DeleteAsync($"{apiUrl}/DeleteProduct/{id}");
 
                 if (response.IsSuccessStatusCode)
                 {

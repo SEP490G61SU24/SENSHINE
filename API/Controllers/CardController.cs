@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Services.Impl;
 
 namespace API.Controllers
 {
@@ -29,7 +30,7 @@ namespace API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var card = _cardService.GetCards().Where(c => c.CardNumber.Trim().ToUpper() == cardDTO.CardNumber.Trim().ToUpper()).FirstOrDefault();
+            var card = _cardService.GetAllCards().Where(c => c.CardNumber.Trim().ToUpper() == cardDTO.CardNumber.Trim().ToUpper()).FirstOrDefault();
 
             if (card != null)
             {
@@ -51,14 +52,19 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                var cards = _mapper.Map<List<CardDTO>>(_cardService.GetCards());
+                if (pageIndex < 1 || pageSize < 1)
+                {
+                    return BadRequest("Chỉ số trang hoặc kích thước trang không hợp lệ.");
+                }
+
+                var cards = await _cardService.GetCards(pageIndex, pageSize, searchTerm);
                 return Ok(cards);
             }
             catch (Exception ex)

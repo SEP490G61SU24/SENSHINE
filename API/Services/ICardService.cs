@@ -1,12 +1,14 @@
 ﻿using API.Dtos;
 using API.Models;
+using API.Ultils;
 
 namespace API.Services
 {
     public interface ICardService
     {
         Task<Card> CreateCard(Card card);
-        ICollection<Card> GetCards();
+        Task<PaginatedList<CardDTO>> GetCards(int pageIndex, int pageSize, string searchTerm);
+        List<Card> GetAllCards();
         Card GetCard(int id);
         ICollection<Card> GetCardByNumNamePhone(string input);
         Task<Card> UpdateCard(int id, Card card);

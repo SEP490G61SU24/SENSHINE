@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Web.Models.PromotionViewModel>
+﻿@model API.Ultils.PaginatedList<Web.Models.PromotionViewModel>
 
 @{
     ViewData["Title"] = "Danh sách khuyến mãi";
@@ -7,9 +7,9 @@
     var promotionsJson = System.Text.Json.JsonSerializer.Serialize(Model);
 }
 
-@{
+@* @{
     var distinctSpaNames = Model.Select(promotion => promotion.SpaName).Distinct();
-}
+} *@
 
 @section Styles {
     <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
@@ -31,55 +31,59 @@
 
 <div class="card">
     <div class="card-body">
-        <div class="list-promotion-header">
-            <div>
-                <div class="light-box">
-                    <a data-bs-toggle="collapse" href="#collapsePromotion" role="button" aria-expanded="false" aria-controls="collapsePromotion">
-                        <i class="filter-icon show" data-feather="filter"></i><i class="icon-close filter-close hide"></i>
-                    </a>
-                </div>
-            </div>
-            <div class="collapse" id="collapsePromotion">
-                <div class="card card-body list-promotion-body">
-                    <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3 mt-3">
-                        <div class="col">
-                            <label for="spaLocation" class="form-label">Select Spa Location</label>
-                            <select id="spaLocation" class="form-select" aria-label="Select Spa Location" onchange="fetchPromotionsByFilter()">
-                                <option selected disabled> All Location </option>
-                                @foreach (var spaName in distinctSpaNames)
-                                {
-                                    <option value="@spaName">@spaName</option>
-                                }
-                            </select>
-                        </div>
-                        <div class="col">
-                            <label for="startDate" class="form-label">Start Date</label>
-                            <input type="date" id="startDate" class="form-control" aria-label="Start Date" onchange="fetchPromotionsByFilter()">
-                        </div>
-                        <div class="col">
-                            <label for="endDate" class="form-label">End Date</label>
-                            <input type="date" id="endDate" class="form-control" aria-label="End Date" onchange="fetchPromotionsByFilter()">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        
 
         <div class="table-responsive custom-scrollbar">
+            <div class="search-page">
+                <form class="theme-form mb-3" method="GET">
+                    <div class="dataTables_length" id="table_length">
+                        <label>
+                            Hiển thị
+                            <select aria-controls="table" class="" asp-for="PageSize" name="PageSize" id="PageSize" onchange="this.form.submit()">
+                                @foreach (var pSize in new List<(int Value, string Name)>
+                                {
+                                (Value: 5, Name: "5"),
+                                (Value: 10, Name: "10"),
+                                (Value: 25, Name: "25"),
+                                (Value: 50, Name: "50"),
+                                (Value: 100, Name: "100"),
+                                })
+                                {
+                                    <option value="@pSize.Value" selected="@(pSize.Value == Model.PageSize ? "selected" : null)">@pSize.Name</option>
+                                }
+                            </select>
+                            bản ghi
+                        </label>
+                    </div>
+                    <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3 mt-3">
+                        <div class="col">
+                            <label for="fromDate" class="form-label">Từ Ngày</label>
+                            <input type="date" id="fromDate" class="form-control" aria-label="Từ Ngày" onchange="fetchNewsByDate()">
+                        </div>
+                        <div class="col">
+                            <label for="toDate" class="form-label">Đến Ngày</label>
+                            <input type="date" id="toDate" class="form-control" aria-label="Đến Ngày" onchange="fetchNewsByDate()">
+                        </div>
+                    </div>
+                    <div class="input-group m-0 flex-nowrap">
+                        <input class="form-control-plaintext" name="searchTerm" type="search" value="@(Model.SearchTerm ?? null)" placeholder="Nhập tên, số điện thoại ..."><button class="btn btn-primary input-group-text">Tìm kiếm</button>
+                    </div>
+                </form>
+            </div>
             <table class="display" id="promotions-table">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Promotion Name</th>
-                        <th>Spa Name</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Discount (%)</th>
-                        <th>Actions</th>
+                        <th>Mã Code</th>
+                        <th>Tên Spa</th>
+                        <th>Ngày bắt đầu</th>
+                        <th>Ngày kết thúc</th>
+                        <th>Giảm giá (%)</th>
+                        <th>Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model)
+                    @foreach (var item in Model.Items)
                     {
                         <tr>
                             <td>@item.Id</td>
@@ -100,6 +104,29 @@
                     }
                 </tbody>
             </table>
+            <div class="dataTables_wrapper no-footer">
+                <div class="dataTables_paginate paging_simple_numbers" id="table_paginate">
+                    <a class="paginate_button previous @(Model.HasPreviousPage ? "" : "disabled")"
+                       aria-controls="table"
+                       href="@(Model.HasPreviousPage ? $"?searchTerm={Model.SearchTerm}&pageIndex={Model.PageIndex - 1}&pageSize={Model.PageSize}" : "javascript:void(0);")"
+                       id="table_previous">« Trước</a>
+
+                    <span>
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <a class="@(i == Model.PageIndex ? "paginate_button current" : "paginate_button")"
+                               aria-controls="table"
+                               href="?searchTerm=@Model.SearchTerm&pageIndex=@i&pageSize=@Model.PageSize"
+                               data-dt-idx="@i">@i</a>
+                        }
+                    </span>
+
+                    <a class="paginate_button next @(Model.HasNextPage ? "" : "disabled")"
+                       aria-controls="table"
+                       href="@(Model.HasNextPage ? $"?searchTerm={Model.SearchTerm}&pageIndex={Model.PageIndex + 1}&pageSize={Model.PageSize}" : "javascript:void(0);")"
+                       id="table_next">Tiếp »</a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -125,66 +152,9 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $('#promotions-table').DataTable({
-                columns: [
-                    { data: 'id' }, // Assuming the ID is named 'id'
-                    { data: 'promotionName' }, // Promotion name field
-                    { data: 'spaName' }, // Spa name field
-                    {
-                        data: 'startDate', // Start date field
-                        render: function (data) {
-                            // Convert the date string to a Date object
-                            var date = new Date(data);
-
-                            // Check if the date is valid
-                            if (isNaN(date.getTime())) {
-                                return data; // Return the raw data if invalid date
-                            }
-
-                            // Format the date as dd/MM/yyyy
-                            var day = ('0' + date.getDate()).slice(-2);
-                            var month = ('0' + (date.getMonth() + 1)).slice(-2);
-                            var year = date.getFullYear();
-
-                            return `${day}-${month}-${year}`;
-                        }
-                    },
-                    {
-                        data: 'endDate', // End date field
-                        render: function (data) {
-                            // Convert the date string to a Date object
-                            var date = new Date(data);
-
-                            // Check if the date is valid
-                            if (isNaN(date.getTime())) {
-                                return data; // Return the raw data if invalid date
-                            }
-
-                            // Format the date as dd/MM/yyyy
-                            var day = ('0' + date.getDate()).slice(-2);
-                            var month = ('0' + (date.getMonth() + 1)).slice(-2);
-                            var year = date.getFullYear();
-
-                            return `${day}-${month}-${year}`;
-                        }
-                    },
-                    { data: 'discountPercentage' }, // Discount percentage field
-                    {
-                        data: null, // Use null as there is no `actions` field in the response
-                        render: function (data, type, row) {
-                            return `
-                            <ul class="action">
-                                <li class="edit"><a href="/promotions/edit/${row.id}"><i class="icon-pencil-alt"></i></a></li>
-                               
-                                <li class="delete"><a href="#" onclick="confirmDelete(${row.id})"><i class="icon-trash"></i></a></li>
-                            </ul>
-                        `;
-                        }
-                    }
-                ]
+                paging: false,
+                searching: false,        
             });
-
-
-            $('#spaLocation, #startDate, #endDate').on('change', fetchPromotionsByFilter);
         });
 
         function confirmDelete(id) {
@@ -225,32 +195,6 @@
                     });
                 } else {
                     swal("Đã hủy", "Dữ liệu của bạn không thay đổi.", "info");
-                }
-            });
-        }
-
-        function fetchPromotionsByFilter() {
-            var spaLocation = $('#spaLocation').val();
-            var startDate = $('#startDate').val();
-            var endDate = $('#endDate').val();
-
-            $.ajax({
-                url: 'http://localhost:5297/api/GetPromotionsByFilter',
-                type: 'GET',
-                data: {
-                    spaLocation: spaLocation || '', // Use empty string if spaLocation is not set
-                    startDate: startDate || '', // Use empty string if startDate is not set
-                    endDate: endDate || '' // Use empty string if endDate is not set
-                },
-                success: function (data) {
-                    var table = $('#promotions-table').DataTable();
-                    table.clear();
-                    table.rows.add(data); // Ensure the data matches the expected DataTable format
-                    table.draw();
-                },
-                error: function (xhr, status, error) {
-                    console.error("Error fetching promotions:", error);
-                    swal("Error!", "Failed to fetch promotions.", "error");
                 }
             });
         }

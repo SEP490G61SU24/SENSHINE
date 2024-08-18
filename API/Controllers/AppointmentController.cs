@@ -70,6 +70,7 @@ namespace API.Controllers
                     AppointmentSlot = appointment.AppointmentSlot,
                     RoomName = appointment.RoomName,
                     BedNumber = appointment.BedNumber,
+
                     Status = appointment.Status,
                     Customer = new AppointmentUserDTO
                     {
@@ -158,6 +159,7 @@ namespace API.Controllers
                         AppointmentSlot = appointment.AppointmentSlot,
                         RoomName = appointment.RoomName,
                         BedNumber = appointment.BedNumber,
+
                         Status = appointment.Status,
                         Customer = new AppointmentUserDTO
                         {

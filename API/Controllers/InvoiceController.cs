@@ -214,13 +214,52 @@ namespace API.Controllers
             }
         }
 
+        [HttpPut("UpdateInvoiceStatus")]
+        public async Task<IActionResult> UpdateInvoiceStatus(int id)
+        {
+            var invoice = await _dbContext.Invoices.FindAsync(id);
 
+            if (invoice == null)
+            {
+                return NotFound("Invoice not found.");
+            }
+            string status = "Paid";
+            invoice.Status = status;
 
-        [HttpGet("GetInvoiceByDate")]
+            _dbContext.Invoices.Update(invoice);
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new { Message = "Invoice status updated successfully." });
+        }
+    
+
+    [HttpGet("GetInvoiceByDate")]
         public async Task<ActionResult<IEnumerable<InvoiceDTO>>> GetInvoicesByDateRange([FromQuery] DateTime from, [FromQuery] DateTime to)
         {
             var invoices = await _invoiceService.InvoicesByDateRange(from, to);
             return Ok(invoices);
+        }
+        [HttpGet("GetInvoicesPaging")]
+        public async Task<IActionResult> GetAllInvoicesPaging([FromQuery] int? idspa = null, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null, [FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null,[FromQuery] string? status = null)
+        {
+            try
+            {
+                if (pageIndex < 1 || pageSize < 1)
+                {
+                    return BadRequest("Chỉ số trang hoặc kích thước trang không hợp lệ.");
+                }
+
+                var pageData = await _invoiceService.GetInvoiceListBySpaId(idspa, pageIndex, pageSize, searchTerm, startDate, endDate,status);
+                return Ok(pageData);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
     }
 }

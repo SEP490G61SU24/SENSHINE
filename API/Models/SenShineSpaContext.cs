@@ -475,6 +475,14 @@ namespace API.Models
                 entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.ProductName).HasMaxLength(100);
+                entity.Property(e => e.SpaId)
+               .HasColumnName("SpaId");
+
+                entity.HasOne(d => d.Spas)
+                    .WithMany(p => p.Products)
+                    .HasForeignKey(d => d.SpaId)
+                    .OnDelete(DeleteBehavior.ClientSetNull) 
+                    .HasConstraintName("FK_Product_Spa");
 
                 entity.HasMany(d => d.Categories)
                     .WithMany(p => p.Products)

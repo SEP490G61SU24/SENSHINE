@@ -1,43 +1,117 @@
 ﻿using API.Dtos;
+using API.Ultils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using System;
 using System.Text;
 using Web.Models;
 
 namespace Web.Controllers
 {
-    public class PromotionsController : Controller
+    public class PromotionsController : BaseController
     {
-        private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _clientFactory;
+        private readonly ILogger<UserController> _logger;
 
-        public PromotionsController(IConfiguration configuration)
+        public PromotionsController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<UserController> logger) : base(configuration, clientFactory, logger)
         {
             _configuration = configuration;
-            var apiUrl = _configuration.GetValue<string>("ApiUrl");
-            _httpClient = new HttpClient { BaseAddress = new Uri(apiUrl) };
+            _clientFactory = clientFactory;
+            _logger = logger;
+        }
+        private async Task<UserViewModel> LoadUserAsync()
+        {
+            var user = new UserViewModel();
+            var token = HttpContext.Session.GetString("Token");
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                var userProfile = await GetUserProfileAsync(token);
+
+                if (userProfile != null)
+                {
+                    user.Id = userProfile.Id;
+                    user.UserName = userProfile.UserName;
+                    user.FirstName = userProfile.FirstName;
+                    user.MidName = userProfile.MidName;
+                    user.LastName = userProfile.LastName;
+                    user.Phone = userProfile.Phone;
+                    user.BirthDate = userProfile.BirthDate;
+                    user.Status = userProfile.Status;
+                    user.StatusWorking = userProfile.StatusWorking;
+                    user.SpaId = userProfile.SpaId;
+                    user.ProvinceCode = userProfile.ProvinceCode;
+                    user.DistrictCode = userProfile.DistrictCode;
+                    user.WardCode = userProfile.WardCode;
+                    user.Address = userProfile.Address;
+                    user.Roles = userProfile.Roles;
+                    user.RoleName = userProfile.RoleName;
+                    user.RoleId = userProfile.RoleId;
+                    user.FullName = $"{userProfile.FirstName} {userProfile.MidName} {userProfile.LastName}";
+                }
+                else
+                {
+                    ViewData["Error"] = "Failed to retrieve user profile.";
+                }
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while fetching the user profile.");
+            }
+
+            return user;
         }
         [HttpGet]
-        public async Task<IActionResult> ListPromotion()
+        public async Task<IActionResult> ListPromotion(int? idspa, int pageIndex = 1, int pageSize = 10, string searchTerm = null, DateTime? startDate = null, DateTime? endDate = null)
         {
-            List<PromotionViewModel> viewList = new List<PromotionViewModel>();
-            HttpResponseMessage response = await _httpClient.GetAsync("/api/ListAllPromotion");
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
+            var use = await LoadUserAsync();
+            idspa = 1;
+            var urlBuilder = new StringBuilder($"{apiUrl}/GetPromotionsPaging?");
+
+            if (idspa != null)
+            {
+                urlBuilder.Append($"idspa={idspa}&");
+            }
+
+            if (startDate != null)
+            {
+                urlBuilder.Append($"startDate={startDate}&");
+            }
+
+            if (endDate != null)
+            {
+                urlBuilder.Append($"endDate={endDate}&");
+            }
+
+            urlBuilder.Append($"pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}");
+
+            // Remove the trailing '&' if it exists
+            var url = urlBuilder.ToString().TrimEnd('&');
+
+            HttpResponseMessage response = await client.GetAsync(url);
 
             if (response.IsSuccessStatusCode)
             {
-                string data = await response.Content.ReadAsStringAsync();
-                viewList = JsonConvert.DeserializeObject<List<PromotionViewModel>>(data);
+                var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<PromotionViewModel>>();
+                paginatedResult.SearchTerm = searchTerm;
+                return View(paginatedResult);
             }
-
-            ViewData["Title"] = "ListPromotion";
-
-            return View(viewList);
+            else
+            {
+                return View("Error");
+            }
         }
+        
+
         [HttpGet]
         public async Task<IActionResult> Add()
         {
-           
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
 
             // Create a SelectList to populate the dropdown
             var spaNames = await GetDistinctSpaNames();
@@ -50,6 +124,8 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(PromotionDTORequest promotionDto)
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             if (!ModelState.IsValid)
             {
                 return View(promotionDto);
@@ -57,7 +133,7 @@ namespace Web.Controllers
 
             string json = JsonConvert.SerializeObject(promotionDto);
             StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
-            HttpResponseMessage response = await _httpClient.PostAsync("/api/AddPromotion", content);
+            HttpResponseMessage response = await client.PostAsync($"{apiUrl}/AddPromotion", content);
 
             if (response.IsSuccessStatusCode)
             {
@@ -72,8 +148,10 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
 
-            HttpResponseMessage response = await _httpClient.GetAsync($"/api/GetPromotionDetail/{id}");
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/GetPromotionDetail/{id}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -103,7 +181,9 @@ namespace Web.Controllers
         }
         private async Task<List<BranchViewModel>> GetDistinctSpaNames()
         {
-            HttpResponseMessage response = await _httpClient.GetAsync("/api/Branch/GetAll");
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Branch/GetAll");
             if (response.IsSuccessStatusCode)
             {
                 string data = await response.Content.ReadAsStringAsync();
@@ -124,6 +204,8 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(PromotionViewModel promotionViewModel)
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             if (!ModelState.IsValid)
             {
                 return View(promotionViewModel); 
@@ -143,7 +225,7 @@ namespace Web.Controllers
                 };
 
                 var content = new StringContent(JsonConvert.SerializeObject(promotionDto), Encoding.UTF8, "application/json");
-                HttpResponseMessage response = await _httpClient.PutAsync($"/api/EditPromotion/{promotionDto.Id}", content);
+                HttpResponseMessage response = await client.PutAsync($"{apiUrl}/EditPromotion/{promotionDto.Id}", content);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -165,7 +247,9 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPromotionDetail(int id)
         {
-            HttpResponseMessage response = await _httpClient.GetAsync($"/api/GetPromotionDetail/{id}");
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/GetPromotionDetail/{id}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -191,7 +275,9 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Detail(int id)
         {
-            HttpResponseMessage response = await _httpClient.GetAsync($"/api/GetPromotionDetail/{id}");
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/GetPromotionDetail/{id}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -205,6 +291,8 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ListByFilter(string spaLocation, DateTime? startDate, DateTime? endDate)
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             // Construct the query string based on the parameters provided
             var query = new List<string>();
 
@@ -224,9 +312,9 @@ namespace Web.Controllers
             }
 
             var queryString = string.Join("&", query);
-            var url = $"/api/GetPromotionsByFilter?{queryString}";
+            var url = $"{apiUrl}/GetPromotionsByFilter?{queryString}";
 
-            HttpResponseMessage response = await _httpClient.GetAsync(url);
+            HttpResponseMessage response = await client.GetAsync(url);
 
             if (response.IsSuccessStatusCode)
             {
@@ -243,9 +331,11 @@ namespace Web.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             try
             {
-                var response = await _httpClient.DeleteAsync($"/api/DeletePromotion/{id}");
+                var response = await client.DeleteAsync($"{apiUrl}/DeletePromotion/{id}");
 
                 if (response.IsSuccessStatusCode)
                 {

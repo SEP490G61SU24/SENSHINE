@@ -45,6 +45,7 @@ namespace API.Services.Impl
                     AppointmentSlot = appointment.AppointmentSlot,
                     RoomName = appointment.RoomName,
                     BedNumber = appointment.BedNumber,
+
                     Status = appointment.Status,
                     Customer = new AppointmentUserDTO
                     {
@@ -107,6 +108,7 @@ namespace API.Services.Impl
                     AppointmentSlot = appointment.AppointmentSlot,
                     RoomName = appointment.RoomName,
                     BedNumber = appointment.BedNumber,
+
                     Status = appointment.Status,
                     Customer = new AppointmentUserDTO
                     {
@@ -146,7 +148,7 @@ namespace API.Services.Impl
                 .Include(a => a.Employee)
                 .Include(a => a.Services)
                 .Include(a => a.Products)
-                .Where(a => a.AppointmentDate.Date == appointmentDate.Date)
+                //.Where(a => a.AppointmentDate.Date == appointmentDate.Date)
                 .ToListAsync();
         }
 

@@ -1,4 +1,7 @@
-﻿using API.Models;
+﻿using API.Dtos;
+using API.Models;
+using API.Ultils;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Services.Impl
@@ -6,10 +9,12 @@ namespace API.Services.Impl
     public class RoomService : IRoomService
     {
         private readonly SenShineSpaContext _context;
+        private readonly IMapper _mapper;
 
-        public RoomService(SenShineSpaContext context)
+        public RoomService(SenShineSpaContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<Room> CreateRoom(Room room)
@@ -28,7 +33,7 @@ namespace API.Services.Impl
             }
         }
 
-        public ICollection<Room> GetRooms()
+        public List<Room> GetAllRooms()
         {
             try
             {
@@ -45,7 +50,7 @@ namespace API.Services.Impl
         {
             try
             {
-                var rooms = GetRooms();
+                var rooms = GetAllRooms();
                 return rooms.FirstOrDefault(r => r.Id == id);
             }
             catch (Exception ex)
@@ -122,6 +127,35 @@ namespace API.Services.Impl
                 // Handle or log the exception as needed
                 throw new Exception($"Error retrieving rooms for Spa ID {spaId}.", ex);
             }
+        }
+
+        public async Task<PaginatedList<RoomDTO>> GetRooms(int pageIndex, int pageSize, string searchTerm)
+        {
+            // Tạo query cơ bản
+            IQueryable<Room> query = _context.Rooms;
+
+            // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(r => r.RoomName.Contains(searchTerm));
+            }
+
+            // Đếm tổng số bản ghi để tính tổng số trang
+            var count = await query.CountAsync();
+
+            // Lấy danh sách với phân trang
+            var rooms = await query.Skip((pageIndex - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync();
+            var roomsDtos = _mapper.Map<IEnumerable<RoomDTO>>(rooms);
+
+            return new PaginatedList<RoomDTO>
+            {
+                Items = roomsDtos,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = count,
+            };
         }
     }
 }
