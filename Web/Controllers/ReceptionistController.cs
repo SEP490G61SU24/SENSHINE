@@ -17,7 +17,7 @@ namespace Web.Controllers
             _clientFactory = clientFactory;
             _logger = logger;
         }
-        
+
 
         public async Task<IActionResult> Dashboard()
         {
@@ -26,7 +26,21 @@ namespace Web.Controllers
             {
                 return RedirectToAction("Login", "Auth");
             }
-            return View();
+
+            // Map UserDTO to UserViewModel
+            UserViewModel viewModel = new UserViewModel
+            {
+                FullName = userProfile.FullName,
+                BirthDate = userProfile.BirthDate,
+                RoleName = userProfile.RoleName,
+                Address = userProfile.Address,
+                Phone = userProfile.Phone,
+               
+            };
+
+            // Pass the UserViewModel to the view
+            return View(viewModel);
         }
+
     }
 }
