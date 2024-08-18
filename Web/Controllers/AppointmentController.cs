@@ -12,25 +12,30 @@ using Web.Models;
 
 namespace Web.Controllers
 {
-    public class AppointmentController : Controller
+    public class AppointmentController : BaseController
     {
-        Uri baseAddress = new Uri("http://localhost:5297/api");
-        private readonly HttpClient _httpClient;
+        private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _clientFactory;
+        private readonly ILogger<UserController> _logger;
 
-        public AppointmentController()
+        public AppointmentController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<UserController> logger)
+             : base(configuration, clientFactory, logger)
         {
-            _httpClient = new HttpClient();
-            _httpClient.BaseAddress = baseAddress;
+            _configuration = configuration;
+            _clientFactory = clientFactory;
+            _logger = logger;
         }
 
         [HttpGet]
         public async Task<IActionResult> ListAppointment()
         {
+            var client = _clientFactory.CreateClient();
+            var apiUrl = _configuration["ApiUrl"];
             List<ListAppointmentViewModel> appointmentsList = new List<ListAppointmentViewModel>();
 
             try
             {
-                HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/Appointment/GetAllAppointments");
+                HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Appointment/GetAllAppointments");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -49,6 +54,8 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> DetailAppointment(int id)
         {
+            var client = _clientFactory.CreateClient();
+            var apiUrl = _configuration["ApiUrl"];
             if (id <= 0)
             {
                 return BadRequest("Invalid Appointment ID");
@@ -56,7 +63,7 @@ namespace Web.Controllers
 
             ListAppointmentViewModel appointment = null;
 
-            HttpResponseMessage response = await _httpClient.GetAsync($"/api/Appointment/GetByAppointmentId/{id}");
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/GetByAppointmentId/{id}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -76,12 +83,14 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteAppointment1(int id)
         {
+            var client = _clientFactory.CreateClient();
+            var apiUrl = _configuration["ApiUrl"];
             if (id <= 0)
             {
                 return BadRequest("Appointment ID không hợp lệ");
             }
 
-            HttpResponseMessage response = await _httpClient.DeleteAsync(_httpClient.BaseAddress + $"/Appointment/DeleteAppointment/delete/{id}");
+            HttpResponseMessage response = await client.DeleteAsync($"{apiUrl}/Appointment/DeleteAppointment/delete/{id}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -104,8 +113,8 @@ namespace Web.Controllers
 
             ViewBag.Services = services ?? new List<ServiceViewModel>();
             ViewBag.Products = products ?? new List<ProductViewModel>();
-            ViewBag.Employees = employees ?? new List<EmployeeViewModel>();
-            ViewBag.Customers = customers ?? new List<UserDTO>();
+            ViewBag.Employees = employees ?? new List<AppointmentEmployeeViewModel>();
+            ViewBag.Customers = customers ?? new List<AppointmentCustomerViewModel>();
 
             return View();
         }
@@ -113,6 +122,8 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateAppointment(AppointmentViewModel appointmentViewModel)
         {
+            var client = _clientFactory.CreateClient();
+            var apiUrl = _configuration["ApiUrl"];
             if (!ModelState.IsValid)
             {
                 var services = await GetAvailableServices();
@@ -144,7 +155,7 @@ namespace Web.Controllers
             string jsonString = JsonConvert.SerializeObject(appointmentDTO);
             var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
 
-            HttpResponseMessage response = await _httpClient.PostAsync(_httpClient.BaseAddress + $"/Appointment/Create", content);
+            HttpResponseMessage response = await client.PostAsync($"{apiUrl}/Appointment/Create", content);
 
             if (response.IsSuccessStatusCode)
             {
@@ -171,7 +182,9 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> EditAppointment(int id)
         {
-            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + $"/Appointment/GetByAppointmentId/{id}");
+            var client = _clientFactory.CreateClient();
+            var apiUrl = _configuration["ApiUrl"];
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Appointment/GetByAppointmentId/{id}");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -200,8 +213,8 @@ namespace Web.Controllers
 
             ViewBag.Services = services ?? new List<ServiceViewModel>();
             ViewBag.Products = products ?? new List<ProductViewModel>();
-            ViewBag.Employees = employees ?? new List<EmployeeViewModel>();
-            ViewBag.Customers = customers ?? new List<UserDTO>();
+            ViewBag.Employees = employees ?? new List<AppointmentEmployeeViewModel>();
+            ViewBag.Customers = customers ?? new List<AppointmentCustomerViewModel>();
 
             return View(appointmentViewModel);
         }
@@ -209,6 +222,8 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> EditAppointment(int id, AppointmentViewModel appointmentViewModel)
         {
+            var client = _clientFactory.CreateClient();
+            var apiUrl = _configuration["ApiUrl"];
             if (!ModelState.IsValid)
             {
                 var services = await GetAvailableServices();
@@ -241,7 +256,7 @@ namespace Web.Controllers
             string jsonString = JsonConvert.SerializeObject(appointmentDTO);
             var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
 
-            HttpResponseMessage response = await _httpClient.PutAsync($"{_httpClient.BaseAddress}/Appointment/UpdateAppointment/{id}", content);
+            HttpResponseMessage response = await client.PutAsync($"{apiUrl}/Appointment/UpdateAppointment/{id}", content);
 
             if (response.IsSuccessStatusCode)
             {
@@ -268,8 +283,10 @@ namespace Web.Controllers
         //Lay ra danh sach cac du lieu lien quan 
         private async Task<List<ServiceViewModel>> GetAvailableServices()
         {
+            var client = _clientFactory.CreateClient();
+            var apiUrl = _configuration["ApiUrl"];
             List<ServiceViewModel> services = new List<ServiceViewModel>();
-            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/Service/GetAllServices");
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Service/GetAllServices");
 
             if (response.IsSuccessStatusCode)
             {
@@ -281,8 +298,10 @@ namespace Web.Controllers
         }
         private async Task<List<ProductViewModel>> GetAvailableProducts()
         {
+            var client = _clientFactory.CreateClient();
+            var apiUrl = _configuration["ApiUrl"];
             List<ProductViewModel> products = new List<ProductViewModel>();
-            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/ListAllProduct");
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/ListAllProduct");
 
             if (response.IsSuccessStatusCode)
             {
@@ -293,29 +312,33 @@ namespace Web.Controllers
             return products;
         }
 
-        private async Task<List<EmployeeViewModel>> GetAvailableEmployees()
+        private async Task<List<AppointmentEmployeeViewModel>> GetAvailableEmployees()
         {
-            List<EmployeeViewModel> employees = new List<EmployeeViewModel>();
-            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/api/users/role/4");
+            var client = _clientFactory.CreateClient();
+            var apiUrl = _configuration["ApiUrl"];
+            List<AppointmentEmployeeViewModel> employees = new List<AppointmentEmployeeViewModel>();
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/users/role/4");
 
             if (response.IsSuccessStatusCode)
             {
                 string jsonString = await response.Content.ReadAsStringAsync();
-                employees = JsonConvert.DeserializeObject<List<EmployeeViewModel>>(jsonString);
+                employees = JsonConvert.DeserializeObject<List<AppointmentEmployeeViewModel>>(jsonString);
             }
 
             return employees;
         }
 
-        private async Task<List<UserDTO>> GetAvailableCustomers()
+        private async Task<List<AppointmentCustomerViewModel>> GetAvailableCustomers()
         {
-            List<UserDTO> customers = new List<UserDTO>();
-            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/api/users/role/5");
+            var client = _clientFactory.CreateClient();
+            var apiUrl = _configuration["ApiUrl"];
+            List<AppointmentCustomerViewModel> customers = new List<AppointmentCustomerViewModel>();
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/users/role/5");
 
             if (response.IsSuccessStatusCode)
             {
                 string jsonString = await response.Content.ReadAsStringAsync();
-                customers = JsonConvert.DeserializeObject<List<UserDTO>>(jsonString);
+                customers = JsonConvert.DeserializeObject<List<AppointmentCustomerViewModel>>(jsonString);
             }
 
             return customers;
