@@ -1,3 +1,5 @@
+using Web.Middleware;
+
 namespace Web
 {
     public class Program
@@ -35,6 +37,7 @@ namespace Web
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseSession();
+            app.UseMiddleware<AuthorizationMiddleware>();
 
             app.MapControllerRoute(
                 name: "default",

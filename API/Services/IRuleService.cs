@@ -14,5 +14,6 @@ namespace API.Services
         Task<IEnumerable<RuleDTO>> GetRulesByRoleId(int roleId);
         Task<IEnumerable<RuleDTO>> ExcludeId(int id);
         Task<IEnumerable<MenuDTO>> GetMenuItemsByRoleAsync(int roleId);
+        Task<bool> CheckAccessAsync(int? roleId, string path);
     }
 }

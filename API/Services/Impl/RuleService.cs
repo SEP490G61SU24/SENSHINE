@@ -174,5 +174,19 @@ namespace API.Services.Impl
                     Children = GetChildren(r.Id, allRules)
                 });
         }
+
+        public async Task<bool> CheckAccessAsync(int? roleId, string path)
+        {
+            if (roleId == null)
+            {
+                return false;
+            }
+
+            // Lấy các quyền của vai trò
+            var rules = await GetRulesByRoleId(roleId.Value);
+
+            // Kiểm tra xem path có nằm trong danh sách quyền của vai trò không
+            return rules.Any(rule => rule.Path.Equals(path, StringComparison.OrdinalIgnoreCase));
+        }
     }
 }
