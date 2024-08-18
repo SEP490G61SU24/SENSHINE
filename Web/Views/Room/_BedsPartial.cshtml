@@ -1,0 +1,14 @@
+﻿@model List<Web.Models.BedViewModel>
+
+@foreach (var bed in Model)
+{
+    var backgroundColor = bed.StatusWorking == "available" ? "green" : "red";
+    <div class="col-12 col-md-4 col-lg-2 mb-4 text-center">
+        <a class="bed-icon" style="background-color: @backgroundColor; border: 2px solid black; padding: 10px; border-radius: 5px;">
+            <img src="https://cdn-icons-png.flaticon.com/512/492/492883.png" alt="Bed Icon" class="img-fluid" />
+            <div class="bed-name-overlay">
+                @bed.BedNumber
+            </div>
+        </a>
+    </div>
+}

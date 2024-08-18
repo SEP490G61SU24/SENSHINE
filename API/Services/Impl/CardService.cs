@@ -12,10 +12,12 @@ namespace API.Services.Impl
     public class CardService : ICardService
     {
         private readonly SenShineSpaContext _context;
+        private readonly IMapper _mapper;
 
-        public CardService(SenShineSpaContext context)
+        public CardService(SenShineSpaContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<Card> CreateCard(Card card)
@@ -34,17 +36,37 @@ namespace API.Services.Impl
             }
         }
 
-        public ICollection<Card> GetCards()
+        public async Task<PaginatedList<CardDTO>> GetCards(int pageIndex = 1, int pageSize = 10, string searchTerm = null)
         {
-            try
+            // Tạo query cơ bản
+            IQueryable<Card> query = _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices);
+
+            // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
+            if (!string.IsNullOrEmpty(searchTerm))
             {
-                return _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices).ToList();
+                query = query.Where(c => c.CardNumber.Contains(searchTerm) ||
+                                         c.Customer.FirstName.Contains(searchTerm) ||
+                                         c.Customer.MidName.Contains(searchTerm) ||
+                                         c.Customer.LastName.Contains(searchTerm) ||
+                                         c.Customer.Phone.Contains(searchTerm));
             }
-            catch (Exception ex)
+
+            // Đếm tổng số bản ghi để tính tổng số trang
+            var count = await query.CountAsync();
+
+            // Lấy danh sách với phân trang
+            var cards = await query.Skip((pageIndex - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync();
+            var cardDtos = _mapper.Map<IEnumerable<CardDTO>>(cards);
+
+            return new PaginatedList<CardDTO>
             {
-                // Handle or log the exception as needed
-                throw new Exception("Error retrieving cards.", ex);
-            }
+                Items = cardDtos,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = count,
+            };
         }
 
         public Card GetCard(int id)
@@ -143,8 +165,7 @@ namespace API.Services.Impl
                 var cards = _context.Cards.Include(c => c.Customer);
 
                 return cards.Any(c => c.CardNumber.ToLower().Contains(input)
-                                     || (c.Customer.FirstName + " " + c.Customer.MidName + " " + c.Customer.LastName)
-                                        .ToLower().Contains(input)
+                                     || (c.Customer.FirstName + " " + c.Customer.MidName + " " + c.Customer.LastName).ToLower().Contains(input)
                                      || c.Customer.Phone.Contains(input));
             }
             catch (Exception ex)
@@ -196,6 +217,19 @@ namespace API.Services.Impl
             {
                 // Handle or log the exception as needed
                 throw new Exception("Error creating card combo.", ex);
+            }
+        }
+
+        public List<Card> GetAllCards()
+        {
+            try
+            {
+                return _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices).ToList();
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new Exception("Error retrieving cards.", ex);
             }
         }
     }

@@ -1,11 +1,14 @@
-﻿using API.Models;
+﻿using API.Dtos;
+using API.Models;
+using API.Ultils;
 
 namespace API.Services
 {
     public interface ISalaryService
     {
         Task<Salary> CreateSalary(Salary salary);
-        ICollection<Salary> GetSalaries();
+        Task<PaginatedList<SalaryDTO>> GetSalaries(int pageIndex, int pageSize, string searchTerm);
+        List<Salary> GetAllSalaries();
         ICollection<Salary> GetSalariesByMonthAndYear(int month, int year);
         Salary GetSalary(int id);
         Task<Salary> UpdateSalary(int id, Salary salary);

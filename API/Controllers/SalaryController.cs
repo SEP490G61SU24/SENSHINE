@@ -1,6 +1,7 @@
 ﻿using API.Dtos;
 using API.Models;
 using API.Services;
+using API.Services.Impl;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,11 +46,16 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
         {
             try
             {
-                var salaries = _mapper.Map<List<SalaryDTO>>(_salaryService.GetSalaries());
+                if (pageIndex < 1 || pageSize < 1)
+                {
+                    return BadRequest("Chỉ số trang hoặc kích thước trang không hợp lệ.");
+                }
+
+                var salaries = await _salaryService.GetSalaries(pageIndex, pageSize, searchTerm);
                 return Ok(salaries);
             }
             catch (Exception ex)
