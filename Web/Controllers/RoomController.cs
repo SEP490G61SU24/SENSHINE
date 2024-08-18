@@ -305,7 +305,7 @@ namespace Web.Controllers
                 {
                     var json = JsonConvert.SerializeObject(room);
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
-
+                    room.SpaId = spaId;
                     HttpResponseMessage response = await client.PutAsync($"{apiUrl}/Room/Update?id=" + room.Id, content);
 
                     if (response.IsSuccessStatusCode)
