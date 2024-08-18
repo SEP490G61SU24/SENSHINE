@@ -125,6 +125,8 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $('#promotions-table').DataTable({
+                paging: false,
+                searching: false,
                 columns: [
                     { data: 'id' }, // Assuming the ID is named 'id'
                     { data: 'promotionName' }, // Promotion name field

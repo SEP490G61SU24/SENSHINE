@@ -1,5 +1,4 @@
 ﻿using API.Dtos;
-using API.Models;
 using API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -51,7 +50,37 @@ namespace API.Controllers
             return Ok(new { Token = tokenString });
         }
 
-        private string GenerateJwtToken(UserDTO user)
+		[HttpPost("changepass")]
+		public async Task<IActionResult> ChangePass(ChangePasswordDTO model)
+		{
+			try
+			{
+				if (string.IsNullOrEmpty(model.UserName) || string.IsNullOrEmpty(model.OldPassword) || string.IsNullOrEmpty(model.NewPassword))
+				{
+					return BadRequest("Thiếu dữ liệu đầu vào!");
+				}
+
+				var result = await _userService.ChangePassword(model.UserName, model.OldPassword, model.NewPassword, true);
+				if (result)
+				{
+					return Ok("Thay đổi mật khẩu thành công!");
+				}
+				else
+				{
+					return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra !");
+				}
+			}
+			catch (InvalidOperationException ex)
+			{
+				return BadRequest(ex.Message);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+			}
+		}
+
+		private string GenerateJwtToken(UserDTO user)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);

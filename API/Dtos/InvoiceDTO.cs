@@ -63,6 +63,10 @@ namespace API.Dtos
             
             public ServiceDTO2? Service { get; set; }
         }
+    public class UpdateInvoiceStatus
+    {
+        public string Status { get; set; }
     }
+}
 
 
