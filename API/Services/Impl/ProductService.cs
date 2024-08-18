@@ -1,5 +1,6 @@
 ﻿using API.Dtos;
 using API.Models;
+using API.Ultils;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
@@ -50,7 +51,7 @@ namespace API.Services.Impl
 
         public async Task<IEnumerable<ProductDTORequest>> ListProduct()
         {
-            var products = await _context.Products.Include(p=>p.Categories).Include(p=>p.ProductImages).ToListAsync();
+            var products = await _context.Products.Include(p=>p.Categories).Include(p=>p.ProductImages).Include(x => x.Spas).ToListAsync();
             return _mapper.Map<IEnumerable<ProductDTORequest>>(products);
         }
 
@@ -58,7 +59,7 @@ namespace API.Services.Impl
         {
             
             var product = await _context.Products
-                .Include(p => p.Categories).Include(p=>p.ProductImages) 
+                .Include(p => p.Categories).Include(p=>p.ProductImages).Include(x=>x.Spas) 
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             
@@ -77,6 +78,7 @@ namespace API.Services.Impl
             var product = await _context.Products
                 .Include(p => p.Categories)
                 .Include(p => p.ProductImages)
+                .Include(p=>p.Spas)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null)
@@ -133,7 +135,7 @@ namespace API.Services.Impl
 
 
             var products = await query
-                .Include(p => p.Categories).Include(P => P.ProductImages)
+                .Include(p => p.Categories).Include(P => P.ProductImages).Include(p=>p.Spas)
                 .ToListAsync();
 
 
@@ -184,10 +186,67 @@ namespace API.Services.Impl
             return existingProduct;
         }
 
+        public async Task<PaginatedList<ProductDTORequest>> GetProductList(int? spaId = null, int pageIndex = 1, int pageSize = 10, string searchTerm = null, string? categoryName = null, string? quantityRange = null, string? priceRange = null)
+        {
+            var quantityParts = quantityRange?.Split('-');
+            var priceParts = priceRange?.Split('-');
 
+            int? minQuantity = quantityParts != null && int.TryParse(quantityParts[0], out var qMin) ? (int?)qMin : null;
+            int? maxQuantity = quantityParts != null && int.TryParse(quantityParts[1], out var qMax) ? (int?)qMax : null;
 
+            decimal? minPrice = priceParts != null && decimal.TryParse(priceParts[0], out var pMin) ? (decimal?)pMin : null;
+            decimal? maxPrice = priceParts != null && decimal.TryParse(priceParts[1], out var pMax) ? (decimal?)pMax : null;
 
+            IQueryable<Product> query = _context.Products.Include(p => p.Categories).Include(P => P.ProductImages).Include(p => p.Spas).AsQueryable();
 
+            if (spaId.HasValue)
+            {
+                query = query.Where(x => x.SpaId == spaId);
+            }
+            if (minQuantity.HasValue)
+            {
+                query = query.Where(p => p.Quantity >= minQuantity.Value);
+            }
+
+            if (maxQuantity.HasValue)
+            {
+                query = query.Where(p => p.Quantity <= maxQuantity.Value);
+            }
+
+            if (minPrice.HasValue)
+            {
+                query = query.Where(p => p.Price >= minPrice.Value);
+            }
+
+            if (maxPrice.HasValue)
+            {
+                query = query.Where(p => p.Price <= maxPrice.Value);
+            }
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(u => u.ProductName.Contains(searchTerm));
+            }
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(u => u.Categories.Any(x=>x.CategoryName.Contains(categoryName)));
+            }
+            // Đếm tổng số bản ghi để tính tổng số trang
+            var count = await query.CountAsync();
+
+            // Lấy danh sách với phân trang
+            var news = await query.Skip((pageIndex - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync();
+            var newsDtos = _mapper.Map<IEnumerable<ProductDTORequest>>(news);
+
+            return new PaginatedList<ProductDTORequest>
+            {
+                Items = newsDtos,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = count,
+            };
+        }
     }
 
 }

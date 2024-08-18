@@ -1,5 +1,6 @@
 ﻿
-    using AutoMapper;
+using API.Ultils;
+using AutoMapper;
     using global::API.Dtos;
     using global::API.Models;
     using Microsoft.EntityFrameworkCore;
@@ -56,8 +57,64 @@
 
             
         }
+        public async Task<PaginatedList<InvoiceDTO>> GetInvoiceListBySpaId(int? spaId = null, int pageIndex = 1, int pageSize = 10, string searchTerm = null, DateTime? startDate = null, DateTime? endDate = null,string? status = null)
+        {
+            // Tạo query cơ bản
+            IQueryable<Invoice> query = _context.Invoices
+                .Include(i => i.Customer)
+                .Include(i => i.Promotion)
+                .Include(i => i.Spa)
+                .Include(i => i.Cards)
+                .Include(i => i.InvoiceCombos)
+                .Include(i => i.InvoiceServices).AsQueryable();
 
-            public async Task<InvoiceDTO?> GetInvoiceDetail(int id)
+            if (startDate.HasValue)
+            {
+                query = query.Where(x => x.InvoiceDate >= startDate);
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(x => x.InvoiceDate <= endDate);
+            }
+            if (spaId.HasValue)
+            {
+                query = query.Where(x => x.SpaId == spaId);
+            }
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(u => u.Status.Contains(status));
+            }
+            // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(u => u.Description.Contains(searchTerm) ||
+                                         u.Customer.FirstName.Contains(searchTerm) ||
+                                         u.Customer.LastName.Contains(searchTerm) ||
+                                         u.Customer.MidName.Contains(searchTerm) ||
+                                         u.Promotion.PromotionName.Contains(searchTerm) ||
+                                         u.Spa.SpaName.Contains(searchTerm)||
+                                         u.Amount.ToString().Contains(searchTerm));
+            }
+
+            // Đếm tổng số bản ghi để tính tổng số trang
+            var count = await query.CountAsync();
+
+            // Lấy danh sách với phân trang
+            var news = await query.Skip((pageIndex - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync();
+            var newsDtos = _mapper.Map<IEnumerable<InvoiceDTO>>(news);
+
+            return new PaginatedList<InvoiceDTO>
+            {
+                Items = newsDtos,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = count,
+            };
+        }
+        public async Task<InvoiceDTO?> GetInvoiceDetail(int id)
             {
                 var invoice = await _context.Invoices
                                             .Include(i => i.Customer)

@@ -101,13 +101,13 @@
                                     <h4 style="font-weight:600; margin:4px 0px; font-size: 18px;">@service.Service.ServiceName</h4>
                                 </td>
                                 <td style="width: 12%; text-align: center;">
-                                    <span style="opacity: 0.8;">@service.Service.Amount</span>
+                                    <span style="opacity: 0.8;">@String.Format("{0:0,0} VND",@service.Service.Amount)</span>
                                 </td>
                                 <td style="width: 12%; text-align: center;">
                                     <span style="opacity: 0.8;">@service.Quantity</span>
                                 </td>
                                 <td style="width: 12%; text-align: center;">
-                                    <span style="font-weight: 600; opacity: 0.9;">$@totalAmount</span>
+                                    <span style="font-weight: 600; opacity: 0.9;">@String.Format("{0:0,0} VND",@totalAmount)</span>
                                 </td>
                             </tr>
                         }
@@ -116,6 +116,40 @@
                             <tr>
                                 <td colspan="4" style="color: red; text-align: center;">
                                     <strong>Error:</strong> Service information is missing.
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+                <tr style="height: 2px; background-color: #ccc;">
+                    <td colspan="4"></td>
+                </tr>
+                <tbody>
+                    @foreach (var service in Model.InvoiceCombos)
+                    {
+                        if (service.Combo != null)
+                        {
+                            var totalAmount = service.Quantity * service.Combo.SalePrice;
+                            <tr>
+                                <td style="padding: 30px;">
+                                    <h4 style="font-weight:600; margin:4px 0px; font-size: 18px;">@service.Combo.Name</h4>
+                                </td>
+                                <td style="width: 12%; text-align: center;">
+                                    <span style="opacity: 0.8;">@String.Format("{0:0,0} VND", @service.Combo.SalePrice)</span>
+                                </td>
+                                <td style="width: 12%; text-align: center;">
+                                    <span style="opacity: 0.8;">@service.Quantity</span>
+                                </td>
+                                <td style="width: 12%; text-align: center;">
+                                    <span style="font-weight: 600; opacity: 0.9;">@String.Format("{0:0,0} VND",@totalAmount)</span>
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" style="color: red; text-align: center;">
+                                    <strong>Error:</strong> Combo information is missing.
                                 </td>
                             </tr>
                         }
@@ -154,7 +188,7 @@
                             <tr>
                                 <td style="padding: 5px 0;">
                                     <p style="font-size: 16px; font-weight: 600; margin: 0;">Tổng cộng:</p>
-                                    <span style="font-size: 18px; font-weight: 600;">@Model.Amount VND</span>
+                                    <span style="font-size: 18px; font-weight: 600;">@String.Format("{0:0,0} VND",@Model.Amount)</span>
                                 </td>
                             </tr>
                         </table>

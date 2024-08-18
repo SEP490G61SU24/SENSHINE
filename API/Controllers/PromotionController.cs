@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using API.Dtos;
 using API.Models;
 using API.Services;
+using API.Services.Impl;
 
 
 namespace API.Controllers
@@ -95,7 +96,29 @@ namespace API.Controllers
 
                 return NoContent();
             }
+        [HttpGet("GetPromotionsPaging")]
+        public async Task<IActionResult> GetAllPromotionsPaging([FromQuery]int? idspa=null, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null, [FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null)
+        {
+            try
+            {
+                if (pageIndex < 1 || pageSize < 1)
+                {
+                    return BadRequest("Chỉ số trang hoặc kích thước trang không hợp lệ.");
+                }
+
+                var pageData = await _promotionService.GetPromotionListBySpaId(idspa,pageIndex, pageSize, searchTerm,startDate,endDate);
+                return Ok(pageData);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
+    }
     }
 
 

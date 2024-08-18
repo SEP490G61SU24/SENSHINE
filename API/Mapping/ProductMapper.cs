@@ -18,6 +18,8 @@ namespace API.Mapping
                    Id=c.Id,
                    CategoryName = c.CategoryName
                })))
+               .ForMember(dest=>dest.SpaName,opt=>opt.MapFrom(src=>src.Spas.SpaName))
+               .ForMember(dest => dest.SpaId, opt => opt.MapFrom(src => src.SpaId))
                .ForMember(dest => dest.ProductImages, opt => opt.MapFrom(src => src.ProductImages.Select(pi => new ProductImageDTO
                { 
                     ProductId = src.Id,
@@ -25,7 +27,9 @@ namespace API.Mapping
                    }))).ReverseMap();
             CreateMap<ProductDTORequest_2, Product>()
             .ForMember(dest => dest.Categories, opt => opt.Ignore())
-            .ForMember(dest => dest.ProductImages, opt => opt.Ignore()).ReverseMap();
+            .ForMember(dest => dest.ProductImages, opt => opt.Ignore())
+            .ForMember(dest=>dest.SpaId,opt=>opt.MapFrom(src=>src.SpaId))
+            .ReverseMap();
             
 
             CreateMap<Category, CategoryDTO>().ReverseMap();
