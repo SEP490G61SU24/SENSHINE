@@ -22,7 +22,7 @@ namespace API.Services.Impl
         {
             var user = await _context.Users
                                      .Include(r => r.Roles)
-                                     .SingleOrDefaultAsync(u => u.UserName == username);
+                                     .SingleOrDefaultAsync(u => u.UserName == username || u.Phone == username);
 
             if (user == null || !PasswordUtils.VerifyPassword(password, user.Password))
             {
