@@ -25,7 +25,7 @@ namespace Web.Controllers
 
         public async Task<IActionResult> Index()
         {
-            int? spaId = 1;
+            int? spaId = 0;
             var token = HttpContext.Session.GetString("Token");
 
             if (!string.IsNullOrEmpty(token))
@@ -74,7 +74,7 @@ namespace Web.Controllers
         public async Task<IActionResult> Create(BedViewModel bedViewModel)
         {
 
-            int? spaId = 1;
+            int? spaId = 0;
             var token = HttpContext.Session.GetString("Token");
 
             if (!string.IsNullOrEmpty(token))
@@ -206,7 +206,7 @@ namespace Web.Controllers
         private async Task<List<RoomViewModel>> GetAvailableRooms()
         {
 
-            int? spaId = 1;
+            int? spaId = 0;
             var token = HttpContext.Session.GetString("Token");
 
             if (!string.IsNullOrEmpty(token))
