@@ -36,16 +36,14 @@
 <div class="controls-container">
     <div class="controls">
         <div class="button-group" role="group" aria-label="Basic mixed styles example">
-            <button id="prevWeek" class="btn btn-danger"><span>&lt;</span></button>
-            <button id="today" class="btn btn-success">This Week</button>
-            <button id="nextWeek" class="btn btn-warning"><span>&gt;</span></button>
+            <button id="prevDay" class="btn btn-danger"><span>&lt;</span></button>
+            <button id="today" class="btn btn-success">Today</button>
+            <button id="nextDay" class="btn btn-warning"><span>&gt;</span></button>
         </div>
-        <h2 id="weekRange"></h2>
+        <h2 id="dayDisplay"></h2>
         <a class="btn btn-primary" href="@Url.Action("CreateAppointment", "Appointment")"><i class="fa fa-plus"></i>Tạo Cuộc Hẹn Mới</a>
     </div>
 </div>
-
-
 
 <table id="appointments-container">
     <thead>
@@ -54,7 +52,8 @@
             <th>Tên Khách Hàng</th>
             <th>Nhân Viên Thực Hiện</th>
             <th>Dịch Vụ Sử Dụng</th>
-            <th>Thời Gian Cuộc Hẹn</th>
+            <th>Thời Gian Check In</th>
+            <th>Slot</th>
             <th>Số Điện Thoại</th>
             <th>Trạng Thái</th>
             <th>Hành Động</th>
@@ -76,36 +75,24 @@
                     </ul>
                 </td>
                 <td>@appointment.AppointmentDate</td>
+                <td>@appointment.AppointmentSlot.Replace("Slot", "Slot ")</td>
                 <td>@appointment.Customer.Phone</td>
                 <td>@appointment.Status</td>
                 <td>
                     <a asp-action="DetailAppointment" asp-route-id="@appointment.Id">Chi Tiết</a> |
-                    <a asp-action="EditAppointment" asp-route-id="@appointment.Id">Chỉnh Sửa</a>           
+                    <a asp-action="EditAppointment" asp-route-id="@appointment.Id">Chỉnh Sửa</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
 
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const appointmentsContainer = document.getElementById('appointments-container').querySelector('tbody');
         let appointments = Array.from(appointmentsContainer.querySelectorAll('.appointment'));
-        let currentWeekStart = new Date();
-
-        function startOfWeek(date) {
-            const d = new Date(date);
-            const day = d.getDay();
-            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-            return new Date(d.setDate(diff));
-        }
-
-        function endOfWeek(date) {
-            const d = new Date(date);
-            const day = d.getDay();
-            const diff = d.getDate() - day + (day === 0 ? -6 : 1) + 6;
-            return new Date(d.setDate(diff));
-        }
+        let currentDay = new Date();
 
         function formatDate(date) {
             return date.toLocaleDateString('vi-VN', {
@@ -115,16 +102,14 @@
             });
         }
 
-        function updateWeekDisplay(start) {
-            const end = endOfWeek(start);
-            document.getElementById('weekRange').textContent = `${formatDate(start)} - ${formatDate(end)}`;
+        function updateDayDisplay(date) {
+            document.getElementById('dayDisplay').textContent = formatDate(date);
         }
 
-        function filterAppointmentsByWeek(start) {
-            const end = endOfWeek(start);
+        function filterAppointmentsByDay(date) {
             appointments.forEach(appointment => {
-                const date = new Date(appointment.dataset.date);
-                if (date >= start && date <= end) {
+                const appointmentDate = new Date(appointment.dataset.date);
+                if (appointmentDate.toDateString() === date.toDateString()) {
                     appointment.style.display = 'table-row';
                 } else {
                     appointment.style.display = 'none';
@@ -141,7 +126,7 @@
 
         function highlightFinishedAppointments() {
             appointments.forEach(appointment => {
-                const status = appointment.querySelector('td:nth-child(7)').textContent.trim();
+                const status = appointment.querySelector('td:nth-child(8)').textContent.trim();
 
                 if (status === 'Finished') {
                     appointment.style.backgroundColor = '#d4edda'; // Màu xanh sáng cho trạng thái hoàn thành
@@ -155,42 +140,29 @@
             });
         }
 
-
-        function sortAppointments() {
-            appointments.sort((a, b) => {
-                const dateA = new Date(a.dataset.date);
-                const dateB = new Date(b.dataset.date);
-                return dateA - dateB;
-            });
-
-            appointments.forEach(appointment => appointmentsContainer.appendChild(appointment));
-        }
-
-        function showCurrentWeek() {
-            const start = startOfWeek(currentWeekStart);
-            updateWeekDisplay(start);
-            filterAppointmentsByWeek(start);
-            sortAppointments(); // Thêm dòng này để sắp xếp các cuộc hẹn theo thứ tự thời gian
+        function showCurrentDay() {
+            updateDayDisplay(currentDay);
+            filterAppointmentsByDay(currentDay);
             addIndexToAppointments(); // Thêm số thứ tự
             highlightFinishedAppointments(); // Tô màu các cuộc hẹn đã hoàn thành
         }
 
-        document.getElementById('prevWeek').addEventListener('click', function () {
-            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
-            showCurrentWeek();
+        document.getElementById('prevDay').addEventListener('click', function () {
+            currentDay.setDate(currentDay.getDate() - 1);
+            showCurrentDay();
         });
 
         document.getElementById('today').addEventListener('click', function () {
-            currentWeekStart = new Date();
-            showCurrentWeek();
+            currentDay = new Date();
+            showCurrentDay();
         });
 
-        document.getElementById('nextWeek').addEventListener('click', function () {
-            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-            showCurrentWeek();
+        document.getElementById('nextDay').addEventListener('click', function () {
+            currentDay.setDate(currentDay.getDate() + 1);
+            showCurrentDay();
         });
 
-        showCurrentWeek();
+        showCurrentDay();
     });
 
 </script>
@@ -218,12 +190,12 @@
             font-size: 1em; /* Kích thước chữ của nút */
         }
 
-    #weekRange {
-        text-align: center; /* Căn giữa chữ */
-        font-size: 2em; /* Đặt kích thước chữ của h2 bằng với kích thước của nút */
-        margin: 0; /* Loại bỏ khoảng cách trên và dưới */
-        padding: 0; /* Loại bỏ khoảng cách bên trong */
-    }
+        #dayDisplay {
+            text-align: center;
+            font-size: 2em;
+            margin: 0;
+            padding: 0;
+        }
 
     .new-appointment-button {
         text-align: center; /* Căn giữa nội dung của nút */
@@ -279,6 +251,26 @@
     .btn-link:hover {
         color: #0056b3;
      }
+
+    .appointment {
+        margin-bottom: 10px;
+        padding: 5px;
+        background-color: #e9ecef;
+        border-radius: 5px;
+    }
+
+        .appointment[data-status="Finished"] {
+            background-color: #d4edda; /* Light green for Finished status */
+        }
+
+        .appointment[data-status="Combo"] {
+            background-color: #cce5ff; /* Light blue for Combo status */
+        }
+
+        .appointment[data-status="Cancel"] {
+            background-color: #f8d7da; /* Light red for Cancel status */
+        }
+
 </style>
 
 

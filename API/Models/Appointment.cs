@@ -14,7 +14,8 @@ namespace API.Models
         public int Id { get; set; }
         public int CustomerId { get; set; }
         public int EmployeeId { get; set; }
-        public string AppointmentDate { get; set; } = null!;
+        public DateTime AppointmentDate { get; set; }
+        public string AppointmentSlot { get; set; } = null!;
         public string? RoomName { get; set; }
         public string? BedNumber { get; set; }
         public string Status { get; set; } = null!;
