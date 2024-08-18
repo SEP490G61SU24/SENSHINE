@@ -183,9 +183,13 @@
                 }
             }).then((result) => {
                 if (result) {
+                    var token = '@ViewData["Token"]';
                     $.ajax({
                         url: '/workschedule/delete/' + id,
                         type: 'DELETE',
+                        headers: {
+                            'Authorization': 'Bearer ' + token
+                        },
                         success: function (response) {
                             swal("Đã xóa!", "Đã xóa thành công.", "success")
                                 .then(() => {

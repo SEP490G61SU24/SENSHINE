@@ -2,9 +2,8 @@
 using API.Dtos;
 using API.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using API.Ultils;
+using System.Globalization;
 
 namespace API.Services.Impl
 {
@@ -36,7 +35,17 @@ namespace API.Services.Impl
                 return null;
             }
 
+            var emp = await _context.Users.FirstOrDefaultAsync(x => x.Id == workScheduleDto.EmployeeId);
+            
+            if(emp == null)
+            {
+                throw new InvalidOperationException("Không tìm thấy nhân viên.");
+            }
+
             _mapper.Map(workScheduleDto, existingWorkSchedule);
+            
+            existingWorkSchedule.Employee = emp;
+
             _context.WorkSchedules.Update(existingWorkSchedule);
             await _context.SaveChangesAsync();
 
@@ -93,8 +102,8 @@ namespace API.Services.Impl
 
             // Lấy danh sách với phân trang
             var wsList = await query.Skip((pageIndex - 1) * pageSize)
-                                   .Take(pageSize)
-                                   .ToListAsync();
+                .Take(pageSize)
+                .ToListAsync();
 
             var wsDtos = _mapper.Map<IEnumerable<WorkScheduleDTO>>(wsList);
 
@@ -106,5 +115,46 @@ namespace API.Services.Impl
                 TotalCount = count,
             };
         }
-    }
+
+        public async Task<IEnumerable<WorkScheduleDTO>> GetWorkSchedulesByWeek(int employeeId, DateTime startDate, DateTime endDate)
+        {
+            var workSchedules = await _context.WorkSchedules
+                .Include(ws => ws.Employee)
+                .Where(ws => ws.EmployeeId == employeeId &&
+                (ws.StartDateTime <= endDate && ws.EndDateTime >= startDate))
+                .ToListAsync();
+
+            return _mapper.Map<IEnumerable<WorkScheduleDTO>>(workSchedules);
+        }
+
+		public async Task<IEnumerable<WeekOptionDTO>> GetAvailableWeeks(int employeeId)
+		{
+			var workSchedules = await _context.WorkSchedules.Where(ws => ws.EmployeeId == employeeId).ToListAsync();
+            var workSchedulesDTO = _mapper.Map<IEnumerable<WorkScheduleDTO>>(workSchedules);
+
+			// Chuyển đổi dữ liệu thành dạng yêu cầu
+			var weekOptions = workSchedulesDTO
+				.Select(ws => new WeekOptionDTO
+				{
+					Year = ws.StartDateTime.HasValue ? ws.StartDateTime.Value.Year : 0,
+					WeekNumber = ws.StartDateTime.HasValue ? CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(ws.StartDateTime.Value, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday) : 0,
+					StartDate = ws.StartDateTime.HasValue
+						? new DateTime(ws.StartDateTime.Value.Year, 1, 1)
+							.AddDays(7 * (CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(ws.StartDateTime.Value, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday) - 1))
+						: DateTime.MinValue,
+					EndDate = ws.EndDateTime.HasValue
+						? new DateTime(ws.EndDateTime.Value.Year, 1, 1)
+							.AddDays(7 * (CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(ws.EndDateTime.Value, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday) - 1))
+							.AddDays(6)
+						: DateTime.MinValue
+				})
+				.Distinct()
+				.OrderBy(w => w.Year)
+				.ThenBy(w => w.WeekNumber)
+				.ToList();
+
+			return weekOptions;
+		}
+
+	}
 }

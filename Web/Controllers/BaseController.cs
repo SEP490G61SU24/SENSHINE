@@ -96,13 +96,13 @@ namespace Web.Controllers
 
                 IEnumerable<MenuDTO> menus = await GetMenuByRole(userProfile.RoleId);
                 ViewData["UserMenu"] = menus;
+                ViewData["Token"] = token;
             } else
             {
                 IEnumerable<MenuDTO> menus = new List<MenuDTO>();
                 ViewData["UserMenu"] = menus;
             }
             
-
             await base.OnActionExecutionAsync(context, next);
         }
     }

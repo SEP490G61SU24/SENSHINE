@@ -4,6 +4,7 @@ using API.Models;
 using Microsoft.EntityFrameworkCore;
 using API.Ultils;
 using System.Data;
+using System.Text.RegularExpressions;
 
 namespace API.Services.Impl
 {
@@ -177,16 +178,24 @@ namespace API.Services.Impl
 
         public async Task<bool> CheckAccessAsync(int? roleId, string path)
         {
-            if (roleId == null)
-            {
-                return false;
-            }
+			var rules = await GetRulesByRoleId(roleId ?? 0);
 
-            // Lấy các quyền của vai trò
-            var rules = await GetRulesByRoleId(roleId.Value);
+			foreach (var rule in rules)
+			{
+				if (IsPathMatching(rule.Path, path))
+				{
+					return true;
+				}
+			}
 
-            // Kiểm tra xem path có nằm trong danh sách quyền của vai trò không
-            return rules.Any(rule => rule.Path.Equals(path, StringComparison.OrdinalIgnoreCase));
-        }
-    }
+			return false;
+		}
+
+		private bool IsPathMatching(string rulePath, string requestPath)
+		{
+			var regexPattern = "^" + Regex.Escape(rulePath) + "(/\\d+)?$";
+
+			return Regex.IsMatch(requestPath, regexPattern, RegexOptions.IgnoreCase);
+		}
+	}
 }

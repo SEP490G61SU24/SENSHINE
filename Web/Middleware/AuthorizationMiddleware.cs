@@ -1,4 +1,5 @@
 ﻿using API.Dtos;
+using System.IO;
 using System.Net.Http.Headers;
 
 namespace Web.Middleware
@@ -21,13 +22,19 @@ namespace Web.Middleware
         public async Task InvokeAsync(HttpContext context)
         {
             var token = context.Session.GetString("Token");
+            var path = context.Request.Path.Value;
+
+            if (path.StartsWith("/Auth/Login", StringComparison.OrdinalIgnoreCase) || path.StartsWith("/public", StringComparison.OrdinalIgnoreCase))
+            {
+                await _next(context);
+                return;
+            }
 
             if (!string.IsNullOrEmpty(token))
             {
                 var userProfile = await GetUserProfileAsync(token);
                 if (userProfile != null)
                 {
-                    var path = context.Request.Path.Value;
                     var hasAccess = await CheckAccessAsync(userProfile.RoleId, path);
 
                     if (!hasAccess)
@@ -40,13 +47,15 @@ namespace Web.Middleware
                 }
                 else
                 {
-                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    //context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    context.Response.Redirect("/Auth/Login");
                     return;
                 }
             }
             else
             {
-                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                //context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.Redirect("/Auth/Login");
                 return;
             }
 
