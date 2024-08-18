@@ -39,6 +39,27 @@
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 </head>
 <body>
+    <div class="toast-container position-fixed top-0 end-0 p-3 toast-index toast-rtl">
+        @if (ViewData["Error"] != null)
+        {
+            <div class="toast fade show" id="errorToast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex justify-content-between alert-secondary">
+                    <div class="toast-body">@ViewData["Error"]</div>
+                    <button class="btn-close btn-close-white me-2 m-auto" type="button" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        }
+        else if (ViewData["SuccessMsg"] != null)
+        {
+            <div class="toast fade hide" id="successToast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex justify-content-between alert-primary">
+                    <div class="toast-body">@ViewData["SuccessMsg"]</div>
+                    <button class="btn-close btn-close-white me-2 m-auto" type="button" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        }
+    </div>
+
     <!-- login page start-->
     <div class="container-fluid p-0">
         <div class="row m-0">
@@ -50,8 +71,8 @@
                                 <h4>Đăng nhập vào hệ thống</h4>
                                 <p>Nhập tài khoản và mật khẩu để đăng nhập!</p>
                                 <div class="form-group">
-                                    <label class="col-form-label">Tài khoản</label>
-                                    <input asp-for="UserName" class="form-control" type="text" name="username" required="" placeholder="Tên tài khoản">
+                                    <label class="col-form-label">Tài khoản hoặc Số điện thoại</label>
+                                    <input asp-for="UserName" class="form-control" type="text" name="username" required="" placeholder="Tên tài khoản hoặc số điện thoại">
                                 </div>
                                 <div class="form-group">
                                     <label class="col-form-label">Mật khẩu </label>

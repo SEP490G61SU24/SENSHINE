@@ -17,5 +17,6 @@ namespace API.Services
         Task<IEnumerable<UserDTO>> GetUsersByRole(int roleId);
         Task<PaginatedList<UserDTO>> GetUsersByRoleWithPage(int roleId, int pageIndex, int pageSize, string searchTerm);
         Task<string> GetAddress(string wardCode, string districtCode, string provinceCode);
-    }
+        Task<bool> ChangePassword(string userName, string currentPassword, string newPassword, bool userChange);
+	}
 }

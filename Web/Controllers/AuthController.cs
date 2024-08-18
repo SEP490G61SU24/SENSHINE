@@ -2,16 +2,18 @@
 using System.Text;
 using System.Text.Json;
 using Web.Models;
+using API.Dtos;
 
 namespace Web.Controllers
 {
-    public class AuthController : Controller
-    {
+    public class AuthController : BaseController
+	{
         private readonly IConfiguration _configuration;
         private readonly IHttpClientFactory _clientFactory;
         private readonly ILogger<AuthController> _logger;
         public AuthController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<AuthController> logger)
-        {
+			: base(configuration, clientFactory, logger)
+		{
             _configuration = configuration;
             _clientFactory = clientFactory;
             _logger = logger;
@@ -20,7 +22,12 @@ namespace Web.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            return View();
+			UserDTO userProfile = ViewData["UserProfile"] as UserDTO;
+			if (userProfile != null)
+			{
+				return RedirectToAction("Index", "User");
+			}
+			return View();
         }
 
         [HttpPost]
@@ -39,7 +46,7 @@ namespace Web.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     var responseString = await response.Content.ReadAsStringAsync();
-                    var loginResponse = JsonSerializer.Deserialize<LoginResponse>(responseString);
+                    var loginResponse = JsonSerializer.Deserialize<LoginResponseModel>(responseString);
 
                     // Lưu trữ token vào Session
                     HttpContext.Session.SetString("Token", loginResponse.token);
@@ -51,11 +58,12 @@ namespace Web.Controllers
                         Expires = DateTimeOffset.UtcNow.AddHours(24) // Thời gian hết hạn của cookie
                     });
 
+					ViewData["SuccessMsg"] = "Đăng nhập thành công!";
                     return RedirectToAction("Index", "User");
                 }
                 else
                 {
-                    ViewData["Error"] = "Invalid username or password";
+                    ViewData["Error"] = "Tài khoản hoặc mật khẩu không chính xác!";
                     return View();
                 }
             }
@@ -66,12 +74,74 @@ namespace Web.Controllers
                 return View();
             }
         }
-    }
 
-    public class LoginResponse
-    {
-        public int id { get; set; }
-        public string username { get; set; }
-        public string token { get; set; }
-    }
+		[HttpGet]
+		public IActionResult ChangePass()
+		{
+			UserDTO userProfile = ViewData["UserProfile"] as UserDTO;
+			if(userProfile == null)
+            {
+				return RedirectToAction("Login", "Auth");
+			}
+			return View();
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> ChangePass(ChangePasswordDTO model)
+		{
+			try
+			{
+				UserDTO userProfile = ViewData["UserProfile"] as UserDTO;
+			    if (userProfile == null)
+			    {
+				    return RedirectToAction("Login", "Auth");
+			    }
+
+                if (string.IsNullOrEmpty(model.OldPassword) || string.IsNullOrEmpty(model.NewPassword) || string.IsNullOrEmpty(model.RePassword))
+                {
+				    ViewData["Error"] = "Vui lòng điền đủ thông tin!";
+				    return View(model);
+			    }
+
+                if(model.NewPassword != model.RePassword)
+                {
+				    ViewData["Error"] = "Mật khẩu nhập lại không khớp!";
+				    return View(model);
+			    }
+
+			    var apiUrl = _configuration["ApiUrl"];
+			    using var client = _clientFactory.CreateClient();
+
+				var data = new ChangePasswordDTO
+				{
+			        UserName = userProfile.UserName,
+					OldPassword = model.OldPassword,
+					NewPassword = model.NewPassword,
+		        };
+
+				var json = JsonSerializer.Serialize(data);
+			    var content = new StringContent(json, Encoding.UTF8, "application/json");
+			    var response = await client.PostAsync($"{apiUrl}/auth/changepass", content);
+
+			    if (response.IsSuccessStatusCode)
+			    {
+				    ViewData["SuccessMsg"] = "Đổi mật khẩu thành công!";
+				    return RedirectToAction("Index", "User");
+			    }
+			    else
+			    {
+				    var responseString = await response.Content.ReadAsStringAsync();
+				    ViewData["Error"] = responseString;
+				    return View(model);
+			    }
+		    }
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error during work schedule creation");
+				ViewData["Error"] = "An error occurred";
+				return View("Error");
+			}
+		}
+
+	}
 }
