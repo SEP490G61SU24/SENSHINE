@@ -1,5 +1,6 @@
 ﻿using API.Dtos;
 using API.Models;
+using API.Ultils;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -60,7 +61,7 @@ namespace API.Services.Impl
             return _mapper.Map<PromotionDTORespond>(promotion);
         }
 
-        public async Task<IEnumerable<PromotionDTORespond>> GetPromotionsByFilter(string spaLocation, DateTime? startDate, DateTime? endDate)
+        public async Task<IEnumerable<PromotionDTORespond>> GetPromotionsByFilter(string spaLocation, DateTime? startDate = null, DateTime? endDate = null)
         {
             var query = _context.Promotions.Include(x => x.Spa).AsQueryable();
 
@@ -105,7 +106,48 @@ namespace API.Services.Impl
             return true;
         }
 
-        
+        public async Task<PaginatedList<PromotionDTORespond>> GetPromotionListBySpaId(int? spaId =null,int pageIndex = 1, int pageSize = 10, string searchTerm = null, DateTime? startDate = null,DateTime? endDate = null)
+        {
+            // Tạo query cơ bản
+            IQueryable<Promotion> query = _context.Promotions.Include(x=>x.Spa).AsQueryable();
+
+            if (startDate.HasValue)
+            {
+                query = query.Where(x => x.StartDate >= startDate);
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(x => x.EndDate <= endDate);
+            }
+            if (spaId.HasValue)
+            {
+                query = query.Where(x => x.SpaId == spaId);
+            }
+            // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(u => u.Description.Contains(searchTerm) ||
+                                         u.PromotionName.Contains(searchTerm) );
+            }
+
+            // Đếm tổng số bản ghi để tính tổng số trang
+            var count = await query.CountAsync();
+
+            // Lấy danh sách với phân trang
+            var news = await query.Skip((pageIndex - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync();
+            var newsDtos = _mapper.Map<IEnumerable<PromotionDTORespond>>(news);
+
+            return new PaginatedList<PromotionDTORespond>
+            {
+                Items = newsDtos,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = count,
+            };
+        }
 
 
 
