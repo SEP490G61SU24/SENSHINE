@@ -114,7 +114,7 @@ namespace Web.Controllers
             var client = _clientFactory.CreateClient();
             var use = await LoadUserAsync();
             List<CategoryViewModel> categoryList = await LoadCategoriesAsync();
-            spaId = 1;
+            spaId = use.SpaId;
             var urlBuilder = new StringBuilder($"{apiUrl}/GetProductsPaging?");
 
             if (spaId != null)

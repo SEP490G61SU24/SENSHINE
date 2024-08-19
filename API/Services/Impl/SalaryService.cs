@@ -1,5 +1,7 @@
 ﻿using API.Dtos;
 using API.Models;
+using API.Ultils;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -8,10 +10,12 @@ namespace API.Services.Impl
     public class SalaryService : ISalaryService
     {
         private readonly SenShineSpaContext _context;
+        private readonly IMapper _mapper;
 
-        public SalaryService(SenShineSpaContext context)
+        public SalaryService(SenShineSpaContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<Salary> CreateSalary(Salary salary)
@@ -43,7 +47,7 @@ namespace API.Services.Impl
             }
         }
 
-        public ICollection<Salary> GetSalaries()
+        public List<Salary> GetAllSalaries()
         {
             try
             {
@@ -73,7 +77,7 @@ namespace API.Services.Impl
         {
             try
             {
-                var salaries = GetSalaries();
+                var salaries = GetAllSalaries();
                 return salaries.FirstOrDefault(b => b.Id == id);
             }
             catch (Exception ex)
@@ -140,6 +144,38 @@ namespace API.Services.Impl
                 // Handle or log the exception as needed
                 throw new Exception($"Error checking existence of salary with ID {id}.", ex);
             }
+        }
+
+        public async Task<PaginatedList<SalaryDTO>> GetSalaries(int pageIndex, int pageSize, string searchTerm)
+        {
+            // Tạo query cơ bản
+            IQueryable<Salary> query = _context.Salaries.Include(e => e.Employee);
+
+            // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(s => s.Employee.FirstName.Contains(searchTerm) ||
+                                         s.Employee.MidName.Contains(searchTerm) ||
+                                         s.Employee.LastName.Contains(searchTerm) ||
+                                         s.Employee.Phone.Contains(searchTerm));
+            }
+
+            // Đếm tổng số bản ghi để tính tổng số trang
+            var count = await query.CountAsync();
+
+            // Lấy danh sách với phân trang
+            var salaries = await query.Skip((pageIndex - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync();
+            var salariesDtos = _mapper.Map<IEnumerable<SalaryDTO>>(salaries);
+
+            return new PaginatedList<SalaryDTO>
+            {
+                Items = salariesDtos,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = count,
+            };
         }
     }
 }
