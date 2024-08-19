@@ -113,11 +113,13 @@ namespace API.Models
                 entity.ToTable("Appointment");
 
                 entity.Property(e => e.Id).HasColumnName("id");
-
-                // Change AppointmentDate type to nvarchar
-                entity.Property(e => e.AppointmentDate)
+                entity.Property(e => e.AppointmentDate).HasColumnType("datetime");
+                // Change AppointmentSlot type to nvarchar
+                entity.Property(e => e.AppointmentSlot)
                     .IsRequired()
-                    .HasColumnType("nvarchar(max)");
+                    .HasMaxLength(15)
+                    .HasDefaultValueSql("('SLOT1')")
+                    .HasColumnType("nvarchar");
 
                 // Add RoomName and BedNumber properties
                 entity.Property(e => e.RoomName)
@@ -473,6 +475,14 @@ namespace API.Models
                 entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.ProductName).HasMaxLength(100);
+                entity.Property(e => e.SpaId)
+               .HasColumnName("SpaId");
+
+                entity.HasOne(d => d.Spas)
+                    .WithMany(p => p.Products)
+                    .HasForeignKey(d => d.SpaId)
+                    .OnDelete(DeleteBehavior.ClientSetNull) 
+                    .HasConstraintName("FK_Product_Spa");
 
                 entity.HasMany(d => d.Categories)
                     .WithMany(p => p.Products)

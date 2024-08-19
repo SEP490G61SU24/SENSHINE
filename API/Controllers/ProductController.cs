@@ -1,6 +1,7 @@
 ﻿using API.Dtos;
 using API.Models;
 using API.Services;
+using API.Services.Impl;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -237,6 +238,28 @@ namespace API.Controllers
             }
 
             return NoContent();
+        }
+        [HttpGet("GetProductsPaging")]
+        public async Task<IActionResult> GetAllProductsPaging([FromQuery] int? spaId=null,[FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null,[FromQuery]string? categoryName = null,[FromQuery] string? quantityRange = null,[FromQuery] string? priceRange = null)
+        {
+            try
+            {
+                if (pageIndex < 1 || pageSize < 1)
+                {
+                    return BadRequest("Chỉ số trang hoặc kích thước trang không hợp lệ.");
+                }
+
+                var pageData = await _productService.GetProductList(spaId,pageIndex, pageSize, searchTerm, categoryName,quantityRange,priceRange);
+                return Ok(pageData);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
     }
 

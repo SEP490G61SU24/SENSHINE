@@ -1,5 +1,4 @@
-﻿@model IEnumerable<API.Dtos.InvoiceDTO>
-
+﻿@model API.Ultils.PaginatedList<API.Dtos.InvoiceDTO>
 @{
     ViewData["Title"] = "Danh sách hóa đơn";
     ViewData["ActionName"] = "Thêm hóa đơn";
@@ -51,6 +50,43 @@
             </div>
         </div>
         <div class="table-responsive custom-scrollbar">
+            <div class="table-responsive custom-scrollbar">
+                <div class="search-page">
+                    <form class="theme-form mb-3" method="GET">
+                        <div class="dataTables_length" id="table_length">
+                            <label>
+                                Hiển thị
+                                <select aria-controls="table" class="" asp-for="PageSize" name="PageSize" id="PageSize" onchange="this.form.submit()">
+                                    @foreach (var pSize in new List<(int Value, string Name)>
+                                    {
+                                    (Value: 5, Name: "5"),
+                                    (Value: 10, Name: "10"),
+                                    (Value: 25, Name: "25"),
+                                    (Value: 50, Name: "50"),
+                                    (Value: 100, Name: "100"),
+                                    })
+                                    {
+                                        <option value="@pSize.Value" selected="@(pSize.Value == Model.PageSize ? "selected" : null)">@pSize.Name</option>
+                                    }
+                                </select>
+                                bản ghi
+                            </label>
+                        </div>
+                        <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3 mt-3">
+                            <div class="col">
+                                <label for="fromDate" class="form-label">Từ Ngày</label>
+                                <input type="date" id="fromDate" class="form-control" aria-label="Từ Ngày" onchange="fetchNewsByDate()">
+                            </div>
+                            <div class="col">
+                                <label for="toDate" class="form-label">Đến Ngày</label>
+                                <input type="date" id="toDate" class="form-control" aria-label="Đến Ngày" onchange="fetchNewsByDate()">
+                            </div>
+                        </div>
+                        <div class="input-group m-0 flex-nowrap">
+                            <input class="form-control-plaintext" name="searchTerm" type="search" value="@(Model.SearchTerm ?? null)" placeholder="Nhập tên, số điện thoại ..."><button class="btn btn-primary input-group-text">Tìm kiếm</button>
+                        </div>
+                    </form>
+                </div>
             <table class="display" id="invoice-table">
                 <thead>
                     <tr>
@@ -65,11 +101,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model)
+                    @foreach (var item in Model.Items)
                     {
                         <tr>
                             <td>@item.Id</td>
-                            <td>@item.Amount</td>
+                            <td>@String.Format("{0:0,0} VND", @item.Amount)</td>
                             <td>@item.InvoiceDate.ToString("dd/MM/yyyy")</td>
                             <td>@item.CustomerName</td>
                             <td>@item.PromotionName</td>
@@ -86,10 +122,33 @@
                     }
                 </tbody>
             </table>
+                <div class="dataTables_wrapper no-footer">
+                    <div class="dataTables_paginate paging_simple_numbers" id="table_paginate">
+                        <a class="paginate_button previous @(Model.HasPreviousPage ? "" : "disabled")"
+                           aria-controls="table"
+                           href="@(Model.HasPreviousPage ? $"?searchTerm={Model.SearchTerm}&pageIndex={Model.PageIndex - 1}&pageSize={Model.PageSize}" : "javascript:void(0);")"
+                           id="table_previous">« Trước</a>
+
+                        <span>
+                            @for (int i = 1; i <= Model.TotalPages; i++)
+                            {
+                                <a class="@(i == Model.PageIndex ? "paginate_button current" : "paginate_button")"
+                                   aria-controls="table"
+                                   href="?searchTerm=@Model.SearchTerm&pageIndex=@i&pageSize=@Model.PageSize"
+                                   data-dt-idx="@i">@i</a>
+                            }
+                        </span>
+
+                        <a class="paginate_button next @(Model.HasNextPage ? "" : "disabled")"
+                           aria-controls="table"
+                           href="@(Model.HasNextPage ? $"?searchTerm={Model.SearchTerm}&pageIndex={Model.PageIndex + 1}&pageSize={Model.PageSize}" : "javascript:void(0);")"
+                           id="table_next">Tiếp »</a>
+                    </div>
+                </div>
         </div>
     </div>
 </div>
-
+</div>
 @section Scripts {
     <script src="~/assets/js/jquery.min.js"></script>
     <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
@@ -113,62 +172,7 @@
             var invoiceTable = $('#invoice-table').DataTable({
                 paging: false,
                 searching: false,
-                columns: [
-                    { data: 'id' },
-                    { data: 'amount' },
-                    {
-                        data: 'invoiceDate',
-                        render: function (data) {
-                            var date = new Date(data);
-                            if (isNaN(date.getTime())) {
-                                return data;
-                            }
-                            var day = ('0' + date.getDate()).slice(-2);
-                            var month = ('0' + (date.getMonth() + 1)).slice(-2);
-                            var year = date.getFullYear();
-                            return `${day}-${month}-${year}`;
-                        }
-                    },                   
-                    { data: 'customerName' },
-                    { data: 'promotionName' },
-                    { data: 'spaName' },
-                    { data: 'status' },
-                    {
-                        data: null,
-                        render: function (data, type, row) {
-                            return `
-                                        <ul class="action">
-                                            <li class="edit"><a href="/invoice/edit/${row.id}"><i class="icon-pencil-alt"></i></a></li>
-                                                    <li class="payment"><a href="/invoice/payment/${row.id}"><i class="icon-eye"></i></a></li>
-                                            <li class="delete"><a href="#" onclick="confirmDelete(${row.id})"><i class="icon-trash"></i></a></li>
-                                        </ul>
-                                    `;
-                        }
-                    }
-                ]
-            });
-
-            function fetchInvoiceByDate() {
-                var fromDate = $('#fromDate').val();
-                var toDate = $('#toDate').val();
-
-                if (fromDate && toDate) {
-                    $.ajax({
-                        url: `http://localhost:5297/api/GetInvoiceByDate?from=${fromDate}&to=${toDate}`,
-                        type: 'GET',
-                        success: function (response) {
-                            invoiceTable.clear();
-                            invoiceTable.rows.add(response).draw();
-                        },
-                        error: function (xhr, status, error) {
-                            console.error("Failed to fetch invoices:", error);
-                        }
-                    });
-                }
-            }
-
-            $('#fromDate, #toDate').on('change', function () {
-                fetchInvoiceByDate();
+               
             });
         });
 
