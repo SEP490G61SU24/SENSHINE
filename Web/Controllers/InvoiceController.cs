@@ -72,7 +72,7 @@ namespace Web.Controllers
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
             var use = await LoadUserAsync();
-            idspa = 1;
+            idspa =  use.SpaId;
             var urlBuilder = new StringBuilder($"{apiUrl}/GetInvoicesPaging?");
 
             if (idspa != null)
