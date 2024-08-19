@@ -29,58 +29,6 @@
 
 <div class="card">
     <div class="card-body">
-        <div class="list-promotion-header">
-            <div>
-                <div class="light-box">
-                    <a data-bs-toggle="collapse" href="#collapsePromotion" role="button" aria-expanded="false" aria-controls="collapsePromotion">
-                        <i class="filter-icon show" data-feather="filter"></i><i class="icon-close filter-close hide"></i>
-                    </a>
-                </div>
-            </div>
-            <div class="collapse" id="collapsePromotion">
-                <div class="card card-body list-promotion-body">
-                    <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3">
-                        <div class="col">
-                            <label for="categoryname" class="form-label">Select Category</label>
-                            <select id="categoryname" class="form-select" aria-label="Select Category" onchange="fetchProductsByFilters()">
-                                <option selected disabled>All Category</option>
-                                @if (categories != null)
-                                {
-                                    foreach (var category in categories)
-                                    {
-                                        <option value="@category.CategoryName">@category.CategoryName</option>
-                                    }
-                                }
-                            </select>
-                        </div>
-                        <div class="col">
-                            <label for="quantity" class="form-label">Quantity Range</label>
-                            <select id="quantity" class="form-select" aria-label="Select Quantity Range" onchange="fetchProductsByFilters()">
-                                <option value="" selected disabled>Select Quantity Range</option>
-                                <option value="0-10">&lt;10</option>
-                                <option value="0-100">&lt;100</option>
-                                <option value="0-500">&lt;500</option>
-                                <option value="0-1000">&lt;1000</option>
-                                <option value="1000-9999">&gt; 1000</option>
-                                <option value="0-99999">All</option>
-                            </select>
-                        </div>
-                        <div class="col">
-                            <label for="price" class="form-label">Price Range</label>
-                            <select id="price" class="form-select" aria-label="Select Price Range" onchange="fetchProductsByFilters()">
-                                <option value="" selected disabled>Select Price Range</option>
-                                <option value="0-100">&lt;100</option>
-                                <option value="0-500">&lt;500</option>
-                                <option value="0-1000">&lt;1000</option>
-                                <option value="1000-9999">&gt; 1000</option>
-                                <option value="0-99999">All</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="table-responsive custom-scrollbar">
             <div class="search-page">
                 <form class="theme-form mb-3" method="GET">
@@ -105,12 +53,43 @@
                     </div>
                     <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3 mt-3">
                         <div class="col">
-                            <label for="fromDate" class="form-label">Từ Ngày</label>
-                            <input type="date" id="fromDate" class="form-control" aria-label="Từ Ngày" onchange="fetchNewsByDate()">
+                            <label for="categoryname" class="form-label">Select Category</label>
+                            <select id="categoryname" name="categoryName" class="form-select" aria-label="Select Category" onchange="updateCategoryHiddenInput()">
+                                <option selected disabled>All Category</option>
+                                @if (categories != null)
+                                {
+                                    foreach (var category in categories)
+                                    {
+                                        <option value="@category.CategoryName">@category.CategoryName</option>
+                                    }
+                                }
+                            </select>
+                            <input type="hidden" id="hiddenCategoryName"  value="@Model.CategoryName" />
                         </div>
                         <div class="col">
-                            <label for="toDate" class="form-label">Đến Ngày</label>
-                            <input type="date" id="toDate" class="form-control" aria-label="Đến Ngày" onchange="fetchNewsByDate()">
+                            <label for="quantityRange" class="form-label">Quantity Range</label>
+                            <select id="quantityRange" name="quantityRange" class="form-select" aria-label="Select Quantity Range" onchange="updateQuantityHiddenInput()">
+                                <option value="" selected disabled>Select Quantity Range</option>
+                                <option value="0-10">&lt;10</option>
+                                <option value="0-100">&lt;100</option>
+                                <option value="0-500">&lt;500</option>
+                                <option value="0-1000">&lt;1000</option>
+                                <option value="1000-9999">&gt; 1000</option>
+                                <option value="0-99999">All</option>
+                            </select>
+                            <input type="hidden" id="hiddenQuantityRange" value="@Model.QuantityRange"/>
+                        </div>
+                        <div class="col">
+                            <label for="priceRange" class="form-label">Price Range</label>
+                            <select id="priceRange" name="priceRange" class="form-select" aria-label="Select Price Range" onchange="updatePriceHiddenInput()">
+                                <option value="" selected disabled>Select Price Range</option>
+                                <option value="0-100">&lt;100</option>
+                                <option value="0-500">&lt;500</option>
+                                <option value="0-1000">&lt;1000</option>
+                                <option value="1000-9999">&gt; 1000</option>
+                                <option value="0-99999">All</option>
+                            </select>
+                            <input type="hidden" id="hiddenPriceRange"  value="@Model.PriceRange" />
                         </div>
                     </div>
                     <div class="input-group m-0 flex-nowrap">
@@ -124,6 +103,7 @@
                         <th>ID</th>
                         <th>Hình ảnh</th>
                         <th>Tên sản phẩm</th>
+                        <th>Thể loại</th>
                         <th>Giá</th>
                         <th>Số lượng</th>
                         <th>Hành động</th>
@@ -138,6 +118,9 @@
                                 <img src="@Url.Content(item.ProductImages.Select(x => x.ImageUrl).FirstOrDefault() ?? "~/assets/images/Logo Senshine.png")" alt="Cover Image" style="width: 130px; height: 100px;" />
                             </td>
                             <td>@item.ProductName</td>
+                            <td>
+                                @string.Join(", ", item.Categories.Select(c => c.CategoryName))
+                            </td>
                             <td>@String.Format("{0:0,0} VND", @item.Price)</td>
                             <td>@item.Quantity</td>
                             <td>
@@ -248,7 +231,20 @@
                 }
             });
         }
-       
-      
+        function updateHiddenInput() {
+            var selectElement = document.getElementById('quantityRange');
+            var hiddenInput = document.getElementById('hiddenQuantityRange');
+            hiddenInput.value = selectElement.value;
+        }
+        function updatePriceHiddenInput() {
+            var selectElement = document.getElementById('priceRange');
+            var hiddenInput = document.getElementById('hiddenPriceRange');
+            hiddenInput.value = selectElement.value;
+        }
+        function updateCategoryHiddenInput() {
+            var selectElement = document.getElementById('categoryname');
+            var hiddenInput = document.getElementById('hiddenCategoryName');
+            hiddenInput.value = selectElement.value;
+        }
     </script>
 }

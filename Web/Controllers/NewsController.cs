@@ -25,11 +25,26 @@ namespace Web.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> NewsList(int pageIndex = 1, int pageSize = 10, string searchTerm = null)
+        public async Task<IActionResult> NewsList(int pageIndex = 1, int pageSize = 10, string searchTerm = null, DateTime? startDate = null, DateTime? endDate = null)
         {
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
-            var url = $"{apiUrl}/GetNewsPaging?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}";
+            var urlBuilder = new StringBuilder($"{apiUrl}/GetNewsPaging?");
+            if (startDate != null)
+            {
+                urlBuilder.Append($"startDate={startDate}&");
+            }
+
+            if (endDate != null)
+            {
+                urlBuilder.Append($"endDate={endDate}&");
+            }
+
+            urlBuilder.Append($"pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}");
+
+            // Remove the trailing '&' if it exists
+            var url = urlBuilder.ToString().TrimEnd('&');
+
             HttpResponseMessage response = await client.GetAsync(url);
             
 

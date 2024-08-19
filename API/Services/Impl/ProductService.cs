@@ -226,9 +226,9 @@ namespace API.Services.Impl
             {
                 query = query.Where(u => u.ProductName.Contains(searchTerm));
             }
-            if (!string.IsNullOrEmpty(searchTerm))
+            if (!string.IsNullOrEmpty(categoryName))
             {
-                query = query.Where(u => u.Categories.Any(x=>x.CategoryName.Contains(categoryName)));
+                query = query.Where(u => u.Categories.Any(x => x.CategoryName.Equals(categoryName)));
             }
             // Đếm tổng số bản ghi để tính tổng số trang
             var count = await query.CountAsync();

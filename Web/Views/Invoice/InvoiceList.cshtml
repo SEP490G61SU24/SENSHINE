@@ -26,29 +26,6 @@
 
 <div class="card">
     <div class="card-body">
-        <div class="list-promotion-header">
-            <div>
-                <div class="light-box">
-                    <a data-bs-toggle="collapse" href="#collapsePromotion" role="button" aria-expanded="false" aria-controls="collapsePromotion">
-                        <i class="filter-icon show" data-feather="filter"></i><i class="icon-close filter-close hide"></i>
-                    </a>
-                </div>
-            </div>
-            <div class="collapse" id="collapsePromotion">
-                <div class="card card-body list-promotion-body">
-                    <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3 mt-3">
-                        <div class="col">
-                            <label for="fromDate" class="form-label">From Date</label>
-                            <input type="date" id="fromDate" class="form-control" aria-label="From Date" onchange="fetchInvoiceByDate()">
-                        </div>
-                        <div class="col">
-                            <label for="toDate" class="form-label">To Date</label>
-                            <input type="date" id="toDate" class="form-control" aria-label="To Date" onchange="fetchInvoiceByDate()">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
         <div class="table-responsive custom-scrollbar">
             <div class="table-responsive custom-scrollbar">
                 <div class="search-page">
@@ -74,12 +51,22 @@
                         </div>
                         <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3 mt-3">
                             <div class="col">
-                                <label for="fromDate" class="form-label">Từ Ngày</label>
-                                <input type="date" id="fromDate" class="form-control" aria-label="Từ Ngày" onchange="fetchNewsByDate()">
-                            </div>
+                            <label for="fromDate" class="form-label">Từ Ngày</label>
+                            <input type="date" id="startDate" class="form-control" name="startDate" value="@Model.StartDate?.ToString("MM-dd-yyyy")">
+                        </div>
+                        <div class="col">
+                            <label for="toDate" class="form-label">Đến Ngày</label>
+                            <input type="date" id="endDate" class="form-control" name="endDate" value="@Model.EndDate?.ToString("MM-dd-yyyy")">
+                        </div>
                             <div class="col">
-                                <label for="toDate" class="form-label">Đến Ngày</label>
-                                <input type="date" id="toDate" class="form-control" aria-label="Đến Ngày" onchange="fetchNewsByDate()">
+                            <label class="form-label" for="Status">Trạng Thái</label>
+                                <select class="form-select" name="Status" id="status" required onchange="updateStatusHiddenInput()">
+                                <option selected disabled value="">Chọn trạng thái...</option>
+                                <option value="Pending">Đang chờ</option>
+                                <option value="Paid">Đã thanh toán</option>
+                                <option value="Cancelled">Đã hủy</option>
+                            </select>
+                                <input type="hidden" id="hiddenStatus" value="@Model.Status" />
                             </div>
                         </div>
                         <div class="input-group m-0 flex-nowrap">
@@ -216,6 +203,11 @@
                     swal("Đã hủy", "Dữ liệu của bạn không thay đổi.", "info");
                 }
             });
+        }
+        function updateStatusHiddenInput() {
+            var selectElement = document.getElementById('status');
+            var hiddenInput = document.getElementById('hiddenStatus');
+            hiddenInput.value = selectElement.value;
         }
     </script>
 }

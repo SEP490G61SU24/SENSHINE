@@ -4,6 +4,20 @@
     ViewData["Title"] = "Payment";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@{
+    string displayStatus = Model.Status;
+
+    
+    if (Model.Status == "Paid")
+    {
+        displayStatus = "Đã thanh toán";
+    }
+    else if (Model.Status == "Pending")
+    {
+        displayStatus = "Chờ xử lý";
+    }
+   
+}
 
 @section Styles {
     <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
@@ -56,12 +70,12 @@
                     </td>
 
                     <td style="padding: 15px 25px;">
-                        <p style="font-size:16px; font-weight:500; opacity:0.8; margin:0; line-height: 2;">Invoice No :</p>
+                        <p style="font-size:16px; font-weight:500; opacity:0.8; margin:0; line-height: 2;">Mã hóa đơn :</p>
                         <span style="font-size: 18px; font-weight: 600;">@Model.Id</span>
                     </td>
                     <td style="padding: 15px 25px;">
                         <p style="font-size:16px; font-weight:500; opacity:0.8; margin:0; line-height: 2;">Trạng thái :</p>
-                        <span style="font-size: 18px; font-weight: 600;">@Model.Status</span>
+                        <span style="font-size: 18px; font-weight: 600;">@displayStatus</span>
                     </td>
                     
                 </tr>

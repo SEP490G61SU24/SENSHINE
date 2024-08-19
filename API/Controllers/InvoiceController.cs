@@ -261,5 +261,21 @@ namespace API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
+        [HttpGet("revenue-report")]
+        public async Task<IActionResult> GetRevenueReport(DateTime startDate, DateTime endDate)
+        {
+            var reports = await _dbContext.Invoices
+                .Where(i => i.InvoiceDate >= startDate && i.InvoiceDate <= endDate)
+                .GroupBy(i => new { i.InvoiceDate.Year, i.InvoiceDate.Month, i.InvoiceDate.Day })
+                .Select(g => new RevenueReport
+                {
+                    Date = new DateTime(g.Key.Year, g.Key.Month, g.Key.Day),
+                    TotalRevenue = g.Sum(i => i.Amount) ?? 0,
+                    
+                })
+                .ToListAsync();
+
+            return Ok(reports);
+        }
     }
 }

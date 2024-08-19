@@ -124,16 +124,16 @@ namespace Web.Controllers
 
             if (categoryName != null)
             {
-                urlBuilder.Append($"startDate={categoryName}&");
+                urlBuilder.Append($"categoryName={categoryName}&");
             }
 
             if (quantityRange != null)
             {
-                urlBuilder.Append($"endDate={quantityRange}&");
+                urlBuilder.Append($"quantityRange={quantityRange}&");
             }
             if (priceRange != null)
             {
-                urlBuilder.Append($"endDate={priceRange}&");
+                urlBuilder.Append($"priceRange={priceRange}&");
             }
             urlBuilder.Append($"pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}");
 

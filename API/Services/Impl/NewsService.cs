@@ -94,11 +94,20 @@ namespace API.Services.Impl
 
             return true;
         }
-        public async Task<PaginatedList<NewsDTO>> GetNews(int pageIndex = 1, int pageSize = 10, string searchTerm = null)
+        public async Task<PaginatedList<NewsDTO>> GetNews(int pageIndex = 1, int pageSize = 10, string searchTerm = null, DateTime? startDate = null, DateTime? endDate = null)
         {
             // Tạo query cơ bản
-            IQueryable<News> query = _context.News;
+            IQueryable<News> query = _context.News.AsQueryable();
 
+            if (startDate.HasValue)
+            {
+                query = query.Where(x => x.PublishedDate >= startDate);
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(x => x.PublishedDate <= endDate);
+            }
 
             // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
             if (!string.IsNullOrEmpty(searchTerm))
