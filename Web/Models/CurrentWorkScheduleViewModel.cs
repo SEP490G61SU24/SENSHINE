@@ -4,13 +4,22 @@ namespace Web.Models
 {
     public class CurrentWorkScheduleViewModel
     {
+        public IEnumerable<int> AvailableYears { get; set; }
+        public int SelectedYear { get; set; }
         public IEnumerable<WeekOptionDTO> AvailableWeeks { get; set; }
         public int SelectedWeek { get; set; }
         public IEnumerable<WorkScheduleDTO> WorkSchedules { get; set; }
-        public List<string> TimeSlots { get; set; } = new List<string>
-        {
-			"07:00 - 08:00 AM", "08:00 - 09:00 AM", "09:00 - 10:00 AM", "10:00 - 11:00 AM",
-			 "02:00 - 03:00 PM", "03:00 - 04:00 PM", "04:00 - 05:00 PM", "05:00 - 06:00 PM"
+		public Dictionary<string, TimeSlotModel> TimeSlots { get; set; } = new Dictionary<string, TimeSlotModel>
+		{
+			{ "Slot 1", new TimeSlotModel { StartTime = new TimeSpan(8, 30, 0), EndTime = new TimeSpan(10, 0, 0), Period = "Sáng" } },
+			{ "Slot 2", new TimeSlotModel { StartTime = new TimeSpan(10, 0, 0), EndTime = new TimeSpan(11, 30, 0), Period = "Trưa" } },
+			{ "Slot 3", new TimeSlotModel { StartTime = new TimeSpan(11, 30, 0), EndTime = new TimeSpan(13, 0, 0), Period = "Trưa" } },
+			{ "Slot 4", new TimeSlotModel { StartTime = new TimeSpan(13, 0, 0), EndTime = new TimeSpan(14, 30, 0), Period = "Chiều" } },
+			{ "Slot 5", new TimeSlotModel { StartTime = new TimeSpan(14, 30, 0), EndTime = new TimeSpan(16, 0, 0), Period = "Chiều" } },
+			{ "Slot 6", new TimeSlotModel { StartTime = new TimeSpan(16, 0, 0), EndTime = new TimeSpan(17, 30, 0), Period = "Chiều" } },
+			{ "Slot 7", new TimeSlotModel { StartTime = new TimeSpan(17, 30, 0), EndTime = new TimeSpan(19, 0, 0), Period = "Tối" } },
+			{ "Slot 8", new TimeSlotModel { StartTime = new TimeSpan(19, 0, 0), EndTime = new TimeSpan(20, 30, 0), Period = "Tối" } },
+			{ "Slot 9", new TimeSlotModel { StartTime = new TimeSpan(20, 30, 0), EndTime = new TimeSpan(22, 0, 0), Period = "Tối" } }
 		};
-    }
+	}
 }

@@ -43,8 +43,8 @@ namespace API.Controllers
             }
         }
 
-		[HttpGet("weeks")]
-		public async Task<IActionResult> GetAvailableWeeks([FromQuery] string employeeId)
+		[HttpGet("years")]
+		public async Task<IActionResult> GetAvailableYears([FromQuery] string employeeId)
 		{
 			try
 			{
@@ -53,7 +53,30 @@ namespace API.Controllers
 					return BadRequest("ID nhân viên bắt buộc!");
 				}
 
-				var weeks = await _workScheduleService.GetAvailableWeeks(int.Parse(employeeId));
+				var years = await _workScheduleService.GetAvailableYears(int.Parse(employeeId));
+				return Ok(years);
+			}
+			catch (InvalidOperationException ex)
+			{
+				return BadRequest(ex.Message);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+			}
+		}
+
+		[HttpGet("weeks")]
+		public async Task<IActionResult> GetAvailableWeeks([FromQuery] string employeeId, [FromQuery] string year)
+		{
+			try
+			{
+				if (string.IsNullOrEmpty(employeeId))
+				{
+					return BadRequest("ID nhân viên bắt buộc!");
+				}
+
+				var weeks = await _workScheduleService.GetAvailableWeeks(int.Parse(employeeId), int.Parse(year));
 				return Ok(weeks);
 			}
 			catch (InvalidOperationException ex)

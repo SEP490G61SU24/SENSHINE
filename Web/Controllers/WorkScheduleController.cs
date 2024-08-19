@@ -54,23 +54,33 @@ namespace Web.Controllers
 					return RedirectToAction("Login", "Auth");
 				}
 
+				var employeeId = userProfile.Id;
+				ViewData["employeeId"] = employeeId;
+
 				var apiUrl = _configuration["ApiUrl"];
 				using var client = _clientFactory.CreateClient();
 
-				var employeeId = userProfile.Id;
-
-				var weeksResponse = await client.GetAsync($"{apiUrl}/work-schedules/weeks?employeeId={employeeId}");
-				if (!weeksResponse.IsSuccessStatusCode)
-				{
-					return View("Error");
-				}
-
-				var weeks = await weeksResponse.Content.ReadFromJsonAsync<IEnumerable<WeekOptionDTO>>();
-
-				// Nếu không có tuần nào được chọn, chọn tuần hiện tại
+				// Nếu không có tuần nào được chọn, chọn tuần, năm hiện tại
 				var currentWeek = selectedWeek ?? GetCurrentWeekOfYear();
 				var currentYear = selectedYear ?? GetCurrentYear();
 
+				//// Lấy danh sách năm
+				//var yearsResponse = await client.GetAsync($"{apiUrl}/work-schedules/years?employeeId={employeeId}");
+				//if (!yearsResponse.IsSuccessStatusCode)
+				//{
+				//	return View("Error");
+				//}
+				//var years = await yearsResponse.Content.ReadFromJsonAsync<IEnumerable<int>>();
+
+				//// Lấy danh sách tuần
+				//var weeksResponse = await client.GetAsync($"{apiUrl}/work-schedules/weeks?year={currentYear}&employeeId={employeeId}");
+				//if (!weeksResponse.IsSuccessStatusCode)
+				//{
+				//	return View("Error");
+				//}
+				//var weeks = await weeksResponse.Content.ReadFromJsonAsync<IEnumerable<WeekOptionDTO>>();
+
+				// Lấy lịch làm việc
 				var workScheduleResponse = await client.GetAsync($"{apiUrl}/work-schedules/current-user/?employeeId={employeeId}&weekNumber={currentWeek}&year={currentYear}");
 				if (!workScheduleResponse.IsSuccessStatusCode)
 				{
@@ -80,7 +90,9 @@ namespace Web.Controllers
 
 				var viewData = new CurrentWorkScheduleViewModel
 				{
-					AvailableWeeks = weeks,
+					//AvailableYears = years,
+					//AvailableWeeks = weeks,
+					SelectedYear = currentYear,
 					SelectedWeek = currentWeek,
 					WorkSchedules = workSchedules,
 				};
