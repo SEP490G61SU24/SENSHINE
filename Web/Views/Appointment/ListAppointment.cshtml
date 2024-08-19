@@ -48,7 +48,7 @@
 <table id="appointments-container">
     <thead>
         <tr>
-            <th>STT</th>
+            <th>ID</th>
             <th>Tên Khách Hàng</th>
             <th>Nhân Viên Thực Hiện</th>
             <th>Dịch Vụ Sử Dụng</th>
@@ -63,7 +63,7 @@
         @foreach (var appointment in Model)
         {
             <tr class="appointment" data-date="@appointment.AppointmentDate" data-day="@appointment.AppointmentDate.DayOfWeek">
-                <td class="index"></td>
+                <td>@appointment.Id</td>
                 <td>@appointment.Customer.FullName</td>
                 <td>@appointment.Employee.FullName</td>
                 <td>
