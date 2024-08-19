@@ -17,6 +17,9 @@ namespace Web.Models
         [DisplayName("Appointment Date")]
         public DateTime AppointmentDate { get; set; }
 
+        [DisplayName("Slot")]
+        public string AppointmentSlot { get; set; }
+
         [DisplayName("Status")]
         public string Status { get; set; }
         [DisplayName("Room")]

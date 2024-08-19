@@ -41,7 +41,11 @@ namespace API.Services.Impl
                     Id = appointment.Id,
                     CustomerId = appointment.CustomerId,
                     EmployeeId = appointment.EmployeeId,
-                    //AppointmentDate = appointment.AppointmentDate,
+                    AppointmentDate = appointment.AppointmentDate,
+                    AppointmentSlot = appointment.AppointmentSlot,
+                    RoomName = appointment.RoomName,
+                    BedNumber = appointment.BedNumber,
+
                     Status = appointment.Status,
                     Customer = new AppointmentUserDTO
                     {
@@ -100,7 +104,11 @@ namespace API.Services.Impl
                     Id = appointment.Id,
                     CustomerId = appointment.CustomerId,
                     EmployeeId = appointment.EmployeeId,
-                    //AppointmentDate = appointment.AppointmentDate,
+                    AppointmentDate = appointment.AppointmentDate,
+                    AppointmentSlot = appointment.AppointmentSlot,
+                    RoomName = appointment.RoomName,
+                    BedNumber = appointment.BedNumber,
+
                     Status = appointment.Status,
                     Customer = new AppointmentUserDTO
                     {
@@ -164,9 +172,9 @@ namespace API.Services.Impl
         public async Task<Appointment> UpdateAppointmentAsync(int id, Appointment appointment)
         {
             var existingAppointment = await _dbContext.Appointments
-                                                      .Include(a => a.Services)
-                                                      .Include(a => a.Products) // Include Products
-                                                      .FirstOrDefaultAsync(x => x.Id == id);
+                                                       .Include(a => a.Services)
+                                                       .Include(a => a.Products)
+                                                       .FirstOrDefaultAsync(x => x.Id == id);
             if (existingAppointment == null)
             {
                 return null;
@@ -176,7 +184,11 @@ namespace API.Services.Impl
             existingAppointment.EmployeeId = appointment.EmployeeId;
             existingAppointment.AppointmentDate = appointment.AppointmentDate;
             existingAppointment.Status = appointment.Status;
+            existingAppointment.AppointmentSlot = appointment.AppointmentSlot;
+            existingAppointment.RoomName = appointment.RoomName;
+            existingAppointment.BedNumber = appointment.BedNumber;
 
+            // Xử lý cập nhật các dịch vụ
             existingAppointment.Services.Clear();
             foreach (var service in appointment.Services)
             {
@@ -184,6 +196,7 @@ namespace API.Services.Impl
                 existingAppointment.Services.Add(service);
             }
 
+            // Xử lý cập nhật các sản phẩm
             existingAppointment.Products.Clear();
             foreach (var product in appointment.Products)
             {
@@ -195,10 +208,11 @@ namespace API.Services.Impl
             return existingAppointment;
         }
 
+
         //Delete
         public async Task<Appointment> DeleteAppointmentAsync(int id)
         {
-            // Tìm combo theo ID
+            // Tìm appointment theo ID
             var existingAppointment = await _dbContext.Appointments
                                                  .Include(c => c.Services)
                                                  .Include(a => a.Products) // Bao gồm các dịch vụ liên quan
