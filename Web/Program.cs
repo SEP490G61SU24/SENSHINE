@@ -27,8 +27,11 @@ namespace Web
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Errors/500");
             }
+
+            app.UseExceptionHandler("/Errors/500");
+            app.UseStatusCodePagesWithReExecute("/Errors/{0}");
 
             app.UseStaticFiles();
 

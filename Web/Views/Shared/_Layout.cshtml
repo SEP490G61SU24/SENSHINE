@@ -160,87 +160,89 @@
                                     <h6>Pinned</h6>
                                 </div>
                             </li>
-                            
-                            @foreach (var menu in menus)
+                            @if (menus != null && menus.Any())
                             {
-                                <li class="sidebar-main-title">
-                                    <div>
-                                        <h6>@menu.Menu.Title</h6>
-                                    </div>
-                                </li>
-
-                                @if (menu.Children.Any())
+                                @foreach (var menu in menus)
                                 {
-                                    @foreach (var childMenu in menu.Children)
+                                    <li class="sidebar-main-title">
+                                        <div>
+                                            <h6>@menu.Menu.Title</h6>
+                                        </div>
+                                    </li>
+
+                                    @if (menu.Children.Any())
                                     {
-                                        <li class="sidebar-list">
-                                            
-                                            @if(childMenu.Menu.Path != "#")
-                                            {
-                                                <a class="sidebar-link sidebar-title link-nav" href="@childMenu.Menu.Path">
-                                                    <i class="@childMenu.Menu.Icon"></i>
-                                                    <span>@childMenu.Menu.Title</span>
-                                                </a>
-                                            }
-                                            else
-                                            {
-                                                <a class="sidebar-link sidebar-title" href="#">
-                                                    <i class="@childMenu.Menu.Icon"></i>
-                                                    <span>@childMenu.Menu.Title</span>
-                                                    @if (childMenu.Children.Any())
-                                                    {
-                                                        <div class="according-menu"><i class="fa fa-angle-right"></i></div>
-                                                    }
-                                                </a>
-                                                @if (childMenu.Children.Any())
+                                        @foreach (var childMenu in menu.Children)
+                                        {
+                                            <li class="sidebar-list">
+
+                                                @if (childMenu.Menu.Path != "#")
                                                 {
-                                                    <ul class="sidebar-submenu">
-                                                        @foreach (var subChild in childMenu.Children)
-                                                        {
-                                                            <li>
-                                                                @if (subChild.Children.Any())
-                                                                {
-                                                                    <a class="submenu-title" href="#">
-                                                                        <i class="@subChild.Menu.Icon"></i>
-                                                                        @subChild.Menu.Title
-                                                                        <div class="according-menu"><i class="fa fa-angle-right"></i></div>
-                                                                    </a>
-                                                                    <ul class="nav-sub-childmenu submenu-content">
-                                                                        @foreach (var subSubChild in subChild.Children)
-                                                                        {
-                                                                            <li>
-                                                                                <a href="@subSubChild.Menu.Path"><i class="@subSubChild.Menu.Icon"></i>@subSubChild.Menu.Title</a>
-                                                                            </li>
-                                                                        }
-                                                                    </ul>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <a href="@subChild.Menu.Path"><i class="@subChild.Menu.Icon"></i>@subChild.Menu.Title</a>
-                                                                }
-                                                            </li>
-                                                        }
-                                                    </ul>
+                                                    <a class="sidebar-link sidebar-title link-nav" href="@childMenu.Menu.Path">
+                                                        <i class="@childMenu.Menu.Icon"></i>
+                                                        <span>@childMenu.Menu.Title</span>
+                                                    </a>
                                                 }
                                                 else
                                                 {
-                                                    <ul class="sidebar-link sidebar-title link-nav">
-                                                        <li><a href="@childMenu.Menu.Path"><i class="@childMenu.Menu.Icon"></i>@childMenu.Menu.Title</a></li>
-                                                    </ul>
+                                                    <a class="sidebar-link sidebar-title" href="#">
+                                                        <i class="@childMenu.Menu.Icon"></i>
+                                                        <span>@childMenu.Menu.Title</span>
+                                                        @if (childMenu.Children.Any())
+                                                        {
+                                                            <div class="according-menu"><i class="fa fa-angle-right"></i></div>
+                                                        }
+                                                    </a>
+                                                    @if (childMenu.Children.Any())
+                                                    {
+                                                        <ul class="sidebar-submenu">
+                                                            @foreach (var subChild in childMenu.Children)
+                                                            {
+                                                                <li>
+                                                                    @if (subChild.Children.Any())
+                                                                    {
+                                                                        <a class="submenu-title" href="#">
+                                                                            <i class="@subChild.Menu.Icon"></i>
+                                                                            @subChild.Menu.Title
+                                                                            <div class="according-menu"><i class="fa fa-angle-right"></i></div>
+                                                                        </a>
+                                                                        <ul class="nav-sub-childmenu submenu-content">
+                                                                            @foreach (var subSubChild in subChild.Children)
+                                                                            {
+                                                                                <li>
+                                                                                    <a href="@subSubChild.Menu.Path"><i class="@subSubChild.Menu.Icon"></i>@subSubChild.Menu.Title</a>
+                                                                                </li>
+                                                                            }
+                                                                        </ul>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <a href="@subChild.Menu.Path"><i class="@subChild.Menu.Icon"></i>@subChild.Menu.Title</a>
+                                                                    }
+                                                                </li>
+                                                            }
+                                                        </ul>
+                                                    }
+                                                    else
+                                                    {
+                                                        <ul class="sidebar-link sidebar-title link-nav">
+                                                            <li><a href="@childMenu.Menu.Path"><i class="@childMenu.Menu.Icon"></i>@childMenu.Menu.Title</a></li>
+                                                        </ul>
+                                                    }
+
                                                 }
-                                                
-                                            }
+                                            </li>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <li class="sidebar-list">
+                                            <i class="@menu.Menu.Icon"></i>
+                                            <a class="sidebar-link sidebar-title link-nav" href="@menu.Menu.Path">
+                                                <span>@menu.Menu.Title</span>
+                                            </a>
                                         </li>
                                     }
-                                }
-                                else
-                                {
-                                    <li class="sidebar-list">
-                                        <i class="@menu.Menu.Icon"></i>
-                                        <a class="sidebar-link sidebar-title link-nav" href="@menu.Menu.Path">
-                                            <span>@menu.Menu.Title</span>
-                                        </a>
-                                    </li>
                                 }
                             }
                         </ul>

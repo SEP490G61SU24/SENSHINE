@@ -24,7 +24,9 @@ namespace Web.Middleware
             var token = context.Session.GetString("Token");
             var path = context.Request.Path.Value;
 
-            if (path.StartsWith("/Auth/Login", StringComparison.OrdinalIgnoreCase) || path.StartsWith("/public", StringComparison.OrdinalIgnoreCase))
+            if (path.StartsWith("/Auth/Login", StringComparison.OrdinalIgnoreCase) ||
+                path.StartsWith("/public", StringComparison.OrdinalIgnoreCase) ||
+                path.StartsWith("/Errors", StringComparison.OrdinalIgnoreCase))
             {
                 await _next(context);
                 return;
@@ -39,7 +41,7 @@ namespace Web.Middleware
 
                     if (!hasAccess)
                     {
-                        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        await HandleErrorResponse(context, StatusCodes.Status403Forbidden, "/Errors/403");
                         return;
                     }
 
@@ -48,18 +50,32 @@ namespace Web.Middleware
                 else
                 {
                     //context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                    context.Response.Redirect("/Auth/Login");
+                    await HandleErrorResponse(context, StatusCodes.Status401Unauthorized, "/Auth/Login");
                     return;
                 }
             }
             else
             {
                 //context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                context.Response.Redirect("/Auth/Login");
+                await HandleErrorResponse(context, StatusCodes.Status401Unauthorized, "/Auth/Login");
                 return;
             }
 
             await _next(context);
+        }
+
+        private async Task HandleErrorResponse(HttpContext context, int statusCode, string redirectUrl)
+        {
+            context.Response.StatusCode = statusCode;
+
+            if (statusCode == StatusCodes.Status401Unauthorized || statusCode == StatusCodes.Status403Forbidden)
+            {
+                context.Response.Redirect(redirectUrl);
+            }
+            else
+            {
+                await context.Response.WriteAsync($"Error: {statusCode}");
+            }
         }
 
         private async Task<UserDTO> GetUserProfileAsync(string token)
