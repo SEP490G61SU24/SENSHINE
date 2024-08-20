@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using Microsoft.IdentityModel.Tokens;
 using API.Dtos;
 using API.Models;
+using API.Ultils;
 
 namespace Web.Controllers
 {
@@ -25,16 +26,21 @@ namespace Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ListCard(string? status)
+        public async Task<IActionResult> ListCard(string? status, int customer, int pageIndex = 1, int pageSize = 10, string searchTerm = null)
         {
             try
             {
+                // Get filter values from query parameters
+                ViewData["SelectedStatus"] = status;
+                ViewData["SelectedCustomer"] = customer;
+
                 var apiUrl = _configuration["ApiUrl"];
+                var url = $"{apiUrl}/Card/GetAll?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}";
                 var client = _clientFactory.CreateClient();
-                List<CardViewModel> cards = new List<CardViewModel>();
+                PaginatedList<CardViewModel> cards = new PaginatedList<CardViewModel>();
                 UserDTO user = new UserDTO();
                 BranchViewModel branch = new BranchViewModel();
-                HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Card/GetAll");
+                HttpResponseMessage response = await client.GetAsync(url);
 
                 int? spaId = 0;
                 var token = HttpContext.Session.GetString("Token");
@@ -48,37 +54,65 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ViewData["Error"] = "Failed to retrieve user profile.";
+                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
                     }
                 }
 
                 if (response.IsSuccessStatusCode)
                 {
                     string data = response.Content.ReadAsStringAsync().Result;
-                    cards = JsonConvert.DeserializeObject<List<CardViewModel>>(data);
-                    cards = cards.Where(c => c.BranchId == spaId).ToList();
+                    cards = JsonConvert.DeserializeObject<PaginatedList<CardViewModel>>(data);
 
-                    if (!status.IsNullOrEmpty())
+                    foreach (var card in cards.Items)
                     {
-                        cards = cards.Where(c => c.Status.Equals(status, StringComparison.OrdinalIgnoreCase)).ToList();
+                        HttpResponseMessage response1 = await client.GetAsync($"{apiUrl}/users/" + card.CustomerId);
+                        string data1 = response1.Content.ReadAsStringAsync().Result;
+                        user = JsonConvert.DeserializeObject<UserDTO>(data1);
+                        card.CustomerName = user.FirstName + " " + user.MidName + " " + user.LastName;
+                        card.CustomerPhone = user.Phone;
                     }
-                }
 
-                foreach (var card in cards)
-                {
-                    HttpResponseMessage response1 = await client.GetAsync($"{apiUrl}/user/" + card.CustomerId);
-                    string data1 = response1.Content.ReadAsStringAsync().Result;
-                    user = JsonConvert.DeserializeObject<UserDTO>(data1);
-                    card.CustomerName = user.FirstName + " " + user.MidName + " " + user.LastName;
-                    card.CustomerPhone = user.Phone;
+                    var response2 = await client.GetAsync($"{apiUrl}/users/role/5");
+                    if (response2.IsSuccessStatusCode)
+                    {
+                        var users = response2.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
+                        users = users.Where(u => u.SpaId == spaId).ToList();
+                        foreach (var userNew in users)
+                        {
+                            userNew.FullName = string.Join(" ", userNew.FirstName ?? "", userNew.MidName ?? "", userNew.LastName ?? "").Trim();
+                            userNew.FullName = string.Join(", ", userNew.FullName ?? "", userNew.Phone ?? "").Trim();
+                        }
+                        ViewBag.Users = users;
+                    }
+                    else
+                    {
+                        ViewData["Error"] = "Có lỗi xảy ra";
+                    }
+
+                    // Convert to a list to apply LINQ filters
+                    var filteredCards = cards.Items.Where(c => c.BranchId == spaId).ToList();
+
+                    if (!string.IsNullOrEmpty(status))
+                    {
+                        filteredCards = filteredCards.Where(c => c.Status.Equals(status, StringComparison.OrdinalIgnoreCase)).ToList();
+                    }
+
+                    if (!customer.Equals(0))
+                    {
+                        filteredCards = filteredCards.Where(c => c.CustomerId.Equals(customer)).ToList();
+                    }
+
+                    // Re-assign filtered cards back to the PaginatedList if necessary
+                    cards.Items = filteredCards;
                 }
 
                 return View(cards);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
-                return View("Error");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
+                return View();
             }
         }
 
@@ -108,7 +142,7 @@ namespace Web.Controllers
 
                     cardCombos = JsonConvert.DeserializeObject<List<CardComboViewModel>>(data1);
 
-                    HttpResponseMessage response2 = await client.GetAsync($"{apiUrl}/user/" + card.CustomerId);
+                    HttpResponseMessage response2 = await client.GetAsync($"{apiUrl}/users/" + card.CustomerId);
                     if (response2.IsSuccessStatusCode)
                     {
                         string response2Body = response2.Content.ReadAsStringAsync().Result;
@@ -118,7 +152,7 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        Console.WriteLine("Error");
+                        ViewData["Error"] = "Có lỗi xảy ra";
                     }
                     foreach (var cc in cardCombos)
                     {
@@ -132,14 +166,15 @@ namespace Web.Controllers
 
                 if (card == null)
                 {
-                    return NotFound("Không tìm thấy card");
+                    ViewData["Error"] = "Không tìm thấy thẻ";
                 }
                 ViewBag.CardCombos = cardCombos;
                 return View(card);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }
@@ -161,12 +196,12 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ViewData["Error"] = "Failed to retrieve user profile.";
+                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
                     }
                 }
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
-                var response = await client.GetAsync($"{apiUrl}/user/byRole/5");
+                var response = await client.GetAsync($"{apiUrl}/users/role/5");
                 var response2 = await client.GetAsync($"{apiUrl}/Combo/GetAllCombo");
                 if (response.IsSuccessStatusCode && response2.IsSuccessStatusCode)
                 {
@@ -190,12 +225,14 @@ namespace Web.Controllers
                 }
                 else
                 {
+                    ViewData["Error"] = "Có lỗi xảy ra";
                     return View("Error");
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }
@@ -217,7 +254,7 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ViewData["Error"] = "Failed to retrieve user profile.";
+                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
                     }
                 }
                 var apiUrl = _configuration["ApiUrl"];
@@ -271,7 +308,7 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, "Error");
+                        ViewData["Error"] = "Có lỗi xảy ra";
                         return View(card);
                     }
                 }
@@ -280,7 +317,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }
@@ -302,14 +340,14 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ViewData["Error"] = "Failed to retrieve user profile.";
+                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
                     }
                 }
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
                 CardCreateModel card = null;
                 HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Card/GetById?id=" + id);
-                var response1 = await client.GetAsync($"{apiUrl}/user/byRole/5");
+                var response1 = await client.GetAsync($"{apiUrl}/users/role/5");
                 var response2 = await client.GetAsync($"{apiUrl}/Combo/GetAllCombo");
                 if (response.IsSuccessStatusCode && response1.IsSuccessStatusCode && response2.IsSuccessStatusCode)
                 {
@@ -334,14 +372,15 @@ namespace Web.Controllers
 
                 if (card == null)
                 {
-                    return NotFound("Thẻ không tồn tại");
+                    ViewData["Error"] = "Thẻ không tồn tại";
                 }
 
                 return View(card);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }
@@ -397,7 +436,7 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, "Error");
+                        ViewData["Error"] = "Có lỗi xảy ra";
                         return View(card);
                     }
                 }
@@ -406,7 +445,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }
@@ -428,12 +468,14 @@ namespace Web.Controllers
                 }
                 else
                 {
-                    return BadRequest("Có lỗi xảy ra khi đổi trạng thái.");
+                    ViewData["Error"] = "Có lỗi xảy ra khi đổi trạng thái.";
+                    return BadRequest();
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }

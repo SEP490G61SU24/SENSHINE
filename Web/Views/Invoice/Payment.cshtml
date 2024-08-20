@@ -4,6 +4,20 @@
     ViewData["Title"] = "Payment";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@{
+    string displayStatus = Model.Status;
+
+    
+    if (Model.Status == "Paid")
+    {
+        displayStatus = "Đã thanh toán";
+    }
+    else if (Model.Status == "Pending")
+    {
+        displayStatus = "Chờ xử lý";
+    }
+   
+}
 
 @section Styles {
     <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
@@ -56,12 +70,12 @@
                     </td>
 
                     <td style="padding: 15px 25px;">
-                        <p style="font-size:16px; font-weight:500; opacity:0.8; margin:0; line-height: 2;">Invoice No :</p>
+                        <p style="font-size:16px; font-weight:500; opacity:0.8; margin:0; line-height: 2;">Mã hóa đơn :</p>
                         <span style="font-size: 18px; font-weight: 600;">@Model.Id</span>
                     </td>
                     <td style="padding: 15px 25px;">
                         <p style="font-size:16px; font-weight:500; opacity:0.8; margin:0; line-height: 2;">Trạng thái :</p>
-                        <span style="font-size: 18px; font-weight: 600;">@Model.Status</span>
+                        <span style="font-size: 18px; font-weight: 600;">@displayStatus</span>
                     </td>
                     
                 </tr>
@@ -101,13 +115,13 @@
                                     <h4 style="font-weight:600; margin:4px 0px; font-size: 18px;">@service.Service.ServiceName</h4>
                                 </td>
                                 <td style="width: 12%; text-align: center;">
-                                    <span style="opacity: 0.8;">@service.Service.Amount</span>
+                                    <span style="opacity: 0.8;">@String.Format("{0:0,0} VND",@service.Service.Amount)</span>
                                 </td>
                                 <td style="width: 12%; text-align: center;">
                                     <span style="opacity: 0.8;">@service.Quantity</span>
                                 </td>
                                 <td style="width: 12%; text-align: center;">
-                                    <span style="font-weight: 600; opacity: 0.9;">$@totalAmount</span>
+                                    <span style="font-weight: 600; opacity: 0.9;">@String.Format("{0:0,0} VND",@totalAmount)</span>
                                 </td>
                             </tr>
                         }
@@ -116,6 +130,40 @@
                             <tr>
                                 <td colspan="4" style="color: red; text-align: center;">
                                     <strong>Error:</strong> Service information is missing.
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+                <tr style="height: 2px; background-color: #ccc;">
+                    <td colspan="4"></td>
+                </tr>
+                <tbody>
+                    @foreach (var service in Model.InvoiceCombos)
+                    {
+                        if (service.Combo != null)
+                        {
+                            var totalAmount = service.Quantity * service.Combo.SalePrice;
+                            <tr>
+                                <td style="padding: 30px;">
+                                    <h4 style="font-weight:600; margin:4px 0px; font-size: 18px;">@service.Combo.Name</h4>
+                                </td>
+                                <td style="width: 12%; text-align: center;">
+                                    <span style="opacity: 0.8;">@String.Format("{0:0,0} VND", @service.Combo.SalePrice)</span>
+                                </td>
+                                <td style="width: 12%; text-align: center;">
+                                    <span style="opacity: 0.8;">@service.Quantity</span>
+                                </td>
+                                <td style="width: 12%; text-align: center;">
+                                    <span style="font-weight: 600; opacity: 0.9;">@String.Format("{0:0,0} VND",@totalAmount)</span>
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" style="color: red; text-align: center;">
+                                    <strong>Error:</strong> Combo information is missing.
                                 </td>
                             </tr>
                         }
@@ -154,7 +202,7 @@
                             <tr>
                                 <td style="padding: 5px 0;">
                                     <p style="font-size: 16px; font-weight: 600; margin: 0;">Tổng cộng:</p>
-                                    <span style="font-size: 18px; font-weight: 600;">@Model.Amount VND</span>
+                                    <span style="font-size: 18px; font-weight: 600;">@String.Format("{0:0,0} VND",@Model.Amount)</span>
                                 </td>
                             </tr>
                         </table>

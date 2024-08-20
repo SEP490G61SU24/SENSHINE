@@ -18,6 +18,8 @@ using System.ComponentModel.DataAnnotations;
             public string ProductName { get; set; } = null!;
             public decimal? Price { get; set; }
             public int? Quantity { get; set; }
+            public int? SpaId { get; set; }
+            public string? SpaName { get; set; }
             public virtual ICollection<CategoryDTO> Categories { get; set; } = new List<CategoryDTO>();
             public virtual ICollection<ProductImageDTO>? ProductImages { get; set; } = new List<ProductImageDTO>();
             
@@ -27,6 +29,7 @@ using System.ComponentModel.DataAnnotations;
             public string ProductName { get; set; } = null!;
             public decimal? Price { get; set; }
             public int? Quantity { get; set; }
+            public int? SpaId { get; set; }
             public ICollection<int> CategoryIds { get; set; } = null!;
             public ICollection<string>? ImageUrls { get; set; }
 

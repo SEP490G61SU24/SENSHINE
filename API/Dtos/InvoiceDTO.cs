@@ -67,6 +67,14 @@ namespace API.Dtos
     {
         public string Status { get; set; }
     }
+    public class RevenueReport
+    {
+        public DateTime Date { get; set; }
+        public decimal TotalRevenue { get; set; }
+        public decimal TotalCost { get; set; }
+        public decimal TotalProfit => TotalRevenue - TotalCost;
+    }
+
 }
 
 

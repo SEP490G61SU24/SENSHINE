@@ -1,4 +1,5 @@
 ﻿using API.Dtos;
+using API.Ultils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +23,49 @@ namespace Web.Controllers
             _clientFactory = clientFactory;
             _logger = logger;
         }
-    private async Task<List<CategoryViewModel>> LoadCategoriesAsync()
+        private async Task<UserViewModel> LoadUserAsync()
+        {
+            var user = new UserViewModel();
+            var token = HttpContext.Session.GetString("Token");
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                var userProfile = await GetUserProfileAsync(token);
+
+                if (userProfile != null)
+                {
+                    user.Id = userProfile.Id;
+                    user.UserName = userProfile.UserName;
+                    user.FirstName = userProfile.FirstName;
+                    user.MidName = userProfile.MidName;
+                    user.LastName = userProfile.LastName;
+                    user.Phone = userProfile.Phone;
+                    user.BirthDate = userProfile.BirthDate;
+                    user.Status = userProfile.Status;
+                    user.StatusWorking = userProfile.StatusWorking;
+                    user.SpaId = userProfile.SpaId;
+                    user.ProvinceCode = userProfile.ProvinceCode;
+                    user.DistrictCode = userProfile.DistrictCode;
+                    user.WardCode = userProfile.WardCode;
+                    user.Address = userProfile.Address;
+                    user.Roles = userProfile.Roles;
+                    user.RoleName = userProfile.RoleName;
+                    user.RoleId = userProfile.RoleId;
+                    user.FullName = $"{userProfile.FirstName} {userProfile.MidName} {userProfile.LastName}";
+                }
+                else
+                {
+                    ViewData["Error"] = "Failed to retrieve user profile.";
+                }
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while fetching the user profile.");
+            }
+
+            return user;
+        }
+        private async Task<List<CategoryViewModel>> LoadCategoriesAsync()
         {
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
@@ -64,34 +107,55 @@ namespace Web.Controllers
             return categories;
         }
 
-
-
         [HttpGet]
-        public async Task<IActionResult> ProductList()
+        public async Task<IActionResult> ProductList(int? spaId = null, int pageIndex = 1, int pageSize = 10, string searchTerm = null, string? categoryName = null, string? quantityRange = null, string? priceRange = null)
         {
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
-            List<ProductViewModel> viewList = new List<ProductViewModel>();
+            var use = await LoadUserAsync();
             List<CategoryViewModel> categoryList = await LoadCategoriesAsync();
+            spaId = use.SpaId;
+            var urlBuilder = new StringBuilder($"{apiUrl}/GetProductsPaging?");
 
-            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/ListAllProduct");
+            if (spaId != null)
+            {
+                urlBuilder.Append($"spaId={spaId}&");
+            }
+
+            if (categoryName != null)
+            {
+                urlBuilder.Append($"categoryName={categoryName}&");
+            }
+
+            if (quantityRange != null)
+            {
+                urlBuilder.Append($"quantityRange={quantityRange}&");
+            }
+            if (priceRange != null)
+            {
+                urlBuilder.Append($"priceRange={priceRange}&");
+            }
+            urlBuilder.Append($"pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}");
+
+            // Remove the trailing '&' if it exists
+            var url = urlBuilder.ToString().TrimEnd('&');
+
+            HttpResponseMessage response = await client.GetAsync(url);
+
             if (response.IsSuccessStatusCode)
             {
-                string data = await response.Content.ReadAsStringAsync();
-                viewList = JsonConvert.DeserializeObject<List<ProductViewModel>>(data);
+                var paginatedResult = await response.Content.ReadFromJsonAsync<FilteredPaginatedList<ProductViewModel>>();
+                paginatedResult.SearchTerm = searchTerm;
+                ViewBag.Categories = categoryList;
+                return View(paginatedResult);
             }
             else
             {
-                // Handle error (e.g., log it)
-                ModelState.AddModelError(string.Empty, "An error occurred while fetching products.");
+                return View("Error");
             }
-
-            // Store categories in ViewBag
-            ViewBag.Categories = categoryList;
-
-            ViewData["Title"] = "List Products";
-            return View(viewList);
         }
+
+        
 
         [HttpGet]
         public async Task<IActionResult> FilterProducts(string categoryName, string quantityRange, string priceRange)
@@ -155,12 +219,20 @@ namespace Web.Controllers
         {
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
-
+            var user = await LoadUserAsync();
             try
             {
                 // Convert CategoryIdsString to a list of integers
                 productDto.CategoryIds = productDto.CategoryIdsString?.Split(',').Select(int.Parse).ToList();
-
+                if (user.SpaId == null)
+                {
+                    int id = 1;
+                    id = productDto.SpaId;
+                }
+                else
+                {
+                    user.SpaId = productDto.SpaId;
+                }
                 // Create content for the request
                 var content = new StringContent(JsonConvert.SerializeObject(productDto), Encoding.UTF8, "application/json");
 

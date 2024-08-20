@@ -33,8 +33,8 @@
     ViewData["Title"] = "Tạo mới cuộc hẹn";
     var services = ViewBag.Services as List<Web.Models.ServiceViewModel>;
     var products = ViewBag.Products as List<Web.Models.ProductViewModel>;
-    var employees = ViewBag.Employees as List<Web.Models.EmployeeViewModel>;
-    var customers = ViewBag.Customers as List<API.Dtos.UserDTO>;
+    var employees = ViewBag.Employees as List<Web.Models.AppointmentEmployeeViewModel>;
+    var customers = ViewBag.Customers as List<Web.Models.AppointmentCustomerViewModel>;
 }
 
 <div class="container mt-3">
@@ -71,10 +71,27 @@
                     <span asp-validation-for="EmployeeId" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="AppointmentDate" class="control-label">Thời Gian Cuộc Hẹn</label>
+                    <label asp-for="AppointmentDate" class="control-label">Thời Gian Check In</label>
                     <input asp-for="AppointmentDate" class="form-control" type="datetime-local" />
                     <span asp-validation-for="AppointmentDate" class="text-danger"></span>
                 </div>
+
+                <div class="form-group">
+                    <label asp-for="AppointmentSlot" class="control-label">Slot</label>
+                    <select asp-for="AppointmentSlot" class="form-control" id="slotSelect">
+                        <option value="Slot1">Slot 1: 8h30 - 10h</option>
+                        <option value="Slot2">Slot 2: 10h - 11h30</option>
+                        <option value="Slot3">Slot 3: 11h30 - 13h</option>
+                        <option value="Slot4">Slot 4: 13h - 14h30</option>
+                        <option value="Slot5">Slot 5: 14h30 - 16h</option>
+                        <option value="Slot6">Slot 6: 16h - 17h30</option>
+                        <option value="Slot7">Slot 7: 17h30 - 19h</option>
+                        <option value="Slot8">Slot 8: 19h - 20h30</option>
+                        <option value="Slot9">Slot 9: 20h30 - 22h</option>
+                    </select>
+                    <span asp-validation-for="AppointmentSlot" class="text-danger"></span>
+                </div>
+
                 <div class="form-group">
                     <label asp-for="SelectedServiceIds" class="control-label">Dịch Vụ Sử Dụng</label>
                     <select asp-for="SelectedServiceIds" class="form-control" multiple id="serviceSelect">

@@ -1,5 +1,6 @@
 ﻿using API.Dtos;
 using API.Models;
+using API.Ultils;
 
 namespace API.Services
 {
@@ -13,6 +14,7 @@ namespace API.Services
             Task<ProductDTO> GetProductByName(string name);
             Task<IEnumerable<ProductDTORequest>> GetProductsByFilter(string categoryName, string quantityRange, string priceRange);
             Task<Product?> DeleteProductAsync(int id);
+            Task<PaginatedList<ProductDTORequest>> GetProductList(int? spaId = null, int pageIndex = 1, int pageSize = 10, string? searchTerm = null, string? categoryName = null, string? quantityRange = null, string? priceRange=null);
 
 
 

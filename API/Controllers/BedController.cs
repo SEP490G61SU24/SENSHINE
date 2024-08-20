@@ -3,7 +3,6 @@ using API.Models;
 using API.Services;
 using API.Services.Impl;
 using AutoMapper;
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;

@@ -1,6 +1,7 @@
 ﻿using API.Dtos;
 using API.Models;
 using API.Services;
+using API.Services.Impl;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,11 +40,16 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
         {
             try
             {
-                var rooms = _mapper.Map<List<RoomDTO>>(_roomService.GetRooms());
+                if (pageIndex < 1 || pageSize < 1)
+                {
+                    return BadRequest("Chỉ số trang hoặc kích thước trang không hợp lệ.");
+                }
+
+                var rooms = await _roomService.GetRooms(pageIndex, pageSize, searchTerm);
                 return Ok(rooms);
             }
             catch (Exception ex)
@@ -51,7 +57,20 @@ namespace API.Controllers
                 return StatusCode(500, $"An error occurred while retrieving rooms: {ex.Message}");
             }
         }
+        [HttpGet]
+        public async Task<IActionResult> GetAllRoom()
+        {
+            try
+            {
 
+                var rooms = _roomService.GetAllRooms();
+                return Ok(rooms);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving rooms: {ex.Message}");
+            }
+        }
         [HttpGet]
         public async Task<IActionResult> GetById(int id)
         {
@@ -117,7 +136,7 @@ namespace API.Controllers
             }
         }
 
-        [HttpGet("BySpaId/{spaId}")]
+        [HttpGet]
         public async Task<IActionResult> GetBySpaId(int spaId)
         {
             try

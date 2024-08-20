@@ -5,25 +5,31 @@ using Web.Models;
 
 namespace Web.Controllers
 {
-    public class ServiceController : Controller
+    public class ServiceController : BaseController
     {
-        Uri baseAddress = new Uri("http://localhost:5297/api");
-        private readonly HttpClient _httpClient;
-        public ServiceController()
+        private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _clientFactory;
+        private readonly ILogger<UserController> _logger;
+
+        public ServiceController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<UserController> logger)
+             : base(configuration, clientFactory, logger)
         {
-            _httpClient = new HttpClient();
-            _httpClient.BaseAddress = baseAddress;
+            _configuration = configuration;
+            _clientFactory = clientFactory;
+            _logger = logger;
         }
 
         [HttpGet]
         public async Task<IActionResult> ListService(string searchString)
         {
+            var client = _clientFactory.CreateClient();
+            var apiUrl = _configuration["ApiUrl"];
             List<ServiceViewModel> servicesList = new List<ServiceViewModel>();
 
             try
             {
                 // Gọi API để lấy danh sách dịch vụ
-                HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/Service/GetAllServices");
+                HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Service/GetAllServices");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -49,13 +55,15 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> DetailService(int id)
         {
+            var client = _clientFactory.CreateClient();
+            var apiUrl = _configuration["ApiUrl"];
             if (id <= 0)
             {
                 return BadRequest("ID Service không hợp lệ");
             }
 
             ServiceViewModel service = null;
-            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + $"/Service/GetByID?Id={id}");
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Service/GetByID?Id={id}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -80,12 +88,14 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateService(ServiceViewModel service)
         {
+            var client = _clientFactory.CreateClient();
+            var apiUrl = _configuration["ApiUrl"];
             if (ModelState.IsValid)
             {
                 var json = JsonConvert.SerializeObject(service);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                HttpResponseMessage response = await _httpClient.PostAsync(_httpClient.BaseAddress + $"/Service/Create", content);
+                HttpResponseMessage response = await client.PostAsync($"{apiUrl}/Service/Create", content);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -104,13 +114,15 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> EditService(int id)
         {
+            var client = _clientFactory.CreateClient();
+            var apiUrl = _configuration["ApiUrl"];
             if (id <= 0)
             {
                 return BadRequest("ID Service không hợp lệ");
             }
 
             ServiceViewModel service = null;
-            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + $"/Service/GetByID?Id={id}");
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Service/GetByID?Id={id}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -129,12 +141,14 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> EditService(ServiceViewModel service)
         {
+            var client = _clientFactory.CreateClient();
+            var apiUrl = _configuration["ApiUrl"];
             if (ModelState.IsValid)
             {
                 var json = JsonConvert.SerializeObject(service);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                HttpResponseMessage response = await _httpClient.PutAsync(_httpClient.BaseAddress + $"/Service/UpdateService?id={service.Id}", content);
+                HttpResponseMessage response = await client.PutAsync($"{apiUrl}/Service/UpdateService?id={service.Id}", content);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -154,12 +168,14 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteService1(int id)
         {
+            var client = _clientFactory.CreateClient();
+            var apiUrl = _configuration["ApiUrl"];
             if (id <= 0)
             {
                 return BadRequest("ID Service không hợp lệ");
             }
 
-            HttpResponseMessage response = await _httpClient.DeleteAsync(_httpClient.BaseAddress + $"/Service/DeleteService/delete/{id}");
+            HttpResponseMessage response = await client.DeleteAsync($"{apiUrl}/Service/DeleteService/delete/{id}");
 
             if (response.IsSuccessStatusCode)
             {
