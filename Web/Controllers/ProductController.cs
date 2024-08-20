@@ -144,7 +144,7 @@ namespace Web.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<ProductViewModel>>();
+                var paginatedResult = await response.Content.ReadFromJsonAsync<FilteredPaginatedList<ProductViewModel>>();
                 paginatedResult.SearchTerm = searchTerm;
                 ViewBag.Categories = categoryList;
                 return View(paginatedResult);

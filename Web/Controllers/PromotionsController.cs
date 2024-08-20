@@ -96,8 +96,8 @@ namespace Web.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<PromotionViewModel>>();
-                paginatedResult.SearchTerm = searchTerm;
+                var paginatedResult = await response.Content.ReadFromJsonAsync<FilteredPaginatedList<PromotionViewModel>>();
+                //paginatedResult.SearchTerm = searchTerm;
                 return View(paginatedResult);
             }
             else

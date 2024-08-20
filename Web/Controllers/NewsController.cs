@@ -50,7 +50,7 @@ namespace Web.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<NewsViewModel>>();
+                var paginatedResult = await response.Content.ReadFromJsonAsync<FilteredPaginatedList<NewsViewModel>>();
                 paginatedResult.SearchTerm = searchTerm;
                 return View(paginatedResult);
             }
