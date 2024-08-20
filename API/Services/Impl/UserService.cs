@@ -4,6 +4,7 @@ using API.Ultils;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.Text.RegularExpressions;
 
 namespace API.Services.Impl
 {
@@ -20,6 +21,16 @@ namespace API.Services.Impl
 
         public async Task<UserDTO> Authenticate(string username, string password)
         {
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                throw new ArgumentException("Tên người dùng không được để trống.");
+            }
+
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                throw new ArgumentException("Mật khẩu không được để trống.");
+            }
+
             var user = await _context.Users
                                      .Include(r => r.Roles)
                                      .SingleOrDefaultAsync(u => u.UserName == username || u.Phone == username);
@@ -34,6 +45,26 @@ namespace API.Services.Impl
 
         public async Task<UserDTO> AddUser(UserDTO userDto)
         {
+            if (userDto == null)
+            {
+                throw new ArgumentNullException(nameof(userDto), "Dữ liệu người dùng không được để trống.");
+            }
+
+            if (string.IsNullOrWhiteSpace(userDto.UserName))
+            {
+                throw new ArgumentException("Tên người dùng không được để trống.");
+            }
+
+            if (string.IsNullOrWhiteSpace(userDto.Password))
+            {
+                throw new ArgumentException("Mật khẩu không được để trống.");
+            }
+
+            if (!IsValidPassword(userDto.Password))
+            {
+                throw new ArgumentException("Mật khẩu yếu, vui lòng thử lại.");
+            }
+
             if (!string.IsNullOrEmpty(userDto.UserName))
             {
                 var existingUser = await _context.Users.SingleOrDefaultAsync(u => u.UserName == userDto.UserName);
@@ -310,28 +341,34 @@ namespace API.Services.Impl
             return addressString;
         }
 
-		public async Task<bool> ChangePassword(string userName, string currentPassword, string newPassword, bool userChange)
-		{
-			var user = await _context.Users.SingleOrDefaultAsync(u => u.UserName == userName); 
-            
-            if (user == null)
-			{
-				throw new InvalidOperationException("Người dùng không tồn tại.");
-			}
+        public async Task<bool> ChangePassword(string userName, string currentPassword, string newPassword, bool userChange)
+        {
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.UserName == userName);
 
-            if(userChange)
+            if (user == null)
             {
-			    if (!PasswordUtils.VerifyPassword(currentPassword, user.Password))
-			    {
-				    throw new InvalidOperationException("Mật khẩu hiện tại không chính xác.");
-			    }
+                throw new InvalidOperationException("Người dùng không tồn tại.");
             }
 
-			user.Password = PasswordUtils.HashPassword(newPassword);
-			_context.Users.Update(user);
-			await _context.SaveChangesAsync();
+            if (userChange)
+            {
+                if (!PasswordUtils.VerifyPassword(currentPassword, user.Password))
+                {
+                    throw new InvalidOperationException("Mật khẩu hiện tại không chính xác.");
+                }
+            }
 
-			return true;
-		}
-	}
+            user.Password = PasswordUtils.HashPassword(newPassword);
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        private bool IsValidPassword(string password)
+        {
+            var regex = new Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&^])[A-Za-z\\d@$!%*?&^]{8,}$");
+            return regex.IsMatch(password);
+        }
+    }
 }

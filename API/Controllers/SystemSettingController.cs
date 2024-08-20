@@ -27,49 +27,117 @@ namespace API.Controllers
             {
                 return BadRequest(ex.Message);
             }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateSystemSetting(int id, SystemSetting systemSetting)
-        {
-            var updatedSetting = await _systemSettingService.UpdateSystemSetting(id, systemSetting.Value, systemSetting.Description);
-            if (updatedSetting == null)
+        { 
+            try
             {
-                return NotFound();
-            }
+                var updatedSetting = await _systemSettingService.UpdateSystemSetting(id, systemSetting.Value, systemSetting.Description);
+                if (updatedSetting == null)
+                {
+                    return NotFound();
+                }
 
-            return Ok(updatedSetting);
+                return Ok(updatedSetting);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSystemSetting(int id)
         {
-            var success = await _systemSettingService.DeleteSystemSetting(id);
-            if (!success)
+            try
             {
-                return NotFound();
-            }
+                var success = await _systemSettingService.DeleteSystemSetting(id);
+                if (!success)
+                {
+                    return NotFound();
+                }
 
-            return NoContent();
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetSystemSettingById(int id)
         {
-            var systemSetting = await _systemSettingService.GetSystemSettingById(id);
-            if (systemSetting == null)
+            try
             {
-                return NotFound();
-            }
+                var systemSetting = await _systemSettingService.GetSystemSettingById(id);
+                if (systemSetting == null)
+                {
+                    return NotFound();
+                }
 
-            return Ok(systemSetting);
+                return Ok(systemSetting);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllSystemSettings()
         {
-            var systemSettings = await _systemSettingService.GetAllSystemSettings();
-            return Ok(systemSettings);
+            try
+            {
+                var systemSettings = await _systemSettingService.GetAllSystemSettings();
+                return Ok(systemSettings);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
     }
 }
