@@ -115,6 +115,27 @@ namespace API.Controllers
             }
             return Ok(_mapper.Map<IEnumerable<BedDTO>>(beds));
         }
+        [HttpGet]
+        public async Task<IActionResult> GetAllBedsPaging([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
+        {
+            try
+            {
+                if (pageIndex < 1 || pageSize < 1)
+                {
+                    return BadRequest("Chỉ số trang hoặc kích thước trang không hợp lệ.");
+                }
 
+                var pageData = await _bedService.GetBedList(pageIndex, pageSize, searchTerm);
+                return Ok(pageData);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
+        }
     }
 }

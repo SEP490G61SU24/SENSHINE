@@ -132,7 +132,7 @@ namespace API.Models
 
                 entity.Property(e => e.Status)
                     .IsRequired()
-                    .HasMaxLength(10)
+                    .HasMaxLength(50)
                     .HasDefaultValueSql("('PENDING')")
                     .HasColumnType("nvarchar");
 

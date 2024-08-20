@@ -1,5 +1,7 @@
 ﻿using API.Dtos;
 using API.Models;
+using API.Ultils;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Services.Impl
@@ -7,9 +9,11 @@ namespace API.Services.Impl
     public class ComboServicee : IComboService
     {
         private readonly SenShineSpaContext _dbContext;
-        public ComboServicee(SenShineSpaContext dbContext)
+        private readonly IMapper _mapper;
+        public ComboServicee(SenShineSpaContext dbContext, IMapper mapper)
         {
             this._dbContext = dbContext;
+            _mapper = mapper;
         }
 
         public async Task<Combo> CreateComboAsync(Combo combo)
@@ -174,6 +178,36 @@ namespace API.Services.Impl
 
             return comboDTOs;
         }
+
+        public async Task<PaginatedList<ComboDTO2>> GetComboList(int pageIndex = 1, int pageSize = 10, string? searchTerm = null)
+        {
+            // Tạo query cơ bản
+            IQueryable<Combo> query = _dbContext.Combos.Include(c => c.Services);
+
+            // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(u => u.Name.Contains(searchTerm));
+            }
+
+            // Đếm tổng số bản ghi để tính tổng số trang
+            var count = await query.CountAsync();
+
+            // Lấy danh sách với phân trang
+            var combos = await query.Skip((pageIndex - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync();
+            var comboDtos = _mapper.Map<IEnumerable<ComboDTO2>>(combos);
+
+            return new PaginatedList<ComboDTO2>
+            {
+                Items = comboDtos,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = count,
+            };
+        }
+
         public async Task<List<Combo>> GetCombosByInvoiceIdAsync(int id)
         {
             // Retrieve the combos associated with the provided invoice ID from the database
@@ -183,6 +217,8 @@ namespace API.Services.Impl
 
             return combos;
         }
+
+
 
     }
 }

@@ -4,6 +4,7 @@ using System.Text;
 using Web.Models;
 using System.Collections.Generic;
 using API.Dtos;
+using API.Ultils;
 
 namespace Web.Controllers
 {
@@ -23,21 +24,23 @@ namespace Web.Controllers
     
 
         // Hiển thị danh sách combo
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int pageIndex = 1,int pageSize =10,string searchTerm=null)
         {
 
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
+            
             List<ComboViewModel> comboList = new List<ComboViewModel>();
 
-            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Combo/GetAllCombo");
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Combo/GetAllCombosPaging?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}");
 
             if (response.IsSuccessStatusCode)
             {
-                string jsonString = await response.Content.ReadAsStringAsync();
-                comboList = JsonConvert.DeserializeObject<List<ComboViewModel>>(jsonString);
+                var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<ComboViewModel>>();
+                paginatedResult.SearchTerm=searchTerm;
+                return View(paginatedResult);
             }
-            return View(comboList);
+            return View("Error");
         }
 
         // Tạo combo mới
