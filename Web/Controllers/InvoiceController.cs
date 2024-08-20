@@ -102,7 +102,7 @@ namespace Web.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<InvoiceDTO>>();
+                var paginatedResult = await response.Content.ReadFromJsonAsync<FilteredPaginatedList<InvoiceDTO>>();
                 paginatedResult.SearchTerm = searchTerm;
                 return View(paginatedResult);
             }
