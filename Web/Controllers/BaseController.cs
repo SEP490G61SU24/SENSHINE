@@ -85,24 +85,21 @@ namespace Web.Controllers
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var token = HttpContext.Session.GetString("Token");
+			IEnumerable<MenuDTO> menus = new List<MenuDTO>();
 
-            if (!string.IsNullOrEmpty(token))
+			if (!string.IsNullOrEmpty(token))
             {
                 UserDTO userProfile = await GetUserProfileAsync(token);
                 if (userProfile != null)
                 {
                     ViewData["UserProfile"] = userProfile;
+                    menus = await GetMenuByRole(userProfile.RoleId);
                 }
 
-                IEnumerable<MenuDTO> menus = await GetMenuByRole(userProfile.RoleId);
-                ViewData["UserMenu"] = menus;
-            } else
-            {
-                IEnumerable<MenuDTO> menus = new List<MenuDTO>();
-                ViewData["UserMenu"] = menus;
+                ViewData["Token"] = token;
             }
+            ViewData["UserMenu"] = menus;
             
-
             await base.OnActionExecutionAsync(context, next);
         }
     }
