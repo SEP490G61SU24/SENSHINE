@@ -63,7 +63,7 @@ namespace Web.Controllers
 
             ListAppointmentViewModel appointment = null;
 
-            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/GetByAppointmentId/{id}");
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Appointment/GetByAppointmentId/{id}");
 
             if (response.IsSuccessStatusCode)
             {

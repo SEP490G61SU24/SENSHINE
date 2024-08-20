@@ -81,7 +81,7 @@ using AutoMapper;
             {
                 query = query.Where(x => x.SpaId == spaId);
             }
-            if (!string.IsNullOrEmpty(searchTerm))
+            if (!string.IsNullOrEmpty(status))
             {
                 query = query.Where(u => u.Status.Contains(status));
             }

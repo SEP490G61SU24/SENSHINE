@@ -51,6 +51,36 @@ namespace API.Controllers
             }
         }
 
+        [HttpPost("changepass")]
+        public async Task<IActionResult> ChangePass(ChangePasswordDTO model)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(model.UserName) || string.IsNullOrEmpty(model.NewPassword))
+                {
+                    return BadRequest("Thiếu dữ liệu đầu vào!");
+                }
+
+                var result = await _userService.ChangePassword(model.UserName, "", model.NewPassword, false);
+                if (result)
+                {
+                    return Ok("Thay đổi mật khẩu thành công!");
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra !");
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> AddUser([FromBody] UserDTO userDto)
         {

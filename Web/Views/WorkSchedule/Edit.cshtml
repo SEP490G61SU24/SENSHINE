@@ -62,6 +62,7 @@
                     <option value="">Chọn...</option>
                     @foreach (var wsStatus in new List<(string Value, string Name)>
                     {
+                    (Value: "booking", Name: "Có khách đặt lịch"),
                     (Value: "confirmed", Name: "Đã xác nhận"),
                     (Value: "pending", Name: "Chưa xác nhận"),
                     (Value: "rejected", Name: "Đã hủy"),

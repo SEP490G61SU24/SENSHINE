@@ -3,6 +3,7 @@ using API.Dtos;
 using API.Services;
 using Microsoft.AspNetCore.Mvc;
 using API.Services.Impl;
+using System.Globalization;
 
 namespace API.Controllers
 {
@@ -41,6 +42,78 @@ namespace API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
+
+		[HttpGet("years")]
+		public async Task<IActionResult> GetAvailableYears([FromQuery] string employeeId)
+		{
+			try
+			{
+				if (string.IsNullOrEmpty(employeeId))
+				{
+					return BadRequest("ID nhân viên bắt buộc!");
+				}
+
+				var years = await _workScheduleService.GetAvailableYears(int.Parse(employeeId));
+				return Ok(years);
+			}
+			catch (InvalidOperationException ex)
+			{
+				return BadRequest(ex.Message);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+			}
+		}
+
+		[HttpGet("weeks")]
+		public async Task<IActionResult> GetAvailableWeeks([FromQuery] string employeeId, [FromQuery] string year)
+		{
+			try
+			{
+				if (string.IsNullOrEmpty(employeeId))
+				{
+					return BadRequest("ID nhân viên bắt buộc!");
+				}
+
+				var weeks = await _workScheduleService.GetAvailableWeeks(int.Parse(employeeId), int.Parse(year));
+				return Ok(weeks);
+			}
+			catch (InvalidOperationException ex)
+			{
+				return BadRequest(ex.Message);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+			}
+		}
+
+		[HttpGet("current-user")]
+        public async Task<IActionResult> GetByCurrentUser([FromQuery] string employeeId, [FromQuery] int year, [FromQuery] int weekNumber)
+        {
+			try
+			{
+				if (string.IsNullOrEmpty(employeeId))
+				{
+					return BadRequest("ID nhân viên bắt buộc!");
+				}
+
+				var startDate = ISOWeek.ToDateTime(year, weekNumber, DayOfWeek.Monday);
+				var endDate = ISOWeek.ToDateTime(year, weekNumber, DayOfWeek.Sunday);
+
+				var workSchedules = await _workScheduleService.GetWorkSchedulesByWeek(int.Parse(employeeId), startDate, endDate);
+				return Ok(workSchedules);
+			}
+			catch (InvalidOperationException ex)
+			{
+				return BadRequest(ex.Message);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+			}
+		}
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)

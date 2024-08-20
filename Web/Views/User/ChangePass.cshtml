@@ -1,7 +1,7 @@
-﻿@model Web.Models.WorkScheduleViewModel
+﻿@model API.Dtos.ChangePasswordDTO
 
 @{
-	ViewData["Title"] = "Thêm lịch làm việc mới";
+	ViewData["Title"] = "Đổi mật khẩu: " + Model.UserName;
 }
 
 @section Styles {
@@ -31,50 +31,21 @@
 
 <div class="card">
 	<div class="card-body">
-		<form method="post" action="/workschedule/add" class="row g-3 needs-validation custom-input" novalidate="">
-			<div class="col-md-6 position-relative">
-				<label class="form-label" for="StartDateTime">Giờ bắt đầu</label>
-				<input class="form-control" asp-for="StartDateTime" name="StartDateTime" id="StartDateTime" type="datetime-local" placeholder="" required="">
-				<div class="invalid-tooltip">Điền giờ bắt đầu!</div>
+		<form method="post" action="/user/changepass" class="row g-3 needs-validation custom-input" novalidate="">
+			<input asp-for="UserId" name="UserId" id="UserId" type="hidden">
+			<div class="col-md-8 position-relative">
+				<label class="form-label" for="NewPassword">Mật khẩu mới</label>
+				<input class="form-control" asp-for="NewPassword" name="NewPassword" id="NewPassword" type="password" placeholder="************" required="">
+				<div class="invalid-tooltip">Điền mật khẩu mới!</div>
 			</div>
-			<div class="col-md-6 position-relative">
-				<label class="form-label" for="EndDateTime">Giờ kết thúc</label>
-				<input class="form-control" asp-for="EndDateTime" name="EndDateTime" id="EndDateTime" type="datetime-local" placeholder="" required="">
-				<div class="invalid-tooltip">Điền giờ kết thúc!</div>
-			</div>
-
-			<div class="col-md-6 position-relative">
-				<label class="form-label" for="EmployeeId">Nhân viên</label>
-				<select class="form-select" asp-for="EmployeeId" name="EmployeeId" id="EmployeeId" required>
-					<option value="">Chọn...</option>
-					@foreach (var emp in Model.Employees)
-					{
-						<option value="@emp.Id">@emp.FullName (@emp.Phone)</option>
-					}
-				</select>
-				<div class="invalid-tooltip">Chọn nhân viên.</div>
-			</div>
-
-			<div class="col-md-6 position-relative">
-				<label class="form-label" for="Status">Trạng thái</label>
-				<select class="form-select" asp-for="Status" name="Status" id="Status" required>
-					<option value="">Chọn...</option>
-					@foreach (var wsStatus in new List<(string Value, string Name)>
-					{
-					(Value: "booking", Name: "Có khách đặt lịch"),
-					(Value: "confirmed", Name: "Đã xác nhận"),
-					(Value: "pending", Name: "Chưa xác nhận"),
-					(Value: "rejected", Name: "Đã hủy"),
-					})
-					{
-						<option value="@wsStatus.Value" selected="@(wsStatus.Value == Model.Status ? "selected" : null)">@wsStatus.Name</option>
-					}
-				</select>
-				<div class="invalid-tooltip">Chọn trạng thái.</div>
+			<div class="col-md-8 position-relative">
+				<label class="form-label" for="RePassword">Nhập lại mật khẩu mới</label>
+				<input class="form-control" asp-for="RePassword" name="RePassword" id="RePassword" type="password" placeholder="************" required="">
+				<div class="invalid-tooltip">Nhập lại mật khẩu mới!</div>
 			</div>
 
 			<div class="col-12">
-				<button class="btn btn-primary" type="submit">Thêm mới</button>
+				<button class="btn btn-primary" type="submit">Cập nhật</button>
 			</div>
 		</form>
 	</div>

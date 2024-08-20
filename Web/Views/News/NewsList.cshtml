@@ -1,4 +1,4 @@
-﻿@model API.Ultils.PaginatedList<Web.Models.NewsViewModel>
+﻿@model API.Ultils.FilteredPaginatedList<Web.Models.NewsViewModel>
 
 @{
     ViewData["Title"] = "Danh sách tin tức";
@@ -54,11 +54,11 @@
                     <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3 mt-3">
                         <div class="col">
                             <label for="fromDate" class="form-label">Từ Ngày</label>
-                            <input type="date" id="fromDate" class="form-control" aria-label="Từ Ngày" onchange="fetchNewsByDate()">
+                            <input type="date" id="startDate" class="form-control" name="startDate" value="@Model.StartDate?.ToString("MM-dd-yyyy")">
                         </div>
                         <div class="col">
                             <label for="toDate" class="form-label">Đến Ngày</label>
-                            <input type="date" id="toDate" class="form-control" aria-label="Đến Ngày" onchange="fetchNewsByDate()">
+                            <input type="date" id="endDate" class="form-control" name="endDate" value="@Model.EndDate?.ToString("MM-dd-yyyy")">
                         </div>
                     </div>
                     <div class="input-group m-0 flex-nowrap">

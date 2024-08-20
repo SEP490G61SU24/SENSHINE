@@ -189,7 +189,7 @@
         $(document).ready(function () {
             // Load danh sách phòng dựa vào spaId
             $.ajax({
-                url: 'http://localhost:5297/api/Room/GetBySpaId/BySpaId/1',  // Đường dẫn API đúng
+                url: 'http://localhost:5297/api/Room/GetBySpaId?spaId=1',  // Đường dẫn API đúng
                 type: 'GET',
                 success: function (rooms) {
                     rooms.forEach(room => {

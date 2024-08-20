@@ -69,7 +69,7 @@ namespace Web.Controllers
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
             var use = await LoadUserAsync();
-            idspa = 1;
+            idspa = use.SpaId;
             var urlBuilder = new StringBuilder($"{apiUrl}/GetPromotionsPaging?");
 
             if (idspa != null)
@@ -96,8 +96,8 @@ namespace Web.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<PromotionViewModel>>();
-                paginatedResult.SearchTerm = searchTerm;
+                var paginatedResult = await response.Content.ReadFromJsonAsync<FilteredPaginatedList<PromotionViewModel>>();
+                //paginatedResult.SearchTerm = searchTerm;
                 return View(paginatedResult);
             }
             else

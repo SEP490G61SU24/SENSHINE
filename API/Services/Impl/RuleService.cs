@@ -4,6 +4,7 @@ using API.Models;
 using Microsoft.EntityFrameworkCore;
 using API.Ultils;
 using System.Data;
+using System.Text.RegularExpressions;
 
 namespace API.Services.Impl
 {
@@ -174,5 +175,27 @@ namespace API.Services.Impl
                     Children = GetChildren(r.Id, allRules)
                 });
         }
-    }
+
+        public async Task<bool> CheckAccessAsync(int? roleId, string path)
+        {
+			var rules = await GetRulesByRoleId(roleId ?? 0);
+
+			foreach (var rule in rules)
+			{
+				if (IsPathMatching(rule.Path, path))
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		private bool IsPathMatching(string rulePath, string requestPath)
+		{
+			var regexPattern = "^" + Regex.Escape(rulePath) + "(/\\d+)?$";
+
+			return Regex.IsMatch(requestPath, regexPattern, RegexOptions.IgnoreCase);
+		}
+	}
 }

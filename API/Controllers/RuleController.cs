@@ -226,5 +226,28 @@ namespace API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
-	}
+
+        [HttpGet("check-access")]
+        public async Task<IActionResult> CheckAccess([FromQuery] int? roleId, [FromQuery] string path)
+        {
+            try
+            {
+                if (roleId == null || string.IsNullOrEmpty(path))
+                {
+                    return BadRequest("Thiếu RoleId và path.");
+                }
+
+                var hasAccess = await _ruleService.CheckAccessAsync(roleId, path);
+                return Ok(hasAccess);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
+        }
+    }
 }

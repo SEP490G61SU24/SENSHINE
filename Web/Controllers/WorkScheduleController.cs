@@ -1,6 +1,8 @@
 ﻿using API.Dtos;
+using API.Models;
 using API.Ultils;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using Web.Models;
@@ -41,6 +43,78 @@ namespace Web.Controllers
                 return View("Error");
             }
         }
+
+		public async Task<IActionResult> My(int? selectedWeek = null, int? selectedYear = null)
+		{
+			try
+			{
+				UserDTO userProfile = ViewData["UserProfile"] as UserDTO;
+				if (userProfile == null)
+				{
+					return RedirectToAction("Login", "Auth");
+				}
+
+				var employeeId = userProfile.Id;
+				ViewData["employeeId"] = employeeId;
+
+				var apiUrl = _configuration["ApiUrl"];
+				using var client = _clientFactory.CreateClient();
+
+				// Nếu không có tuần nào được chọn, chọn tuần, năm hiện tại
+				var currentWeek = selectedWeek ?? GetCurrentWeekOfYear();
+				var currentYear = selectedYear ?? GetCurrentYear();
+
+				//// Lấy danh sách năm
+				//var yearsResponse = await client.GetAsync($"{apiUrl}/work-schedules/years?employeeId={employeeId}");
+				//if (!yearsResponse.IsSuccessStatusCode)
+				//{
+				//	return View("Error");
+				//}
+				//var years = await yearsResponse.Content.ReadFromJsonAsync<IEnumerable<int>>();
+
+				//// Lấy danh sách tuần
+				//var weeksResponse = await client.GetAsync($"{apiUrl}/work-schedules/weeks?year={currentYear}&employeeId={employeeId}");
+				//if (!weeksResponse.IsSuccessStatusCode)
+				//{
+				//	return View("Error");
+				//}
+				//var weeks = await weeksResponse.Content.ReadFromJsonAsync<IEnumerable<WeekOptionDTO>>();
+
+				// Lấy lịch làm việc
+				var workScheduleResponse = await client.GetAsync($"{apiUrl}/work-schedules/current-user/?employeeId={employeeId}&weekNumber={currentWeek}&year={currentYear}");
+				if (!workScheduleResponse.IsSuccessStatusCode)
+				{
+					return View("Error");
+				}
+				var workSchedules = await workScheduleResponse.Content.ReadFromJsonAsync<IEnumerable<WorkScheduleDTO>>();
+
+				var viewData = new CurrentWorkScheduleViewModel
+				{
+					//AvailableYears = years,
+					//AvailableWeeks = weeks,
+					SelectedYear = currentYear,
+					SelectedWeek = currentWeek,
+					WorkSchedules = workSchedules,
+				};
+
+				return View(viewData);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error fetching work schedule for user");
+				ViewData["Error"] = "An error occurred";
+				return View("Error");
+			}
+		}
+
+		private int GetCurrentWeekOfYear()
+		{
+			return CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(DateTime.UtcNow, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+		}
+		private int GetCurrentYear()
+		{
+			return DateTime.UtcNow.Year;
+		}
 
 		public async Task<IActionResult> Add()
 		{
@@ -183,17 +257,17 @@ namespace Web.Controllers
 				var employeeResponse = await client.GetAsync($"{apiUrl}/users/role/4");
 				var employeeData = await employeeResponse.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>();
 
-				// Lấy ws
-				var wsResponse = await client.GetAsync($"{apiUrl}/work-schedules/{model.Id}");
-				if (!wsResponse.IsSuccessStatusCode)
-				{
-					return View("Error");
-				}
-				var wsData = await wsResponse.Content.ReadFromJsonAsync<WorkScheduleDTO>();
-
 				if (!ModelState.IsValid)
 				{
-					model.WorkScheduleData = wsData;
+                    // Lấy ws
+                    var wsResponse = await client.GetAsync($"{apiUrl}/work-schedules/{model.Id}");
+                    if (!wsResponse.IsSuccessStatusCode)
+                    {
+                        return View("Error");
+                    }
+                    var wsData = await wsResponse.Content.ReadFromJsonAsync<WorkScheduleDTO>();
+
+                    model.WorkScheduleData = wsData;
 					model.Employees = employeeData;
 
 					ViewData["Error"] = "Dữ liệu đầu vào thiếu!";
@@ -222,7 +296,14 @@ namespace Web.Controllers
 				}
 				else
 				{
-					model.WorkScheduleData = wsData;
+                    var wsResponse = await client.GetAsync($"{apiUrl}/work-schedules/{model.Id}");
+                    if (!wsResponse.IsSuccessStatusCode)
+                    {
+                        return View("Error");
+                    }
+                    var wsData = await wsResponse.Content.ReadFromJsonAsync<WorkScheduleDTO>();
+
+                    model.WorkScheduleData = wsData;
 					model.Employees = employeeData;
 
 					ViewData["Error"] = "Có lỗi xảy ra!";
