@@ -263,7 +263,12 @@ namespace API.Controllers
                 {
                     return BadRequest("Invalid status value.");
                 }
-
+                // Kiểm tra ngày đặt lịch (chỉ cho phép đặt lịch cho các ngày tiếp theo)
+                if (appointmentDTO.AppointmentDate.HasValue &&
+                    appointmentDTO.AppointmentDate.Value.Date < DateTime.UtcNow.Date)
+                {
+                    return BadRequest("Cannot create an appointment for a past date.");
+                }
                 // Kiểm tra sự tồn tại của dịch vụ được thêm vào cuộc hẹn
                 List<Service> existingServices = new List<Service>();
                 if (appointmentDTO.Services != null && appointmentDTO.Services.Any())
