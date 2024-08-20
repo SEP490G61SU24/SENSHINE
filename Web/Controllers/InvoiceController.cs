@@ -72,7 +72,7 @@ namespace Web.Controllers
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
             var use = await LoadUserAsync();
-            idspa = 1;
+            idspa =  use.SpaId;
             var urlBuilder = new StringBuilder($"{apiUrl}/GetInvoicesPaging?");
 
             if (idspa != null)
@@ -102,7 +102,7 @@ namespace Web.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<InvoiceDTO>>();
+                var paginatedResult = await response.Content.ReadFromJsonAsync<FilteredPaginatedList<InvoiceDTO>>();
                 paginatedResult.SearchTerm = searchTerm;
                 return View(paginatedResult);
             }
