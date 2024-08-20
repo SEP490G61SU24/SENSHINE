@@ -4,6 +4,7 @@ using System.Text;
 using System.Globalization;
 using API.Dtos;
 using API.Ultils;
+using Web.Models;
 
 namespace Web.Controllers
 {
@@ -25,6 +26,12 @@ namespace Web.Controllers
         {
             try
             {
+                var successMessage = TempData["SuccessMsg"];
+                if (successMessage != null)
+                {
+                    ViewData["SuccessMsg"] = successMessage;
+                }
+
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
 
@@ -34,7 +41,7 @@ namespace Web.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<UserDTO>>();   
+                    var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<UserDTO>>();
                     paginatedResult.SearchTerm = searchTerm;
                     return View(paginatedResult);
                 }
@@ -84,9 +91,9 @@ namespace Web.Controllers
                     user.MidName = string.Join(" ", nameArr.Skip(1).Take(nameArr.Length - 2));
                 }
 
-				user.UserName = (RemoveDiacritics(user.LastName) + user.ProvinceCode + GenerateRandomString(4)).ToLower();
+                user.UserName = (RemoveDiacritics(user.LastName) + user.ProvinceCode + GenerateRandomString(4)).ToLower();
 
-				var apiUrl = _configuration["ApiUrl"];
+                var apiUrl = _configuration["ApiUrl"];
 
                 var json = JsonSerializer.Serialize(user);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -96,9 +103,7 @@ namespace Web.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var responseString = await response.Content.ReadAsStringAsync();
-                    var responseData = JsonSerializer.Deserialize<UserDTO>(responseString);
-
+                    TempData["SuccessMsg"] = "Thêm người dùng thành công!";
                     return RedirectToAction("Index", "User");
                 }
                 else
@@ -179,10 +184,7 @@ namespace Web.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var responseString = await response.Content.ReadAsStringAsync();
-                    var responseData = JsonSerializer.Deserialize<UserDTO>(responseString);
-
-                    //return View(responseData);
+                    TempData["SuccessMsg"] = "Sửa người dùng thành công!";
                     return RedirectToAction("Index", "User");
                 }
                 else
@@ -212,22 +214,179 @@ namespace Web.Controllers
             return new string(stringChars);
         }
 
-		public static string RemoveDiacritics(string text)
-		{
-			var normalizedString = text.Normalize(NormalizationForm.FormD);
-			var stringBuilder = new StringBuilder();
+        public static string RemoveDiacritics(string text)
+        {
+            var normalizedString = text.Normalize(NormalizationForm.FormD);
+            var stringBuilder = new StringBuilder();
 
-			foreach (var c in normalizedString)
-			{
-				var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
-				if (unicodeCategory != UnicodeCategory.NonSpacingMark)
-				{
-					stringBuilder.Append(c);
-				}
-			}
+            foreach (var c in normalizedString)
+            {
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
 
-			return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
-		}
+            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+        }
 
-	}
+        [HttpGet]
+        public async Task<IActionResult> ChangePass(int id)
+        {
+            try
+            {
+                var apiUrl = _configuration["ApiUrl"];
+                var client = _clientFactory.CreateClient();
+                var response = await client.GetAsync($"{apiUrl}/users/{id}");
+                if (!response.IsSuccessStatusCode)
+                {
+                    ViewData["Error"] = "Lấy dữ liệu người dùng không thành công!";
+                    return View("Error/500");
+                }
+
+                var user = await response.Content.ReadFromJsonAsync<UserDTO>();
+
+                var cpDto = new ChangePasswordDTO
+                {
+                    UserName = user.UserName + $"({user.Phone})",
+                    UserId = id,
+                    NewPassword = "123456"
+                };
+                return View(cpDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during login");
+                ViewData["Error"] = "An error occurred";
+                return View("Error");
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangePass(ChangePasswordDTO model)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(model.NewPassword) || string.IsNullOrEmpty(model.RePassword))
+                {
+                    ViewData["Error"] = "Vui lòng điền đủ thông tin!";
+                    return View(model);
+                }
+
+                if (model.NewPassword != model.RePassword)
+                {
+                    ViewData["Error"] = "Mật khẩu nhập lại không khớp!";
+                    return View(model);
+                }
+
+                var apiUrl = _configuration["ApiUrl"];
+                using var client = _clientFactory.CreateClient();
+                var response = await client.GetAsync($"{apiUrl}/users/{model.UserId}");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    ViewData["Error"] = "Lấy dữ liệu người dùng không thành công!";
+                    return View(model);
+                }
+
+                //var responseString = await response.Content.ReadAsStringAsync();
+                //var uDto = JsonSerializer.Deserialize<UserDTO>(responseString);
+                UserDTO uDto = await response.Content.ReadFromJsonAsync<UserDTO>();
+
+                if (uDto == null || uDto != null && uDto.UserName == null)
+                {
+                    ViewData["Error"] = "Chuyển đổi dữ liệu người dùng không thành công!";
+                    return View(model);
+                }
+
+                var data = new ChangePasswordDTO
+                {
+                    UserName = uDto.UserName,
+                    NewPassword = model.NewPassword,
+                };
+
+                var json = JsonSerializer.Serialize(data);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var responsecp = await client.PostAsync($"{apiUrl}/users/changepass", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["SuccessMsg"] = "Đổi mật khẩu thành công!";
+                    return RedirectToAction("Index", "User");
+                }
+                else
+                {
+                    var responseStringCp = await responsecp.Content.ReadAsStringAsync();
+                    ViewData["Error"] = responseStringCp;
+                    return View(model);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during work schedule creation");
+                ViewData["Error"] = "An error occurred";
+                return View("Error");
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Workschedule(int id, int? selectedWeek = null, int? selectedYear = null)
+        {
+            try
+            {
+                var apiUrl = _configuration["ApiUrl"];
+                using var client = _clientFactory.CreateClient();
+                var response = await client.GetAsync($"{apiUrl}/users/{id}");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    ViewData["Error"] = "Lấy dữ liệu người dùng không thành công!";
+                    return View("Error");
+                }
+
+                UserDTO uDto = await response.Content.ReadFromJsonAsync<UserDTO>();
+
+                var employeeId = id;
+                ViewData["employeeId"] = employeeId;
+
+                // Nếu không có tuần nào được chọn, chọn tuần, năm hiện tại
+                var currentWeek = selectedWeek ?? GetCurrentWeekOfYear();
+                var currentYear = selectedYear ?? GetCurrentYear();
+
+                // Lấy lịch làm việc
+                var workScheduleResponse = await client.GetAsync($"{apiUrl}/work-schedules/current-user/?employeeId={employeeId}&weekNumber={currentWeek}&year={currentYear}");
+                if (!workScheduleResponse.IsSuccessStatusCode)
+                {
+                    return View("Error");
+                }
+                var workSchedules = await workScheduleResponse.Content.ReadFromJsonAsync<IEnumerable<WorkScheduleDTO>>();
+
+                var viewData = new CurrentWorkScheduleViewModel
+                {
+                    UserString = $"{uDto.UserName} ({uDto.FullName}) - ({uDto.Phone})",
+                    SelectedYear = currentYear,
+                    SelectedWeek = currentWeek,
+                    WorkSchedules = workSchedules,
+                };
+
+                return View(viewData);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching work schedule for user");
+                ViewData["Error"] = "An error occurred";
+                return View("Error");
+            }
+        }
+
+        private int GetCurrentWeekOfYear()
+        {
+            return CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(DateTime.UtcNow, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+        }
+        private int GetCurrentYear()
+        {
+            return DateTime.UtcNow.Year;
+        }
+    }
 }

@@ -2,9 +2,8 @@
 using API.Dtos;
 using API.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using API.Ultils;
+using System.Globalization;
 
 namespace API.Services.Impl
 {
@@ -36,7 +35,17 @@ namespace API.Services.Impl
                 return null;
             }
 
+            var emp = await _context.Users.FirstOrDefaultAsync(x => x.Id == workScheduleDto.EmployeeId);
+            
+            if(emp == null)
+            {
+                throw new InvalidOperationException("Không tìm thấy nhân viên.");
+            }
+
             _mapper.Map(workScheduleDto, existingWorkSchedule);
+            
+            existingWorkSchedule.Employee = emp;
+
             _context.WorkSchedules.Update(existingWorkSchedule);
             await _context.SaveChangesAsync();
 
@@ -93,8 +102,8 @@ namespace API.Services.Impl
 
             // Lấy danh sách với phân trang
             var wsList = await query.Skip((pageIndex - 1) * pageSize)
-                                   .Take(pageSize)
-                                   .ToListAsync();
+                .Take(pageSize)
+                .ToListAsync();
 
             var wsDtos = _mapper.Map<IEnumerable<WorkScheduleDTO>>(wsList);
 
@@ -105,6 +114,146 @@ namespace API.Services.Impl
                 PageSize = pageSize,
                 TotalCount = count,
             };
+        }
+
+        public async Task<IEnumerable<WorkScheduleDTO>> GetWorkSchedulesByWeek(int employeeId, DateTime startDate, DateTime endDate)
+        {
+            var workSchedules = await _context.WorkSchedules
+                .Include(ws => ws.Employee)
+                .Where(ws => ws.EmployeeId == employeeId &&
+                (ws.StartDateTime <= endDate && ws.EndDateTime >= startDate))
+                .ToListAsync();
+
+            return _mapper.Map<IEnumerable<WorkScheduleDTO>>(workSchedules);
+        }
+
+        public async Task<IEnumerable<WeekOptionDTO>> GetAvailableWeeks(int employeeId, int year)
+        {
+			//         // Lấy danh sách tất cả các lịch làm việc của nhân viên
+			//         var workSchedules = await _context.WorkSchedules
+			//       .Where(ws => ws.EmployeeId == employeeId && ws.StartDateTime.HasValue && ws.StartDateTime.Value.Year == year)
+			//	.ToListAsync();
+
+			//         var workSchedulesDTO = _mapper.Map<IEnumerable<WorkScheduleDTO>>(workSchedules);
+
+			//var weekOptions = workSchedulesDTO
+			//       .Select(ws => new WeekOptionDTO
+			//       {
+			//        Year = ws.StartDateTime.HasValue ? ws.StartDateTime.Value.Year : 0,
+			//        WeekNumber = ws.StartDateTime.HasValue ? CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(ws.StartDateTime.Value, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday) : 0,
+			//        StartDate = ws.StartDateTime.HasValue
+			//	        ? new DateTime(ws.StartDateTime.Value.Year, 1, 1)
+			//		        .AddDays(7 * (CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(ws.StartDateTime.Value, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday) - 1))
+			//	        : DateTime.MinValue,
+			//        EndDate = ws.EndDateTime.HasValue
+			//	        ? new DateTime(ws.EndDateTime.Value.Year, 1, 1)
+			//		        .AddDays(7 * (CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(ws.EndDateTime.Value, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday) - 1))
+			//		        .AddDays(6)
+			//	        : DateTime.MinValue
+			//       })
+			//       .Distinct()
+			//       .OrderBy(w => w.Year)
+			//       .ThenBy(w => w.WeekNumber)
+			//       .ToList();
+
+			//if (!weekOptions.Any())
+			//{
+			//	var currentYear = year;
+			//	var currentWeek = CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(DateTime.Now, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+
+			//	var weekOptionsInCurrentYear = Enumerable.Range(currentWeek, 52 - currentWeek + 1)
+			//		.Select(week => new WeekOptionDTO
+			//		{
+			//			Year = currentYear,
+			//			WeekNumber = week,
+			//			StartDate = new DateTime(currentYear, 1, 1)
+			//				.AddDays(7 * (week - 1)),
+			//			EndDate = new DateTime(currentYear, 1, 1)
+			//				.AddDays(7 * week - 1)
+			//		})
+			//		.ToList();
+
+			//	return weekOptionsInCurrentYear;
+			//}
+
+			//return weekOptions;
+
+			var calendar = CultureInfo.InvariantCulture.Calendar;
+			var startOfYear = new DateTime(year, 1, 1);
+			var endOfYear = new DateTime(year, 12, 31);
+
+			var weeks = new List<WeekOptionDTO>();
+			var currentDate = startOfYear;
+
+			while (currentDate.DayOfWeek != DayOfWeek.Monday)
+			{
+				currentDate = currentDate.AddDays(1);
+			}
+
+			while (currentDate <= endOfYear)
+			{
+				var weekNumber = calendar.GetWeekOfYear(currentDate, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+				var startOfWeek = currentDate;
+				var endOfWeek = startOfWeek.AddDays(6);
+
+				weeks.Add(new WeekOptionDTO
+				{
+					Year = year,
+					WeekNumber = weekNumber,
+					StartDate = startOfWeek,
+					EndDate = endOfWeek
+				});
+
+				// Di chuyển đến tuần tiếp theo
+				currentDate = endOfWeek.AddDays(1);
+			}
+
+			return weeks;
+		}
+
+        public async Task<IEnumerable<int>> GetAvailableYears(int employeeId)
+        {
+            var workSchedules = await _context.WorkSchedules
+                .Where(ws => ws.EmployeeId == employeeId)
+                .ToListAsync();
+
+            var wsDtos = _mapper.Map<IEnumerable<WorkScheduleDTO>>(workSchedules);
+
+            var years = wsDtos
+               .Select(ws => ws.StartDateTime?.Year)
+               .Where(year => year.HasValue)
+               .Select(year => year.Value)
+               .Distinct()
+               .OrderBy(year => year)
+               .ToList();
+
+            var currentYear = DateTime.Now.Year;
+            
+            if (!years.Any())
+            {
+                years = new List<int>
+                    {
+                        currentYear - 1,
+                        currentYear,
+                        currentYear + 1,
+                    };
+            }
+			else
+			{
+				var minYear = years.Min();
+
+				var rangeYears = Enumerable.Range(minYear, currentYear - minYear + 1);
+
+				var resultYears = rangeYears
+					.Union(new List<int> { currentYear + 1 })
+					.Distinct()
+					.OrderBy(year => year)
+					.ToList();
+
+				years = resultYears;
+			}
+
+			return years;
         }
     }
 }
