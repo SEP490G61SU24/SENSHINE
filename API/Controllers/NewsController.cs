@@ -101,7 +101,7 @@ namespace API.Controllers
         }
 
         [HttpGet("GetNewsPaging")]
-        public async Task<IActionResult> GetAllNewsPaging([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
+        public async Task<IActionResult> GetAllNewsPaging([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null, [FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null)
         {
             try
             {
@@ -110,7 +110,7 @@ namespace API.Controllers
                     return BadRequest("Chỉ số trang hoặc kích thước trang không hợp lệ.");
                 }
 
-                var pageData = await _newsService.GetNews(pageIndex, pageSize, searchTerm);
+                var pageData = await _newsService.GetNews(pageIndex, pageSize, searchTerm,startDate,endDate);
                 return Ok(pageData);
             }
             catch (InvalidOperationException ex)

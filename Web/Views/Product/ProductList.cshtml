@@ -1,6 +1,4 @@
-﻿
-@model IEnumerable<Web.Models.ProductViewModel>
-
+﻿@model API.Ultils.FilteredPaginatedList<Web.Models.ProductViewModel>
 @{
     ViewData["Title"] = "Danh sách sản phẩm";
     ViewData["ActionName"] = "Thêm sản phẩm";
@@ -31,20 +29,32 @@
 
 <div class="card">
     <div class="card-body">
-        <div class="list-promotion-header">
-            <div>
-                <div class="light-box">
-                    <a data-bs-toggle="collapse" href="#collapsePromotion" role="button" aria-expanded="false" aria-controls="collapsePromotion">
-                        <i class="filter-icon show" data-feather="filter"></i><i class="icon-close filter-close hide"></i>
-                    </a>
-                </div>
-            </div>
-            <div class="collapse" id="collapsePromotion">
-                <div class="card card-body list-promotion-body">
-                    <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3">
+        <div class="table-responsive custom-scrollbar">
+            <div class="search-page">
+                <form class="theme-form mb-3" method="GET">
+                    <div class="dataTables_length" id="table_length">
+                        <label>
+                            Hiển thị
+                            <select aria-controls="table" class="" asp-for="PageSize" name="PageSize" id="PageSize" onchange="this.form.submit()">
+                                @foreach (var pSize in new List<(int Value, string Name)>
+                                {
+                                (Value: 5, Name: "5"),
+                                (Value: 10, Name: "10"),
+                                (Value: 25, Name: "25"),
+                                (Value: 50, Name: "50"),
+                                (Value: 100, Name: "100"),
+                                })
+                                {
+                                    <option value="@pSize.Value" selected="@(pSize.Value == Model.PageSize ? "selected" : null)">@pSize.Name</option>
+                                }
+                            </select>
+                            bản ghi
+                        </label>
+                    </div>
+                    <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3 mt-3">
                         <div class="col">
                             <label for="categoryname" class="form-label">Select Category</label>
-                            <select id="categoryname" class="form-select" aria-label="Select Category" onchange="fetchProductsByFilters()">
+                            <select id="categoryname" name="categoryName" class="form-select" aria-label="Select Category" onchange="updateCategoryHiddenInput()">
                                 <option selected disabled>All Category</option>
                                 @if (categories != null)
                                 {
@@ -54,10 +64,11 @@
                                     }
                                 }
                             </select>
+                            <input type="hidden" id="hiddenCategoryName"  value="@Model.CategoryName" />
                         </div>
                         <div class="col">
-                            <label for="quantity" class="form-label">Quantity Range</label>
-                            <select id="quantity" class="form-select" aria-label="Select Quantity Range" onchange="fetchProductsByFilters()">
+                            <label for="quantityRange" class="form-label">Quantity Range</label>
+                            <select id="quantityRange" name="quantityRange" class="form-select" aria-label="Select Quantity Range" onchange="updateQuantityHiddenInput()">
                                 <option value="" selected disabled>Select Quantity Range</option>
                                 <option value="0-10">&lt;10</option>
                                 <option value="0-100">&lt;100</option>
@@ -66,10 +77,11 @@
                                 <option value="1000-9999">&gt; 1000</option>
                                 <option value="0-99999">All</option>
                             </select>
+                            <input type="hidden" id="hiddenQuantityRange" value="@Model.QuantityRange"/>
                         </div>
                         <div class="col">
-                            <label for="price" class="form-label">Price Range</label>
-                            <select id="price" class="form-select" aria-label="Select Price Range" onchange="fetchProductsByFilters()">
+                            <label for="priceRange" class="form-label">Price Range</label>
+                            <select id="priceRange" name="priceRange" class="form-select" aria-label="Select Price Range" onchange="updatePriceHiddenInput()">
                                 <option value="" selected disabled>Select Price Range</option>
                                 <option value="0-100">&lt;100</option>
                                 <option value="0-500">&lt;500</option>
@@ -77,33 +89,40 @@
                                 <option value="1000-9999">&gt; 1000</option>
                                 <option value="0-99999">All</option>
                             </select>
+                            <input type="hidden" id="hiddenPriceRange"  value="@Model.PriceRange" />
                         </div>
                     </div>
-                </div>
+                    <div class="input-group m-0 flex-nowrap">
+                        <input class="form-control-plaintext" name="searchTerm" type="search" value="@(Model.SearchTerm ?? null)" placeholder="Nhập tên, số điện thoại ..."><button class="btn btn-primary input-group-text">Tìm kiếm</button>
+                    </div>
+                </form>
             </div>
-        </div>
-
-        <div class="table-responsive custom-scrollbar">
             <table class="display" id="products-table">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Name</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Actions</th>
+                        <th>Hình ảnh</th>
+                        <th>Tên sản phẩm</th>
+                        <th>Thể loại</th>
+                        <th>Giá</th>
+                        <th>Số lượng</th>
+                        <th>Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model)
+                    @foreach (var item in Model.Items)
                     {
                         <tr>
                             <td>@item.Id</td>
+                            <td>
+                                <img src="@Url.Content(item.ProductImages.Select(x => x.ImageUrl).FirstOrDefault() ?? "~/assets/images/Logo Senshine.png")" alt="Cover Image" style="width: 130px; height: 100px;" />
+                            </td>
                             <td>@item.ProductName</td>
-                            <td>@item.Price</td>
+                            <td>
+                                @string.Join(", ", item.Categories.Select(c => c.CategoryName))
+                            </td>
+                            <td>@String.Format("{0:0,0} VND", @item.Price)</td>
                             <td>@item.Quantity</td>
-                            
-                           
                             <td>
                                 <ul class="action">
                                     <li class="edit"><a href="@Url.Action("Edit", "Product", new { id = item.Id })"><i class="icon-pencil-alt"></i></a></li>
@@ -115,6 +134,29 @@
                     }
                 </tbody>
             </table>
+            <div class="dataTables_wrapper no-footer">
+                <div class="dataTables_paginate paging_simple_numbers" id="table_paginate">
+                    <a class="paginate_button previous @(Model.HasPreviousPage ? "" : "disabled")"
+                       aria-controls="table"
+                       href="@(Model.HasPreviousPage ? $"?searchTerm={Model.SearchTerm}&pageIndex={Model.PageIndex - 1}&pageSize={Model.PageSize}" : "javascript:void(0);")"
+                       id="table_previous">« Trước</a>
+
+                    <span>
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <a class="@(i == Model.PageIndex ? "paginate_button current" : "paginate_button")"
+                               aria-controls="table"
+                               href="?searchTerm=@Model.SearchTerm&pageIndex=@i&pageSize=@Model.PageSize"
+                               data-dt-idx="@i">@i</a>
+                        }
+                    </span>
+
+                    <a class="paginate_button next @(Model.HasNextPage ? "" : "disabled")"
+                       aria-controls="table"
+                       href="@(Model.HasNextPage ? $"?searchTerm={Model.SearchTerm}&pageIndex={Model.PageIndex + 1}&pageSize={Model.PageSize}" : "javascript:void(0);")"
+                       id="table_next">Tiếp »</a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -142,48 +184,10 @@
             $('#products-table').DataTable({
                 paging: false,
                 searching: false,
-                columns: [
-                    { data: 'id' },
-                    { data: 'productName' },
-                    { data: 'price' },
-                    { data: 'quantity' },
-                    
-                    {
-                        data: null, // Use null as there is no `actions` field in the response
-                        render: function (data, type, row) {
-                            return `
-                            <ul class="action">
-                                <li class="edit"><a href="/product/edit/${row.id}"><i class="icon-pencil-alt"></i></a></li>
-                                >
-                                <li class="delete"><a href="#" onclick="confirmDelete(${row.id})"><i class="icon-trash"></i></a></li>
-                            </ul>
-                        `;
-                        }
-                    }
-                ]
+               
             });
         });
-        function fetchProductsByFilters() {
-            var categoryName = $('#categoryname').val();
-            var quantityRange = $('#quantity').val();
-            var priceRange = $('#price').val();
-
-            $.ajax({
-                url: `http://localhost:5297/api/GetFilterProducts?categoryName=${encodeURIComponent(categoryName || '')}&quantityRange=${encodeURIComponent(quantityRange || '')}&priceRange=${encodeURIComponent(priceRange || '')}`,
-                type: 'GET',
-                success: function (response) {
-                    // Clear the existing data
-                    var table = $('#products-table').DataTable();
-                    table.clear();
-
-                    // Add new data
-                    table.rows.add(response).draw();
-                },
-                error: function (xhr, status, error) {
-                    console.error("Failed to fetch products:", error);
-                }
-            });
-        }
+        
 
 
         function confirmDelete(id) {
@@ -227,7 +231,20 @@
                 }
             });
         }
-       
-      
+        function updateHiddenInput() {
+            var selectElement = document.getElementById('quantityRange');
+            var hiddenInput = document.getElementById('hiddenQuantityRange');
+            hiddenInput.value = selectElement.value;
+        }
+        function updatePriceHiddenInput() {
+            var selectElement = document.getElementById('priceRange');
+            var hiddenInput = document.getElementById('hiddenPriceRange');
+            hiddenInput.value = selectElement.value;
+        }
+        function updateCategoryHiddenInput() {
+            var selectElement = document.getElementById('categoryname');
+            var hiddenInput = document.getElementById('hiddenCategoryName');
+            hiddenInput.value = selectElement.value;
+        }
     </script>
 }

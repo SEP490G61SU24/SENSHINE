@@ -1,5 +1,6 @@
 ﻿using API.Dtos;
 using API.Models;
+using API.Ultils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -23,31 +24,94 @@ namespace Web.Controllers
             _clientFactory = clientFactory;
             _logger = logger;
         }
-        [HttpGet]
-        public async Task<IActionResult> InvoiceList()
+        private async Task<UserViewModel> LoadUserAsync()
         {
-            var apiUrl = _configuration["ApiUrl"];
-            var client = _clientFactory.CreateClient();
-            List<InvoiceDTO> viewList = new List<InvoiceDTO>();
+            var user = new UserViewModel();
+            var token = HttpContext.Session.GetString("Token");
 
-
-            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/ListInvoice");
-            if (response.IsSuccessStatusCode)
+            if (!string.IsNullOrEmpty(token))
             {
-                string data = await response.Content.ReadAsStringAsync();
-                viewList = JsonConvert.DeserializeObject<List<InvoiceDTO>>(data);
+                var userProfile = await GetUserProfileAsync(token);
+
+                if (userProfile != null)
+                {
+                    user.Id = userProfile.Id;
+                    user.UserName = userProfile.UserName;
+                    user.FirstName = userProfile.FirstName;
+                    user.MidName = userProfile.MidName;
+                    user.LastName = userProfile.LastName;
+                    user.Phone = userProfile.Phone;
+                    user.BirthDate = userProfile.BirthDate;
+                    user.Status = userProfile.Status;
+                    user.StatusWorking = userProfile.StatusWorking;
+                    user.SpaId = userProfile.SpaId;
+                    user.ProvinceCode = userProfile.ProvinceCode;
+                    user.DistrictCode = userProfile.DistrictCode;
+                    user.WardCode = userProfile.WardCode;
+                    user.Address = userProfile.Address;
+                    user.Roles = userProfile.Roles;
+                    user.RoleName = userProfile.RoleName;
+                    user.RoleId = userProfile.RoleId;
+                    user.FullName = $"{userProfile.FirstName} {userProfile.MidName} {userProfile.LastName}";
+                }
+                else
+                {
+                    ViewData["Error"] = "Failed to retrieve user profile.";
+                }
             }
             else
             {
-                // Handle error (e.g., log it)
-                ModelState.AddModelError(string.Empty, "An error occurred while fetching invoices.");
+                ModelState.AddModelError(string.Empty, "An error occurred while fetching the user profile.");
             }
 
-
-
-            ViewData["Title"] = "List Invoices";
-            return View(viewList);
+            return user;
         }
+        [HttpGet]
+        public async Task<IActionResult> InvoiceList(int? idspa, int pageIndex = 1, int pageSize = 10, string searchTerm = null, DateTime? startDate = null, DateTime? endDate = null,string? status= null)
+        {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
+            var use = await LoadUserAsync();
+            idspa =  use.SpaId;
+            var urlBuilder = new StringBuilder($"{apiUrl}/GetInvoicesPaging?");
+
+            if (idspa != null)
+            {
+                urlBuilder.Append($"idspa={idspa}&");
+            }
+
+            if (startDate != null)
+            {
+                urlBuilder.Append($"startDate={startDate}&");
+            }
+
+            if (endDate != null)
+            {
+                urlBuilder.Append($"endDate={endDate}&");
+            }
+            if (status != null)
+            {
+                urlBuilder.Append($"status={status}&");
+            }
+            urlBuilder.Append($"pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}");
+
+            // Remove the trailing '&' if it exists
+            var url = urlBuilder.ToString().TrimEnd('&');
+
+            HttpResponseMessage response = await client.GetAsync(url);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var paginatedResult = await response.Content.ReadFromJsonAsync<FilteredPaginatedList<InvoiceDTO>>();
+                paginatedResult.SearchTerm = searchTerm;
+                return View(paginatedResult);
+            }
+            else
+            {
+                return View("Error");
+            }
+        }
+       
 
         private async Task<List<BranchViewModel>> LoadSpasAsync()
         {

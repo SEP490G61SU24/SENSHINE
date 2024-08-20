@@ -1,4 +1,7 @@
-﻿using API.Models;
+﻿using API.Dtos;
+using API.Models;
+using API.Ultils;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Services.Impl
@@ -6,10 +9,12 @@ namespace API.Services.Impl
     public class BranchService : IBranchService
     {
         private readonly SenShineSpaContext _context;
+        private readonly IMapper _mapper;
 
-        public BranchService(SenShineSpaContext context)
+        public BranchService(SenShineSpaContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<Spa> CreateBranch(Spa branch)
@@ -28,7 +33,7 @@ namespace API.Services.Impl
             }
         }
 
-        public ICollection<Spa> GetBranchs()
+        public List<Spa> GetAllBranches()
         {
             try
             {
@@ -45,7 +50,7 @@ namespace API.Services.Impl
         {
             try
             {
-                var branchs = GetBranchs();
+                var branchs = GetAllBranches();
                 return branchs.FirstOrDefault(b => b.Id == id);
             }
             catch (Exception ex)
@@ -123,6 +128,35 @@ namespace API.Services.Impl
                 // Handle or log the exception as needed
                 throw new Exception($"Error retrieving branch ID for user with ID {id}.", ex);
             }
+        }
+
+        public async Task<PaginatedList<BranchDTO>> GetBranches(int pageIndex, int pageSize, string searchTerm)
+        {
+            // Tạo query cơ bản
+            IQueryable<Spa> query = _context.Spas;
+
+            // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(b => b.SpaName.Contains(searchTerm));
+            }
+
+            // Đếm tổng số bản ghi để tính tổng số trang
+            var count = await query.CountAsync();
+
+            // Lấy danh sách với phân trang
+            var branches = await query.Skip((pageIndex - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync();
+            var branchesDtos = _mapper.Map<IEnumerable<BranchDTO>>(branches);
+
+            return new PaginatedList<BranchDTO>
+            {
+                Items = branchesDtos,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = count,
+            };
         }
     }
 }

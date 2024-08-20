@@ -18,7 +18,10 @@ namespace Web.Models
 
         [DisplayName("Appointment Date")]
         public DateTime AppointmentDate { get; set; }
-
+        [DisplayName("Slot")]
+        public string AppointmentSlot { get; set; }
+        public string? BedNumber { get; set; }
+        public string? RoomName { get; set; }
         [DisplayName("Status")]
         public string Status { get; set; }
         public List<int> SelectedServiceIds { get; set; } = new List<int>();

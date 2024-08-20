@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using API.Models;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -8,25 +9,55 @@ using Web.Models;
 
 namespace Web.Controllers
 {
-    public class BedController : Controller
+    public class BedController :  BaseController
     {
-        private readonly HttpClient _httpClient;
+        private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _clientFactory;
+        private readonly ILogger<UserController> _logger;
 
-        public BedController()
+
+        public BedController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<UserController> logger) : base(configuration, clientFactory, logger)
         {
-            _httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:5297/api") };
+            _configuration = configuration;
+            _clientFactory = clientFactory;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index()
         {
+            int? spaId = 0;
+            var token = HttpContext.Session.GetString("Token");
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                var userProfile = await GetUserProfileAsync(token);
+                if (userProfile != null)
+                {
+                    spaId = userProfile.SpaId;
+                }
+                else
+                {
+                    ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
+                }
+            }
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             List<BedViewModel> bedList = new List<BedViewModel>();
 
-            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/Bed/GetAllBeds");
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Room/GetAllRoom");
 
             if (response.IsSuccessStatusCode)
             {
                 string jsonString = await response.Content.ReadAsStringAsync();
-                bedList = JsonConvert.DeserializeObject<List<BedViewModel>>(jsonString);
+                var roomList = JsonConvert.DeserializeObject<List<RoomViewModel>>(jsonString);
+                roomList = roomList.Where(x => x.SpaId==spaId).ToList();
+                foreach(var room in roomList)
+                {
+                    HttpResponseMessage response1 = await client.GetAsync($"{apiUrl}/Bed/GetByRoomId/ByRoomId/" + room.Id);
+                    string jsonString1 = await response1.Content.ReadAsStringAsync();
+                    var bed = JsonConvert.DeserializeObject<List<BedViewModel>>(jsonString1);
+                    bedList.AddRange(bed);
+                }
             }
             return View(bedList);
         }
@@ -42,30 +73,68 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(BedViewModel bedViewModel)
         {
-            if (!ModelState.IsValid)
+
+            int? spaId = 0;
+            var token = HttpContext.Session.GetString("Token");
+
+            if (!string.IsNullOrEmpty(token))
             {
-                var rooms = await GetAvailableRooms();
-                ViewBag.Rooms = rooms;
-                return View(bedViewModel);
+                var userProfile = await GetUserProfileAsync(token);
+                if (userProfile != null)
+                {
+                    spaId = userProfile.SpaId;
+                }
+                else
+                {
+                    ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
+                }
+            }
+            try
+            {
+                var apiUrl = _configuration["ApiUrl"];
+                var client = _clientFactory.CreateClient();
+
+                if (!ModelState.IsValid)
+                {
+                    var rooms = await GetAvailableRooms();
+                    ViewBag.Rooms = rooms;
+                    return View(bedViewModel);
+                }
+                
+                string jsonString = JsonConvert.SerializeObject(bedViewModel);
+                var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await client.PostAsync($"{apiUrl}/Bed/AddBed", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("Index");
+                }
+
+                string errorMessage = await response.Content.ReadAsStringAsync();
+                ModelState.AddModelError(string.Empty, errorMessage);
+            }
+            catch (HttpRequestException httpEx)
+            {
+                _logger.LogError(httpEx, "Error occurred while making an HTTP request.");
+                ModelState.AddModelError(string.Empty, "An error occurred while communicating with the server. Please try again later.");
+            }
+            catch (JsonSerializationException jsonEx)
+            {
+                _logger.LogError(jsonEx, "Error occurred while serializing or deserializing JSON.");
+                ModelState.AddModelError(string.Empty, "An error occurred with the data format. Please check your inputs.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred.");
+                ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please try again.");
             }
 
-            string jsonString = JsonConvert.SerializeObject(bedViewModel);
-            var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
-
-            HttpResponseMessage response = await _httpClient.PostAsync(_httpClient.BaseAddress + "/Bed/AddBed", content);
-
-            if (response.IsSuccessStatusCode)
-            {
-                return RedirectToAction("Index");
-            }
-
-            string errorMessage = await response.Content.ReadAsStringAsync();
-            ModelState.AddModelError(string.Empty, errorMessage);
-            ViewBag.ErrorMessage = "Cannot create two beds with the same BedNumber in the same room.";
             var roomsList = await GetAvailableRooms();
             ViewBag.Rooms = roomsList;
             return View(bedViewModel);
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
@@ -85,6 +154,8 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(BedViewModel bedViewModel)
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             if (!ModelState.IsValid)
             {
                 var rooms = await GetAvailableRooms();
@@ -95,7 +166,7 @@ namespace Web.Controllers
             string jsonString = JsonConvert.SerializeObject(bedViewModel);
             var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
 
-            HttpResponseMessage response = await _httpClient.PutAsync(_httpClient.BaseAddress + $"/Bed/UpdateBed/{bedViewModel.Id}", content);
+            HttpResponseMessage response = await client.PutAsync($"{apiUrl}/Bed/UpdateBed/{bedViewModel.Id}", content);
 
             if (response.IsSuccessStatusCode)
             {
@@ -113,9 +184,11 @@ namespace Web.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             try
             {
-                var response = await _httpClient.DeleteAsync($"/api/Bed/DeleteBed/{id}");
+                var response = await client.DeleteAsync($"{apiUrl}/api/Bed/DeleteBed/{id}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -132,9 +205,27 @@ namespace Web.Controllers
 
         private async Task<List<RoomViewModel>> GetAvailableRooms()
         {
+
+            int? spaId = 0;
+            var token = HttpContext.Session.GetString("Token");
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                var userProfile = await GetUserProfileAsync(token);
+                if (userProfile != null)
+                {
+                    spaId = userProfile.SpaId;
+                }
+                else
+                {
+                    ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
+                }
+            }
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             List<RoomViewModel> rooms = new List<RoomViewModel>();
 
-            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/Room/GetAll");
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Room/GetAllRoom");
 
             if (response.IsSuccessStatusCode)
             {
@@ -142,12 +233,14 @@ namespace Web.Controllers
                 rooms = JsonConvert.DeserializeObject<List<RoomViewModel>>(jsonString);
             }
 
-            return rooms;
+            return rooms.Where(x=>x.SpaId==spaId).ToList();
         }
 
         private async Task<BedViewModel> GetBedById(int id)
         {
-            HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + $"/Bed/GetBedById/{id}");
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Bed/GetBedById/{id}");
 
             if (response.IsSuccessStatusCode)
             {

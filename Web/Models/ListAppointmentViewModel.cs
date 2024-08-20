@@ -17,13 +17,16 @@ namespace Web.Models
         [DisplayName("Appointment Date")]
         public DateTime AppointmentDate { get; set; }
 
+        [DisplayName("Slot")]
+        public string AppointmentSlot { get; set; }
+
         [DisplayName("Status")]
         public string Status { get; set; }
         [DisplayName("Room")]
-        public RoomAppointmentViewModel Room { get; set; }
+        public string? Room { get; set; }
 
         [DisplayName("Bed")]
-        public BedViewModel Bed { get; set; }
+        public string? Bed { get; set; }
 
         public AppointmentUserViewModel Customer { get; set; }
         public AppointmentUserViewModel Employee { get; set; }

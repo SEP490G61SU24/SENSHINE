@@ -239,5 +239,43 @@ namespace API.Controllers
             var invoices = await _invoiceService.InvoicesByDateRange(from, to);
             return Ok(invoices);
         }
+        [HttpGet("GetInvoicesPaging")]
+        public async Task<IActionResult> GetAllInvoicesPaging([FromQuery] int? idspa = null, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null, [FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null,[FromQuery] string? status = null)
+        {
+            try
+            {
+                if (pageIndex < 1 || pageSize < 1)
+                {
+                    return BadRequest("Chỉ số trang hoặc kích thước trang không hợp lệ.");
+                }
+
+                var pageData = await _invoiceService.GetInvoiceListBySpaId(idspa, pageIndex, pageSize, searchTerm, startDate, endDate,status);
+                return Ok(pageData);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
+        }
+        [HttpGet("revenue-report")]
+        public async Task<IActionResult> GetRevenueReport(DateTime startDate, DateTime endDate)
+        {
+            var reports = await _dbContext.Invoices
+                .Where(i => i.InvoiceDate >= startDate && i.InvoiceDate <= endDate)
+                .GroupBy(i => new { i.InvoiceDate.Year, i.InvoiceDate.Month, i.InvoiceDate.Day })
+                .Select(g => new RevenueReport
+                {
+                    Date = new DateTime(g.Key.Year, g.Key.Month, g.Key.Day),
+                    TotalRevenue = g.Sum(i => i.Amount) ?? 0,
+                    
+                })
+                .ToListAsync();
+
+            return Ok(reports);
+        }
     }
 }

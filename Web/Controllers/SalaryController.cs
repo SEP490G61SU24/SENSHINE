@@ -1,5 +1,6 @@
 ﻿using API.Dtos;
 using API.Models;
+using API.Ultils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
@@ -25,7 +26,7 @@ namespace Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ListSalary(int? month, int? year)
+        public async Task<IActionResult> ListSalary(int month, int year, int employee, int pageIndex = 1, int pageSize = 10, string searchTerm = null)
         {
             try
             {
@@ -38,60 +39,76 @@ namespace Web.Controllers
                     if (userProfile != null)
                     {
                         spaId = userProfile.SpaId;
-                        
+
                     }
                     else
                     {
-                        ViewData["Error"] = "Failed to retrieve user profile.";
+                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
                     }
                 }
                 var apiUrl = _configuration["ApiUrl"];
+                var url = $"{apiUrl}/Salary/GetAll?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}";
                 var client = _clientFactory.CreateClient();
-                List<SalaryViewModel> salaries = new List<SalaryViewModel>();
-                HttpResponseMessage response = null;
-                if (month.HasValue && year.HasValue)
-                {
-                    response = client.GetAsync($"{apiUrl}/Salary/GetByMonthYear?month=" + month + "&year=" + year).Result;
-                }
-                else
-                {
-                    response = client.GetAsync($"{apiUrl}/Salary/GetAll").Result;
-                }
+                PaginatedList<SalaryViewModel> salaries = new PaginatedList<SalaryViewModel>();
+                HttpResponseMessage response = await client.GetAsync(url);
+
                 if (response.IsSuccessStatusCode)
                 {
                     string data = response.Content.ReadAsStringAsync().Result;
-                    salaries = JsonConvert.DeserializeObject<List<SalaryViewModel>>(data);
-                    HttpResponseMessage response2 = null;
-                    foreach (var item in salaries)
+                    salaries = JsonConvert.DeserializeObject<PaginatedList<SalaryViewModel>>(data);
+                    HttpResponseMessage response1 = null;
+                    foreach (var salary in salaries.Items)
                     {
-                        response2 = client.GetAsync($"{apiUrl}/Branch/GetBranchByUser?id=" + item.EmployeeId).Result;
-                        string data2 = response2.Content.ReadAsStringAsync().Result;
-                        int BranchId = JsonConvert.DeserializeObject<int>(data2);
-                        item.BranchId = BranchId;
+                        response1 = client.GetAsync($"{apiUrl}/users/" + salary.EmployeeId).Result;
+                        string response1Body = response1.Content.ReadAsStringAsync().Result;
+                        JObject json1 = JObject.Parse(response1Body);
+                        salary.EmployeeName = json1["firstName"].ToString() + " " + json1["midName"].ToString() + " " + json1["lastName"].ToString();
+                        salary.BranchId = Int32.Parse(json1["spaId"].ToString());
                     }
-                    salaries = salaries.Where(s => s.BranchId == spaId).ToList();
 
-                    foreach (var salary in salaries)
+                    var response4 = client.GetAsync($"{apiUrl}/users/role/3").Result;
+                    var response3 = client.GetAsync($"{apiUrl}/users/role/4").Result;
+                    if (response4.IsSuccessStatusCode && response3.IsSuccessStatusCode)
                     {
-                        HttpResponseMessage response1 = client.GetAsync($"{apiUrl}/user/" + salary.EmployeeId).Result;
-                        if (response1.IsSuccessStatusCode)
+                        var users4 = response4.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
+                        var users3 = response3.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
+                        var combinedUsers = users4.Concat(users3);
+                        combinedUsers = combinedUsers.Where(u => u.SpaId == spaId).ToList();
+                        foreach (var user in combinedUsers)
                         {
-                            string response1Body = response1.Content.ReadAsStringAsync().Result;
-                            JObject json1 = JObject.Parse(response1Body);
-                            salary.EmployeeName = json1["firstName"].ToString() + " " + json1["midName"].ToString() + " " + json1["lastName"].ToString();
+                            user.FullName = string.Join(" ", user.FirstName ?? "", user.MidName ?? "", user.LastName ?? "").Trim();
+                            user.FullName = string.Join(", ", user.FullName ?? "", user.Phone ?? "").Trim();
                         }
-                        else
-                        {
-                            Console.WriteLine("Error");
-                        }
+                        ViewBag.Users = combinedUsers;
                     }
+                    else
+                    {
+                        ViewData["Error"] = "Có lỗi xảy ra";
+                    }
+
+                    // Convert to a list to apply LINQ filters
+                    var filteredSalaries = salaries.Items.Where(s => s.BranchId == spaId).ToList();
+
+                    if (!month.Equals(0) && !year.Equals(0))
+                    {
+                        filteredSalaries = filteredSalaries.Where(s => s.SalaryMonth == month && s.SalaryYear == year).ToList();
+                    }
+
+                    if (!employee.Equals(0))
+                    {
+                        filteredSalaries = filteredSalaries.Where(s => s.EmployeeId.Equals(employee)).ToList();
+                    }
+
+                    // Re-assign filtered cards back to the PaginatedList if necessary
+                    salaries.Items = filteredSalaries;
                 }
 
                 return View(salaries);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }
@@ -113,13 +130,13 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ViewData["Error"] = "Failed to retrieve user profile.";
+                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
                     }
                 }
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
-                var response1 = client.GetAsync($"{apiUrl}/user/byRole/3").Result;
-                var response2 = client.GetAsync($"{apiUrl}/user/byRole/4").Result;
+                var response1 = client.GetAsync($"{apiUrl}/users/role/3").Result;
+                var response2 = client.GetAsync($"{apiUrl}/users/role/4").Result;
                 if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode)
                 {
                     var users1 = response1.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
@@ -141,7 +158,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }
@@ -163,14 +181,14 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ViewData["Error"] = "Failed to retrieve user profile.";
+                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
                     }
                 }
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
 
-                var response1 = client.GetAsync($"{apiUrl}/user/byRole/3").Result;
-                var response2 = client.GetAsync($"{apiUrl}/user/byRole/4").Result;
+                var response1 = client.GetAsync($"{apiUrl}/users/role/3").Result;
+                var response2 = client.GetAsync($"{apiUrl}/users/role/4").Result;
                 if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode)
                 {
                     var users1 = response1.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
@@ -202,7 +220,7 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, "Nhân viên này đã có lương tháng " + salary.SalaryMonth + " năm " + salary.SalaryYear + " hoặc nhân viên không tồn tại");
+                        ViewData["Error"] = "Nhân viên này đã có lương tháng " + salary.SalaryMonth + " năm " + salary.SalaryYear;
                         return View(salary);
 
                     }
@@ -212,7 +230,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }
@@ -231,7 +250,7 @@ namespace Web.Controllers
                 {
                     string data = await response.Content.ReadAsStringAsync();
                     salary = JsonConvert.DeserializeObject<SalaryViewModel>(data);
-                    HttpResponseMessage response1 = client.GetAsync($"{apiUrl}/user/" + salary.EmployeeId).Result;
+                    HttpResponseMessage response1 = client.GetAsync($"{apiUrl}/users/" + salary.EmployeeId).Result;
                     if (response1.IsSuccessStatusCode)
                     {
                         string response1Body = response1.Content.ReadAsStringAsync().Result;
@@ -246,14 +265,16 @@ namespace Web.Controllers
 
                 if (salary == null)
                 {
-                    return NotFound("salary không tồn tại");
+                    ViewData["Error"] = "lương không tồn tại";
+                    return NotFound();
                 }
 
                 return View(salary);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }
@@ -289,7 +310,7 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, "Có lỗi xảy ra khi cập nhật salary");
+                        ViewData["Error"] = "Có lỗi xảy ra khi cập nhật lương";
                         return View(salary);
                     }
                 }
@@ -298,7 +319,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Có lỗi xảy ra.");
+                _logger.LogError(ex, "Error");
+                ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
             }
         }

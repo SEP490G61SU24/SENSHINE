@@ -8,7 +8,10 @@ namespace API.Dtos
         public int? CustomerId { get; set; }
         public int? EmployeeId { get; set; }
         public DateTime? AppointmentDate { get; set; }
+        public string AppointmentSlot { get; set; }
         public string Status { get; set; }
+        public string? RoomName { get; set; }
+        public string? BedNumber { get; set; } 
 
         public virtual AppointmentUserDTO? Customer { get; set; }
         public virtual AppointmentUserDTO? Employee { get; set; }

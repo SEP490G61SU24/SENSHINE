@@ -1,7 +1,9 @@
 ﻿using API.Dtos;
+using API.Ultils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using System;
 using System.Text;
 using Web.Models;
 
@@ -62,23 +64,49 @@ namespace Web.Controllers
             return user;
         }
         [HttpGet]
-        public async Task<IActionResult> ListPromotion()
+        public async Task<IActionResult> ListPromotion(int? idspa, int pageIndex = 1, int pageSize = 10, string searchTerm = null, DateTime? startDate = null, DateTime? endDate = null)
         {
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
-            List<PromotionViewModel> viewList = new List<PromotionViewModel>();
-            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/ListAllPromotion");
+            var use = await LoadUserAsync();
+            idspa = use.SpaId;
+            var urlBuilder = new StringBuilder($"{apiUrl}/GetPromotionsPaging?");
+
+            if (idspa != null)
+            {
+                urlBuilder.Append($"idspa={idspa}&");
+            }
+
+            if (startDate != null)
+            {
+                urlBuilder.Append($"startDate={startDate}&");
+            }
+
+            if (endDate != null)
+            {
+                urlBuilder.Append($"endDate={endDate}&");
+            }
+
+            urlBuilder.Append($"pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}");
+
+            // Remove the trailing '&' if it exists
+            var url = urlBuilder.ToString().TrimEnd('&');
+
+            HttpResponseMessage response = await client.GetAsync(url);
 
             if (response.IsSuccessStatusCode)
             {
-                string data = await response.Content.ReadAsStringAsync();
-                viewList = JsonConvert.DeserializeObject<List<PromotionViewModel>>(data);
+                var paginatedResult = await response.Content.ReadFromJsonAsync<FilteredPaginatedList<PromotionViewModel>>();
+                //paginatedResult.SearchTerm = searchTerm;
+                return View(paginatedResult);
             }
-
-            ViewData["Title"] = "ListPromotion";
-
-            return View(viewList);
+            else
+            {
+                return View("Error");
+            }
         }
+        
+
         [HttpGet]
         public async Task<IActionResult> Add()
         {

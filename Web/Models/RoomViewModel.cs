@@ -10,5 +10,6 @@ namespace Web.Models
         public string RoomName { get; set; } = null!;
         [DisplayName("Chi nhánh")]
         public string? SpaName { get; set; }
+        public List<BedViewModel>? Beds { get; set; }
     }
 }
