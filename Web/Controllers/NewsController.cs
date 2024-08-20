@@ -223,6 +223,22 @@ namespace Web.Controllers
                 return Json(new { success = false, message = "An unexpected error occurred." });
             }
         }
+        [HttpGet]
+        public async Task<IActionResult> NewsDetail(int id)
+        {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/GetNewsDetail/{id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var newsDetail = await response.Content.ReadFromJsonAsync<NewsViewModel>();
+                return View(newsDetail);
+            }
+
+            return View("Error");
+        }
+
 
     }
 }
