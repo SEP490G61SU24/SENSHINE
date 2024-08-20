@@ -4,6 +4,7 @@ namespace Web.Models
 {
     public class CurrentWorkScheduleViewModel
     {
+		public string? UserString { get; set; }
         public IEnumerable<int> AvailableYears { get; set; }
         public int SelectedYear { get; set; }
         public IEnumerable<WeekOptionDTO> AvailableWeeks { get; set; }

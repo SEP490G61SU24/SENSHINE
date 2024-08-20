@@ -89,7 +89,9 @@
                             <td>@(item.Address ?? "N/A")</td>
                             <td>
                                 <ul class="action">
-                                    <li class="edit"><a href="/user/edit/@item.Id"><i class="icon-pencil-alt"></i></a></li>
+                                    <li class="edit"><a href="/user/edit/@item.Id"><i class="icon-pencil-alt"></i> Sửa thông tin</a></li>
+                                    <li class="delete"><a href="/user/changepass/@item.Id"><i class="icon-pencil-alt"></i> Đổi mật khẩu</a></li>
+                                    <li class="delete"><a href="/user/workschedule/@item.Id"><i class="icon-calendar"></i> Lịch làm việc</a></li>
                                     @* <li class="delete"><a href="#"><i class="icon-trash"></i></a></li> *@
                                 </ul>
                             </td>

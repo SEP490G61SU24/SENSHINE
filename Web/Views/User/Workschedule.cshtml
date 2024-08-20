@@ -1,7 +1,7 @@
 ﻿@model Web.Models.CurrentWorkScheduleViewModel
 
 @{
-	ViewData["Title"] = "Lịch làm việc của tôi";
+	ViewData["Title"] = "Lịch làm việc: " + Model.UserString;
 }
 
 @{
@@ -60,7 +60,7 @@
 
 <div class="card">
 	<div class="card-body">
-		<form asp-action="My" method="get">
+		<form asp-action="workschedule" method="get">
 			<div class="mb-2">
 				<label for="yearDropdown">Chọn năm:</label>
 				<select id="yearDropdown" name="SelectedYear" class="form-select btn-square">
