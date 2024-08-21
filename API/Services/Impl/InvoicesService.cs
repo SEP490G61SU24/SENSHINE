@@ -57,7 +57,7 @@ using AutoMapper;
 
             
         }
-        public async Task<PaginatedList<InvoiceDTO>> GetInvoiceListBySpaId(int? spaId = null, int pageIndex = 1, int pageSize = 10, string searchTerm = null, DateTime? startDate = null, DateTime? endDate = null,string? status = null)
+        public async Task<FilteredPaginatedList<InvoiceDTO>> GetInvoiceListBySpaId(int? spaId = null, int pageIndex = 1, int pageSize = 10, string searchTerm = null, DateTime? startDate = null, DateTime? endDate = null,string? status = null)
         {
             // Tạo query cơ bản
             IQueryable<Invoice> query = _context.Invoices
@@ -106,7 +106,7 @@ using AutoMapper;
                                    .ToListAsync();
             var newsDtos = _mapper.Map<IEnumerable<InvoiceDTO>>(news);
 
-            return new PaginatedList<InvoiceDTO>
+            return new FilteredPaginatedList<InvoiceDTO>
             {
                 Items = newsDtos,
                 PageIndex = pageIndex,
