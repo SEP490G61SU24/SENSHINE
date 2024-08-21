@@ -60,12 +60,12 @@ namespace API.Services.Impl
                 throw new ArgumentException("Mật khẩu không được để trống.");
             }
 
-            if (!IsValidPassword(userDto.Password))
-            {
-                throw new ArgumentException("Mật khẩu yếu, vui lòng thử lại.");
-            }
+			if (!IsValidAge(userDto.BirthDate, userDto.RoleId ?? 5))
+			{
+				throw new ArgumentException("Người dùng phải đủ 18 tuổi.");
+			}
 
-            if (!string.IsNullOrEmpty(userDto.UserName))
+			if (!string.IsNullOrEmpty(userDto.UserName))
             {
                 var existingUser = await _context.Users.SingleOrDefaultAsync(u => u.UserName == userDto.UserName);
                 if (existingUser != null)
@@ -86,7 +86,14 @@ namespace API.Services.Impl
             string hashedPassword = null;
             if (!string.IsNullOrEmpty(userDto.Password))
             {
-                hashedPassword = PasswordUtils.HashPassword(userDto.Password);
+				if (!IsValidPassword(userDto.Password))
+				{
+					throw new ArgumentException("Mật khẩu yếu, vui lòng thử lại.");
+				}
+				else
+				{
+				    hashedPassword = PasswordUtils.HashPassword(userDto.Password);
+				}
             }
 
             var user = new User
@@ -145,10 +152,21 @@ namespace API.Services.Impl
 
             if (!string.IsNullOrEmpty(userDto.Password))
             {
-                user.Password = PasswordUtils.HashPassword(userDto.Password);
+				if (!IsValidPassword(userDto.Password))
+				{
+					throw new ArgumentException("Mật khẩu yếu, vui lòng thử lại.");
+				} else
+                {
+				    user.Password = PasswordUtils.HashPassword(userDto.Password);
+                }
             }
 
-            if (!string.IsNullOrEmpty(userDto.Phone))
+			if (!IsValidAge(userDto.BirthDate, userDto.RoleId ?? 5))
+			{
+				throw new ArgumentException("Người dùng phải đủ 18 tuổi.");
+			}
+
+			if (!string.IsNullOrEmpty(userDto.Phone))
             {
                 bool phoneExists = await _context.Users
                     .Where(u => u.Phone == userDto.Phone && u.Id != id)
@@ -358,6 +376,11 @@ namespace API.Services.Impl
                 }
             }
 
+            if (!IsValidPassword(newPassword))
+            {
+                throw new ArgumentException("Mật khẩu mới yếu, vui lòng thử lại.");
+            }
+
             user.Password = PasswordUtils.HashPassword(newPassword);
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
@@ -367,8 +390,30 @@ namespace API.Services.Impl
 
         private bool IsValidPassword(string password)
         {
-            var regex = new Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&^])[A-Za-z\\d@$!%*?&^]{8,}$");
+            var regex = new Regex("(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\\W).{8,}");
             return regex.IsMatch(password);
         }
-    }
+
+		private bool IsValidAge(DateTime? birthDate, int roleId)
+		{
+            if (roleId != 5)
+            {
+				if (!birthDate.HasValue)
+				{
+					throw new ArgumentException("Ngày sinh không hợp lệ.");
+				}
+
+				int age = DateTime.Now.Year - birthDate.Value.Year;
+
+				if (birthDate.Value.Date > DateTime.Now.AddYears(-age))
+				{
+					age--;
+				}
+
+				return age >= 18;
+			}
+
+            return true;
+		}
+	}
 }

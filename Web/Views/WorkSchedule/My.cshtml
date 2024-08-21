@@ -257,7 +257,7 @@
 									const dayIndex = date.getDay();
 									const dayName = dayNames[dayIndex];
 									const formattedDate = formatDateWs(date.toISOString());
-									const label = (currentDateStr === formattedDate) ?
+									const label = (currentDateStr === formattedDate && Number(currentYear) === Number(selectedYear)) ?
 										`${dayName} (${formattedDate}) <b style="color: red;">(Hôm nay)</b>` :
 										`${dayName} (${formattedDate})`;
 

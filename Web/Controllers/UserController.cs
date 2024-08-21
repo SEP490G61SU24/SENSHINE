@@ -26,12 +26,6 @@ namespace Web.Controllers
         {
             try
             {
-                var successMessage = TempData["SuccessMsg"];
-                if (successMessage != null)
-                {
-                    ViewData["SuccessMsg"] = successMessage;
-                }
-
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
 
@@ -189,8 +183,9 @@ namespace Web.Controllers
                 }
                 else
                 {
-                    ViewData["Error"] = "Có lỗi xảy ra!";
-                    return View();
+					var responseString = await response.Content.ReadAsStringAsync();
+					ViewData["Error"] = responseString;
+					return View(user);
                 }
             }
             catch (Exception ex)
@@ -199,36 +194,6 @@ namespace Web.Controllers
                 ViewData["Error"] = "An error occurred";
                 return View();
             }
-        }
-
-        public static string GenerateRandomString(int length)
-        {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            char[] stringChars = new char[length];
-
-            for (int i = 0; i < length; i++)
-            {
-                stringChars[i] = chars[new Random().Next(chars.Length)];
-            }
-
-            return new string(stringChars);
-        }
-
-        public static string RemoveDiacritics(string text)
-        {
-            var normalizedString = text.Normalize(NormalizationForm.FormD);
-            var stringBuilder = new StringBuilder();
-
-            foreach (var c in normalizedString)
-            {
-                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
-                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
-                {
-                    stringBuilder.Append(c);
-                }
-            }
-
-            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
         }
 
         [HttpGet]
@@ -241,9 +206,10 @@ namespace Web.Controllers
                 var response = await client.GetAsync($"{apiUrl}/users/{id}");
                 if (!response.IsSuccessStatusCode)
                 {
-                    ViewData["Error"] = "Lấy dữ liệu người dùng không thành công!";
-                    return View("Error/500");
-                }
+					var responseString = await response.Content.ReadAsStringAsync();
+					ViewData["Error"] = responseString;
+					return View("Error");
+				}
 
                 var user = await response.Content.ReadFromJsonAsync<UserDTO>();
 
@@ -290,13 +256,13 @@ namespace Web.Controllers
                     return View(model);
                 }
 
-                //var responseString = await response.Content.ReadAsStringAsync();
-                //var uDto = JsonSerializer.Deserialize<UserDTO>(responseString);
                 UserDTO uDto = await response.Content.ReadFromJsonAsync<UserDTO>();
 
                 if (uDto == null || uDto != null && uDto.UserName == null)
                 {
-                    ViewData["Error"] = "Chuyển đổi dữ liệu người dùng không thành công!";
+					var responseString = await response.Content.ReadAsStringAsync();
+					ViewData["Error"] = responseString;
+					//ViewData["Error"] = "Chuyển đổi dữ liệu người dùng không thành công!";
                     return View(model);
                 }
 
@@ -310,7 +276,7 @@ namespace Web.Controllers
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 var responsecp = await client.PostAsync($"{apiUrl}/users/changepass", content);
 
-                if (response.IsSuccessStatusCode)
+                if (responsecp.IsSuccessStatusCode)
                 {
                     TempData["SuccessMsg"] = "Đổi mật khẩu thành công!";
                     return RedirectToAction("Index", "User");
@@ -358,8 +324,10 @@ namespace Web.Controllers
                 var workScheduleResponse = await client.GetAsync($"{apiUrl}/work-schedules/current-user/?employeeId={employeeId}&weekNumber={currentWeek}&year={currentYear}");
                 if (!workScheduleResponse.IsSuccessStatusCode)
                 {
-                    return View("Error");
-                }
+					var responseString = await workScheduleResponse.Content.ReadAsStringAsync();
+					ViewData["Error"] = responseString;
+					return View("Error");
+				}
                 var workSchedules = await workScheduleResponse.Content.ReadFromJsonAsync<IEnumerable<WorkScheduleDTO>>();
 
                 var viewData = new CurrentWorkScheduleViewModel
@@ -388,5 +356,35 @@ namespace Web.Controllers
         {
             return DateTime.UtcNow.Year;
         }
-    }
+
+		public static string GenerateRandomString(int length)
+		{
+			const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+			char[] stringChars = new char[length];
+
+			for (int i = 0; i < length; i++)
+			{
+				stringChars[i] = chars[new Random().Next(chars.Length)];
+			}
+
+			return new string(stringChars);
+		}
+
+		public static string RemoveDiacritics(string text)
+		{
+			var normalizedString = text.Normalize(NormalizationForm.FormD);
+			var stringBuilder = new StringBuilder();
+
+			foreach (var c in normalizedString)
+			{
+				var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+				if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+				{
+					stringBuilder.Append(c);
+				}
+			}
+
+			return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+		}
+	}
 }

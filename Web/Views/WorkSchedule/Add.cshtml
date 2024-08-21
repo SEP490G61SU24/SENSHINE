@@ -33,14 +33,21 @@
 	<div class="card-body">
 		<form method="post" action="/workschedule/add" class="row g-3 needs-validation custom-input" novalidate="">
 			<div class="col-md-6 position-relative">
-				<label class="form-label" for="StartDateTime">Giờ bắt đầu</label>
-				<input class="form-control" asp-for="StartDateTime" name="StartDateTime" id="StartDateTime" type="datetime-local" placeholder="" required="">
-				<div class="invalid-tooltip">Điền giờ bắt đầu!</div>
+				<label class="form-label" for="WorkDate">Ngày</label>
+				<input class="form-control" asp-for="WorkDate" name="WorkDate" id="WorkDate" type="date" placeholder="" value="@DateTime.Today.ToString("yyyy-MM-dd")" required="">
+				<div class="invalid-tooltip">Chọn ngày.</div>
 			</div>
+
 			<div class="col-md-6 position-relative">
-				<label class="form-label" for="EndDateTime">Giờ kết thúc</label>
-				<input class="form-control" asp-for="EndDateTime" name="EndDateTime" id="EndDateTime" type="datetime-local" placeholder="" required="">
-				<div class="invalid-tooltip">Điền giờ kết thúc!</div>
+				<label class="form-label" for="TimeSlot">Chọn Slot</label>
+				<select class="form-select" asp-for="SelectedSlot" name="SelectedSlot" id="TimeSlot" required>
+					<option value="">Chọn...</option>
+					@foreach (var slot in Model.TimeSlots)
+					{
+						<option value="@slot.Key">@slot.Key - @slot.Value.Period (@slot.Value.StartTime.ToString(@"hh\:mm") - @slot.Value.EndTime.ToString(@"hh\:mm"))</option>
+					}
+				</select>
+				<div class="invalid-tooltip">Chọn slot thời gian.</div>
 			</div>
 
 			<div class="col-md-6 position-relative">
