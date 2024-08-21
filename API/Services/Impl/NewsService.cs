@@ -94,7 +94,7 @@ namespace API.Services.Impl
 
             return true;
         }
-        public async Task<PaginatedList<NewsDTO>> GetNews(int pageIndex = 1, int pageSize = 10, string searchTerm = null, DateTime? startDate = null, DateTime? endDate = null)
+        public async Task<FilteredPaginatedList<NewsDTO>> GetNews(int pageIndex = 1, int pageSize = 10, string searchTerm = null, DateTime? startDate = null, DateTime? endDate = null)
         {
             // Tạo query cơ bản
             IQueryable<News> query = _context.News.AsQueryable();
@@ -125,7 +125,7 @@ namespace API.Services.Impl
                                    .ToListAsync();
             var newsDtos = mapper.Map<IEnumerable<NewsDTO>>(news);
 
-            return new PaginatedList<NewsDTO>
+            return new FilteredPaginatedList<NewsDTO>
             {
                 Items = newsDtos,
                 PageIndex = pageIndex,

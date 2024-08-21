@@ -106,7 +106,7 @@ namespace API.Services.Impl
             return true;
         }
 
-        public async Task<PaginatedList<PromotionDTORespond>> GetPromotionListBySpaId(int? spaId =null,int pageIndex = 1, int pageSize = 10, string searchTerm = null, DateTime? startDate = null,DateTime? endDate = null)
+        public async Task<FilteredPaginatedList<PromotionDTORespond>> GetPromotionListBySpaId(int? spaId =null,int pageIndex = 1, int pageSize = 10, string searchTerm = null, DateTime? startDate = null,DateTime? endDate = null)
         {
             // Tạo query cơ bản
             IQueryable<Promotion> query = _context.Promotions.Include(x=>x.Spa).AsQueryable();
@@ -140,7 +140,7 @@ namespace API.Services.Impl
                                    .ToListAsync();
             var newsDtos = _mapper.Map<IEnumerable<PromotionDTORespond>>(news);
 
-            return new PaginatedList<PromotionDTORespond>
+            return new FilteredPaginatedList<PromotionDTORespond>
             {
                 Items = newsDtos,
                 PageIndex = pageIndex,

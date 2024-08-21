@@ -25,7 +25,7 @@ namespace API.Controllers
             _mapper = mapper;
         }
 
-        
+
         [HttpGet("ListInvoice")]
         public async Task<ActionResult<IEnumerable<InvoiceDTO>>> GetInvoices()
         {
@@ -33,7 +33,7 @@ namespace API.Controllers
             return Ok(invoices);
         }
 
-        
+
         [HttpGet("DetailInvoiceById")]
         public async Task<ActionResult<InvoiceDTO>> GetInvoice(int id)
         {
@@ -231,16 +231,16 @@ namespace API.Controllers
 
             return Ok(new { Message = "Invoice status updated successfully." });
         }
-    
 
-    [HttpGet("GetInvoiceByDate")]
+
+        [HttpGet("GetInvoiceByDate")]
         public async Task<ActionResult<IEnumerable<InvoiceDTO>>> GetInvoicesByDateRange([FromQuery] DateTime from, [FromQuery] DateTime to)
         {
             var invoices = await _invoiceService.InvoicesByDateRange(from, to);
             return Ok(invoices);
         }
         [HttpGet("GetInvoicesPaging")]
-        public async Task<IActionResult> GetAllInvoicesPaging([FromQuery] int? idspa = null, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null, [FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null,[FromQuery] string? status = null)
+        public async Task<IActionResult> GetAllInvoicesPaging([FromQuery] int? idspa = null, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null, [FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null, [FromQuery] string? status = null)
         {
             try
             {
@@ -249,7 +249,7 @@ namespace API.Controllers
                     return BadRequest("Chỉ số trang hoặc kích thước trang không hợp lệ.");
                 }
 
-                var pageData = await _invoiceService.GetInvoiceListBySpaId(idspa, pageIndex, pageSize, searchTerm, startDate, endDate,status);
+                var pageData = await _invoiceService.GetInvoiceListBySpaId(idspa, pageIndex, pageSize, searchTerm, startDate, endDate, status);
                 return Ok(pageData);
             }
             catch (InvalidOperationException ex)
@@ -271,11 +271,83 @@ namespace API.Controllers
                 {
                     Date = new DateTime(g.Key.Year, g.Key.Month, g.Key.Day),
                     TotalRevenue = g.Sum(i => i.Amount) ?? 0,
-                    
+
                 })
                 .ToListAsync();
 
             return Ok(reports);
+        }
+        [HttpGet("invoice-status-summary")]
+        public async Task<IActionResult> GetInvoiceStatusSummary()
+        {
+            try
+            {
+                var statusSummary = await _dbContext.Invoices
+                    .GroupBy(i => i.Status)  // Group invoices by status
+                    .Select(g => new RevenueReport
+                    {
+                        Status = g.Key,
+                        Count = g.Count()  // Count the number of invoices for each status
+                    })
+                    .ToListAsync();
+
+                return Ok(statusSummary);
+            }
+            catch (Exception ex)
+            {
+                // Optionally log the exception here
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpGet("invoice-service-summary")]
+        public async Task<IActionResult> GetInvoiceServiceSummary()
+        {
+            try
+            {
+                var summary = await _dbContext.Invoices
+                    .SelectMany(i => i.InvoiceServices)
+                    .GroupBy(i => new { i.ServiceId, i.Service.ServiceName })  // Group by ServiceId, Service Name, and Invoice Date
+                    .Select(g => new ServiceSummary
+                    {
+                        ServiceId = g.Key.ServiceId,
+                        ServiceName = g.Key.ServiceName,
+                        TotalQuantity = g.Sum(i => i.Quantity.GetValueOrDefault()),
+                    })
+                    .ToListAsync();
+
+                return Ok(summary);
+            }
+            catch (Exception ex)
+            {
+                // Optionally log the exception here
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpGet("invoice-combo-summary")]
+        public async Task<IActionResult> GetInvoiceComboSummary()
+        {
+            try
+            {
+                var comboSummary = await _dbContext.Invoices
+                    .SelectMany(i => i.InvoiceCombos)
+                    .GroupBy(ic => new { ic.ComboId, ic.Combo.Name })  // Group by ComboId, Combo Name, and Invoice Date
+                    .Select(g => new ComboSummary
+                    {
+                        ComboId = g.Key.ComboId,
+                        ComboName = g.Key.Name,
+                        TotalQuantity = g.Sum(ic => ic.Quantity.GetValueOrDefault()),
+                    })
+                    .ToListAsync();
+
+                return Ok(comboSummary);
+            }
+            catch (Exception ex)
+            {
+                // Optionally log the exception here
+                return StatusCode(500, "Internal server error");
+            }
         }
     }
 }
