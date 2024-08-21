@@ -186,7 +186,7 @@ namespace API.Services.Impl
             return existingProduct;
         }
 
-        public async Task<PaginatedList<ProductDTORequest>> GetProductList(int? spaId = null, int pageIndex = 1, int pageSize = 10, string searchTerm = null, string? categoryName = null, string? quantityRange = null, string? priceRange = null)
+        public async Task<FilteredPaginatedList<ProductDTORequest>> GetProductList(int? spaId = null, int pageIndex = 1, int pageSize = 10, string searchTerm = null, string? categoryName = null, string? quantityRange = null, string? priceRange = null)
         {
             var quantityParts = quantityRange?.Split('-');
             var priceParts = priceRange?.Split('-');
@@ -239,7 +239,7 @@ namespace API.Services.Impl
                                    .ToListAsync();
             var newsDtos = _mapper.Map<IEnumerable<ProductDTORequest>>(news);
 
-            return new PaginatedList<ProductDTORequest>
+            return new FilteredPaginatedList<ProductDTORequest>
             {
                 Items = newsDtos,
                 PageIndex = pageIndex,

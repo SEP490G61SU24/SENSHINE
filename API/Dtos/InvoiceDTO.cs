@@ -71,8 +71,23 @@ namespace API.Dtos
     {
         public DateTime Date { get; set; }
         public decimal TotalRevenue { get; set; }
-        public decimal TotalCost { get; set; }
-        public decimal TotalProfit => TotalRevenue - TotalCost;
+        public string Status { get; set; }
+        public int Count { get; set; }
+    }
+    public class ServiceSummary
+    {
+        public int ServiceId { get; set; }
+        public string ServiceName { get; set; }
+        public int TotalQuantity { get; set; }
+       
+    }
+
+    public class ComboSummary
+    {
+        public int ComboId { get; set; }
+        public string ComboName { get; set; }
+        public int TotalQuantity { get; set; }
+       
     }
 
 }
