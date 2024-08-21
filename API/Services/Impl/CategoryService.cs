@@ -1,5 +1,6 @@
 ﻿using API.Dtos;
 using API.Models;
+using API.Ultils;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
@@ -83,6 +84,34 @@ namespace API.Services.Impl
             }
 
             return _mapper.Map<IEnumerable<CategoryDTO>>(categories);
+        }
+
+        public async Task<PaginatedList<CategoryDTO>> GetCategoryList(int pageIndex = 1, int pageSize = 10, string? searchTerm = null)
+        {
+            // Tạo query cơ bản
+            IQueryable<Category> query = _context.Categories;
+            // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(u => u.CategoryName.Contains(searchTerm));
+            }
+
+            // Đếm tổng số bản ghi để tính tổng số trang
+            var count = await query.CountAsync();
+
+            // Lấy danh sách với phân trang
+            var categories = await query.Skip((pageIndex - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync();
+            var CategoryDtos = _mapper.Map<IEnumerable<CategoryDTO>>(categories);
+
+            return new PaginatedList<CategoryDTO>
+            {
+                Items = CategoryDtos,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = count,
+            };
         }
     }
 

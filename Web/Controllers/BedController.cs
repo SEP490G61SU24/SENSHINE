@@ -1,7 +1,10 @@
 ﻿using API.Models;
+using API.Ultils;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,11 +26,11 @@ namespace Web.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int pageIndex = 1, int pageSize = 10, string searchTerm = null)
         {
             int? spaId = 0;
             var token = HttpContext.Session.GetString("Token");
-
+           
             if (!string.IsNullOrEmpty(token))
             {
                 var userProfile = await GetUserProfileAsync(token);
@@ -40,27 +43,46 @@ namespace Web.Controllers
                     ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
                 }
             }
+
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
-            List<BedViewModel> bedList = new List<BedViewModel>();
-
             HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Room/GetAllRoom");
-
-            if (response.IsSuccessStatusCode)
+            HttpResponseMessage response3 = await client.GetAsync($"{apiUrl}/Bed/GetAllBedsPaging?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}");
+            if (response.IsSuccessStatusCode&&response3.IsSuccessStatusCode)
             {
                 string jsonString = await response.Content.ReadAsStringAsync();
                 var roomList = JsonConvert.DeserializeObject<List<RoomViewModel>>(jsonString);
-                roomList = roomList.Where(x => x.SpaId==spaId).ToList();
-                foreach(var room in roomList)
+                roomList = roomList.Where(x => x.SpaId == spaId).ToList();
+                string jsonString3 = await response3.Content.ReadAsStringAsync();
+                var bedList = JsonConvert.DeserializeObject<PaginatedList<BedViewModelIndex>>(jsonString3);
+
+                var megreList = new List<BedViewModelIndex>();
+                var totalCount = 0;
+                foreach (var room in roomList)
                 {
-                    HttpResponseMessage response1 = await client.GetAsync($"{apiUrl}/Bed/GetByRoomId/ByRoomId/" + room.Id);
-                    string jsonString1 = await response1.Content.ReadAsStringAsync();
-                    var bed = JsonConvert.DeserializeObject<List<BedViewModel>>(jsonString1);
-                    bedList.AddRange(bed);
+                  
+                    var filterbed = bedList.Items.Where(x=>x.RoomId==room.Id);
+                    // Gán RoomName cho từng bed
+                    foreach (var bed in filterbed)
+                    {
+                        bed.RoomName = room.RoomName;
+                        
+                    }
+                    megreList = megreList.Concat(filterbed).ToList();
+                    totalCount += filterbed.Count();
                 }
+                return View(new PaginatedList<BedViewModelIndex>
+                {
+                    Items = megreList,
+                    TotalCount = totalCount,
+                    PageIndex = bedList.PageIndex,
+                    PageSize = bedList.PageSize,
+                    SearchTerm = bedList.SearchTerm // Assuming both lists have the same SearchTerm
+                }); 
             }
-            return View(bedList);
+            return View(null); 
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Create()

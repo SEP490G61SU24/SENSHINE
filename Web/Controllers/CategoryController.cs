@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Web.Models;
 using Newtonsoft.Json;
+using API.Ultils;
 
 namespace Web.Controllers
 {
@@ -22,19 +23,21 @@ namespace Web.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int pageIndex = 1, int pageSize = 10, string searchTerm = null)
         {
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
             List<CategoryViewModel> categoryList = new List<CategoryViewModel>();
-            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/ListAllCategory");
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/GetAllCategoriesPaging?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}");
 
             if (response.IsSuccessStatusCode)
             {
-                string jsonString = await response.Content.ReadAsStringAsync();
-                categoryList = JsonConvert.DeserializeObject<List<CategoryViewModel>>(jsonString);
+                
+                var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<CategoryViewModel>>();
+                paginatedResult.SearchTerm = searchTerm;
+                return View(paginatedResult);
             }
-            return View(categoryList);
+            return View("Error");
         }
 
         public IActionResult Create()

@@ -70,6 +70,13 @@
             justify-content: center;
         }
 
+        .news-item-link {
+            display: block;
+            width: 100%;
+            text-decoration: none;
+            color: inherit;
+        }
+
         .news-item {
             display: flex;
             margin-bottom: 15px;
@@ -81,6 +88,7 @@
             background-color: #fff;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
         }
 
             .news-item img {
@@ -89,6 +97,10 @@
                 object-fit: cover;
                 border-radius: 8px;
                 margin-right: 15px;
+            }
+
+            .news-item:hover {
+                transform: scale(1.02);
             }
 
         .news-content {
@@ -151,6 +163,7 @@
             color: #999;
         }
     </style>
+
 </head>
 <body class="landing-page">
     <div class="landing-home" id="home" style="height: 40%">
@@ -206,18 +219,21 @@
                     <div class="news-container">
                         @foreach (var item in Model)
                         {
-                            <div class="news-item">
-                                <img src="@item.Cover" alt="News Image">
-                                <div class="news-content">
-                                    <h5 class="news-title">@item.Title</h5>
-                                    <p class="news-description">
-                                        @(item.Content.Length > 50 ? item.Content.Substring(0, 70) + "..." : item.Content)
-                                    </p>
-                                    <p class="news-date">@item.PublishedDate.ToString("MMM dd, yyyy") - @GetTimeAgo(item.PublishedDate)</p>
+                            <a href="@Url.Action("NewsDetail", "News", new { id = item.IdNew })" class="news-item-link">
+                                <div class="news-item">
+                                    <img src="@item.Cover" alt="News Image">
+                                    <div class="news-content">
+                                        <h5 class="news-title">@item.Title</h5>
+                                        <p class="news-description">
+                                            @(item.Content.Length > 50 ? item.Content.Substring(0, 70) + "..." : item.Content)
+                                        </p>
+                                        <p class="news-date">@item.PublishedDate.ToString("MMM dd, yyyy") - @GetTimeAgo(item.PublishedDate)</p>
+                                    </div>
                                 </div>
-                            </div>
+                            </a>
                         }
                     </div>
+
                 </div>
                 <!-- Sidebar Section -->
                 <div class="col-lg-4 col-md-12 sidebar">

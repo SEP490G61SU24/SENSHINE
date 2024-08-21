@@ -1,4 +1,5 @@
 ﻿using API.Dtos;
+using API.Models;
 using API.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -88,6 +89,28 @@ namespace API.Controllers
             }
 
             return NoContent();
+        }
+        [HttpGet("GetAllCategoriesPaging")]
+        public async Task<IActionResult> GetAllCategoriesPaging([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
+        {
+            try
+            {
+                if (pageIndex < 1 || pageSize < 1)
+                {
+                    return BadRequest("Chỉ số trang hoặc kích thước trang không hợp lệ.");
+                }
+
+                var pageData = await _categoryService.GetCategoryList(pageIndex, pageSize, searchTerm);
+                return Ok(pageData);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
     }
 

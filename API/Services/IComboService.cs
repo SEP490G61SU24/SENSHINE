@@ -1,5 +1,6 @@
 ﻿using API.Dtos;
 using API.Models;
+using API.Ultils;
 
 namespace API.Services
 {
@@ -16,7 +17,7 @@ namespace API.Services
         Task<ComboDTO> EditComboAsync(int Id, ComboDTO comboDTO);
         //xoa 1 combo
         Task<Combo> DeleteComboAsync(int Id);
-        
+        Task<PaginatedList<ComboDTO2>> GetComboList(int pageIndex = 1, int pageSize = 10, string? searchTerm = null);
 
     }
 }
