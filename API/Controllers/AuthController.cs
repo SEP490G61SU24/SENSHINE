@@ -23,19 +23,35 @@ namespace API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(UserDTO model)
         {
-            var user = await _userService.Authenticate(model.UserName, model.Password);
+            try
+            {
+                var user = await _userService.Authenticate(model.UserName, model.Password);
 
-            if (user == null)
-                return Unauthorized();
+                if (user == null)
+                    return Unauthorized();
 
-            var tokenString = GenerateJwtToken(user);
-            return Ok(
-                new { 
+                var tokenString = GenerateJwtToken(user);
+                return Ok(
+                    new
+                    {
                         token = tokenString,
                         username = user.UserName,
                         id = user.Id
                     }
-                );
+                    );
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
         [HttpPost("register")]
@@ -70,14 +86,18 @@ namespace API.Controllers
 					return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra !");
 				}
 			}
-			catch (InvalidOperationException ex)
-			{
-				return BadRequest(ex.Message);
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
-			}
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }    
 		}
 
 		private string GenerateJwtToken(UserDTO user)

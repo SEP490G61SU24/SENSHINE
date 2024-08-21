@@ -1,8 +1,6 @@
-﻿using AutoMapper;
-using API.Dtos;
+﻿using API.Dtos;
 using API.Services;
 using Microsoft.AspNetCore.Mvc;
-using API.Services.Impl;
 using System.Globalization;
 
 namespace API.Controllers
@@ -12,12 +10,10 @@ namespace API.Controllers
     public class WorkScheduleController : ControllerBase
     {
         private readonly IWorkScheduleService _workScheduleService;
-        private readonly IMapper _mapper;
 
-        public WorkScheduleController(IWorkScheduleService workScheduleService, IMapper mapper)
+        public WorkScheduleController(IWorkScheduleService workScheduleService)
         {
             _workScheduleService = workScheduleService;
-            _mapper = mapper;
         }
 
         [HttpGet]
@@ -32,6 +28,10 @@ namespace API.Controllers
 
                 var paged = await _workScheduleService.GetWorkSchedules(pageIndex, pageSize, searchTerm);
                 return Ok(paged);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (InvalidOperationException ex)
             {
@@ -56,7 +56,11 @@ namespace API.Controllers
 				var years = await _workScheduleService.GetAvailableYears(int.Parse(employeeId));
 				return Ok(years);
 			}
-			catch (InvalidOperationException ex)
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
 			{
 				return BadRequest(ex.Message);
 			}
@@ -79,7 +83,11 @@ namespace API.Controllers
 				var weeks = await _workScheduleService.GetAvailableWeeks(int.Parse(employeeId), int.Parse(year));
 				return Ok(weeks);
 			}
-			catch (InvalidOperationException ex)
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
 			{
 				return BadRequest(ex.Message);
 			}
@@ -105,7 +113,11 @@ namespace API.Controllers
 				var workSchedules = await _workScheduleService.GetWorkSchedulesByWeek(int.Parse(employeeId), startDate, endDate);
 				return Ok(workSchedules);
 			}
-			catch (InvalidOperationException ex)
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
 			{
 				return BadRequest(ex.Message);
 			}
@@ -118,54 +130,114 @@ namespace API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var workScheduleDto = await _workScheduleService.GetWorkScheduleById(id);
-            if (workScheduleDto == null)
+            try
             {
-                return NotFound();
-            }
+                var workScheduleDto = await _workScheduleService.GetWorkScheduleById(id);
+                if (workScheduleDto == null)
+                {
+                    return NotFound();
+                }
 
-            return Ok(workScheduleDto);
+                return Ok(workScheduleDto);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] WorkScheduleDTO workScheduleDto)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
-            }
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
 
-            var workSchedule = await _workScheduleService.AddWorkSchedule(workScheduleDto);
-            return CreatedAtAction(nameof(GetById), new { id = workSchedule.Id }, workSchedule);
+                var workSchedule = await _workScheduleService.AddWorkSchedule(workScheduleDto);
+                return CreatedAtAction(nameof(GetById), new { id = workSchedule.Id }, workSchedule);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] WorkScheduleDTO workScheduleDto)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
-            }
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
 
-            var updatedWorkSchedule = await _workScheduleService.UpdateWorkSchedule(id, workScheduleDto);
-            if (updatedWorkSchedule == null)
+                var updatedWorkSchedule = await _workScheduleService.UpdateWorkSchedule(id, workScheduleDto);
+                if (updatedWorkSchedule == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(updatedWorkSchedule);
+            }
+            catch (ArgumentException ex)
             {
-                return NotFound();
+                return BadRequest(ex.Message);
             }
-
-            return Ok(updatedWorkSchedule);
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await _workScheduleService.DeleteWorkSchedule(id);
-            if (!result)
+            try
             {
-                return NotFound();
-            }
+                var result = await _workScheduleService.DeleteWorkSchedule(id);
+                if (!result)
+                {
+                    return NotFound();
+                }
 
-            return NoContent();
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
     }
 }

@@ -18,16 +18,22 @@ namespace Web.Controllers
             _clientFactory = clientFactory;
             _logger = logger;
         }
-
+        
         [HttpGet]
         public IActionResult Login()
+        {
+            return RedirectToAction("LoginSpa", "Auth");
+        }
+
+        [HttpGet]
+        public IActionResult LoginSpa()
         {
 			UserDTO userProfile = ViewData["UserProfile"] as UserDTO;
 			if (userProfile != null)
 			{
 				return RedirectToAction("Index", "User");
 			}
-			return View();
+			return View("Login");
         }
 
         [HttpPost]
@@ -75,13 +81,24 @@ namespace Web.Controllers
             }
         }
 
-		[HttpGet]
+        [HttpGet]
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Remove("Token");
+            Response.Cookies.Delete("Token");
+
+            ViewData["UserProfile"] = null;
+
+            return RedirectToAction("LoginSpa", "Auth");
+        }
+
+        [HttpGet]
 		public IActionResult ChangePass()
 		{
 			UserDTO userProfile = ViewData["UserProfile"] as UserDTO;
 			if(userProfile == null)
             {
-				return RedirectToAction("Login", "Auth");
+				return RedirectToAction("LoginSpa", "Auth");
 			}
 			return View();
 		}
@@ -94,7 +111,7 @@ namespace Web.Controllers
 				UserDTO userProfile = ViewData["UserProfile"] as UserDTO;
 			    if (userProfile == null)
 			    {
-				    return RedirectToAction("Login", "Auth");
+				    return RedirectToAction("LoginSpa", "Auth");
 			    }
 
                 if (string.IsNullOrEmpty(model.OldPassword) || string.IsNullOrEmpty(model.NewPassword) || string.IsNullOrEmpty(model.RePassword))
