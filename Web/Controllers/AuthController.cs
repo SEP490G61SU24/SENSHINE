@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Web.Models;
 using API.Dtos;
+using NuGet.Protocol.Plugins;
 
 namespace Web.Controllers
 {
@@ -11,6 +12,7 @@ namespace Web.Controllers
         private readonly IConfiguration _configuration;
         private readonly IHttpClientFactory _clientFactory;
         private readonly ILogger<AuthController> _logger;
+
         public AuthController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<AuthController> logger)
 			: base(configuration, clientFactory, logger)
 		{
@@ -86,6 +88,7 @@ namespace Web.Controllers
         {
             HttpContext.Session.Remove("Token");
             Response.Cookies.Delete("Token");
+            HttpContext.Session.Remove("SpaId");
 
             ViewData["UserProfile"] = null;
 

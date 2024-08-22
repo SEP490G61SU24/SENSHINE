@@ -35,12 +35,6 @@
     <div class="card-body">
         <form method="post" action="/rule/edit" class="row g-3 needs-validation custom-input" novalidate="">
             <input asp-for="ruleDTO.Id" name="ruleDTO.Id" hidden>
-            <!-- <div class="col-md-6 position-relative">
-                <label class="form-label" for="Type">Type</label>
-                <input class="form-control" asp-for="ruleDTO.Type" name="ruleDTO.Type" id="Type" type="text" placeholder="" required="" value="file">
-                <div class="invalid-tooltip">Điền type!</div>
-            </div> -->
-            <input class="form-control" asp-for="ruleDTO.Type" name="ruleDTO.Type" id="Type" type="hidden" placeholder="" value="file">
             <div class="col-md-6 position-relative">
                 <label class="form-label" for="Pid">Cấp trên</label>
                 <select class="form-select" asp-for="ruleDTO.Pid" name="ruleDTO.Pid" id="Pid" required="">
