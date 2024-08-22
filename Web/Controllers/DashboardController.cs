@@ -7,16 +7,18 @@ using Web.Models;
 
 namespace Web.Controllers
 {
-    public class DashboardController : Controller
+    public class DashboardController : BaseController
     {
-        private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _clientFactory;
+        private readonly ILogger<UserController> _logger;
 
-        public DashboardController(IConfiguration configuration)
+
+        public DashboardController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<UserController> logger) : base(configuration, clientFactory, logger)
         {
             _configuration = configuration;
-            var apiUrl = _configuration.GetValue<string>("ApiUrl");
-            _httpClient = new HttpClient { BaseAddress = new Uri(apiUrl) };
+            _clientFactory = clientFactory;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index()
@@ -27,10 +29,12 @@ namespace Web.Controllers
 
         private async Task<DashboardViewModel> GetDashboardDataAsync()
         {
+            var apiUrl = _configuration["ApiUrl"];
+            var client = _clientFactory.CreateClient();
             var model = new DashboardViewModel();
 
             // Fetch invoice data
-            var invoiceResponse = await _httpClient.GetAsync("/api/daily-revenue");
+            var invoiceResponse = await client.GetAsync($"{apiUrl}/daily-revenue");
             if (invoiceResponse.IsSuccessStatusCode)
             {
                 string invoiceData = await invoiceResponse.Content.ReadAsStringAsync();
@@ -45,7 +49,7 @@ namespace Web.Controllers
 
             // Fetch salary data with the year parameter
             int year = 2024; // Default year
-            var salaryResponse = await _httpClient.GetAsync($"/api/Salary/GetMonthlySalariesForYear?year={year}");
+            var salaryResponse = await client.GetAsync($"{apiUrl}/Salary/GetMonthlySalariesForYear?year={year}");
             if (salaryResponse.IsSuccessStatusCode)
             {
                 string salaryData = await salaryResponse.Content.ReadAsStringAsync();

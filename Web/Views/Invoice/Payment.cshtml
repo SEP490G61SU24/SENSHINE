@@ -45,8 +45,8 @@
                         <h4 style="font-size:42px; font-weight: 600; margin:0;">Hóa đơn</h4>
                         <ul style="list-style: none; padding: 0; margin: 20px 0;">
                             <li style="font-size: 18px; font-weight: 600; opacity: 0.8;">Tên khách hàng : @Model.CustomerName</li>
-                            <input type="hidden" id="content" value="@Model.CustomerName"/>
-                            <input type="hidden" id="price" value="@Model.Amount"/>
+                            <input type="hidden" id="content" value="@Model.CustomerName" />
+                            <input type="hidden" id="price" value="@Model.Amount" />
                             <input type="hidden" id="id" value="@Model.Id"/>
                             <input type="hidden" id="status" value="@Model.Status" />
                         </ul>
@@ -75,7 +75,7 @@
                     </td>
                     <td style="padding: 15px 25px;">
                         <p style="font-size:16px; font-weight:500; opacity:0.8; margin:0; line-height: 2;">Trạng thái :</p>
-                        <span style="font-size: 18px; font-weight: 600;">@displayStatus</span>
+                        <span id="invoice-status" style="font-size: 18px; font-weight: 600;">@displayStatus</span>
                     </td>
                     
                 </tr>
@@ -188,7 +188,6 @@
                                 <img src="@ViewBag.QRCodeUrl" alt="QR Code" style="width: 500px; height: 500px;margin-top : 50px;" />
                             </li>
                         </ul>
-                        <div id="result"></div>
 
                     </td>
                     <td style="text-align: right;">
@@ -232,12 +231,15 @@
     <script src="~/assets/js/ecommerce.js"></script>
     <script src="~/assets/js/tooltip-init.js"></script>
     <script src="~/assets/js/script.js"></script>
+    
+
     <script>
 
         $(document).ready(function () {
             // Define a function to check payment status
             function checkPayment() {
                 var content = $('#content').val();
+                var contentNoAccent = removeVietnameseAccents(content);
                 var status = $('#status').val();
                 var price = parseFloat($('#price').val());
                 var id = parseInt($('#id').val());
@@ -245,14 +247,16 @@
                     url: '@Url.Action("CheckPayment", "Invoice")',
                     type: 'GET',
                     data: {
-                        content: content,
+                        content: contentNoAccent,
                         price: price
                     },
                     success: function (response) {
                         if (response.success) {
                             var createAtFormatted = new Date(response.record.createAt).toLocaleString();
-                            // Call updateInvoiceStatus with the status from the response
-                            updateInvoiceStatus(id, status);
+                            if (status === "Pending") {
+                                updateInvoiceStatus(id, status);
+                                $('#invoice-status').text("Đã thanh toán");
+                            }
                         } else {
                             $('#result').text(response.message);
                         }
@@ -262,7 +266,24 @@
                     }
                 });
             }
-
+            function removeVietnameseAccents(str) {
+                str = str.toLowerCase();
+                str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, 'a');
+                str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, 'e');
+                str = str.replace(/ì|í|ị|ỉ|ĩ/g, 'i');
+                str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, 'o');
+                str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, 'u');
+                str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, 'y');
+                str = str.replace(/đ/g, 'd');
+                str = str.replace(/À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ/g, 'A');
+                str = str.replace(/È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ/g, 'E');
+                str = str.replace(/Ì|Í|Ị|Ỉ|Ĩ/g, 'I');
+                str = str.replace(/Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ/g, 'O');
+                str = str.replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, 'U');
+                str = str.replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, 'Y');
+                str = str.replace(/Đ/g, 'D');
+                return str;
+            }
             function updateInvoiceStatus(id, status) {
                 if (status === "Pending") {
                     $.ajax({
@@ -271,12 +292,7 @@
                         success: function (response) {
                             if (response.success) {
                                 $('#result').text("Invoice status updated successfully.");
-                                Swal.fire({
-                                    title: 'Chuyển khoản thành công',
-                                    confirmButtonText: 'Xác nhận!',
-                                    confirmButtonColor: '#28a745',
-                                    icon: 'success'
-                                });
+                               
                             } else {
                                 $('#result').text(response.message);
                             }
@@ -289,6 +305,7 @@
             }
 
             checkPayment();
+
         });
 
         
