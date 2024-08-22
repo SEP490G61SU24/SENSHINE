@@ -81,6 +81,7 @@ namespace Web.Controllers
 
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
+            var spaId = HttpContext.Session.GetString("SpaId");
             var token = HttpContext.Session.GetString("Token");
 			IEnumerable<MenuDTO> menus = new List<MenuDTO>();
 
@@ -92,14 +93,21 @@ namespace Web.Controllers
                     ViewData["UserProfile"] = userProfile;
                     menus = await GetMenuByRole(userProfile.RoleId);
 
-                    if (userProfile.SpaId != null)
+                    if (string.IsNullOrEmpty(spaId) && userProfile.RoleId == (int) UserRoleEnum.CEO)
                     {
-                        HttpContext.Session.SetString("SpaId", userProfile.SpaId?.ToString() ?? "");
+                        spaId = "ALL";
+                    }
+                    else if (string.IsNullOrEmpty(spaId) && userProfile.SpaId != null)
+                    {
+                        HttpContext.Session.SetString("SpaId", userProfile.SpaId?.ToString() ?? "ALL");
+                        spaId = userProfile.SpaId?.ToString() ?? "ALL";
                     }
                 }
 
                 ViewData["Token"] = token;
             }
+            
+            ViewData["SpaId"] = spaId;
             ViewData["UserMenu"] = menus;
 
             var successMessage = TempData["SuccessMsg"];
