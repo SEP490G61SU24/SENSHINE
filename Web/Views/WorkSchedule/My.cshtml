@@ -7,18 +7,18 @@
 @{
     var statusMap = new Dictionary<string, string>
     {
-        { "booking", "Có khách đặt lịch" },
-        { "confirmed", "Đã xác nhận" },
-        { "pending", "Chưa xác nhận" },
-        { "rejected", "Đã hủy" }
+		{ "SCHEDULED", "Có khách đặt lịch" },
+		{ "COMPLETED", "Đã làm xong" },
+		{ "CANCELED", "Không làm" },
+		{ "INPROGRESS", "Đang làm" }
     };
 
 	var statusCssMap = new Dictionary<string, string>
 	{
-		{ "booking", "color: orange;" },
-		{ "confirmed", "color: green;" },
-		{ "pending", "color: yellow;" },
-		{ "rejected", "color: red;" }
+		{ "SCHEDULED", "color: orange;" },
+		{ "COMPLETED", "color: green;" },
+		{ "CANCELED", "color: red;" },
+		{ "INPROGRESS", "color: yellow;" },
 	};
 
 	var daysOfWeek = new[]
