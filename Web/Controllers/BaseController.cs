@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Headers;
 using API.Dtos;
+using NuGet.Protocol.Plugins;
+using Microsoft.AspNetCore.Http;
+using API.Ultils;
 
 namespace Web.Controllers
 {
@@ -88,6 +91,11 @@ namespace Web.Controllers
                 {
                     ViewData["UserProfile"] = userProfile;
                     menus = await GetMenuByRole(userProfile.RoleId);
+
+                    if (userProfile.SpaId != null)
+                    {
+                        HttpContext.Session.SetString("SpaId", userProfile.SpaId?.ToString() ?? "");
+                    }
                 }
 
                 ViewData["Token"] = token;

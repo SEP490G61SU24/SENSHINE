@@ -666,10 +666,6 @@ namespace API.Models
                     .HasMaxLength(50)
                     .HasColumnName("title");
 
-                entity.Property(e => e.Type)
-                    .HasMaxLength(50)
-                    .HasColumnName("type");
-
                 entity.Property(e => e.Url)
                     .HasMaxLength(50)
                     .HasColumnName("url");
