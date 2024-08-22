@@ -29,19 +29,46 @@
 
     .custom-select {
         display: flex;
-        flex-wrap: wrap;
+        flex-direction: column;
         border: 1px solid #ccc;
         padding: 0.5rem;
         border-radius: 4px;
         background-color: #fff;
-        cursor: pointer;
         position: relative;
     }
 
-        .custom-select .btn {
-            margin-right: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
+    .service-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .service-button {
+        width: 200px; /* Set a fixed width */
+        text-align: center; /* Center the text */
+    }
+
+    .custom-select .btn {
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .custom-select .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: #fff;
+    }
+
+    .custom-select .btn-outline-secondary {
+        background-color: #f8f9fa;
+        border-color: #f8f9fa;
+        color: #6c757d;
+    }
+
+    .custom-select .btn:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+        color: #fff;
+    }
 
     .custom-options {
         position: absolute;
@@ -70,7 +97,18 @@
             .custom-options label:hover {
                 background-color: #f0f0f0;
             }
-            </style>
+
+    /* Optional: Add more styles to improve appearance on hover, focus, or active state */
+    .custom-select input:focus,
+    .custom-select button:focus {
+        outline: none;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+
+    .custom-select h5 {
+        margin-bottom: 1rem;
+    }
+</style>
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-12">
@@ -173,58 +211,63 @@
                                     <label class="control-label">Combos</label>
                                     <div class="custom-select-wrapper">
                                         <div id="comboSelect" class="custom-select">
+                                            <h5 class="mb-3">Combos</h5>
                                             @foreach (var combo in ViewBag.Combos ?? new List<API.Dtos.ComboDTO2>())
                                             {
                                                 var selectedCombo = Model.InvoiceCombos.FirstOrDefault(s => s.ComboId == combo.Id);
                                                 var quantitycombo = selectedCombo?.Quantity ?? 0;
-                                                <div>
+
+                                                <div class="service-item d-flex align-items-center mb-2">
                                                     <button type="button"
-                                                            class="btn @(Model.InvoiceCombos.Any(c => c.ComboId == combo.Id) ? "btn-primary" : "btn-default")"
+                                                            class="btn btn-sm service-button @(Model.InvoiceCombos.Any(c => c.ComboId == combo.Id) ? "btn-primary" : "btn-outline-secondary")"
                                                             data-id="@combo.Id" data-price="@combo.SalePrice">
                                                         @combo.Name
                                                     </button>
-                                                    <input type="number" 
+                                                    <input type="number"
                                                            name="ComboQuantities[@combo.Id]" value="@quantitycombo"
-                                                           min="0"  />
+                                                           min="0" class="form-control form-control-sm ml-2"
+                                                           style="max-width: 80px;" />
                                                 </div>
                                             }
                                         </div>
                                     </div>
+                                    </div>
                                     <input type="hidden" name="ComboIdsString" value="@string.Join(",", Model.ComboIds ?? new List<int>())" id="CombosInput" />
                                     <span asp-validation-for="ComboIdsString" class="text-danger"></span>
                                 </div>
-                            </div>
+                            
 
                             <!-- Service Selection -->
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="control-label">Services</label>
-                                    <div class="custom-select-wrapper">
-                                        <div id="serviceSelect" class="custom-select">
+                                    <div class="custom-select-wrapper">        
+                                        <div id="serviceSelect" class="custom-select mb-4">
+                                            <h5 class="mb-3">Services</h5>
                                             @foreach (var service in ViewBag.Services ?? new List<API.Dtos.ServiceDTO2>())
                                             {
                                                 var selectedService = Model.InvoiceServices.FirstOrDefault(s => s.ServiceId == service.Id);
                                                 var quantity = selectedService?.Quantity ?? 0;
-                                               
-                                               <div>
+
+                                                <div class="service-item d-flex align-items-center mb-2">
                                                     <button type="button"
-                                                            class="btn @(Model.InvoiceServices.Any(c => c.ServiceId == service.Id) ? "btn-primary" : "btn-default")"
+                                                            class="btn btn-sm service-button @(Model.InvoiceServices.Any(c => c.ServiceId == service.Id) ? "btn-primary" : "btn-outline-secondary")"
                                                             data-id="@service.Id" data-price="@service.Amount">
                                                         @service.ServiceName
                                                     </button>
-                                                    <input type="number" 
+                                                    <input type="number"
                                                            name="ServiceQuantities[@service.Id]" value="@quantity"
-                                                           min="0"  />
-                                                    </div>
+                                                           min="0" class="form-control form-control-sm ml-2"
+                                                           style="max-width: 80px;" />
+                                                </div>
                                             }
                                         </div>
-                                    </div>
                                     <input type="hidden" name="ServiceIdsString" value="@string.Join(",", Model.ServiceIds ?? new List<int>())" id="ServicesInput" />
                                     <span asp-validation-for="ServiceIdsString" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
-
+                        </div>
                         <!-- Submit Button -->
                         <div class="form-group d-flex justify-content-end">
                             <input type="submit" value="Update" class="btn btn-primary spacing-10px" />
