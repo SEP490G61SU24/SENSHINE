@@ -177,5 +177,36 @@ namespace API.Services.Impl
                 TotalCount = count,
             };
         }
+        public async Task<(IEnumerable<int> Months, IEnumerable<decimal> TotalSalaries)> GetMonthlySalariesForYear(int year)
+        {
+            // Initialize data for all 12 months
+            var allMonths = Enumerable.Range(1, 12).ToList();
+            var monthlySalaries = await _context.Salaries
+                .Where(s => s.SalaryYear == year)
+                .GroupBy(s => s.SalaryMonth)
+                .Select(g => new
+                {
+                    Month = g.Key,
+                    TotalSalary = g.Sum(s => s.TotalSalary)
+                })
+                .ToListAsync();
+
+            // Fill in the missing months with a salary of 0
+            var salariesByMonth = allMonths
+                .Select(month => new
+                {
+                    Month = month,
+                    TotalSalary = monthlySalaries.FirstOrDefault(s => s.Month == month)?.TotalSalary ?? 0
+                })
+                .OrderBy(x => x.Month)
+                .ToList();
+
+            var months = salariesByMonth.Select(x => x.Month).ToArray();
+            var totalSalaries = salariesByMonth.Select(x => x.TotalSalary).ToArray();
+
+            return (months, totalSalaries);
+        }
+
+
     }
 }

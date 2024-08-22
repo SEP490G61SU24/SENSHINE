@@ -14,6 +14,8 @@ namespace API.Services
         Task<IEnumerable<InvoiceDTO>> InvoicesByDateRange(DateTime from, DateTime to);
         Task<bool> DeleteInvoice(int id);
         Task<FilteredPaginatedList<InvoiceDTO>> GetInvoiceListBySpaId(int? spaId = null, int pageIndex = 1, int pageSize = 10, string searchTerm = null, DateTime? startDate = null, DateTime? endDate = null, string? status = null);
+        Task<(IEnumerable<string> Labels, IEnumerable<decimal> Values)> GetDailyRevenueForCurrentMonth();
+
     }
     }
 

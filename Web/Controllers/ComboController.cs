@@ -117,7 +117,7 @@ namespace Web.Controllers
             var client = _clientFactory.CreateClient();
             try
             {
-                var response = await client.DeleteAsync($"{apiUrl}/api/Combo/DeleteCombo/{id}");
+                var response = await client.DeleteAsync($"{apiUrl}/Combo/DeleteCombo/{id}");
 
                 if (response.IsSuccessStatusCode)
                 {

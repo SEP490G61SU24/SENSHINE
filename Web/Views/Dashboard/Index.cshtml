@@ -1,5 +1,190 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@model Web.Models.DashboardViewModel
+
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
+    <!-- ico-font-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
+    <!-- Themify icon-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/themify.css">
+    <!-- Flag icon-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/flag-icon.css">
+    <!-- Feather icon-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/feather-icon.css">
+    <!-- Plugins css start-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/datatables.css">
+    <!-- Plugins css Ends-->
+    <!-- Bootstrap css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
+    <!-- App css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
+    <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
+    <!-- Responsive css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+}
+
+
+
+<!-- Existing chart for invoices -->
+<div class="col-sm-12 box-col-12">
+    <div class="card">
+        <div class="card-header">
+            <h4>Doanh Thu</h4>
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <div class="row">
+                    <div class="col-12">
+                        <div id="demo1"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New chart for salaries -->
+<div class="col-sm-12 box-col-12">
+    <div class="card">
+        <div class="card-header">
+            <h4>Lương</h4>
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <div class="row">
+                    <div class="col-12">
+                        <div id="demo2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/assets/js/jquery.min.js"></script>
+    <!-- Bootstrap js-->
+    <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
+    <!-- feather icon js-->
+    <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
+    <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
+    <!-- scrollbar js-->
+    <script src="~/assets/js/scrollbar/simplebar.js"></script>
+    <script src="~/assets/js/scrollbar/custom.js"></script>
+    <!-- Sidebar jquery-->
+    <script src="~/assets/js/config.js"></script>
+    <!-- Plugins JS start-->
+    <script src="~/assets/js/sidebar-menu.js"></script>
+    <script src="~/assets/js/sidebar-pin.js"></script>
+    <script src="~/assets/js/slick/slick.min.js"></script>
+    <script src="~/assets/js/slick/slick.js"></script>
+    <script src="~/assets/js/header-slick.js"></script>
+    <!-- calendar js-->
+    <script src="~/assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
+    <!-- Plugins JS Ends-->
+    <!-- Theme js-->
+    <script src="~/assets/js/script.js"></script>
+    <!-- sweet alert -->
+    <script src="~/assets/js/sweet-alert/sweetalert.min.js"></script>
+    <script src="~/assets/js/chart/apex-chart/moment.min.js"></script>
+    <script src="~/assets/js/chart/apex-chart/apex-chart.js"></script>
+    <script src="~/assets/js/chart/apex-chart/stock-prices.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Invoice chart
+            var labels = @Html.Raw(Json.Serialize(Model.Labels));
+            var values = @Html.Raw(Json.Serialize(Model.Values));
+
+            var optionsTurnoverChart = {
+                chart: {
+                    toolbar: {
+                        show: false,
+                    },
+                    height: 300,
+                    type: "area",
+                },
+                dataLabels: {
+                    enabled: false,
+                },
+                stroke: {
+                    width: 3,
+                    curve: "smooth",
+                },
+                xaxis: {
+                    categories: labels,
+                    axisBorder: {
+                        show: false,
+                    },
+                    axisTicks: {
+                        show: false,
+                    },
+                },
+                grid: {
+                    borderColor: "rgba(196,196,196, 0.3)",
+                    padding: {
+                        top: -20,
+                        right: -55,
+                        bottom: 0,
+                    },
+                },
+                fill: {
+                    opacity: 0.2,
+                },
+                colors: ['#546E7A'], // Replace with your primary color
+                series: [
+                    {
+                        data: values,
+                    },
+                ],
+                tooltip: {
+                    x: {
+                        format: "dd/MM/yy HH:mm",
+                    },
+                },
+            };
+
+            var chartTurnoverChart = new ApexCharts(document.querySelector("#demo1"), optionsTurnoverChart);
+            chartTurnoverChart.render();
+
+            // Salary chart
+            var salaryMonths = @Html.Raw(Json.Serialize(Model.SalaryMonths));
+            var totalSalaries = @Html.Raw(Json.Serialize(Model.TotalSalaries));
+
+            // Ensure OX axis shows all months from 1 to 12
+            var fullYearMonths = Array.from({ length: 12 }, (v, i) => i + 1);
+
+            var optionsSalaryChart = {
+                chart: {
+                    toolbar: { show: false },
+                    height: 300,
+                    type: "area",
+                },
+                dataLabels: { enabled: false },
+                stroke: { width: 3, curve: "smooth" },
+                xaxis: {
+                    categories: fullYearMonths,
+                    axisBorder: { show: false },
+                    axisTicks: { show: false },
+                },
+                grid: {
+                    borderColor: "rgba(196,196,196, 0.3)",
+                    padding: { top: -20, right: -55, bottom: 0 },
+                },
+                fill: { opacity: 0.2 },
+                colors: ['#FF7F0E'], // Color for the salary chart
+                series: [{ data: totalSalaries }],
+                tooltip: { x: { format: "MM/yyyy" } },
+            };
+
+            var chartSalaryChart = new ApexCharts(document.querySelector("#demo2"), optionsSalaryChart);
+            chartSalaryChart.render();
+        });
+
+    </script>
+    
+
 }
