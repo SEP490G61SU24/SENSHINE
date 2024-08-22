@@ -24,9 +24,11 @@ namespace Web.Middleware
             var token = context.Session.GetString("Token");
             var path = context.Request.Path.Value;
 
-            if (path.StartsWith("/Auth/Login", StringComparison.OrdinalIgnoreCase) ||
+            if (path.StartsWith("/auth", StringComparison.OrdinalIgnoreCase) ||
                 path.StartsWith("/public", StringComparison.OrdinalIgnoreCase) ||
-                path.StartsWith("/Errors", StringComparison.OrdinalIgnoreCase))
+                path.Equals("/", StringComparison.OrdinalIgnoreCase) ||
+                path.StartsWith("/home", StringComparison.OrdinalIgnoreCase) ||
+                path.StartsWith("/errors", StringComparison.OrdinalIgnoreCase))
             {
                 await _next(context);
                 return;

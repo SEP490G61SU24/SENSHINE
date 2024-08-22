@@ -1,8 +1,5 @@
 @{
     var userProfile = ViewData["UserProfile"] as API.Dtos.UserDTO;
-}
-
-@{
     IEnumerable<API.Dtos.MenuDTO> menus = ViewData["UserMenu"] as IEnumerable<API.Dtos.MenuDTO>;
 }
 
@@ -106,7 +103,17 @@
                     <div class="welcome-content d-xl-block d-none"><span class="col-6" id="quotation">Here’s what’s happening with your store today. </span></div>
                 </div>
                 <div class="nav-right col-xxl-7 col-xl-6 col-md-7 col-8 pull-right right-header p-0 ms-auto">
+                    
                     <ul class="nav-menus">
+                        @if (userProfile != null && userProfile.RoleId == (int)API.Ultils.UserRoleEnum.CEO)
+                        {
+                            <li>
+                            <form id="changeSpaForm" action="/auth/changespa" method="POST">
+                                <select class="form-select" name="spaId" id="spaDropdown">
+                                </select>
+                            </form>
+                            </li>
+                        }
                         <li>
                             <div class="mode"><i class="moon" data-feather="moon"> </i></div>
                         </li>
@@ -323,6 +330,41 @@
         };
 
         document.addEventListener('DOMContentLoaded', showQuotation);
+    </script>
+
+    <script>
+        const spaId = '@ViewData["SpaId"]';
+        let isInitialLoad = true;
+
+        $(document).ready(function () {
+            $.ajax({
+                url: 'http://localhost:5297/api/Branch/GetAll?pageIndex=1&pageSize=100',
+                type: 'GET',
+                success: function (data) {
+                    console.log(data);
+                    $('#spaDropdown').empty().append('<option selected value="ALL">Toàn Bộ Cơ Sở</option>');
+                    data.items.forEach(item => {
+                        $('#spaDropdown').append(new Option(item.spaName, item.id));
+                    });
+
+                    if (spaId) {
+                        $('#spaDropdown').val(spaId);
+                    }
+
+                    $('#spaDropdown').change(function () {
+                        if (!isInitialLoad) {
+                            $('#changeSpaForm').submit();
+                        }
+                        isInitialLoad = false;
+                    });
+
+                    $('#spaDropdown').change();
+                },
+                error: function (xhr, status, error) {
+                    console.error("Lỗi:", error);
+                }
+            });
+        });
     </script>
 
     <script>

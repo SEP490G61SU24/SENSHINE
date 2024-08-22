@@ -788,7 +788,7 @@ namespace API.Models
                 entity.Property(e => e.StatusWorking)
                     .HasMaxLength(10)
                     .IsUnicode(false)
-                    .HasDefaultValueSql("('INACTIVE')");
+                    .HasDefaultValueSql("('AVAILABLE')");
 
                 entity.Property(e => e.UserName)
                     .HasMaxLength(50)
