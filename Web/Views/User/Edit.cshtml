@@ -49,23 +49,29 @@
                 <div class="invalid-tooltip">Nhập ngày sinh!</div>
             </div>
 
-            <div class="col-md-6 position-relative">
-                <label class="form-label" for="RoleId">Chức Vụ</label>
-                <select class="form-select" asp-for="RoleId" name="RoleId" id="RoleId" required>
-                    <option value="">Chọn...</option>
-                    @foreach (var role in new List<(int Id, string Name)>
-                    {
-                    (Id: 4, Name: "STAFF (Nhân Viên)"),
-                    (Id: 3, Name: "RECEPTIONS (Lễ Tân)"),
-                    (Id: 2, Name: "MANAGER (Quản Lý)"),
-                    (Id: 5, Name: "CUSTOMER (Khách Hàng)"),
-                    })
-                    {
-                        <option value="@role.Id" selected="@(role.Id == Model.RoleId ? "selected" : null)">@role.Name</option>
-                    }
-                </select>
-                <div class="invalid-tooltip">Chọn chức vụ.</div>
-            </div>
+            @if(Model.RoleId != (int) API.Ultils.UserRoleEnum.CEO)
+            {   
+                <div class="col-md-6 position-relative">
+                    <label class="form-label" for="RoleId">Chức Vụ</label>
+                    <select class="form-select" asp-for="RoleId" name="RoleId" id="RoleId" required>
+                        <option value="">Chọn...</option>
+                        @foreach (var role in new List<(int Id, string Name)>
+                        {
+                        (Id: 4, Name: "STAFF (Nhân Viên)"),
+                        (Id: 3, Name: "RECEPTIONS (Lễ Tân)"),
+                        (Id: 2, Name: "MANAGER (Quản Lý)"),
+                        })
+                        {
+                            <option value="@role.Id" selected="@(role.Id == Model.RoleId ? "selected" : null)">@role.Name</option>
+                        }
+                    </select>
+                    <div class="invalid-tooltip">Chọn chức vụ.</div>
+                </div>
+            } 
+            else
+            {
+                <input type="hidden" asp-for="RoleId" name="RoleId" value="@((int)API.Ultils.UserRoleEnum.CEO)" />
+            }
 
             <div class="col-md-3 position-relative">
                 <label class="form-label" for="provinceDropdown">Tỉnh/Thành Phố</label>

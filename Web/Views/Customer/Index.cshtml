@@ -2,9 +2,11 @@
 
 @{
     ViewData["Title"] = "Danh sách khách hàng";
-    ViewData["ActionName"] = "Thêm khách hàng mới";
-    ViewData["ActionUrl"] = "/customer/add";
-    var usersJson = System.Text.Json.JsonSerializer.Serialize(Model);
+    if (ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL")
+    {
+        ViewData["ActionName"] = "Thêm khách hàng mới";
+        ViewData["ActionUrl"] = "/customer/add";
+    }
 }
 
 @section Styles {

@@ -11,7 +11,7 @@ namespace API.Services
         Task<bool> DeleteWorkSchedule(int id);
         Task<WorkScheduleDTO> GetWorkScheduleById(int id);
         Task<IEnumerable<WorkScheduleDTO>> GetAllWorkSchedules();
-        Task<PaginatedList<WorkScheduleDTO>> GetWorkSchedules(int pageIndex, int pageSize, string searchTerm);
+        Task<PaginatedList<WorkScheduleDTO>> GetWorkSchedules(int pageIndex, int pageSize, string searchTerm, string spaId);
         Task<IEnumerable<WorkScheduleDTO>> GetWorkSchedulesByWeek(int employeeId, DateTime startDate, DateTime endDate);
         Task<IEnumerable<WeekOptionDTO>> GetAvailableWeeks(int employeeId, int year);
         Task<IEnumerable<int>> GetAvailableYears(int employeeId);

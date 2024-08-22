@@ -202,7 +202,7 @@ namespace API.Controllers
         }
 
         [HttpGet("page/role/{roleId}")]
-        public async Task<IActionResult> GetUsersByRoleWithPage(int roleId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
+        public async Task<IActionResult> GetUsersByRoleWithPage(int roleId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null, [FromQuery] string? spaId = null)
         {
             try
             {
@@ -211,7 +211,7 @@ namespace API.Controllers
                     return BadRequest("Chỉ số trang hoặc kích thước trang không hợp lệ.");
                 }
 
-                var pagedUsers = await _userService.GetUsersByRoleWithPage(roleId, pageIndex, pageSize, searchTerm);
+                var pagedUsers = await _userService.GetUsersByRoleWithPage(roleId, pageIndex, pageSize, searchTerm, spaId);
                 return Ok(pagedUsers);
             }
             catch (ArgumentException ex)
@@ -229,7 +229,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
+        public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null, [FromQuery] string? spaId = null)
         {
             try
             {
@@ -238,7 +238,7 @@ namespace API.Controllers
                     return BadRequest("Chỉ số trang hoặc kích thước trang không hợp lệ.");
                 }
 
-                var pagedUsers = await _userService.GetUsers(pageIndex, pageSize, searchTerm);
+                var pagedUsers = await _userService.GetUsers(pageIndex, pageSize, searchTerm, spaId);
                 return Ok(pagedUsers);
             }
             catch (ArgumentException ex)
