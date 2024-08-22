@@ -40,6 +40,18 @@ namespace API.Services.Impl
                 return null;
             }
 
+            var userDto = _mapper.Map<UserDTO>(user);
+
+            if (userDto.RoleId == (int)UserRoleEnum.CUSTOMER)
+            {
+                throw new InvalidOperationException("Khách hàng không thể đăng nhập hệ thống!");
+            }
+
+            if (userDto.Status != UserStatusEnum.ACTIVE.ToString())
+            {
+                throw new InvalidOperationException("Người dùng hiện tại không thể truy cập!");
+            }
+
             return _mapper.Map<UserDTO>(user);
         }
 
@@ -105,8 +117,8 @@ namespace API.Services.Impl
                 MidName = userDto.MidName,
                 LastName = userDto.LastName,
                 BirthDate = userDto.BirthDate,
-                Status = "ACTIVE",
-                StatusWorking = "INACTIVE",
+                Status = UserStatusEnum.ACTIVE.ToString(),
+                StatusWorking = UserWorkingStatusEnum.AVAILABLE.ToString(),
                 ProvinceCode = userDto.ProvinceCode,
                 DistrictCode = userDto.DistrictCode,
                 WardCode = userDto.WardCode

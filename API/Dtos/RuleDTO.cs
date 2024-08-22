@@ -3,7 +3,6 @@
     public class RuleDTO
     {
         public int Id { get; set; }
-        public string Type { get; set; } = null!;
         public int Pid { get; set; }
         public string Path { get; set; } = null!;
         public string Title { get; set; } = null!;

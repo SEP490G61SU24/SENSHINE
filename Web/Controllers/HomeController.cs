@@ -11,7 +11,7 @@ namespace Web.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
-
+        
         public HomeController(ILogger<HomeController> logger, IConfiguration configuration)
         {
             _logger = logger;
@@ -29,6 +29,7 @@ namespace Web.Controllers
         {
             return View();
         }
+        [Route("Home/Public/[action]")]
         public async Task<IActionResult> HomePageAsync()
         {
             List<NewsViewModel> viewList = new List<NewsViewModel>();
@@ -48,6 +49,7 @@ namespace Web.Controllers
             
             return View(viewList);
         }
+        [Route("Home/Public/[action]")]
         public async Task<IActionResult> NewsPage()
         {
             List<NewsViewModel> viewList = new List<NewsViewModel>();
@@ -74,12 +76,12 @@ namespace Web.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-
+        [Route("Home/Public/[action]")]
         public IActionResult OurService()
         {
             return View();
         }
-
+        [Route("Home/Public/[action]")]
         public IActionResult AboutUs()
         {
             return View();
