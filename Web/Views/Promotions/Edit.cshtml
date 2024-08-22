@@ -35,7 +35,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h5>Edit Promotion Details</h5>
+                    <h5>Chỉnh Sửa Chi Tiết Khuyến Mãi</h5>
                 </div>
                 <div class="card-body">
                     <form asp-action="Edit" method="post">
@@ -43,50 +43,51 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label asp-for="PromotionName" class="control-label">Promotion Name</label>
+                                    <label asp-for="PromotionName" class="control-label">Tên Khuyến Mãi</label>
                                     <input asp-for="PromotionName" class="form-control" />
                                     <span asp-validation-for="PromotionName" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label asp-for="DiscountPercentage" class="control-label">Discount Percentage</label>
+                                    <label asp-for="DiscountPercentage" class="control-label">Tỷ Lệ Giảm Giá</label>
                                     <input asp-for="DiscountPercentage" type="number" step="0.01" class="form-control" />
                                     <span asp-validation-for="DiscountPercentage" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label asp-for="StartDate" class="control-label">Start Date</label>
+                                    <label asp-for="StartDate" class="control-label">Ngày Bắt Đầu</label>
                                     <input asp-for="StartDate" type="date" class="form-control" />
                                     <span asp-validation-for="StartDate" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label asp-for="EndDate" class="control-label">End Date</label>
+                                    <label asp-for="EndDate" class="control-label">Ngày Kết Thúc</label>
                                     <input asp-for="EndDate" type="date" class="form-control" />
                                     <span asp-validation-for="EndDate" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="form-group">
-                                    <label asp-for="Description" class="control-label">Description</label>
+                                    <label asp-for="Description" class="control-label">Mô Tả</label>
                                     <textarea asp-for="Description" class="form-control" rows="4"></textarea>
                                     <span asp-validation-for="Description" class="text-danger"></span>
                                 </div>
                             </div>
-                           
+
                             <div class="col-12">
                                 <div class="form-group d-flex" style="display: flex; gap: 10px;">
-                                    <input type="submit" value="Save" style="height: 35px; width: 180px;" class="btn btn-primary spacing-10px" />
-                                    <a asp-action="ListPromotion" style="height: 35px; width: 180px;" class="btn btn-secondary spacing-10px">Back to List</a>
+                                    <input type="submit" value="Lưu" style="height: 35px; width: 180px;" class="btn btn-primary spacing-10px" />
+                                    <a asp-action="ListPromotion" style="height: 35px; width: 180px;" class="btn btn-secondary spacing-10px">Quay Lại Danh Sách</a>
                                 </div>
                             </div>
 
                         </div>
                     </form>
                 </div>
+
             </div>
         </div>
     </div>
@@ -118,3 +119,34 @@
 <!-- Plugins JS Ends-->
 <!-- Theme js-->
 <script src="~/assets/js/script.js"></script>
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var startDateInput = document.querySelector('input[name="StartDate"]');
+            var endDateInput = document.querySelector('input[name="EndDate"]');
+            var errorMessage = document.createElement('div');
+            errorMessage.style.color = 'red';
+            errorMessage.style.marginTop = '5px';
+
+            // Append error message below the end date input
+            endDateInput.parentElement.appendChild(errorMessage);
+
+            function validateDates() {
+                var startDate = new Date(startDateInput.value);
+                var endDate = new Date(endDateInput.value);
+
+                if (endDate <= startDate) {
+                    errorMessage.textContent = 'Ngày kết thúc phải lớn hơn ngày bắt đầu.';
+                    endDateInput.setCustomValidity(''); // Clear any previous custom validation message
+                } else {
+                    errorMessage.textContent = '';
+                    endDateInput.setCustomValidity(''); // Clear any previous custom validation message
+                }
+            }
+
+            // Add event listeners for date changes
+            startDateInput.addEventListener('change', validateDates);
+            endDateInput.addEventListener('change', validateDates);
+        });
+    </script>
+}
