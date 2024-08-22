@@ -95,23 +95,22 @@
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
     <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+
     <style>
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
         .card {
             background-color: white;
             border: 2px solid #ccc;
             padding: 20px;
             margin: 10px;
-        }
-
-        .selected {
-            background-color: lightblue;
-            border: 2px solid blue;
-        }
-
-        .card-container {
+            flex: 1 1 auto; /* Allows cards to grow equally */
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            flex-direction: column;
         }
 
         .card-body {
@@ -120,6 +119,12 @@
             align-items: center;
             justify-content: center;
             text-align: center;
+            flex-grow: 1; /* Ensures the card-body takes up the remaining space */
+        }
+
+        .selected {
+            background-color: lightblue;
+            border: 2px solid blue;
         }
 
         .custom-button {
@@ -204,6 +209,24 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const cards = document.querySelectorAll('.card');
+            let maxHeight = 0;
+
+            cards.forEach(card => {
+                let cardHeight = card.offsetHeight;
+                if (cardHeight > maxHeight) {
+                    maxHeight = cardHeight;
+                }
+            });
+
+            cards.forEach(card => {
+                card.style.height = `${maxHeight}px`;
+            });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cards = document.querySelectorAll('.card');
             const tabsContainer = document.getElementById('comboTabs');
             const tabContentContainer = document.getElementById('comboTabContent');
 
@@ -213,11 +236,9 @@
                     const cardName = card.dataset.name;
 
                     if (card.classList.toggle('selected')) {
-                        // Fetch combo details and services from API
                         const comboDetails = await fetchComboDetails(cardId);
                         const cardInfo = formatCardInfo(comboDetails);
 
-                        // Create new tab and content if card is selected
                         const tab = document.createElement('li');
                         tab.classList.add('nav-item');
                         tab.innerHTML = `<a class="nav-link" id="tab-${cardId}" data-bs-toggle="tab" href="#pane-${cardId}">${cardName}</a>`;
@@ -226,13 +247,38 @@
                         const tabPane = document.createElement('div');
                         tabPane.classList.add('tab-pane', 'fade');
                         tabPane.id = `pane-${cardId}`;
-                        tabPane.innerHTML = `<p>${cardInfo}</p>`;
+
+                        tabPane.innerHTML = `
+                                    <p>${cardInfo}</p>
+                                    <div class="form-group row">
+                                                <div class="col-md-3" position-relative>
+                                            <label for="quantity-${cardId}">Số lượng</label>
+                                                    <input type="number" class="form-control" id="quantity-${cardId}" min="1" max="5" placeholder = "Thêm tối đa 5 combo mỗi lần" value="1" />
+                                        </div>
+                                        <div class="col-md-3 position-relative">
+                                            <label>Tổng giá tiền</label>
+                                            <div class="input-group">
+                                                <input type="text" id="totalPrice-${cardId}" class="form-control" readonly />
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text">VND</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>`;
                         tabContentContainer.appendChild(tabPane);
 
                         tabsContainer.style.display = 'flex';
-                        document.getElementById(`tab-${cardId}`).click(); // Activate the new tab
+                        document.getElementById(`tab-${cardId}`).click();
+
+                        // Set initial total price
+                        updateTotalPrice(cardId, comboDetails.salePrice);
+
+                        // Add event listener to update the total price when quantity changes
+                        document.getElementById(`quantity-${cardId}`).addEventListener('input', function () {
+                            const quantity = parseInt(this.value);
+                            updateTotalPrice(cardId, comboDetails.salePrice, quantity);
+                        });
                     } else {
-                        // Remove tab and content if card is deselected
                         document.getElementById(`tab-${cardId}`).parentElement.remove();
                         document.getElementById(`pane-${cardId}`).remove();
 
@@ -244,8 +290,15 @@
             });
 
             document.getElementById('updateCardForm').addEventListener('submit', function (event) {
-                const selectedIds = Array.from(document.querySelectorAll('.card.selected')).map(card => card.dataset.id);
-                document.getElementById('selectedCardIds').value = JSON.stringify(selectedIds);
+                const selectedCardIds = [];
+                document.querySelectorAll('.card.selected').forEach(card => {
+                    const cardId = card.dataset.id;
+                    const quantity = parseInt(document.getElementById(`quantity-${cardId}`).value);
+                    for (let i = 0; i < quantity; i++) {
+                        selectedCardIds.push(cardId);
+                    }
+                });
+                document.getElementById('selectedCardIds').value = JSON.stringify(selectedCardIds);
             });
 
             async function fetchComboDetails(comboId) {
@@ -255,24 +308,24 @@
             }
 
             function formatCardInfo(comboDetails) {
-                // Format numbers to VND
                 const formatNumber = num => new Intl.NumberFormat('en-US').format(num);
-
-                // Format overall combo details
                 let comboInfo = `<strong>Combo:</strong> ${comboDetails.name}<br />`;
                 comboInfo += `<strong>Số buổi:</strong> ${comboDetails.quantity}<br />`;
                 comboInfo += `<strong>Giá gốc:</strong> ${formatNumber(comboDetails.price)} VND<br />`;
                 comboInfo += `<strong>Giảm giá:</strong> ${comboDetails.discount}%<br />`;
                 comboInfo += `<strong>Giá bán:</strong> ${formatNumber(comboDetails.salePrice)} VND<br />`;
                 comboInfo += `<hr />`;
-
-                // Format services included in the combo
                 comboInfo += `<strong>Services included:</strong><br /><ul>`;
                 comboDetails.services.forEach(service => {
                     comboInfo += `<li><strong>${service.serviceName}:</strong> ${formatNumber(service.amount)} VND<br /><em>Mô tả:</em> ${service.description}</li>`;
                 });
                 comboInfo += '</ul>';
                 return comboInfo;
+            }
+
+            function updateTotalPrice(cardId, pricePerUnit, quantity = 1) {
+                const totalPrice = pricePerUnit * quantity;
+                document.getElementById(`totalPrice-${cardId}`).value = new Intl.NumberFormat('en-US').format(totalPrice);
             }
         });
     </script>

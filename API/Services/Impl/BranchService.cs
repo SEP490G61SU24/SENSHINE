@@ -60,6 +60,19 @@ namespace API.Services.Impl
             }
         }
 
+        public async Task<IEnumerable<UserDTO>> GetUsersByBranch(int id)
+        {
+            var users = await _context.Users.Include(u => u.Roles)
+                                            .Where(u => u.Roles.Any(r => r.Id != 1 && r.Id != 5) && u.SpaId == id)
+                                            .ToListAsync();
+            if (users == null)
+            {
+                return Enumerable.Empty<UserDTO>();
+            }
+
+            return _mapper.Map<IEnumerable<UserDTO>>(users);
+        }
+
         public async Task<Spa> UpdateBranch(int id, Spa branch)
         {
             try

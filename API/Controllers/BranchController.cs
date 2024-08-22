@@ -101,6 +101,23 @@ namespace API.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetUsersByBranchID(int id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var users = await _branchService.GetUsersByBranch(id);
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving the spa by user ID: {ex.Message}");
+            }
+        }
+
         [HttpPut]
         public async Task<IActionResult> Update(int id, [FromBody] BranchDTO branchDTO)
         {

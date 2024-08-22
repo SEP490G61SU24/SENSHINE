@@ -66,13 +66,16 @@ namespace Web.Controllers
                         salary.BranchId = Int32.Parse(json1["spaId"].ToString());
                     }
 
+                    var response3 = client.GetAsync($"{apiUrl}/users/role/2").Result;
                     var response4 = client.GetAsync($"{apiUrl}/users/role/3").Result;
-                    var response3 = client.GetAsync($"{apiUrl}/users/role/4").Result;
-                    if (response4.IsSuccessStatusCode && response3.IsSuccessStatusCode)
+                    var response5 = client.GetAsync($"{apiUrl}/users/role/4").Result;
+                    if (response3.IsSuccessStatusCode && response4.IsSuccessStatusCode && response5.IsSuccessStatusCode)
                     {
-                        var users4 = response4.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
                         var users3 = response3.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
-                        var combinedUsers = users4.Concat(users3);
+                        var users4 = response4.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
+                        var users5 = response5.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
+                        var combinedUsers = users3.Concat(users4);
+                        combinedUsers = combinedUsers.Concat(users5);
                         combinedUsers = combinedUsers.Where(u => u.SpaId == spaId).ToList();
                         foreach (var user in combinedUsers)
                         {
@@ -135,13 +138,16 @@ namespace Web.Controllers
                 }
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
-                var response1 = client.GetAsync($"{apiUrl}/users/role/3").Result;
-                var response2 = client.GetAsync($"{apiUrl}/users/role/4").Result;
+                var response1 = client.GetAsync($"{apiUrl}/users/role/2").Result;
+                var response2 = client.GetAsync($"{apiUrl}/users/role/3").Result;
+                var response3 = client.GetAsync($"{apiUrl}/users/role/4").Result;
                 if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode)
                 {
                     var users1 = response1.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
                     var users2 = response2.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
+                    var users3 = response3.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
                     var combinedUsers = users1.Concat(users2);
+                    combinedUsers = combinedUsers.Concat(users3);
                     combinedUsers = combinedUsers.Where(u => u.SpaId == spaId).ToList();
                     foreach (var user in combinedUsers)
                     {
@@ -187,13 +193,16 @@ namespace Web.Controllers
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
 
-                var response1 = client.GetAsync($"{apiUrl}/users/role/3").Result;
-                var response2 = client.GetAsync($"{apiUrl}/users/role/4").Result;
-                if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode)
+                var response1 = client.GetAsync($"{apiUrl}/users/role/2").Result;
+                var response2 = client.GetAsync($"{apiUrl}/users/role/3").Result;
+                var response3 = client.GetAsync($"{apiUrl}/users/role/4").Result;
+                if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode && response3.IsSuccessStatusCode)
                 {
                     var users1 = response1.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
                     var users2 = response2.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
+                    var users3 = response3.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
                     var combinedUsers = users1.Concat(users2);
+                    combinedUsers = combinedUsers.Concat(users3);
                     combinedUsers = combinedUsers.Where(u => u.SpaId == spaId).ToList();
                     foreach (var user in combinedUsers)
                     {
