@@ -148,5 +148,19 @@ namespace API.Controllers
                 return StatusCode(500, $"An error occurred while deleting the salary: {ex.Message}");
             }
         }
+        [HttpGet]
+        public async Task<IActionResult> GetMonthlySalariesForYear(int year)
+        {
+            try
+            {
+                var (months, totalSalaries) = await _salaryService.GetMonthlySalariesForYear(year);
+                return Ok(new { Months = months, TotalSalaries = totalSalaries });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
     }
 }

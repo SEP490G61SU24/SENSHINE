@@ -349,5 +349,19 @@ namespace API.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+        [HttpGet("daily-revenue")]
+        public async Task<IActionResult> GetDailyRevenueForCurrentMonth()
+        {
+            try
+            {
+                var (labels, values) = await _invoiceService.GetDailyRevenueForCurrentMonth();
+                return Ok(new { Labels = labels, Values = values });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
     }
 }

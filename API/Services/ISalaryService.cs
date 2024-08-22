@@ -15,5 +15,6 @@ namespace API.Services
         Task<bool> SalaryExistByEMY(Salary salary);
         Task<bool> DeleteSalary(int id);
         bool SalaryExist(int id);
+        Task<(IEnumerable<int> Months, IEnumerable<decimal> TotalSalaries)> GetMonthlySalariesForYear(int year);
     }
 }
