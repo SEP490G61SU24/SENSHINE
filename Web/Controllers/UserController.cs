@@ -62,7 +62,7 @@ namespace Web.Controllers
         {
             try
             {
-                user.Password = "123456";
+                user.Password = "SenShine123@";
 
                 string[] nameArr = user.FullName.Split(" ");
 

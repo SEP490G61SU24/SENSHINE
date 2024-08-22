@@ -61,7 +61,7 @@ namespace Web.Controllers
 		{
 			try
 			{
-				user.Password = "123456";
+				user.Password = "SenShine123@";
 
 				string[] nameArr = user.FullName.Split(" ");
 
@@ -97,10 +97,8 @@ namespace Web.Controllers
 
 				if (response.IsSuccessStatusCode)
 				{
-					var responseString = await response.Content.ReadAsStringAsync();
-					var responseData = JsonSerializer.Deserialize<UserDTO>(responseString);
-
-					return RedirectToAction("Index", "Customer");
+                    TempData["SuccessMsg"] = "Thêm thành công!";
+                    return RedirectToAction("Index", "Customer");
 				}
 				else
 				{
@@ -132,6 +130,8 @@ namespace Web.Controllers
                 }
                 else
                 {
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    ViewData["Error"] = responseString;
                     return View("Error");
                 }
             }
@@ -181,16 +181,14 @@ namespace Web.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var responseString = await response.Content.ReadAsStringAsync();
-                    var responseData = JsonSerializer.Deserialize<UserDTO>(responseString);
-
-                    //return View(responseData);
+                    TempData["SuccessMsg"] = "Cập nhật thành công!";
                     return RedirectToAction("Index", "Customer");
                 }
                 else
                 {
-                    ViewData["Error"] = "Có lỗi xảy ra!";
-                    return View();
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    ViewData["Error"] = responseString;
+                    return View("Error");
                 }
             }
             catch (Exception ex)
