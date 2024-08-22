@@ -271,6 +271,12 @@
                         success: function (response) {
                             if (response.success) {
                                 $('#result').text("Invoice status updated successfully.");
+                                Swal.fire({
+                                    title: 'Chuyển khoản thành công',
+                                    confirmButtonText: 'Xác nhận!',
+                                    confirmButtonColor: '#28a745',
+                                    icon: 'success'
+                                });
                             } else {
                                 $('#result').text(response.message);
                             }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Net.Http;
+using System.Runtime.Intrinsics.X86;
 using System.Text;
 using Web.Models;
 
@@ -213,16 +214,10 @@ namespace Web.Controllers
             var client = _clientFactory.CreateClient();
             try
             {
-                // Load data asynchronously and handle errors
-                var spas = await LoadSpasAsync();
-                ViewBag.Spas = spas ?? new List<BranchViewModel>();
-
-
+               
 
                 var promotions = await LoadPromotionsAsync();
                 ViewBag.Promotions = promotions ?? new List<PromotionViewModel>();
-
-
 
                 var combos = await LoadCombosAsync();
                 ViewBag.Combos = combos ?? new List<ComboViewModel>();
@@ -245,12 +240,13 @@ namespace Web.Controllers
         {
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
+            var use = await LoadUserAsync();
             try
             {
                 // Convert ComboIdsString and ServiceIdsString to lists of integers
                 invoiceDto.ComboIds = invoiceDto.ComboIdsString?.Split(',').Select(int.Parse).ToList();
                 invoiceDto.ServiceIds = invoiceDto.ServiceIdsString?.Split(',').Select(int.Parse).ToList();
-
+                invoiceDto.SpaId= use.SpaId ;
 
 
                 // Create a JSON content for the HTTP POST request
@@ -276,8 +272,8 @@ namespace Web.Controllers
             }
 
             // Load necessary data for the view if an error occurred
-            var spas = await LoadSpasAsync();
-            ViewBag.Spas = spas ?? new List<BranchViewModel>();
+            //var spas = await LoadSpasAsync();
+            //ViewBag.Spas = spas ?? new List<BranchViewModel>();
 
             var promotions = await LoadPromotionsAsync();
             ViewBag.Promotions = promotions ?? new List<PromotionViewModel>();
@@ -383,8 +379,8 @@ namespace Web.Controllers
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
             // Load additional data for dropdowns or select elements
-            var spas = await LoadSpasAsync();
-            ViewBag.Spas = spas ?? new List<BranchViewModel>();
+           /* var spas = await LoadSpasAsync();
+            ViewBag.Spas = spas ?? new List<BranchViewModel>();*/
 
             var promotions = await LoadPromotionsAsync();
             ViewBag.Promotions = promotions ?? new List<PromotionViewModel>();

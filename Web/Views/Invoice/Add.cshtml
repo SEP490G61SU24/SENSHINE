@@ -126,7 +126,7 @@
 <div class="card">
     <div class="card-body">
         <form method="post" action="/invoice/add" class="row g-3 needs-validation" novalidate>
-            <div class="col-md-4 position-relative">
+            <!--<div class="col-md-4 position-relative">
                 <label class="form-label" for="SpaId">Spa</label>
                 <select class="form-select" name="SpaId" id="SpaId" required>
                     <option selected disabled value="">Select Spa...</option>
@@ -136,7 +136,7 @@
                     }
                 </select>
                 <div class="invalid-tooltip">Select a Spa!</div>
-            </div>
+            </div>-->
 
             <div class="col-md-4 position-relative">
                 <label class="form-label" for="CustomerId">Customer</label>
@@ -160,11 +160,7 @@
                 
             </div>
 
-            <div class="col-md-4 position-relative">
-                <label class="form-label" for="Amount">Amount</label>
-                <input class="form-control" name="Amount" id="Amount" type="number" step="0.01" placeholder="Total Amount" required readonly>
-                <div class="invalid-tooltip">Enter a valid amount!</div>
-            </div>
+            
 
             <div class="col-md-4 position-relative">
                 <label class="form-label" for="InvoiceDate">Invoice Date</label>
@@ -243,7 +239,11 @@
                     
                 </div>
             </div>
-
+            <div class="col-md-4 position-relative">
+                <label class="form-label" for="Amount">Amount</label>
+                <input class="form-control" name="Amount" id="Amount" type="number" step="0.01" placeholder="Total Amount" required readonly>
+                <div class="invalid-tooltip">Enter a valid amount!</div>
+            </div>
             <div class="col-md-12 position-relative">
                 <label class="form-label" for="Description">Description</label>
                 <textarea class="form-control" name="Description" id="Description" placeholder="Enter Description"></textarea>
