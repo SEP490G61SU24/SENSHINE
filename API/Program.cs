@@ -6,7 +6,8 @@ using API.Services.Impl;
 using API.Services;
 using API.Models;
 using API.Mapping;
-
+using Quartz;
+using API.CronJobs;
 
 namespace API
 {
@@ -64,6 +65,16 @@ namespace API
             builder.Services.AddAutoMapper(typeof(RoleMapper));
             builder.Services.AddAutoMapper(typeof(WorkScheduleMapper));
             builder.Services.AddAutoMapper(typeof(ComboMapper));
+
+            builder.Services.AddQuartz(q =>
+            {
+                q.UseMicrosoftDependencyInjectionJobFactory();
+
+                q.ScheduleJob<UpdateWorkScheduleJob>(trigger =>
+                    trigger.WithIdentity("updateWorkScheduleJob")
+                           .StartNow()
+                           .WithCronSchedule("0 * * * * ?"));
+            });
 
             // Configure JWT authentication
             builder.Services.AddAuthentication(options =>

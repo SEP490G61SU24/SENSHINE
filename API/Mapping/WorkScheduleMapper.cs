@@ -8,10 +8,11 @@ namespace API.Mapping
     {
         public WorkScheduleMapper()
         {
-            CreateMap<WorkSchedule, WorkScheduleDTO>()
-                .ForMember(dest => dest.EmployeeName, opt => opt.MapFrom(src => src.Employee.FirstName + " " + src.Employee.MidName + " " + src.Employee.LastName))
-                .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.Employee.Phone))
-                .ReverseMap();
-        }
+			CreateMap<WorkSchedule, WorkScheduleDTO>()
+				.ForMember(dest => dest.EmployeeName, opt => opt.MapFrom(src => src.Employee.FirstName + " " + src.Employee.MidName + " " + src.Employee.LastName))
+				.ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.Employee.Phone))
+				.ReverseMap()
+				.ForMember(dest => dest.Employee, opt => opt.Ignore());
+		}
     }
 }

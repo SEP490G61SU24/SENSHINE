@@ -39,7 +39,7 @@ namespace API.Services.Impl
 
         public async Task<WorkScheduleDTO> UpdateWorkSchedule(int id, WorkScheduleDTO workScheduleDto)
         {
-            var existingWorkSchedule = await _context.WorkSchedules.FindAsync(id);
+            var existingWorkSchedule = await _context.WorkSchedules.Include(ws => ws.Employee).FirstOrDefaultAsync(ws => ws.Id == id);
             if (existingWorkSchedule == null)
             {
                 return null;
@@ -53,10 +53,10 @@ namespace API.Services.Impl
             }
 
             _mapper.Map(workScheduleDto, existingWorkSchedule);
-            
-            existingWorkSchedule.Employee = emp;
 
-            _context.WorkSchedules.Update(existingWorkSchedule);
+			existingWorkSchedule.Employee = emp;
+
+			_context.WorkSchedules.Update(existingWorkSchedule);
             await _context.SaveChangesAsync();
 
             return _mapper.Map<WorkScheduleDTO>(existingWorkSchedule);
