@@ -71,9 +71,20 @@
 				<div class="invalid-tooltip">Chọn phường, xã.</div>
 			</div>
 
-			<div class="col-12">
-				<button class="btn btn-primary" type="submit">Thêm Mới</button>
-			</div>
+			@if (ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL")
+			{
+				<div class="col-12">
+					<button class="btn btn-primary" type="submit">Thêm Mới</button>
+				</div>
+			}
+			else
+			{
+				<div class="col-12">
+					<div class="alert alert-danger dark" role="alert">
+						<p>Bạn đang ở chế độ toàn bộ spa, không thể thêm. Hãy chọn chi nhánh SPA trước.</p>
+					</div>
+				</div>
+			}
 		</form>
 	</div>
 </div>

@@ -24,10 +24,11 @@ namespace Web.Controllers
 
         public async Task<IActionResult> Index(int pageIndex = 1, int pageSize = 10, string searchTerm = null)
         {
+            var spaId = ViewData["SpaId"];
             var apiUrl = _configuration["ApiUrl"];
 			var client = _clientFactory.CreateClient();
 
-            var url = $"{apiUrl}/work-schedules?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}";
+            var url = $"{apiUrl}/work-schedules?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}&spaId={spaId}";
 
             var response = await client.GetAsync(url);
 

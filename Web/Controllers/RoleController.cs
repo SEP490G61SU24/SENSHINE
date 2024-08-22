@@ -146,6 +146,11 @@ namespace Web.Controllers
 				//    return View(model);
 				//}
 
+				if(model.SelectedRuleIds == null)
+				{
+					model.SelectedRuleIds = new List<int>();
+				}
+
 				var ruleJson = JsonSerializer.Serialize(model.SelectedRuleIds);
                 var ruleContent = new StringContent(ruleJson, Encoding.UTF8, "application/json");
 

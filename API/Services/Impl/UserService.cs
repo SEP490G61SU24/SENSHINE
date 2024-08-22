@@ -72,7 +72,7 @@ namespace API.Services.Impl
                 throw new ArgumentException("Mật khẩu không được để trống.");
             }
 
-			if (!IsValidAge(userDto.BirthDate, userDto.RoleId ?? 5))
+			if (!IsValidAge(userDto.BirthDate, userDto.RoleId ?? (int)UserRoleEnum.CUSTOMER))
 			{
 				throw new ArgumentException("Người dùng phải đủ 18 tuổi.");
 			}
@@ -173,7 +173,7 @@ namespace API.Services.Impl
                 }
             }
 
-			if (!IsValidAge(userDto.BirthDate, userDto.RoleId ?? 5))
+			if (!IsValidAge(userDto.BirthDate, userDto.RoleId ?? (int)UserRoleEnum.CUSTOMER))
 			{
 				throw new ArgumentException("Người dùng phải đủ 18 tuổi.");
 			}
@@ -258,10 +258,19 @@ namespace API.Services.Impl
             return _mapper.Map<IEnumerable<UserDTO>>(users);
         }
 
-        public async Task<PaginatedList<UserDTO>> GetUsersByRoleWithPage(int roleId, int pageIndex = 1, int pageSize = 10, string searchTerm = null)
+        public async Task<PaginatedList<UserDTO>> GetUsersByRoleWithPage(int roleId, int pageIndex = 1, int pageSize = 10, string searchTerm = null, string spaId = null)
         {
             // Tạo query cơ bản
             IQueryable<User> query = _context.Users.Include(u => u.Roles).Where(u => u.Roles.Any(r => r.Id == roleId));
+
+            int? spaIdInt = spaId != null && spaId != "ALL"
+             ? int.Parse(spaId)
+             : (int?)null;
+
+            if (spaIdInt.HasValue)
+            {
+                query = query.Where(u => u.SpaId == spaIdInt.Value);
+            }
 
             // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
             if (!string.IsNullOrEmpty(searchTerm))
@@ -292,7 +301,7 @@ namespace API.Services.Impl
 
         public async Task<IEnumerable<UserDTO>> GetAll()
         {
-            var users = await (from user in _context.Users.Include(u => u.Roles).Where(u => u.Roles.All(r => r.Id != 5))
+            var users = await (from user in _context.Users.Include(u => u.Roles).Where(u => u.Roles.All(r => r.Id != (int) UserRoleEnum.CUSTOMER))
                                join ward in _context.Wards on user.WardCode equals ward.Code into wardsJoined
                                from ward in wardsJoined.DefaultIfEmpty()
                                join district in _context.Districts on ward.DistrictCode equals district.Code into districtsJoined
@@ -309,10 +318,19 @@ namespace API.Services.Impl
             return _mapper.Map<IEnumerable<UserDTO>>(users);
         }
 
-        public async Task<PaginatedList<UserDTO>> GetUsers(int pageIndex = 1, int pageSize = 10, string searchTerm = null)
+        public async Task<PaginatedList<UserDTO>> GetUsers(int pageIndex = 1, int pageSize = 10, string searchTerm = null, string spaId = null)
         {
             // Tạo query cơ bản
-            IQueryable<User> query = _context.Users.Include(u => u.Roles).Where(u => u.Roles.All(r => r.Id != 5));
+            IQueryable<User> query = _context.Users.Include(u => u.Roles).Where(u => u.Roles.All(r => r.Id != (int)UserRoleEnum.CUSTOMER));
+
+            int? spaIdInt = spaId != null && spaId != "ALL"
+             ? int.Parse(spaId)
+             : (int?)null;
+
+            if (spaIdInt.HasValue)
+            {
+                query = query.Where(u => u.SpaId == spaIdInt.Value);
+            }
 
             // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
             if (!string.IsNullOrEmpty(searchTerm))
@@ -408,7 +426,7 @@ namespace API.Services.Impl
 
 		private bool IsValidAge(DateTime? birthDate, int roleId)
 		{
-            if (roleId != 5)
+            if (roleId != (int)UserRoleEnum.CUSTOMER)
             {
 				if (!birthDate.HasValue)
 				{

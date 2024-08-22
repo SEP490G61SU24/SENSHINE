@@ -109,7 +109,7 @@ namespace Web.Controllers
         public IActionResult ChangeSpa(string spaId)
         {
             HttpContext.Session.SetString("SpaId", spaId);
-            return RedirectToAction("Index", "User");
+            return RedirectToAction("Index", "Dashboard");
         }
 
         [HttpPost]
