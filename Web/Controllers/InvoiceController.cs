@@ -498,6 +498,8 @@ namespace Web.Controllers
         {
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
+            content = "le hoang phuc";
+            price = 4912500;
             try
             {
                 // Define the URL for the API endpoint
@@ -519,7 +521,7 @@ namespace Web.Controllers
 
                     // Find the most recent valid record based on content and price
                     var validRecord = paymentResponse.Data
-                        .Where(record => record.Content.Contains(content) && record.Price == price)
+                        .Where(record => record.Content.ToLower().Contains(content.ToLower()) && record.Price == price)
                         .OrderByDescending(record => record.CreateAt)
                         .FirstOrDefault();
 

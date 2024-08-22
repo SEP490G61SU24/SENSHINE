@@ -97,7 +97,20 @@
                             <td>@item.CustomerName</td>
                             <td>@item.PromotionName</td>
                             <td>@item.SpaName</td>
-                            <td>@item.Status</td>
+                                <td>
+                                    @if (item.Status == "Paid")
+                                    {
+                                        @:Đã thanh toán
+                                    }
+                                    else if (item.Status == "Pending")
+                                    {
+                                        @:Chờ xử lý
+                                    }
+                                    else if (item.Status == "Cancelled")
+                                    {
+                                        @:Đã hủy
+                                    }
+                                </td>
                             <td>
                                 <ul class="action">
                                     <li class="edit"><a href="@Url.Action("Edit", "Invoice", new { id = item.Id })"><i class="icon-pencil-alt"></i></a></li>
