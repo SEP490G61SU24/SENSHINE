@@ -1,5 +1,4 @@
 ﻿using API.Dtos;
-using API.Models;
 using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -41,6 +40,10 @@ namespace API.Controllers
                 var userProfile = _mapper.Map<UserDTO>(user);
                 return Ok(userProfile);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (InvalidOperationException ex)
             {
                 return BadRequest(ex.Message);
@@ -71,6 +74,10 @@ namespace API.Controllers
                     return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra !");
                 }
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (InvalidOperationException ex)
             {
                 return BadRequest(ex.Message);
@@ -96,6 +103,10 @@ namespace API.Controllers
                 var resultDto = _mapper.Map<UserDTO>(user);
 
                 return Ok(resultDto);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (InvalidOperationException ex)
             {
@@ -127,6 +138,10 @@ namespace API.Controllers
                 var userDtoRes = _mapper.Map<UserDTO>(user);
                 return Ok(userDtoRes);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (InvalidOperationException ex)
             {
                 return BadRequest(ex.Message);
@@ -150,6 +165,10 @@ namespace API.Controllers
 
                 return NoContent();
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (InvalidOperationException ex)
             {
                 return BadRequest(ex.Message);
@@ -167,6 +186,10 @@ namespace API.Controllers
             {
                 var users = await _userService.GetUsersByRole(roleId);
                 return Ok(users);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (InvalidOperationException ex)
             {
@@ -191,6 +214,10 @@ namespace API.Controllers
                 var pagedUsers = await _userService.GetUsersByRoleWithPage(roleId, pageIndex, pageSize, searchTerm);
                 return Ok(pagedUsers);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (InvalidOperationException ex)
             {
                 return BadRequest(ex.Message);
@@ -213,6 +240,10 @@ namespace API.Controllers
 
                 var pagedUsers = await _userService.GetUsers(pageIndex, pageSize, searchTerm);
                 return Ok(pagedUsers);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (InvalidOperationException ex)
             {
@@ -237,6 +268,10 @@ namespace API.Controllers
 
                 var userDto = _mapper.Map<UserDTO>(u);
                 return Ok(userDto);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (InvalidOperationException ex)
             {

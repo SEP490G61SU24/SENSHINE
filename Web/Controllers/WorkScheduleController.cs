@@ -165,7 +165,11 @@ namespace Web.Controllers
 					return View(model);
 				}
 
-				if (model.StartDateTime >= model.EndDateTime)
+                var selectedSlot = model.TimeSlots[model.SelectedSlot];
+				var StartDateTime = model.WorkDate.Date.Add(selectedSlot.StartTime);
+				var EndDateTime = model.WorkDate.Date.Add(selectedSlot.EndTime);
+
+				if (StartDateTime >= EndDateTime)
 				{
 					model.Employees = employeeData;
 					ViewData["Error"] = "Giờ kết thúc phải sau giờ bắt đầu.";
@@ -175,8 +179,8 @@ namespace Web.Controllers
 				WorkScheduleDTO data = new WorkScheduleDTO
 				{
 					EmployeeId = model.EmployeeId,
-					StartDateTime = model.StartDateTime,
-					EndDateTime = model.EndDateTime,
+					StartDateTime = StartDateTime,
+					EndDateTime = EndDateTime,
 					Status = model.Status
 				};
 
@@ -187,7 +191,7 @@ namespace Web.Controllers
 
 				if (response.IsSuccessStatusCode)
 				{
-					ViewData["SuccessMsg"] = "Thêm thành công!";
+					TempData["SuccessMsg"] = "Thêm thành công!";
 					return RedirectToAction("Index", "workschedule");
 				}
 				else
@@ -233,9 +237,27 @@ namespace Web.Controllers
 				var viewData = new WorkScheduleViewModel
 				{
 					Id = id,
+					WorkDate = wsData.StartDateTime.Value,
 					Employees = employeeData,
 					WorkScheduleData = wsData,
 				};
+
+				string selectedSlotKey = null;
+				foreach (var slot in viewData.TimeSlots)
+				{
+					if (wsData.StartDateTime.HasValue && wsData.EndDateTime.HasValue)
+					{
+						var startTime = wsData.StartDateTime.Value.TimeOfDay;
+						var endTime = wsData.EndDateTime.Value.TimeOfDay;
+						if (startTime >= slot.Value.StartTime && endTime <= slot.Value.EndTime)
+						{
+							selectedSlotKey = slot.Key;
+							break;
+						}
+					}
+				}
+
+				viewData.SelectedSlot = selectedSlotKey;
 
 				return View(viewData);
 			}
@@ -275,12 +297,23 @@ namespace Web.Controllers
 					return View(model);
 				}
 
-				WorkScheduleDTO data = new WorkScheduleDTO
+                var selectedSlot = model.TimeSlots[model.SelectedSlot];
+				var StartDateTime = model.WorkDate.Date.Add(selectedSlot.StartTime);
+				var EndDateTime = model.WorkDate.Date.Add(selectedSlot.EndTime);
+
+				if (StartDateTime >= EndDateTime)
+                {
+                    model.Employees = employeeData;
+                    ViewData["Error"] = "Giờ kết thúc phải sau giờ bắt đầu.";
+                    return View(model);
+                }
+
+                WorkScheduleDTO data = new WorkScheduleDTO
 				{
 					Id = model.Id,
 					EmployeeId = model.EmployeeId,
-					StartDateTime = model.StartDateTime,
-					EndDateTime = model.EndDateTime,
+					StartDateTime = StartDateTime,
+					EndDateTime = EndDateTime,
 					Status = model.Status
 				};
 
@@ -291,7 +324,7 @@ namespace Web.Controllers
 
 				if (response.IsSuccessStatusCode)
 				{
-					ViewData["Success"] = "Cập nhật thành công!";
+                    TempData["SuccessMsg"] = "Cập nhật thành công!";
 					return RedirectToAction("Index", "WorkSchedule");
 				}
 				else
@@ -329,7 +362,7 @@ namespace Web.Controllers
 
 				if (response.IsSuccessStatusCode)
 				{
-					ViewData["SuccessMsg"] = "Xóa thành công!";
+                    TempData["SuccessMsg"] = "Xóa thành công!";
 					return RedirectToAction("Index", "workschedule");
 				}
 				else

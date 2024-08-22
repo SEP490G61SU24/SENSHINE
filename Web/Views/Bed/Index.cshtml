@@ -23,7 +23,7 @@
     <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 }
-@model IEnumerable<Web.Models.BedViewModel>
+@model API.Ultils.PaginatedList<Web.Models.BedViewModelIndex>
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-12">
@@ -34,7 +34,33 @@
                             <i class="fa fa-plus"></i> Thêm Giường Mới
                         </a>
                     </div>
+                    <div class="search-page">
+                        <form class="theme-form mb-3" method="GET">
+                            <div class="dataTables_length" id="table_length">
+                                <label>
+                                    Hiển thị
+                                    <select aria-controls="table" class="" asp-for="PageSize" name="PageSize" id="PageSize" onchange="this.form.submit()">
+                                        @foreach (var pSize in new List<(int Value, string Name)>
+                                        {
+                                        (Value: 5, Name: "5"),
+                                        (Value: 10, Name: "10"),
+                                        (Value: 25, Name: "25"),
+                                        (Value: 50, Name: "50"),
+                                        (Value: 100, Name: "100"),
+                                        })
+                                        {
+                                            <option value="@pSize.Value" selected="@(pSize.Value == Model.PageSize ? "selected" : null)">@pSize.Name</option>
+                                        }
+                                    </select>
+                                    bản ghi
+                                </label>
+                            </div>
 
+                            <div class="input-group m-0 flex-nowrap">
+                                <input class="form-control-plaintext" name="searchTerm" type="search" value="@(Model.SearchTerm ?? null)" placeholder="Nhập tên, số điện thoại ..."><button class="btn btn-primary input-group-text">Tìm kiếm</button>
+                            </div>
+                        </form>
+                    </div>
                     <div class="table-responsive custom-scrollbar">
                         <table class="display" id="comboTable">
                             <thead>
@@ -47,15 +73,14 @@
                                 </tr>
                             </thead>
                             <tbody>
-                               @foreach (var item in Model)
+                                @foreach (var item in Model.Items)
                                 {
                                     <tr id="bed-@item.Id">
                                         <td>@item.BedNumber</td>
-                                        <td>@item.RoomId</td>
+                                        <td>@item.RoomName</td> <!-- Hiển thị RoomName thay vì RoomId -->
                                         <td>@item.StatusWorking</td>
                                         <td>
                                             <div class="product-action">
-                                                
                                                 <button class="btn btn-primary" data-id="@item.Id" onclick="editBed(this)" style="height: 35px; width: 150px;">Edit</button>
                                                 <button class="btn btn-danger" data-id="@item.Id" onclick="confirmDelete(this)" style="height: 35px; width: 150px;">Delete</button>
                                             </div>
@@ -63,7 +88,31 @@
                                     </tr>
                                 }
                             </tbody>
+
                         </table>
+                        <div class="dataTables_wrapper no-footer">
+                            <div class="dataTables_paginate paging_simple_numbers" id="table_paginate">
+                                <a class="paginate_button previous @(Model.HasPreviousPage ? "" : "disabled")"
+                                   aria-controls="table"
+                                   href="@(Model.HasPreviousPage ? $"?searchTerm={Model.SearchTerm}&pageIndex={Model.PageIndex - 1}&pageSize={Model.PageSize}" : "javascript:void(0);")"
+                                   id="table_previous">« Trước</a>
+
+                                <span>
+                                    @for (int i = 1; i <= Model.TotalPages; i++)
+                                    {
+                                        <a class="@(i == Model.PageIndex ? "paginate_button current" : "paginate_button")"
+                                           aria-controls="table"
+                                           href="?searchTerm=@Model.SearchTerm&pageIndex=@i&pageSize=@Model.PageSize"
+                                           data-dt-idx="@i">@i</a>
+                                    }
+                                </span>
+
+                                <a class="paginate_button next @(Model.HasNextPage ? "" : "disabled")"
+                                   aria-controls="table"
+                                   href="@(Model.HasNextPage ? $"?searchTerm={Model.SearchTerm}&pageIndex={Model.PageIndex + 1}&pageSize={Model.PageSize}" : "javascript:void(0);")"
+                                   id="table_next">Tiếp »</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -117,19 +166,19 @@
     <script src="~/assets/js/slick/slick.min.js"></script>
     <script src="~/assets/js/slick/slick.js"></script>
     <script src="~/assets/js/header-slick.js"></script>
-    <!-- DataTables JS-->
+    <!-- calendar js-->
     <script src="~/assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
     <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
+    <!-- sweet alert -->
+    <script src="~/assets/js/sweet-alert/sweetalert.min.js"></script>
     <script>
         $(document).ready(function () {
             $('#comboTable').DataTable({
-                "paging": true,
-                "searching": true,
-                "ordering": true,
-                "info": true
+                paging: false,
+                searching: false
             });
         });
     </script>

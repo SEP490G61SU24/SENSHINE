@@ -30,6 +30,10 @@ namespace API.Controllers
                 }
                 return Ok(data);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (InvalidOperationException ex)
             {
                 return BadRequest(ex.Message);
@@ -51,6 +55,10 @@ namespace API.Controllers
                     return NoContent();
                 }
                 return Ok(data);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (InvalidOperationException ex)
             {
@@ -75,6 +83,10 @@ namespace API.Controllers
                 var paged = await _ruleService.GetRules(pageIndex, pageSize, searchTerm);
                 return Ok(paged);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (InvalidOperationException ex)
             {
                 return BadRequest(ex.Message);
@@ -97,6 +109,10 @@ namespace API.Controllers
                 }
 
                 return Ok(rule);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (InvalidOperationException ex)
             {
@@ -121,6 +137,10 @@ namespace API.Controllers
 
                 return Ok(rules);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (InvalidOperationException ex)
             {
                 return BadRequest(ex.Message);
@@ -143,6 +163,10 @@ namespace API.Controllers
 
                 var createdRule = await _ruleService.AddRule(ruleDto);
                 return CreatedAtAction(nameof(GetById), new { id = createdRule.Id }, createdRule);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (InvalidOperationException ex)
             {
@@ -172,6 +196,10 @@ namespace API.Controllers
 
                 return NoContent();
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (InvalidOperationException ex)
             {
                 return BadRequest(ex.Message);
@@ -195,6 +223,10 @@ namespace API.Controllers
 
                 return NoContent();
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (InvalidOperationException ex)
             {
                 return BadRequest(ex.Message);
@@ -216,6 +248,10 @@ namespace API.Controllers
                     return NotFound("No rules found for this role.");
                 }
                 return Ok(rules);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (InvalidOperationException ex)
             {
@@ -239,6 +275,10 @@ namespace API.Controllers
 
                 var hasAccess = await _ruleService.CheckAccessAsync(roleId, path);
                 return Ok(hasAccess);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (InvalidOperationException ex)
             {

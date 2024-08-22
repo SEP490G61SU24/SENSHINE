@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Web.Models;
 using API.Dtos;
+using NuGet.Protocol.Plugins;
 
 namespace Web.Controllers
 {
@@ -11,6 +12,7 @@ namespace Web.Controllers
         private readonly IConfiguration _configuration;
         private readonly IHttpClientFactory _clientFactory;
         private readonly ILogger<AuthController> _logger;
+
         public AuthController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<AuthController> logger)
 			: base(configuration, clientFactory, logger)
 		{
@@ -18,16 +20,22 @@ namespace Web.Controllers
             _clientFactory = clientFactory;
             _logger = logger;
         }
-
+        
         [HttpGet]
         public IActionResult Login()
+        {
+            return RedirectToAction("LoginSpa", "Auth");
+        }
+
+        [HttpGet]
+        public IActionResult LoginSpa()
         {
 			UserDTO userProfile = ViewData["UserProfile"] as UserDTO;
 			if (userProfile != null)
 			{
 				return RedirectToAction("Index", "User");
 			}
-			return View();
+			return View("Login");
         }
 
         [HttpPost]
@@ -75,13 +83,25 @@ namespace Web.Controllers
             }
         }
 
-		[HttpGet]
+        [HttpGet]
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Remove("Token");
+            Response.Cookies.Delete("Token");
+            HttpContext.Session.Remove("SpaId");
+
+            ViewData["UserProfile"] = null;
+
+            return RedirectToAction("LoginSpa", "Auth");
+        }
+
+        [HttpGet]
 		public IActionResult ChangePass()
 		{
 			UserDTO userProfile = ViewData["UserProfile"] as UserDTO;
 			if(userProfile == null)
             {
-				return RedirectToAction("Login", "Auth");
+				return RedirectToAction("LoginSpa", "Auth");
 			}
 			return View();
 		}
@@ -94,7 +114,7 @@ namespace Web.Controllers
 				UserDTO userProfile = ViewData["UserProfile"] as UserDTO;
 			    if (userProfile == null)
 			    {
-				    return RedirectToAction("Login", "Auth");
+				    return RedirectToAction("LoginSpa", "Auth");
 			    }
 
                 if (string.IsNullOrEmpty(model.OldPassword) || string.IsNullOrEmpty(model.NewPassword) || string.IsNullOrEmpty(model.RePassword))

@@ -50,18 +50,16 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="SpaId" class="control-label">Spa Name</label>
-                                    <select asp-for="SpaId" class="form-control" asp-items="ViewBag.SpaList">
-                                        <option selected disabled>All Location</option>
-                                    </select>
-                                    <span asp-validation-for="SpaId" class="text-danger"></span>
+                                    <label asp-for="PromotionName" class="control-label">Promotion Name</label>
+                                    <input asp-for="PromotionName" class="form-control" />
+                                    <span asp-validation-for="PromotionName" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label asp-for="PromotionName" class="control-label">Promotion Name</label>
-                                    <input asp-for="PromotionName" class="form-control" />
-                                    <span asp-validation-for="PromotionName" class="text-danger"></span>
+                                    <label asp-for="DiscountPercentage" class="control-label">Discount Percentage</label>
+                                    <input asp-for="DiscountPercentage" type="number" step="0.01" class="form-control" />
+                                    <span asp-validation-for="DiscountPercentage" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -87,13 +85,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label asp-for="DiscountPercentage" class="control-label">Discount Percentage</label>
-                                    <input asp-for="DiscountPercentage" type="number" step="0.01" class="form-control" />
-                                    <span asp-validation-for="DiscountPercentage" class="text-danger"></span>
-                                </div>
-                            </div>
+                            
                             <div class="col-12">
                                 <div class="form-group d-flex">
                                     <input type="submit" value="Create" class="btn btn-primary spacing-10px" />

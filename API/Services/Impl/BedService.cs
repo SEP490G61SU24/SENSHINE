@@ -1,5 +1,7 @@
 ﻿using API.Dtos;
 using API.Models;
+using API.Ultils;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,10 +12,11 @@ namespace API.Services.Impl
     public class BedService : IBedService
     {
         private readonly SenShineSpaContext _context;
-
-        public BedService(SenShineSpaContext context)
+        private readonly IMapper _mapper;
+        public BedService(SenShineSpaContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
 
@@ -122,6 +125,35 @@ namespace API.Services.Impl
             return await _context.Beds.Include(b => b.Room)  
                                  .Where(b => b.RoomId == roomId)  
                                  .ToListAsync();
+        }
+
+        public async Task<PaginatedList<BedDTO>> GetBedList(int pageIndex = 1, int pageSize = 10, string? searchTerm = null)
+        {
+            // Tạo query cơ bản
+            IQueryable<Bed> query = _context.Beds.Include(b => b.Room); 
+
+            // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(u => u.BedNumber.Contains(searchTerm));
+            }
+
+            // Đếm tổng số bản ghi để tính tổng số trang
+            var count = await query.CountAsync();
+
+            // Lấy danh sách với phân trang
+            var beds = await query.Skip((pageIndex - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync();
+
+            var bedDtos = _mapper.Map<IEnumerable<BedDTO>>(beds);
+            return new PaginatedList<BedDTO>
+            {
+                Items = bedDtos,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = count,
+            };
         }
     }
 }

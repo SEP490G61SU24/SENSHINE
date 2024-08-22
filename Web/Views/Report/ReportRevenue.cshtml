@@ -1,0 +1,311 @@
+﻿@model CombinedReportViewModel
+@using Newtonsoft.Json
+
+@{
+    ViewData["Title"] = "Report Revenue";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/themify.css">
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/flag-icon.css">
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/feather-icon.css">
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/photoswipe.css">
+<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
+<link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
+<link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+
+<style>
+    .container {
+        padding: 20px;
+    }
+
+    .row-card {
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .chart-container {
+        margin-bottom: 30px;
+    }
+
+    .chart-title {
+        margin-bottom: 15px;
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .history-container {
+        padding: 15px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+    }
+
+    .table thead th {
+        background-color: #007bff;
+        color: #fff;
+        text-align: center;
+    }
+
+    .table tbody td {
+        text-align: center;
+    }
+
+    .table {
+        margin-top: 15px;
+    }
+
+    .chart-fixed-size {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+    }
+
+    .chart-fixed-size-z {
+        width: 100%; /* Adjust the width as needed */
+        height: 256px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center; /* Set height to 200px */
+    }
+
+        .chart-fixed-size canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+  
+</style>
+
+<div class="container">
+    <div class="row">
+        <!-- Chart for revenue -->
+        <div class="col-md-8 chart-container">
+            <div class="row-card chart-fixed-size">
+                <h4 class="chart-title">Revenue Chart</h4>
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+        <!-- History list -->
+        <div class="col-md-4 history-container">
+            <div class="row-card">
+                <h4 class="chart-title">Revenue History</h4>
+                @if (Model.RevenueReports != null && Model.RevenueReports.Any())
+                {
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Daily Revenue (VND)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var report in Model.RevenueReports)
+                            {
+                                <tr>
+                                    <td>@report.Date.ToString("yyyy-MM-dd")</td>
+                                    <td>@report.TotalRevenue.ToString("N0", new System.Globalization.CultureInfo("vi-VN"))</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p>No revenue report data available.</p>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <!-- Bar chart for service summaries -->
+        <div class="col-md-4 chart-container">
+            <div class="row-card chart-fixed-size">
+                <h4 class="chart-title">Service Summaries</h4>
+                <canvas id="serviceSummaryChart"></canvas>
+            </div>
+        </div>
+        <!-- Bar chart for combo summaries -->
+        <div class="col-md-4 chart-container">
+            <div class="row-card chart-fixed-size">
+                <h4 class="chart-title">Combo Summaries</h4>
+                <canvas id="comboSummaryChart"></canvas>
+            </div>
+        </div>
+        <!-- Pie chart for invoice status summary -->
+        <div class="col-md-4 chart-container">
+            <div class="row-card chart-fixed-size-z">
+                <h4 class="chart-title">Invoice Status Summary</h4>
+                <canvas id="invoiceStatusChart" ></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/assets/js/jquery.min.js"></script>
+<!-- Bootstrap js-->
+<script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
+<!-- feather icon js-->
+<script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
+<script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
+<!-- scrollbar js-->
+<script src="~/assets/js/scrollbar/simplebar.js"></script>
+<script src="~/assets/js/scrollbar/custom.js"></script>
+<!-- Sidebar jquery-->
+<script src="~/assets/js/config.js"></script>
+<!-- Plugins JS start-->
+<script src="~/assets/js/sidebar-menu.js"></script>
+<script src="~/assets/js/sidebar-pin.js"></script>
+<script src="~/assets/js/slick/slick.min.js"></script>
+<script src="~/assets/js/slick/slick.js"></script>
+<script src="~/assets/js/header-slick.js"></script>
+<!-- calendar js-->
+<script src="~/assets/js/js-datatables/simple-datatables@latest.js"></script>
+<script src="~/assets/js/custom-list-product.js"></script>
+<script src="~/assets/js/owlcarousel/owl.carousel.js"></script>
+<script src="~/assets/js/ecommerce.js"></script>
+<script src="~/assets/js/tooltip-init.js"></script>
+<!-- Plugins JS Ends-->
+<!-- Theme js-->
+<script src="~/assets/js/script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Revenue Chart
+        var ctx = document.getElementById('revenueChart').getContext('2d');
+        var revenueChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(JsonConvert.SerializeObject(Model.RevenueReports.Select(r => r.Date.ToString("yyyy-MM-dd")))),
+                datasets: [{
+                    label: 'Doanh thu (VND)',
+                    data: @Html.Raw(JsonConvert.SerializeObject(Model.RevenueReports.Select(r => r.TotalRevenue))),
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return value.toLocaleString('vi-VN');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Invoice Status Chart
+        var ctxInvoice = document.getElementById('invoiceStatusChart').getContext('2d');
+        var invoiceStatusChart = new Chart(ctxInvoice, {
+            type: 'pie',
+            data: {
+                labels: @Html.Raw(JsonConvert.SerializeObject(Model.InvoiceStatusSummary.Select(s => s.Status))),
+                datasets: [{
+                    data: @Html.Raw(JsonConvert.SerializeObject(Model.InvoiceStatusSummary.Select(s => s.Count))),
+                    backgroundColor: [
+                        'rgba(74, 229, 139, 0.8)',  // Green for Paid
+                        'rgba(208, 51, 51, 0.8)',   // Red for Overdue
+                        'rgba(255, 206, 86, 0.8)'    // Yellow for Unpaid
+                    ],
+                    borderColor: [
+                        'rgba(3, 1, 2, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+
+        // Service Summaries Chart
+        var ctxService = document.getElementById('serviceSummaryChart').getContext('2d');
+        var serviceSummaryChart = new Chart(ctxService, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(JsonConvert.SerializeObject(Model.ServiceSummaries.Select(s => s.ServiceName))),
+                datasets: [{
+                    label: 'Total Services',
+                    data: @Html.Raw(JsonConvert.SerializeObject(Model.ServiceSummaries.Select(s => s.TotalQuantity))),
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return value.toLocaleString('vi-VN');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Combo Summaries Chart
+        var ctxCombo = document.getElementById('comboSummaryChart').getContext('2d');
+        var comboSummaryChart = new Chart(ctxCombo, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(JsonConvert.SerializeObject(Model.ComboSummaries.Select(c => c.ComboName))),
+                datasets: [{
+                    label: 'Total Combos',
+                    data: @Html.Raw(JsonConvert.SerializeObject(Model.ComboSummaries.Select(c => c.TotalQuantity))),
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return value.toLocaleString('vi-VN');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>

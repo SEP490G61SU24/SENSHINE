@@ -1,0 +1,279 @@
+﻿
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="pixelstrap">
+    <link rel="icon" href="~/assets/images/landing/landinglogo.png" type="image/x-icon">
+    <link rel="shortcut icon" href="~/assets/images/landing/landinglogo.png" type="image/x-icon">
+    <title>SenShine Spa</title>
+    <!-- Google font-->
+    <link href="https://fonts.googleapis.com/css?family=Rubik:400,400i,500,500i,700,700i&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i,900&amp;display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
+    <link rel="icon" href="~/assets/svg/landing-icons.svg">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/styles_HomePage.css">
+    <!-- Bootstrap css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
+    <!-- App css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
+    <!-- Responsive css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+<style>
+    .news-detail-container {
+        max-width: 750px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .news-title {
+        font-size: 2rem;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .news-detail-image {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    .news-date {
+        font-size: 0.9rem;
+        color: #999;
+        margin-bottom: 20px;
+    }
+
+    .news-content {
+        font-size: 1rem;
+        color: #666;
+    }
+
+    .card-with-border {
+        border: 1px solid #ddd;
+        transition: transform 0.2s ease-in-out;
+    }
+
+        .card-with-border:hover {
+            transform: scale(1.05);
+        }
+
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+    }
+
+    .card {
+        margin-bottom: 0 !important;
+    }
+
+    .card-text {
+        font-size: 0.9rem;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    .news-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .news-item-link {
+        display: block;
+        width: 100%;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .news-item {
+        display: flex;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 15px;
+        width: 100%;
+        max-width: 750px;
+        padding: 15px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+    }
+
+        .news-item img {
+            width: 230px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 15px;
+        }
+
+        .news-item:hover {
+            transform: scale(1.02);
+        }
+
+    .news-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .news-title {
+        font-size: 1.1rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .news-description {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 10px;
+    }
+
+    .news-date {
+        font-size: 0.8rem;
+        color: #999;
+    }
+
+    .sidebar {
+        width: 300px;
+        margin-left: 30px;
+    }
+
+    .latest-post {
+        display: flex;
+        margin-bottom: 20px;
+    }
+
+        .latest-post img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 10px;
+        }
+
+    .latest-post-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .latest-post-title {
+        font-size: 0.9rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #333;
+    }
+
+    .latest-post-date {
+        font-size: 0.8rem;
+        color: #999;
+    }
+</style>
+</head>
+@model NewsViewModel
+@{
+    Layout = null;
+}
+<body class="landing-page">
+    <div class="landing-home" id="home" style="height: 40%">
+        <div class="container-fluid">
+            <div class="sticky-header">
+                <header>
+                    <nav class="navbar navbar-b navbar-dark navbar-trans navbar-expand-xl fixed-top nav-padding" id="sidebar-menu">
+                        <a class="navbar-brand p-0" href="HomePage">
+                            <img class="img-fluid" src="~/assets/images/landing/landinglogo.png" alt="">
+                        </a>
+                        <button class="navbar-toggler navabr_btn-set custom_nav" type="button" data-bs-toggle="collapse" data-bs-target="#navbarDefault" aria-controls="navbarDefault" aria-expanded="false" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+                        <div class="navbar-collapse justify-content-center collapse hidenav" id="navbarDefault">
+                            <ul class="navbar-nav navbar_nav_modify" id="scroll-spy">
+                                <li class="nav-item"><a class="nav-link" href="@Url.Action("NewsPage", "Home")">News</a></li>
+                                <li class="nav-item"> <a class="nav-link" id="page" href="@Url.Action("OurService", "Home")">Our Services</a></li>
+                                <li class="nav-item"> <a class="nav-link" id="page" href="@Url.Action("AboutUs", "Home")">About Us</a></li>
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span id="dropdownMenuButton">Sen Shine Spa</span>
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="landing-page.html#framework-saigon" onclick="updateDropdown('SenShineSpa_SaiGon')">Sen Shine Spa Wellness</a>
+                                        <a class="dropdown-item" href="landing-page.html#framework-saigon" onclick="updateDropdown('SenShineSpa_SaiGon')">L’essence Sen Shine</a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="buy-btn"><a class="nav-link js-scroll" href="HomePage" target="_blank">Book Now</a></div>
+                    </nav>
+                </header>
+            </div>
+            <div class="row justify-content-center">
+                <div class="content text-center">
+                    <div>
+                        <h1 class="text-center">
+                            @Model.Title
+                        </h1>
+                    </div>
+                </div>
+                <div class="user-content">
+                    <span class="text-center">.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="intro-section" id="intro" style="padding: 50px 0; background-color: #F3FDFE;">
+        <div class="container-fluid">
+            <div class="news-detail-container">
+                <img src="@Model.Cover" alt="News Image" class="news-detail-image">
+                <p class="news-date">@Model.PublishedDate.ToString("MMM dd, yyyy")</p>
+                <div class="news-content">
+                    @Html.Raw(Model.Content)
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+
+<script src="~/assets/js/jquery.min.js"></script>
+<!-- Bootstrap js-->
+<script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
+<!-- feather icon js-->
+<script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
+<script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
+<!-- scrollbar js-->
+<script src="~/assets/js/scrollbar/simplebar.js"></script>
+<script src="~/assets/js/scrollbar/custom.js"></script>
+<!-- Sidebar jquery-->
+<script src="~/assets/js/config.js"></script>
+<!-- Plugins JS start-->
+<script src="~/assets/js/sidebar-menu.js"></script>
+<script src="~/assets/js/sidebar-pin.js"></script>
+<script src="~/assets/js/slick/slick.min.js"></script>
+<script src="~/assets/js/slick/slick.js"></script>
+<script src="~/assets/js/header-slick.js"></script>
+<!-- calendar js-->
+<script src="~/assets/js/js-datatables/simple-datatables@latest.js"></script>
+<script src="~/assets/js/custom-list-product.js"></script>
+<script src="~/assets/js/owlcarousel/owl.carousel.js"></script>
+<script src="~/assets/js/ecommerce.js"></script>
+<script src="~/assets/js/tooltip-init.js"></script>
+<!-- Plugins JS Ends-->
+<!-- Theme js-->
+<script src="~/assets/js/script.js"></script>

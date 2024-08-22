@@ -3,7 +3,6 @@ using API.Ultils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
-using System;
 using System.Text;
 using Web.Models;
 
@@ -113,9 +112,6 @@ namespace Web.Controllers
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
 
-            // Create a SelectList to populate the dropdown
-            var spaNames = await GetDistinctSpaNames();
-            ViewBag.SpaList = new SelectList(spaNames, "Id", "SpaName");
 
             return View();
 
@@ -126,11 +122,13 @@ namespace Web.Controllers
         {
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
+
             if (!ModelState.IsValid)
             {
                 return View(promotionDto);
             }
-
+            var use = LoadUserAsync();
+           // promotionDto.SpaId = use.SpaId;
             string json = JsonConvert.SerializeObject(promotionDto);
             StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
             HttpResponseMessage response = await client.PostAsync($"{apiUrl}/AddPromotion", content);
@@ -171,35 +169,14 @@ namespace Web.Controllers
                         DiscountPercentage = promotion.DiscountPercentage,
                         SpaName = promotion.SpaName
                     };
-                    var spaNames = await GetDistinctSpaNames();
-                    ViewBag.SpaList = new SelectList(spaNames, "Id", "SpaName", promotion.SpaId);
+     
                     return View(viewModel);
                 }
             }
 
             return RedirectToAction("ListPromotion");
         }
-        private async Task<List<BranchViewModel>> GetDistinctSpaNames()
-        {
-            var apiUrl = _configuration["ApiUrl"];
-            var client = _clientFactory.CreateClient();
-            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Branch/GetAll");
-            if (response.IsSuccessStatusCode)
-            {
-                string data = await response.Content.ReadAsStringAsync();
-                var branches = JsonConvert.DeserializeObject<List<BranchViewModel>>(data);
-
-                // Get distinct Spa names
-                var distinctSpaNames = branches
-                    .GroupBy(branch => branch.SpaName)
-                    .Select(group => group.First())
-                    .ToList();
-
-                return distinctSpaNames;
-            }
-
-            return new List<BranchViewModel>();
-        }
+       
 
         [HttpPost]
         public async Task<IActionResult> Edit(PromotionViewModel promotionViewModel)
@@ -213,10 +190,11 @@ namespace Web.Controllers
 
             try
             {
+                var use = LoadUserAsync();
                 var promotionDto = new PromotionDTO
                 {
                     Id = promotionViewModel.Id,
-                    SpaId = promotionViewModel.SpaId,
+                    //SpaId = use.SpaId,
                     PromotionName = promotionViewModel.PromotionName,
                     StartDate = promotionViewModel.StartDate,
                     EndDate = promotionViewModel.EndDate,

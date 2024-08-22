@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Headers;
-using System.Text.Json;
 using API.Dtos;
+using NuGet.Protocol.Plugins;
+using Microsoft.AspNetCore.Http;
 using API.Ultils;
-using NuGet.Common;
-using System;
 
 namespace Web.Controllers
 {
@@ -35,8 +34,6 @@ namespace Web.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    //var jsonString = await response.Content.ReadAsStringAsync();
-                    //var userProfile = JsonSerializer.Deserialize<UserDTO>(jsonString);
                     UserDTO userProfile = await response.Content.ReadFromJsonAsync<UserDTO>();
                     return userProfile;
                 }
@@ -94,12 +91,28 @@ namespace Web.Controllers
                 {
                     ViewData["UserProfile"] = userProfile;
                     menus = await GetMenuByRole(userProfile.RoleId);
+
+                    if (userProfile.SpaId != null)
+                    {
+                        HttpContext.Session.SetString("SpaId", userProfile.SpaId?.ToString() ?? "");
+                    }
                 }
 
                 ViewData["Token"] = token;
             }
             ViewData["UserMenu"] = menus;
-            
+
+            var successMessage = TempData["SuccessMsg"];
+            if (successMessage != null)
+            {
+                ViewData["SuccessMsg"] = successMessage;
+            }
+            var errorMessage = TempData["Error"];
+            if (errorMessage != null)
+            {
+                ViewData["Error"] = errorMessage;
+            }
+
             await base.OnActionExecutionAsync(context, next);
         }
     }

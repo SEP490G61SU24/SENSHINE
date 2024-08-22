@@ -1,5 +1,6 @@
 ﻿using API.Dtos;
 using API.Models;
+using API.Ultils;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -13,5 +14,6 @@ namespace API.Services
         Task<bool> DeleteBed(int id);
         Task<BedDTO> GetBedById(int id); // Thay đổi trả về BedDTO
         Task<IEnumerable<BedDTO>> GetAllBeds(); // Thay đổi trả về BedDTO
+        Task<PaginatedList<BedDTO>> GetBedList(int pageIndex = 1, int pageSize = 10, string? searchTerm = null);
     }
 }

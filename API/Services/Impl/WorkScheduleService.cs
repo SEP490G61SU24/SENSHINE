@@ -21,6 +21,16 @@ namespace API.Services.Impl
         public async Task<WorkScheduleDTO> AddWorkSchedule(WorkScheduleDTO workScheduleDto)
         {
             var workSchedule = _mapper.Map<WorkSchedule>(workScheduleDto);
+
+            var emp = await _context.Users.FirstOrDefaultAsync(x => x.Id == workScheduleDto.EmployeeId);
+
+            if (emp == null)
+            {
+                throw new InvalidOperationException("Không tìm thấy nhân viên.");
+            }
+
+            workSchedule.Employee = emp;
+
             _context.WorkSchedules.Add(workSchedule);
             await _context.SaveChangesAsync();
 

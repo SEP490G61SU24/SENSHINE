@@ -4,6 +4,7 @@ using API.Ultils;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.Text.RegularExpressions;
 
 namespace API.Services.Impl
 {
@@ -20,6 +21,16 @@ namespace API.Services.Impl
 
         public async Task<UserDTO> Authenticate(string username, string password)
         {
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                throw new ArgumentException("Tên người dùng không được để trống.");
+            }
+
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                throw new ArgumentException("Mật khẩu không được để trống.");
+            }
+
             var user = await _context.Users
                                      .Include(r => r.Roles)
                                      .SingleOrDefaultAsync(u => u.UserName == username || u.Phone == username);
@@ -29,12 +40,44 @@ namespace API.Services.Impl
                 return null;
             }
 
+            var userDto = _mapper.Map<UserDTO>(user);
+
+            if (userDto.RoleId == (int)UserRoleEnum.CUSTOMER)
+            {
+                throw new InvalidOperationException("Khách hàng không thể đăng nhập hệ thống!");
+            }
+
+            if (userDto.Status != UserStatusEnum.ACTIVE.ToString())
+            {
+                throw new InvalidOperationException("Người dùng hiện tại không thể truy cập!");
+            }
+
             return _mapper.Map<UserDTO>(user);
         }
 
         public async Task<UserDTO> AddUser(UserDTO userDto)
         {
-            if (!string.IsNullOrEmpty(userDto.UserName))
+            if (userDto == null)
+            {
+                throw new ArgumentNullException(nameof(userDto), "Dữ liệu người dùng không được để trống.");
+            }
+
+            if (string.IsNullOrWhiteSpace(userDto.UserName))
+            {
+                throw new ArgumentException("Tên người dùng không được để trống.");
+            }
+
+            if (string.IsNullOrWhiteSpace(userDto.Password))
+            {
+                throw new ArgumentException("Mật khẩu không được để trống.");
+            }
+
+			if (!IsValidAge(userDto.BirthDate, userDto.RoleId ?? 5))
+			{
+				throw new ArgumentException("Người dùng phải đủ 18 tuổi.");
+			}
+
+			if (!string.IsNullOrEmpty(userDto.UserName))
             {
                 var existingUser = await _context.Users.SingleOrDefaultAsync(u => u.UserName == userDto.UserName);
                 if (existingUser != null)
@@ -55,7 +98,14 @@ namespace API.Services.Impl
             string hashedPassword = null;
             if (!string.IsNullOrEmpty(userDto.Password))
             {
-                hashedPassword = PasswordUtils.HashPassword(userDto.Password);
+				if (!IsValidPassword(userDto.Password))
+				{
+					throw new ArgumentException("Mật khẩu yếu, vui lòng thử lại.");
+				}
+				else
+				{
+				    hashedPassword = PasswordUtils.HashPassword(userDto.Password);
+				}
             }
 
             var user = new User
@@ -67,8 +117,8 @@ namespace API.Services.Impl
                 MidName = userDto.MidName,
                 LastName = userDto.LastName,
                 BirthDate = userDto.BirthDate,
-                Status = "ACTIVE",
-                StatusWorking = "INACTIVE",
+                Status = UserStatusEnum.ACTIVE.ToString(),
+                StatusWorking = UserWorkingStatusEnum.AVAILABLE.ToString(),
                 ProvinceCode = userDto.ProvinceCode,
                 DistrictCode = userDto.DistrictCode,
                 WardCode = userDto.WardCode
@@ -114,10 +164,21 @@ namespace API.Services.Impl
 
             if (!string.IsNullOrEmpty(userDto.Password))
             {
-                user.Password = PasswordUtils.HashPassword(userDto.Password);
+				if (!IsValidPassword(userDto.Password))
+				{
+					throw new ArgumentException("Mật khẩu yếu, vui lòng thử lại.");
+				} else
+                {
+				    user.Password = PasswordUtils.HashPassword(userDto.Password);
+                }
             }
 
-            if (!string.IsNullOrEmpty(userDto.Phone))
+			if (!IsValidAge(userDto.BirthDate, userDto.RoleId ?? 5))
+			{
+				throw new ArgumentException("Người dùng phải đủ 18 tuổi.");
+			}
+
+			if (!string.IsNullOrEmpty(userDto.Phone))
             {
                 bool phoneExists = await _context.Users
                     .Where(u => u.Phone == userDto.Phone && u.Id != id)
@@ -310,28 +371,61 @@ namespace API.Services.Impl
             return addressString;
         }
 
-		public async Task<bool> ChangePassword(string userName, string currentPassword, string newPassword, bool userChange)
-		{
-			var user = await _context.Users.SingleOrDefaultAsync(u => u.UserName == userName); 
-            
-            if (user == null)
-			{
-				throw new InvalidOperationException("Người dùng không tồn tại.");
-			}
+        public async Task<bool> ChangePassword(string userName, string currentPassword, string newPassword, bool userChange)
+        {
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.UserName == userName);
 
-            if(userChange)
+            if (user == null)
             {
-			    if (!PasswordUtils.VerifyPassword(currentPassword, user.Password))
-			    {
-				    throw new InvalidOperationException("Mật khẩu hiện tại không chính xác.");
-			    }
+                throw new InvalidOperationException("Người dùng không tồn tại.");
             }
 
-			user.Password = PasswordUtils.HashPassword(newPassword);
-			_context.Users.Update(user);
-			await _context.SaveChangesAsync();
+            if (userChange)
+            {
+                if (!PasswordUtils.VerifyPassword(currentPassword, user.Password))
+                {
+                    throw new InvalidOperationException("Mật khẩu hiện tại không chính xác.");
+                }
+            }
 
-			return true;
+            if (!IsValidPassword(newPassword))
+            {
+                throw new ArgumentException("Mật khẩu mới yếu, vui lòng thử lại.");
+            }
+
+            user.Password = PasswordUtils.HashPassword(newPassword);
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        private bool IsValidPassword(string password)
+        {
+            var regex = new Regex("(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\\W).{8,}");
+            return regex.IsMatch(password);
+        }
+
+		private bool IsValidAge(DateTime? birthDate, int roleId)
+		{
+            if (roleId != 5)
+            {
+				if (!birthDate.HasValue)
+				{
+					throw new ArgumentException("Ngày sinh không hợp lệ.");
+				}
+
+				int age = DateTime.Now.Year - birthDate.Value.Year;
+
+				if (birthDate.Value.Date > DateTime.Now.AddYears(-age))
+				{
+					age--;
+				}
+
+				return age >= 18;
+			}
+
+            return true;
 		}
 	}
 }
