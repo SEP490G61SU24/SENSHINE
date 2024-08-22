@@ -1,5 +1,4 @@
 ﻿@model Web.Models.InvoiceViewModel
-
 @{
     ViewData["Title"] = "Thêm mới hóa đơn";
     var spas = ViewBag.Spas as List<BranchViewModel> ?? new List<BranchViewModel>();
@@ -139,7 +138,7 @@
             </div>-->
 
             <div class="col-md-4 position-relative">
-                <label class="form-label" for="CustomerId">Customer</label>
+                <label class="form-label" for="CustomerId">Khách hàng</label>
                 <select class="form-select select2" name="CustomerId" id="CustomerId" required>
                     <option selected disabled value="">Select Customer...</option>
                 </select>
@@ -148,7 +147,7 @@
 
 
             <div class="col-md-4 position-relative">
-                <label class="form-label" for="PromotionId">Promotion</label>
+                <label class="form-label" for="PromotionId">Khuyến mãi</label>
                 <select class="form-select" name="PromotionId" id="PromotionId">
                     <option selected disabled value="">Select Promotion...</option>
                     @foreach (var promotion in promotions)
@@ -163,7 +162,7 @@
             
 
             <div class="col-md-4 position-relative">
-                <label class="form-label" for="InvoiceDate">Invoice Date</label>
+                <label class="form-label" for="InvoiceDate">Ngày tạo hóa đơn</label>
                 <input class="form-control" name="InvoiceDate" id="InvoiceDate" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" required>
                 <div class="invalid-tooltip">Select an invoice date!</div>
             </div>
@@ -197,7 +196,7 @@
 
             <!-- Custom Select for Combos -->
             <div class="col-md-4 position-relative">
-                <label class="form-label" for="ComboIdsString">Combos</label>
+                <label class="form-label" for="ComboIdsString">Combo</label>
                 <div class="custom-select-wrapper">
                     <div id="customSelectCombos" class="custom-select">Select Combos...</div>
                     <div id="customOptionsCombos" class="custom-options">
@@ -220,7 +219,7 @@
 
             <!-- Custom Select for Services -->
             <div class="col-md-4 position-relative">
-                <label class="form-label" for="ServiceIdsString">Services</label>
+                <label class="form-label" for="ServiceIdsString">Dịch vụ</label>
                 <div class="custom-select-wrapper">
                     <div id="customSelectServices" class="custom-select">Select Services...</div>
                     <div id="customOptionsServices" class="custom-options">
@@ -240,18 +239,18 @@
                 </div>
             </div>
             <div class="col-md-4 position-relative">
-                <label class="form-label" for="Amount">Amount</label>
+                <label class="form-label" for="Amount">Tiền</label>
                 <input class="form-control" name="Amount" id="Amount" type="number" step="0.01" placeholder="Total Amount" required readonly>
                 <div class="invalid-tooltip">Enter a valid amount!</div>
             </div>
             <div class="col-md-12 position-relative">
-                <label class="form-label" for="Description">Description</label>
+                <label class="form-label" for="Description">Chú thích</label>
                 <textarea class="form-control" name="Description" id="Description" placeholder="Enter Description"></textarea>
             </div>
 
             <div class="col-12">
-                <button class="btn btn-primary" type="submit">Add Invoice</button>
-                <a asp-action="InvoiceList" class="btn btn-secondary spacing-10px ms-2">Back to List</a>
+                <button class="btn btn-primary" type="submit">Thêm hóa đơn</button>
+                <a asp-action="InvoiceList" class="btn btn-secondary spacing-10px ms-2">Trả về danh sách</a>
             </div>
         </form>
     </div>
@@ -347,7 +346,7 @@
                     hiddenInput.value = selectedItems.map(item => item.id).join(',');
                     updateTotalPrice();
                 }
-
+               
                 // Calculate total price based on selected quantities
                 function updateTotalPrice() {
                     totalPrice = 0;
@@ -367,8 +366,8 @@
                         const quantity = parseInt(input.value, 10) || 0;
                         totalPrice += price * quantity;
                     });
-                    
-                    amountInput.value = totalPrice .toFixed(2);
+
+                    amountInput.value = totalPrice;
 
                 }
 
@@ -422,6 +421,7 @@
 
     </script>
     <script>
+
         document.addEventListener('DOMContentLoaded', () => {
             const promotionSelect = document.getElementById('PromotionId');
             const amountInput = document.getElementById('Amount');
@@ -438,9 +438,12 @@
                 const finalAmount = totalAmount - discount;
 
                 // Update amount input with the discounted amount
-                amountInput.value = finalAmount.toFixed(2);
+                amountInput.value = finalAmount;
             });
         });
+
     </script>
+   
+
 
 }

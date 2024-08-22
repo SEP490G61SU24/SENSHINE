@@ -127,7 +127,7 @@
                             <!-- Amount -->
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label asp-for="Amount" class="control-label">Amount</label>
+                                    <label asp-for="Amount" class="control-label">Tiền</label>
                                     <input asp-for="Amount" class="form-control" readonly />
                                     <span asp-validation-for="Amount" class="text-danger"></span>
                                 </div>
@@ -136,7 +136,7 @@
                             <!-- Invoice Date -->
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label asp-for="InvoiceDate" class="control-label">Invoice Date</label>
+                                    <label asp-for="InvoiceDate" class="control-label">Ngày tạo hóa đơn</label>
                                     <input asp-for="InvoiceDate" class="form-control" type="date" />
                                     <span asp-validation-for="InvoiceDate" class="text-danger"></span>
                                 </div>
@@ -145,7 +145,7 @@
                             <!-- Status -->
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label asp-for="Status" class="control-label">Status</label>
+                                    <label asp-for="Status" class="control-label">Trạng thái</label>
                                     <select asp-for="Status" class="form-control">
                                         <option value="Pending">Pending</option>
                                         <!--<option value="Paid">Paid</option>-->
@@ -160,7 +160,7 @@
                             <!-- Display Customer Name -->
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label class="control-label">Customer Name</label>
+                                    <label class="control-label">Khách hàng</label>
                                     <!-- Hidden field to store CustomerId for form submission -->
                                     <input id="CustomerId" type="hidden" name="CustomerId" value="@Model.CustomerId" />
 
@@ -178,7 +178,7 @@
                             <!-- Display Promotion Name -->
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label asp-for="PromotionName" class="control-label">Promotion Name</label>
+                                    <label asp-for="PromotionName" class="control-label">Khuyến mãi</label>
                                     <input asp-for="PromotionName" class="form-control" readonly />
                                     <span asp-validation-for="PromotionName" class="text-danger"></span>
 
@@ -188,18 +188,18 @@
                             </div>
 
                             <!-- Display Spa Name -->
-                            <div class="col-md-4">
+                            @* <div class="col-md-4">
                                 <div class="form-group">
                                     <label asp-for="SpaName" class="control-label">Spa Name</label>
                                     <input asp-for="SpaName" class="form-control" readonly />
                                     <span asp-validation-for="SpaName" class="text-danger"></span>
                                 </div>
-                            </div>
+                            </div> *@
                         </div>
 
                         <!-- Description -->
                         <div class="form-group">
-                            <label asp-for="Description" class="control-label">Description</label>
+                            <label asp-for="Description" class="control-label">Mô tả</label>
                             <textarea asp-for="Description" class="form-control"></textarea>
                             <span asp-validation-for="Description" class="text-danger"></span>
                         </div>
@@ -208,7 +208,7 @@
                             <!-- Combo Selection -->
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label">Combos</label>
+                                    <label class="control-label"></label>
                                     <div class="custom-select-wrapper">
                                         <div id="comboSelect" class="custom-select">
                                             <h5 class="mb-3">Combos</h5>
@@ -240,10 +240,10 @@
                             <!-- Service Selection -->
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label">Services</label>
+                                    <label class="control-label"></label>
                                     <div class="custom-select-wrapper">        
                                         <div id="serviceSelect" class="custom-select mb-4">
-                                            <h5 class="mb-3">Services</h5>
+                                            <h5 class="mb-3">Dịch vụ</h5>
                                             @foreach (var service in ViewBag.Services ?? new List<API.Dtos.ServiceDTO2>())
                                             {
                                                 var selectedService = Model.InvoiceServices.FirstOrDefault(s => s.ServiceId == service.Id);

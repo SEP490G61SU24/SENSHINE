@@ -425,8 +425,8 @@ namespace Web.Controllers
         {
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
-            var spas = await LoadSpasAsync();
-            ViewBag.Spas = spas ?? new List<BranchViewModel>();
+            var user = await LoadUserAsync();
+            
 
             var promotions = await LoadPromotionsAsync();
             ViewBag.Promotions = promotions ?? new List<PromotionViewModel>();
@@ -446,8 +446,7 @@ namespace Web.Controllers
                 invoiceDto.ServiceIds = invoiceDto.ServiceIdsString?.Split(',').Select(int.Parse).ToList();
                 var selectedPromotion = promotions?.FirstOrDefault(p => p.PromotionName.Equals(invoiceDto.PromotionName));
                 invoiceDto.PromotionId = selectedPromotion?.Id;
-                var selectedSpa = spas?.FirstOrDefault(s => s.SpaName.Equals(invoiceDto.SpaName));
-                invoiceDto.SpaId = selectedSpa?.Id;
+                invoiceDto.SpaId = user?.SpaId;
 
 
                 string jsonData = JsonConvert.SerializeObject(invoiceDto);
