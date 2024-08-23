@@ -31,8 +31,8 @@ namespace Web.Controllers
             try
             {
                 int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
-? int.Parse(ViewData["SpaId"].ToString())
-: (int?)null;
+                ? int.Parse(ViewData["SpaId"].ToString())
+                : (int?)null;
                 ViewData["SelectedStatus"] = status;
                 ViewData["SelectedCustomer"] = customer;
 
@@ -183,22 +183,8 @@ namespace Web.Controllers
             try
             {
                 int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
-? int.Parse(ViewData["SpaId"].ToString())
-: (int?)null;
-                //var token = HttpContext.Session.GetString("Token");
-
-                //if (!string.IsNullOrEmpty(token))
-                //{
-                //    var userProfile = await GetUserProfileAsync(token);
-                //    if (userProfile != null)
-                //    {
-                //        spaId = userProfile.SpaId;
-                //    }
-                //    else
-                //    {
-                //        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
-                //    }
-                //}
+                ? int.Parse(ViewData["SpaId"].ToString())
+                : (int?)null;
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
                 var response = await client.GetAsync($"{apiUrl}/users/role/5");
@@ -243,22 +229,9 @@ namespace Web.Controllers
             try
             {
                 int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
-? int.Parse(ViewData["SpaId"].ToString())
-: (int?)null;
-                //var token = HttpContext.Session.GetString("Token");
+                ? int.Parse(ViewData["SpaId"].ToString())
+                : (int?)null;
 
-                //if (!string.IsNullOrEmpty(token))
-                //{
-                //    var userProfile = await GetUserProfileAsync(token);
-                //    if (userProfile != null)
-                //    {
-                //        spaId = userProfile.SpaId;
-                //    }
-                //    else
-                //    {
-                //        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
-                //    }
-                //}
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
                 card.Id = 0;
@@ -331,22 +304,9 @@ namespace Web.Controllers
             try
             {
                 int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
-? int.Parse(ViewData["SpaId"].ToString())
-: (int?)null;
-                //var token = HttpContext.Session.GetString("Token");
-
-                //if (!string.IsNullOrEmpty(token))
-                //{
-                //    var userProfile = await GetUserProfileAsync(token);
-                //    if (userProfile != null)
-                //    {
-                //        spaId = userProfile.SpaId;
-                //    }
-                //    else
-                //    {
-                //        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
-                //    }
-                //}
+                ? int.Parse(ViewData["SpaId"].ToString())
+                : (int?)null;
+                
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
                 CardCreateModel card = null;
