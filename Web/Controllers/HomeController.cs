@@ -29,7 +29,7 @@ namespace Web.Controllers
         {
             return View();
         }
-        [Route("Home/Public/[action]")]
+        [Route("/")]
         public async Task<IActionResult> HomePageAsync()
         {
             List<NewsViewModel> viewList = new List<NewsViewModel>();
