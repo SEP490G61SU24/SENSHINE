@@ -8,7 +8,7 @@ namespace API.Services
     {
         Task<Room> CreateRoom(Room room);
         Task<IEnumerable<Room>> GetRoomBySpaId(int spaId);
-        Task<PaginatedList<RoomDTO>> GetRooms(int pageIndex, int pageSize, string searchTerm);
+        Task<PaginatedList<RoomDTO>> GetRooms(int pageIndex, int pageSize, string searchTerm, string spaId);
         List<Room> GetAllRooms();
         Room GetRoom(int id);
         Task<Room> UpdateRoom(int id, Room room);

@@ -7,7 +7,7 @@ namespace API.Services
     public interface ICardService
     {
         Task<Card> CreateCard(Card card);
-        Task<PaginatedList<CardDTO>> GetCards(int pageIndex, int pageSize, string searchTerm);
+        Task<PaginatedList<CardDTO>> GetCards(int pageIndex, int pageSize, string searchTerm, string spaId);
         List<Card> GetAllCards();
         Card GetCard(int id);
         ICollection<Card> GetCardByNumNamePhone(string input);

@@ -46,7 +46,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
+        public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null, [FromQuery] string? spaId = null)
         {
             try
             {
@@ -55,7 +55,7 @@ namespace API.Controllers
                     return BadRequest("Chỉ số trang hoặc kích thước trang không hợp lệ.");
                 }
 
-                var salaries = await _salaryService.GetSalaries(pageIndex, pageSize, searchTerm);
+                var salaries = await _salaryService.GetSalaries(pageIndex, pageSize, searchTerm, spaId);
                 return Ok(salaries);
             }
             catch (Exception ex)

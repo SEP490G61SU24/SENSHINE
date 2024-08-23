@@ -50,7 +50,19 @@
 
             <div class="form-group">
                 <input type="hidden" id="selectedCardIds" name="selectedCardIds" value="" />
-                <input type="submit" value="Tạo mới" class="btn btn-primary" />
+                @if (ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL")
+                {
+                    <input type="submit" value="Tạo mới" class="btn btn-primary" />
+                }
+                else
+                {
+                    <div class="col-12">
+                        <div class="alert alert-danger dark" role="alert">
+                            <p>Bạn đang ở chế độ toàn bộ spa, không thể thêm. Hãy chọn chi nhánh SPA trước.</p>
+                        </div>
+                    </div>
+                }
+                
                 <a href="@Url.Action("ListCard", "Card")" class="btn btn-primary">Danh sách</a>
             </div>
         </form>

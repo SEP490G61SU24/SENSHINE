@@ -52,7 +52,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
+        public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null, [FromQuery] string? spaId = null)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -64,7 +64,7 @@ namespace API.Controllers
                     return BadRequest("Chỉ số trang hoặc kích thước trang không hợp lệ.");
                 }
 
-                var cards = await _cardService.GetCards(pageIndex, pageSize, searchTerm);
+                var cards = await _cardService.GetCards(pageIndex, pageSize, searchTerm, spaId);
                 return Ok(cards);
             }
             catch (Exception ex)
