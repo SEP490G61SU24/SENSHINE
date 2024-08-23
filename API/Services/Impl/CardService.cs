@@ -6,6 +6,7 @@ using System.Globalization;
 using API.Ultils;
 using API.Dtos;
 using AutoMapper;
+using System;
 
 namespace API.Services.Impl
 {
@@ -36,10 +37,19 @@ namespace API.Services.Impl
             }
         }
 
-        public async Task<PaginatedList<CardDTO>> GetCards(int pageIndex = 1, int pageSize = 10, string searchTerm = null)
+        public async Task<PaginatedList<CardDTO>> GetCards(int pageIndex, int pageSize, string searchTerm, string spaId)
         {
             // Tạo query cơ bản
             IQueryable<Card> query = _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices);
+
+            int? spaIdInt = spaId != null && spaId != "ALL"
+            ? int.Parse(spaId)
+            : (int?)null;
+
+            if (spaIdInt.HasValue)
+            {
+                query = query.Where(u => u.BranchId == spaIdInt.Value);
+            }
 
             // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
             if (!string.IsNullOrEmpty(searchTerm))
