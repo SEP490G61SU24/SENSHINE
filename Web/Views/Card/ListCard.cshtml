@@ -49,19 +49,19 @@
                                 <!-- Filter by Status -->
                                 <div class="col">
                                     <select class="form-select" name="status" aria-label="Select Status" onchange="this.form.submit()">
-                                        <option value="" selected disabled>Trạng thái</option>
-                                        <option value="Active">Hoạt động</option>
-                                        <option value="Deactive">Không hoạt động</option>
+                                        <option value="" selected disabled class="bold-black-option">Trạng thái</option>
+                                        <option value="Active" class="bold-black-option">Hoạt động</option>
+                                        <option value="Deactive" class="bold-black-option">Không hoạt động</option>
                                     </select>
                                 </div>
 
                                 <!-- Filter by Customer -->
                                 <div class="col">
                                     <select class="form-select" name="customer" aria-label="Select Customer" onchange="this.form.submit()">
-                                        <option value="" selected disabled>Khách hàng</option>
+                                        <option value="" selected disabled class="bold-black-option">Khách hàng</option>
                                         @foreach (var user in ViewBag.Users as IEnumerable<UserDTO>)
                                         {
-                                            <option value="@user.Id">@user.FullName</option>
+                                            <option value="@user.Id" class="bold-black-option">@user.FullName</option>
                                         }
                                     </select>
                                 </div>
@@ -184,6 +184,23 @@
         .status-deactive {
             color: red;
         }
+
+        .bold-black-option {
+            color: black;
+            font-weight: bold;
+        }
+
+        /* Apply to all select elements */
+        select.form-select {
+            font-weight: bold;
+            color: black;
+        }
+
+            /* Apply specifically to placeholder option */
+            select.form-select option:disabled {
+                font-weight: bold;
+                color: black;
+            }
     </style>
 }
 
