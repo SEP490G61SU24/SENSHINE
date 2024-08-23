@@ -3,8 +3,11 @@
 
 @{
     ViewData["Title"] = "Quản lý thẻ";
-    ViewData["ActionName"] = "Tạo thẻ";
-    ViewData["ActionUrl"] = "/Card/CreateCard";
+    if (ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL")
+    {
+        ViewData["ActionName"] = "Tạo thẻ";
+        ViewData["ActionUrl"] = "/Card/CreateCard";
+    }
     var cardsJson = System.Text.Json.JsonSerializer.Serialize(Model);
 }
 

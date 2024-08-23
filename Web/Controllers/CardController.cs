@@ -30,33 +30,19 @@ namespace Web.Controllers
         {
             try
             {
-                // Get filter values from query parameters
+                int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
+? int.Parse(ViewData["SpaId"].ToString())
+: (int?)null;
                 ViewData["SelectedStatus"] = status;
                 ViewData["SelectedCustomer"] = customer;
 
                 var apiUrl = _configuration["ApiUrl"];
-                var url = $"{apiUrl}/Card/GetAll?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}";
+                var url = $"{apiUrl}/Card/GetAll?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}&spaId={spaId}";
                 var client = _clientFactory.CreateClient();
                 PaginatedList<CardViewModel> cards = new PaginatedList<CardViewModel>();
                 UserDTO user = new UserDTO();
                 BranchViewModel branch = new BranchViewModel();
                 HttpResponseMessage response = await client.GetAsync(url);
-
-                int? spaId = 0;
-                var token = HttpContext.Session.GetString("Token");
-
-                if (!string.IsNullOrEmpty(token))
-                {
-                    var userProfile = await GetUserProfileAsync(token);
-                    if (userProfile != null)
-                    {
-                        spaId = userProfile.SpaId;
-                    }
-                    else
-                    {
-                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
-                    }
-                }
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -76,7 +62,12 @@ namespace Web.Controllers
                     if (response2.IsSuccessStatusCode)
                     {
                         var users = response2.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
-                        users = users.Where(u => u.SpaId == spaId).ToList();
+
+                        if (spaId != null)
+                        {
+                            users = users.Where(u => u.SpaId == spaId).ToList();
+                        }
+
                         foreach (var userNew in users)
                         {
                             userNew.FullName = string.Join(" ", userNew.FirstName ?? "", userNew.MidName ?? "", userNew.LastName ?? "").Trim();
@@ -89,21 +80,20 @@ namespace Web.Controllers
                         ViewData["Error"] = "Có lỗi xảy ra";
                     }
 
-                    // Convert to a list to apply LINQ filters
-                    var filteredCards = cards.Items.Where(c => c.BranchId == spaId).ToList();
+                    if (spaId != null)
+                    {
+                        cards.Items = cards.Items.Where(c => c.BranchId == spaId).ToList();
+                    }
 
                     if (!string.IsNullOrEmpty(status))
                     {
-                        filteredCards = filteredCards.Where(c => c.Status.Equals(status, StringComparison.OrdinalIgnoreCase)).ToList();
+                        cards.Items = cards.Items.Where(c => c.Status.Equals(status, StringComparison.OrdinalIgnoreCase)).ToList();
                     }
 
                     if (!customer.Equals(0))
                     {
-                        filteredCards = filteredCards.Where(c => c.CustomerId.Equals(customer)).ToList();
+                        cards.Items = cards.Items.Where(c => c.CustomerId.Equals(customer)).ToList();
                     }
-
-                    // Re-assign filtered cards back to the PaginatedList if necessary
-                    cards.Items = filteredCards;
                 }
 
                 return View(cards);
@@ -184,21 +174,23 @@ namespace Web.Controllers
         {
             try
             {
-                int? spaId = 0;
-                var token = HttpContext.Session.GetString("Token");
+                int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
+? int.Parse(ViewData["SpaId"].ToString())
+: (int?)null;
+                //var token = HttpContext.Session.GetString("Token");
 
-                if (!string.IsNullOrEmpty(token))
-                {
-                    var userProfile = await GetUserProfileAsync(token);
-                    if (userProfile != null)
-                    {
-                        spaId = userProfile.SpaId;
-                    }
-                    else
-                    {
-                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
-                    }
-                }
+                //if (!string.IsNullOrEmpty(token))
+                //{
+                //    var userProfile = await GetUserProfileAsync(token);
+                //    if (userProfile != null)
+                //    {
+                //        spaId = userProfile.SpaId;
+                //    }
+                //    else
+                //    {
+                //        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
+                //    }
+                //}
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
                 var response = await client.GetAsync($"{apiUrl}/users/role/5");
@@ -242,21 +234,23 @@ namespace Web.Controllers
         {
             try
             {
-                int? spaId = 0;
-                var token = HttpContext.Session.GetString("Token");
+                int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
+? int.Parse(ViewData["SpaId"].ToString())
+: (int?)null;
+                //var token = HttpContext.Session.GetString("Token");
 
-                if (!string.IsNullOrEmpty(token))
-                {
-                    var userProfile = await GetUserProfileAsync(token);
-                    if (userProfile != null)
-                    {
-                        spaId = userProfile.SpaId;
-                    }
-                    else
-                    {
-                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
-                    }
-                }
+                //if (!string.IsNullOrEmpty(token))
+                //{
+                //    var userProfile = await GetUserProfileAsync(token);
+                //    if (userProfile != null)
+                //    {
+                //        spaId = userProfile.SpaId;
+                //    }
+                //    else
+                //    {
+                //        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
+                //    }
+                //}
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
                 card.Id = 0;
@@ -328,21 +322,23 @@ namespace Web.Controllers
         {
             try
             {
-                int? spaId = 0;
-                var token = HttpContext.Session.GetString("Token");
+                int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
+? int.Parse(ViewData["SpaId"].ToString())
+: (int?)null;
+                //var token = HttpContext.Session.GetString("Token");
 
-                if (!string.IsNullOrEmpty(token))
-                {
-                    var userProfile = await GetUserProfileAsync(token);
-                    if (userProfile != null)
-                    {
-                        spaId = userProfile.SpaId;
-                    }
-                    else
-                    {
-                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
-                    }
-                }
+                //if (!string.IsNullOrEmpty(token))
+                //{
+                //    var userProfile = await GetUserProfileAsync(token);
+                //    if (userProfile != null)
+                //    {
+                //        spaId = userProfile.SpaId;
+                //    }
+                //    else
+                //    {
+                //        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
+                //    }
+                //}
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
                 CardCreateModel card = null;

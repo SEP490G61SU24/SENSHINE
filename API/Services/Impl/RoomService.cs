@@ -3,6 +3,7 @@ using API.Models;
 using API.Ultils;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace API.Services.Impl
 {
@@ -129,10 +130,18 @@ namespace API.Services.Impl
             }
         }
 
-        public async Task<PaginatedList<RoomDTO>> GetRooms(int pageIndex, int pageSize, string searchTerm)
+        public async Task<PaginatedList<RoomDTO>> GetRooms(int pageIndex, int pageSize, string searchTerm, string spaId)
         {
             // Tạo query cơ bản
             IQueryable<Room> query = _context.Rooms;
+            int? spaIdInt = spaId != null && spaId != "ALL"
+            ? int.Parse(spaId)
+            : (int?)null;
+
+            if (spaIdInt.HasValue)
+            {
+                query = query.Where(u => u.SpaId == spaIdInt.Value);
+            }
 
             // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
             if (!string.IsNullOrEmpty(searchTerm))
