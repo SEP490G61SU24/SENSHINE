@@ -23,8 +23,8 @@ namespace API.Dtos
 
 
         /*public ICollection<int> CardIds { get; set; } = new List<int>();*/
-        public ICollection<int> ComboIds { get; set; } = new List<int>();
-        public ICollection<int> ServiceIds { get; set; } = new List<int>();
+        public ICollection<int>? ComboIds { get; set; } = new List<int>();
+        public ICollection<int>? ServiceIds { get; set; } = new List<int>();
         public Dictionary<int, int?>? ServiceQuantities { get; set; }
         public Dictionary<int, int?>? ComboQuantities { get; set; }
 
