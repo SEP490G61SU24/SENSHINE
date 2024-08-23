@@ -17,7 +17,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
+        public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null, [FromQuery] string? spaId = null)
         {
             try
             {
@@ -26,7 +26,7 @@ namespace API.Controllers
                     return BadRequest("Chỉ số trang hoặc kích thước trang không hợp lệ.");
                 }
 
-                var paged = await _workScheduleService.GetWorkSchedules(pageIndex, pageSize, searchTerm);
+                var paged = await _workScheduleService.GetWorkSchedules(pageIndex, pageSize, searchTerm, spaId);
                 return Ok(paged);
             }
             catch (ArgumentException ex)

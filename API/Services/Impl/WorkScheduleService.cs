@@ -39,7 +39,7 @@ namespace API.Services.Impl
 
         public async Task<WorkScheduleDTO> UpdateWorkSchedule(int id, WorkScheduleDTO workScheduleDto)
         {
-            var existingWorkSchedule = await _context.WorkSchedules.FindAsync(id);
+            var existingWorkSchedule = await _context.WorkSchedules.Include(ws => ws.Employee).FirstOrDefaultAsync(ws => ws.Id == id);
             if (existingWorkSchedule == null)
             {
                 return null;
@@ -53,10 +53,10 @@ namespace API.Services.Impl
             }
 
             _mapper.Map(workScheduleDto, existingWorkSchedule);
-            
-            existingWorkSchedule.Employee = emp;
 
-            _context.WorkSchedules.Update(existingWorkSchedule);
+			existingWorkSchedule.Employee = emp;
+
+			_context.WorkSchedules.Update(existingWorkSchedule);
             await _context.SaveChangesAsync();
 
             return _mapper.Map<WorkScheduleDTO>(existingWorkSchedule);
@@ -93,10 +93,19 @@ namespace API.Services.Impl
             return _mapper.Map<IEnumerable<WorkScheduleDTO>>(workSchedules);
         }
 
-        public async Task<PaginatedList<WorkScheduleDTO>> GetWorkSchedules(int pageIndex, int pageSize, string searchTerm)
+        public async Task<PaginatedList<WorkScheduleDTO>> GetWorkSchedules(int pageIndex, int pageSize, string searchTerm, string spaId)
         {
             // Tạo query cơ bản
             IQueryable<WorkSchedule> query = _context.WorkSchedules.Include(ws => ws.Employee);
+
+            int? spaIdInt = spaId != null && spaId != "ALL"
+             ? int.Parse(spaId)
+             : (int?)null;
+
+            if (spaIdInt.HasValue)
+            {
+                query = query.Where(w => w.Employee.SpaId == spaIdInt.Value);
+            }
 
             // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
             if (!string.IsNullOrEmpty(searchTerm))

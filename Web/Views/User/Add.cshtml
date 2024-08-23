@@ -53,7 +53,6 @@
 					<option selected value="4">STAFF (Nhân Viên)</option>
 					<option value="3">RECEPTIONS (Lễ Tân)</option>
 					<option value="2">MANAGER (Quản Lý)</option>
-					<option value="5">CUSTOMER (Khách Hàng)</option>
 				</select>
 				<div class="invalid-tooltip">Chọn chức vụ.</div>
 			</div>
@@ -78,10 +77,21 @@
 				</select>
 				<div class="invalid-tooltip">Chọn phường, xã.</div>
 			</div>
-
-			<div class="col-12">
-				<button class="btn btn-primary" type="submit">Thêm Mới</button>
-			</div>
+			
+			@if (ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL")
+			{
+				<div class="col-12">
+					<button class="btn btn-primary" type="submit">Thêm Mới</button>
+				</div>
+			}
+			else
+			{
+				<div class="col-12">
+					<div class="alert alert-danger dark" role="alert">
+						<p>Bạn đang ở chế độ toàn bộ spa, không thể thêm. Hãy chọn chi nhánh SPA trước.</p>
+					</div>
+				</div>
+			}
 		</form>
 	</div>
 </div>

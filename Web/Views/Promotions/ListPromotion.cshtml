@@ -181,7 +181,7 @@
             }).then((result) => {
                 if (result) {
                     $.ajax({
-                        url: '/api/DeletePromotion/' + id,
+                        url: 'http://localhost:5297/api/DeletePromotion/' + id,
                         type: 'DELETE',
                         success: function (response) {
                             swal("Đã xóa!", "Khuyến mãi đã xóa thành công.", "success")

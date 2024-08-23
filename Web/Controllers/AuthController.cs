@@ -3,7 +3,6 @@ using System.Text;
 using System.Text.Json;
 using Web.Models;
 using API.Dtos;
-using NuGet.Protocol.Plugins;
 
 namespace Web.Controllers
 {
@@ -33,7 +32,7 @@ namespace Web.Controllers
 			UserDTO userProfile = ViewData["UserProfile"] as UserDTO;
 			if (userProfile != null)
 			{
-				return RedirectToAction("Index", "User");
+				return RedirectToAction("Index", "Dashboard");
 			}
 			return View("Login");
         }
@@ -67,7 +66,7 @@ namespace Web.Controllers
                     });
 
 					ViewData["SuccessMsg"] = "Đăng nhập thành công!";
-                    return RedirectToAction("Index", "User");
+                    return RedirectToAction("Index", "Dashboard");
                 }
                 else
                 {
@@ -106,7 +105,14 @@ namespace Web.Controllers
 			return View();
 		}
 
-		[HttpPost]
+        [HttpPost]
+        public IActionResult ChangeSpa(string spaId)
+        {
+            HttpContext.Session.SetString("SpaId", spaId);
+            return RedirectToAction("Index", "Dashboard");
+        }
+
+        [HttpPost]
 		public async Task<IActionResult> ChangePass(ChangePasswordDTO model)
 		{
 			try

@@ -243,9 +243,9 @@ namespace API.Controllers
             try
             {
                 var rules = await _ruleService.GetRulesByRoleId(roleId);
-                if (rules == null || !rules.Any())
+                if(rules == null)
                 {
-                    return NotFound("No rules found for this role.");
+                    return NoContent();
                 }
                 return Ok(rules);
             }

@@ -26,10 +26,11 @@ namespace Web.Controllers
         {
             try
             {
+                var spaId = ViewData["SpaId"];
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
 
-                var url = $"{apiUrl}/users?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}";
+                var url = $"{apiUrl}/users?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}&spaId={spaId}";
 
                 var response = await client.GetAsync(url);
 
@@ -86,6 +87,10 @@ namespace Web.Controllers
                 }
 
                 user.UserName = (RemoveDiacritics(user.LastName) + user.ProvinceCode + GenerateRandomString(4)).ToLower();
+
+                user.SpaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
+                             ? int.Parse(ViewData["SpaId"].ToString())
+                             : (int?)null;
 
                 var apiUrl = _configuration["ApiUrl"];
 

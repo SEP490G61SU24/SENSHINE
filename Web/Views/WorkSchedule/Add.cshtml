@@ -68,10 +68,10 @@
 					<option value="">Chọn...</option>
 					@foreach (var wsStatus in new List<(string Value, string Name)>
 					{
-					(Value: "booking", Name: "Có khách đặt lịch"),
-					(Value: "confirmed", Name: "Đã xác nhận"),
-					(Value: "pending", Name: "Chưa xác nhận"),
-					(Value: "rejected", Name: "Đã hủy"),
+					(Value: "SCHEDULED", Name: "Có khách đặt lịch"),
+					(Value: "COMPLETED", Name: "Đã làm xong"),
+					(Value: "CANCELED", Name: "Không làm"),
+					(Value: "INPROGRESS", Name: "Đang làm"),
 					})
 					{
 						<option value="@wsStatus.Value" selected="@(wsStatus.Value == Model.Status ? "selected" : null)">@wsStatus.Name</option>

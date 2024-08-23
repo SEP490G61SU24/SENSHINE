@@ -25,10 +25,11 @@ namespace Web.Controllers
         {
             try
             {
+                var spaId = ViewData["SpaId"];
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
 
-                var url = $"{apiUrl}/users/page/role/5?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}";
+                var url = $"{apiUrl}/users/page/role/{(int)UserRoleEnum.CUSTOMER}?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}&spaId={spaId}";
 
                 var response = await client.GetAsync(url);
 
@@ -85,9 +86,12 @@ namespace Web.Controllers
                 }
 
 				user.UserName = (RemoveDiacritics(user.LastName) + user.ProvinceCode + GenerateRandomString(4)).ToLower();
-				user.RoleId = 5; // ROLE CUSTOMER
+                user.RoleId = (int) UserRoleEnum.CUSTOMER;
+                user.SpaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
+                            ? int.Parse(ViewData["SpaId"].ToString())
+                            : (int?)null;
 
-				var apiUrl = _configuration["ApiUrl"];
+                var apiUrl = _configuration["ApiUrl"];
 
 				var json = JsonSerializer.Serialize(user);
 				var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -102,8 +106,9 @@ namespace Web.Controllers
 				}
 				else
 				{
-					ViewData["Error"] = "Có lỗi xảy ra!";
-					return View();
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    ViewData["Error"] = responseString; 
+                    return View();
 				}
 			}
 			catch (Exception ex)
