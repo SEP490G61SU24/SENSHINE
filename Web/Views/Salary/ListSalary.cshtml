@@ -100,7 +100,14 @@
                         <th>Lương thực nhận (VND)</th>
                         <th>Tháng</th>
                         <th>Năm</th>
-                        <th>Thao tác</th>
+                        @if (ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL")
+                        {
+                            <th>Thao tác</th>
+                        }
+                        else
+                        {
+                            <th>Chi nhánh</th>
+                        }
                     </tr>
                 </thead>
                 <tbody>
@@ -115,11 +122,18 @@
                             <td>@string.Format("{0:N0}", item.TotalSalary)</td>
                             <td>@item.SalaryMonth</td>
                             <td>@item.SalaryYear</td>
-                            <td>
-                                <ul class="action">
-                                    <li class="edit"><a href="/Salary/UpdateSalary/@item.Id"><i class="icon-pencil-alt"></i></a></li>
-                                </ul>
-                            </td>
+                            @if (ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL")
+                            {
+                                <td>
+                                    <ul class="action">
+                                        <li class="edit"><a href="/Salary/UpdateSalary/@item.Id"><i class="icon-pencil-alt"></i></a></li>
+                                    </ul>
+                                </td>
+                            }
+                            else
+                            {
+                                <td>@item.BranchName</td>
+                            }
                         </tr>
                     }
                 </tbody>

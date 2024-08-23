@@ -45,11 +45,6 @@ namespace Web.Controllers
                     string data = response.Content.ReadAsStringAsync().Result;
                     rooms = JsonConvert.DeserializeObject<PaginatedList<RoomViewModel>>(data);
 
-                    if (spaId != null)
-                    {
-                        rooms.Items = rooms.Items.Where(r => r.SpaId == spaId).ToList();
-                    }
-
                     foreach (var room in rooms.Items)
                     {
                         HttpResponseMessage response1 = client.GetAsync($"{apiUrl}/Branch/GetById?id=" + room.SpaId).Result;
