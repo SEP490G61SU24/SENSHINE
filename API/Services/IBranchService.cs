@@ -14,5 +14,6 @@ namespace API.Services
         Task<bool> DeleteBranch(int id);
         bool BranchExist(int id);
         int? GetBranchIdByUserId(int id);
+        Task<IEnumerable<UserDTO>> GetUsersByBranch(int id);
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 using System.Text;
 using Web.Models;
 
@@ -80,17 +81,20 @@ namespace Web.Controllers
                 var client = _clientFactory.CreateClient();
                 BranchViewModel branch = new BranchViewModel();
                 List<RoomViewModel> rooms = new List<RoomViewModel>();
+                List<UserViewModel> users = new List<UserViewModel>();
 
                 HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Branch/GetById?id=" + id);
                 HttpResponseMessage response1 = await client.GetAsync($"{apiUrl}/Room/GetBySpaId?spaId=" + id);
+                HttpResponseMessage responseUser = await client.GetAsync($"{apiUrl}/Branch/GetUsersByBranchID?id=" + id);
 
                 if (response.IsSuccessStatusCode && response1.IsSuccessStatusCode)
                 {
                     string data = await response.Content.ReadAsStringAsync();
                     string data1 = await response1.Content.ReadAsStringAsync();
+                    string dataUser = await responseUser.Content.ReadAsStringAsync();
                     branch = JsonConvert.DeserializeObject<BranchViewModel>(data);
                     rooms = JsonConvert.DeserializeObject<List<RoomViewModel>>(data1);
-
+                    users = JsonConvert.DeserializeObject<List<UserViewModel>>(dataUser);
                     HttpResponseMessage response2 = client.GetAsync($"{apiUrl}/provinces/" + branch.ProvinceCode).Result;
                     HttpResponseMessage response3 = client.GetAsync($"{apiUrl}/districts/" + branch.DistrictCode).Result;
                     HttpResponseMessage response4 = client.GetAsync($"{apiUrl}/wards/" + branch.WardCode).Result;
@@ -117,6 +121,7 @@ namespace Web.Controllers
                     ViewData["Error"] = "Không tìm thấy chi nhánh";
                 }
                 ViewBag.Rooms = rooms;
+                ViewBag.Users = users;
                 return View(branch);
             }
             catch (Exception ex)
