@@ -86,7 +86,14 @@
                         <th>Số điện thoại</th>
                         <th>Ngày tạo</th>
                         <th>Trạng thái</th>
-                        <th>Thao tác</th>
+                        @if (ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL")
+                        {
+                            <th>Thao tác</th>
+                        }
+                        else
+                        {
+                            <th>Chi nhánh</th>
+                        }
                     </tr>
                 </thead>
                 <tbody>
@@ -101,25 +108,33 @@
                             <td>
                                 @Html.DisplayFor(modelItem => item.CustomerName)
                             </td>
-                            <th>
+                            <td>
                                 @Html.DisplayFor(modelItem => item.CustomerPhone)
-                            </th>
+                            </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.CreateDate)
                             </td>
                             <td data-status="@item.Status">
                                 @Html.DisplayFor(modelItem => item.Status)
                             </td>
-                            <td>
-                                <ul class="action">
-                                    <li class="edit"><a href="/Card/UpdateCard/@item.Id"><i class="icon-pencil-alt"></i></a></li>
-                                    <li class="change state">
-                                        <a href="/Card/ChangeStateCard/@item.Id" onclick="return confirmChangeState(@item.Id)">
-                                            <i class="fas fa-sync"></i>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </td>
+                            @if (ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL")
+                            {
+                                <td>
+                                    <ul class="action">
+
+                                        <li class="edit"><a href="/Card/UpdateCard/@item.Id"><i class="icon-pencil-alt"></i></a></li>
+                                        <li class="change state">
+                                            <a href="/Card/ChangeStateCard/@item.Id" onclick="return confirmChangeState(@item.Id)">
+                                                <i class="fas fa-sync"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </td>
+                            }
+                            else
+                            {
+                                <td>@Html.DisplayFor(modelItem => item.BranchName)</td>
+                            }
                         </tr>
                     }
                 </tbody>

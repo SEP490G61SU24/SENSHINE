@@ -44,13 +44,17 @@ namespace Web.Controllers
                     string data = response.Content.ReadAsStringAsync().Result;
                     salaries = JsonConvert.DeserializeObject<PaginatedList<SalaryViewModel>>(data);
                     HttpResponseMessage response1 = null;
+                    HttpResponseMessage response2 = null;
                     foreach (var salary in salaries.Items)
                     {
                         response1 = client.GetAsync($"{apiUrl}/users/" + salary.EmployeeId).Result;
                         string response1Body = response1.Content.ReadAsStringAsync().Result;
                         JObject json1 = JObject.Parse(response1Body);
                         salary.EmployeeName = json1["firstName"].ToString() + " " + json1["midName"].ToString() + " " + json1["lastName"].ToString();
-                        salary.BranchId = Int32.Parse(json1["spaId"].ToString());
+                        response2 = client.GetAsync($"{apiUrl}/Branch/GetById?id=" + Int32.Parse(json1["spaId"].ToString())).Result;
+                        string response2Body = response2.Content.ReadAsStringAsync().Result;
+                        JObject json2 = JObject.Parse(response2Body);
+                        salary.BranchName = json2["spaName"].ToString();
                     }
 
                     var response3 = client.GetAsync($"{apiUrl}/users/role/2").Result;
@@ -80,11 +84,6 @@ namespace Web.Controllers
                     else
                     {
                         ViewData["Error"] = "Có lỗi xảy ra";
-                    }
-
-                    if (spaId != null)
-                    {
-                        salaries.Items = salaries.Items.Where(s => s.BranchId == spaId).ToList();
                     }
 
                     if (!month.Equals(0) && !year.Equals(0))

@@ -17,5 +17,6 @@ namespace Web.Models
         public string? CustomerName { get; set; }
         [DisplayName("Số điện thoại")]
         public string? CustomerPhone { get; set; }
+        public string? BranchName { get; set; }
     }
 }

@@ -56,17 +56,25 @@ namespace Web.Controllers
                         user = JsonConvert.DeserializeObject<UserDTO>(data1);
                         card.CustomerName = user.FirstName + " " + user.MidName + " " + user.LastName;
                         card.CustomerPhone = user.Phone;
+
+                        HttpResponseMessage responseBranch = client.GetAsync($"{apiUrl}/Branch/GetById?id=" + card.BranchId).Result;
+
+                        if (responseBranch.IsSuccessStatusCode)
+                        {
+                            string responseBranchBody = responseBranch.Content.ReadAsStringAsync().Result;
+                            JObject jsonBranch = JObject.Parse(responseBranchBody);
+                            card.BranchName = jsonBranch["spaName"].ToString();
+                        }
+                        else
+                        {
+                            ViewData["Error"] = "Có lỗi xảy ra";
+                        }
                     }
 
                     var response2 = await client.GetAsync($"{apiUrl}/users/role/5");
                     if (response2.IsSuccessStatusCode)
                     {
                         var users = response2.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
-
-                        if (spaId != null)
-                        {
-                            users = users.Where(u => u.SpaId == spaId).ToList();
-                        }
 
                         foreach (var userNew in users)
                         {
