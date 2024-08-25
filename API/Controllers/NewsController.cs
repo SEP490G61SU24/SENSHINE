@@ -22,7 +22,7 @@ namespace API.Controllers
         }
 
         [HttpPost("AddNews")]
-        public async Task<IActionResult> AddNews([FromBody] NewsDTO newsDto)
+        public async Task<IActionResult> AddNews([FromBody] News newsDto)
         {
             if (newsDto == null)
             {
