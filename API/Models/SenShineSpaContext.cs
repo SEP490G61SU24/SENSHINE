@@ -222,13 +222,13 @@ namespace API.Models
                     .WithMany(p => p.CardCombos)
                     .HasForeignKey(d => d.CardId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Card_Comb__CardI__6D0D32F4");
+                    .HasConstraintName("FK__Card_Comb__CardI__531856C7");
 
                 entity.HasOne(d => d.Combo)
                     .WithMany(p => p.CardCombos)
                     .HasForeignKey(d => d.ComboId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Card_Comb__Combo__6E01572D");
+                    .HasConstraintName("FK__Card_Comb__Combo__540C7B00");
             });
 
             modelBuilder.Entity<CardInvoice>(entity =>

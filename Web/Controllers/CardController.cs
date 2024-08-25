@@ -10,6 +10,7 @@ using API.Models;
 using API.Ultils;
 using System.Runtime.Intrinsics.X86;
 using System.Linq;
+using static Microsoft.AspNetCore.Razor.Language.TagHelperMetadata;
 
 namespace Web.Controllers
 {
@@ -133,6 +134,11 @@ namespace Web.Controllers
                 HttpResponseMessage responseCombo = await client.GetAsync($"{apiUrl}/Card/GetCardComboByCard?id=" + id);
                 HttpResponseMessage responseInvoice = await client.GetAsync($"{apiUrl}/Card/GetCardInvoiceByCard?id=" + id);
 
+                if (TempData.ContainsKey("Error"))
+                {
+                    ViewData["Error"] = TempData["Error"];
+                }
+
                 if (response.IsSuccessStatusCode && responseCombo.IsSuccessStatusCode && responseInvoice.IsSuccessStatusCode)
                 {
                     string data = await response.Content.ReadAsStringAsync();
@@ -169,7 +175,6 @@ namespace Web.Controllers
                         string data3 = await response3.Content.ReadAsStringAsync();
                         combo = JsonConvert.DeserializeObject<ComboViewModel>(data3);
                         cc.ComboName = combo.Name;
-                        cc.SessionLeft = combo.Quantity - cc.SessionDone;
                     }
 
                     foreach (var ci in cardInvoices)
@@ -259,6 +264,7 @@ namespace Web.Controllers
 
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
+                ComboViewModel combo = new ComboViewModel();
                 card.Id = 0;
                 card.CardNumber = "SenVip" + DateTime.Now.ToString("yyyyMMddHHmmss");
                 card.CreateDate = DateTime.Now;
@@ -296,17 +302,23 @@ namespace Web.Controllers
 
                     foreach (var id in selectedIds)
                     {
+                        HttpResponseMessage responseCombo = await client.GetAsync($"{apiUrl}/Combo/GetByID?IdCombo=" + id);
+                        string dataCombo = await responseCombo.Content.ReadAsStringAsync();
+                        combo = JsonConvert.DeserializeObject<ComboViewModel>(dataCombo);
+
                         var cardCombo = new CardComboViewModel
                         {
                             Id = 0,
                             CardId = idCard,
                             ComboId = id,
-                            SessionDone = 0
+                            SessionDone = 0,
+                            SessionLeft = combo.Quantity
                         };
 
                         var jsonCardCombo = JsonConvert.SerializeObject(cardCombo);
                         var contentCardCombo = new StringContent(jsonCardCombo, Encoding.UTF8, "application/json");
                         await client.PostAsync($"{apiUrl}/Card/AddCombo", contentCardCombo);
+
                     }
                 }
 
@@ -419,6 +431,7 @@ namespace Web.Controllers
                 var cardInvoice = new CardInvoiceDTO();
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
+                ComboViewModel combo = new ComboViewModel();
 
                 if (!ModelState.IsValid)
                 {
@@ -455,12 +468,17 @@ namespace Web.Controllers
 
                     foreach (var id in selectedIds)
                     {
+                        HttpResponseMessage responseCombo = await client.GetAsync($"{apiUrl}/Combo/GetByID?IdCombo=" + id);
+                        string dataCombo = await responseCombo.Content.ReadAsStringAsync();
+                        combo = JsonConvert.DeserializeObject<ComboViewModel>(dataCombo);
+
                         var cardCombo = new CardComboViewModel
                         {
                             Id = 0,
                             CardId = idCard,
                             ComboId = id,
-                            SessionDone = 0
+                            SessionDone = 0,
+                            SessionLeft = combo.Quantity
                         };
 
                         var json4 = JsonConvert.SerializeObject(cardCombo);
@@ -545,6 +563,35 @@ namespace Web.Controllers
                 _logger.LogError(ex, "Error");
                 ViewData["Error"] = "Có lỗi xảy ra";
                 return View("Error");
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UseCard(int id, int cardId)
+        {
+            try
+            {
+                var apiUrl = _configuration["ApiUrl"];
+                var client = _clientFactory.CreateClient();
+                var json = JsonConvert.SerializeObject(id);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                HttpResponseMessage response = await client.PutAsync($"{apiUrl}/Card/UseCard?id=" + id, content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("DetailCard", new { id = cardId });
+                }
+                else
+                {
+                    TempData["Error"] = "Đã sử dụng hết số buổi của combo.";
+                    return RedirectToAction("DetailCard", new { id = cardId });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error");
+                TempData["Error"] = "Có lỗi xảy ra.";
+                return RedirectToAction("DetailCard", new { id = cardId });
             }
         }
     }

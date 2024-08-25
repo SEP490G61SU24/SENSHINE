@@ -7,6 +7,7 @@ using API.Ultils;
 using API.Dtos;
 using AutoMapper;
 using System;
+using Microsoft.IdentityModel.Tokens;
 
 namespace API.Services.Impl
 {
@@ -292,6 +293,41 @@ namespace API.Services.Impl
             {
                 // Handle or log the exception as needed
                 throw new Exception("Error creating card combo.", ex);
+            }
+        }
+
+        public async Task<CardComboDTO> UseCardCombo(int id)
+        {
+            try
+            {
+                var cardCombo = await _context.CardCombos.FirstOrDefaultAsync(c => c.Id == id);
+
+                if (cardCombo.SessionLeft > 0)
+                {
+                    cardCombo.SessionDone = cardCombo.SessionDone + 1;
+                    cardCombo.SessionLeft = cardCombo.SessionLeft - 1;
+                    if(cardCombo.UsageNote.IsNullOrEmpty()) 
+                    {
+                        cardCombo.UsageNote = "Sử dụng combo lần " + cardCombo.SessionDone + " vào lúc " + DateTime.Now + ".";
+                    }
+                    else
+                    {
+                        cardCombo.UsageNote = cardCombo.UsageNote + Environment.NewLine + "Sử dụng combo lần " + cardCombo.SessionDone + " vào lúc " + DateTime.Now + ".";
+                    }
+                }
+                else
+                {
+                    throw new InvalidOperationException("Đã sử dụng hết số buổi trong combo này.");
+                }
+
+                await _context.SaveChangesAsync();
+
+                return _mapper.Map<CardComboDTO>(cardCombo);
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new Exception($"Error activating/deactivating card with ID {id}.", ex);
             }
         }
     }
