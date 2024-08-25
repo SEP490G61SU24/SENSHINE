@@ -1,7 +1,6 @@
 ﻿@model Web.Models.InvoiceViewModel
 @{
     ViewData["Title"] = "Thêm mới hóa đơn";
-    var spas = ViewBag.Spas as List<BranchViewModel> ?? new List<BranchViewModel>();
     var promotions = ViewBag.Promotions as List<PromotionViewModel> ?? new List<PromotionViewModel>();
     var cards = ViewBag.Cards as List<CardViewModel> ?? new List<CardViewModel>();
     var combos = ViewBag.Combos as List<ComboViewModel> ?? new List<ComboViewModel>();
@@ -125,17 +124,7 @@
 <div class="card">
     <div class="card-body">
         <form method="post" action="/invoice/add" class="row g-3 needs-validation" novalidate>
-            <!--<div class="col-md-4 position-relative">
-                <label class="form-label" for="SpaId">Spa</label>
-                <select class="form-select" name="SpaId" id="SpaId" required>
-                    <option selected disabled value="">Select Spa...</option>
-                    @foreach (var spa in spas)
-                    {
-                        <option value="@spa.Id">@spa.SpaName </option>
-                    }
-                </select>
-                <div class="invalid-tooltip">Select a Spa!</div>
-            </div>-->
+          
 
             <div class="col-md-4 position-relative">
                 <label class="form-label" for="CustomerId">Khách hàng</label>
@@ -385,11 +374,11 @@
         $(document).ready(function () {
            
             $('#CustomerId').select2({
-                placeholder: 'Select Customer...',
+                placeholder: 'chọn khách hàng...',
                 allowClear: true,
                 minimumInputLength: 1,
                 ajax: {
-                    url: 'http://localhost:5297/api/Employee/GetCustomer',
+                    url: 'http://localhost:5297/api/users/GetCustomer',
                     dataType: 'json',
                     delay: 250,
                     data: function (params) {
