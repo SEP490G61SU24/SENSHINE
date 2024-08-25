@@ -9,6 +9,8 @@ namespace API.Models
         public int CardId { get; set; }
         public int ComboId { get; set; }
         public int? SessionDone { get; set; }
+        public int? SessionLeft { get; set; }
+        public string? UsageNote { get; set; }
 
         public virtual Card Card { get; set; } = null!;
         public virtual Combo Combo { get; set; } = null!;
