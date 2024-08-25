@@ -40,7 +40,7 @@ namespace API.Services.Impl
         public async Task<PaginatedList<CardDTO>> GetCards(int pageIndex, int pageSize, string searchTerm, string spaId)
         {
             // Tạo query cơ bản
-            IQueryable<Card> query = _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices);
+            IQueryable<Card> query = _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos);
 
             int? spaIdInt = spaId != null && spaId != "ALL"
             ? int.Parse(spaId)
@@ -83,7 +83,7 @@ namespace API.Services.Impl
         {
             try
             {
-                return _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices)
+                return _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos)
                                       .Where(c => c.Id == id).FirstOrDefault();
             }
             catch (Exception ex)
@@ -98,7 +98,7 @@ namespace API.Services.Impl
             try
             {
                 input = input.ToLower();
-                var cards = _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices);
+                var cards = _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos);
 
                 return cards.Where(c => c.CardNumber.ToLower().Contains(input)
                                      || (c.Customer.FirstName + " " + c.Customer.MidName + " " + c.Customer.LastName)
@@ -234,12 +234,64 @@ namespace API.Services.Impl
         {
             try
             {
-                return _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices).ToList();
+                return _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).ToList();
             }
             catch (Exception ex)
             {
                 // Handle or log the exception as needed
                 throw new Exception("Error retrieving cards.", ex);
+            }
+        }
+
+        public ICollection<CardInvoice> GetCardInvoiceByCard(int id)
+        {
+            try
+            {
+                // Fetch all related card combos in one go
+                var invoices = _context.CardInvoices.Include(i => i.Invoice).Where(i => i.CardId == id).ToList();
+
+                return invoices;
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new Exception($"Error retrieving card combos for card ID {id}.", ex);
+            }
+        }
+
+        public async Task<CardInvoice> CreateCardInvoice(CardInvoice cardInvoice)
+        {
+            try
+            {
+                await _context.CardInvoices.AddAsync(cardInvoice);
+                await _context.SaveChangesAsync();
+
+                return cardInvoice;
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new Exception("Error creating card combo.", ex);
+            }
+        }
+
+        public async Task<InvoiceDTO?> GetInvoiceById(int id)
+        {
+            try
+            {
+                var invoice = await _context.Invoices.Include(i => i.Customer).FirstOrDefaultAsync(i => i.Id == id);
+
+                if (invoice == null)
+                {
+                    return null;
+                }
+
+                return _mapper.Map<InvoiceDTO>(invoice);
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new Exception("Error creating card combo.", ex);
             }
         }
     }

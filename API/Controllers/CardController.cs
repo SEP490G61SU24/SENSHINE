@@ -178,8 +178,8 @@ namespace API.Controllers
 
             try
             {
-                var combo = _mapper.Map<List<CardComboDTO>>(_cardService.GetCardComboByCard(id));
-                return Ok(combo);
+                var combos = _mapper.Map<List<CardComboDTO>>(_cardService.GetCardComboByCard(id));
+                return Ok(combos);
             }
             catch (Exception ex)
             {
@@ -203,6 +203,65 @@ namespace API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, $"An error occurred while adding the combo: {ex.Message}");
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCardInvoiceByCard(int id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var invoices = _mapper.Map<List<CardInvoiceDTO>>(_cardService.GetCardInvoiceByCard(id));
+                return Ok(invoices);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving the card combo: {ex.Message}");
+            }
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<InvoiceDTO>> GetInvoice(int id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var invoice = await _cardService.GetInvoiceById(id);
+
+                if (invoice == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(invoice);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while adding the invoice: {ex.Message}");
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddInvoice([FromBody] CardInvoiceDTO cardInvoiceDTO)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var cardInvoiceMap = _mapper.Map<CardInvoice>(cardInvoiceDTO);
+                var createdCardInvoice = await _cardService.CreateCardInvoice(cardInvoiceMap);
+
+                return Ok("Invoice added successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while adding the invoice: {ex.Message}");
             }
         }
     }

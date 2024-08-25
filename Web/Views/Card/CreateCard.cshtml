@@ -9,6 +9,7 @@
     <div class="custom-body">
         <form asp-action="CreateCard" id="createCardForm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" id="totalPrice" name="totalPrice" value="0" />
             <div class="form-group">
                 <input asp-for="CardNumber" class="form-control" type="hidden" value="a" />
                 <span asp-validation-for="CardNumber" class="text-danger"></span>
@@ -62,7 +63,7 @@
                         </div>
                     </div>
                 }
-                
+
                 <a href="@Url.Action("ListCard", "Card")" class="btn btn-primary">Danh sách</a>
             </div>
         </form>
@@ -226,6 +227,7 @@
             const cards = document.querySelectorAll('.card');
             const tabsContainer = document.getElementById('comboTabs');
             const tabContentContainer = document.getElementById('comboTabContent');
+            const totalPriceInput = document.getElementById('totalPrice'); // Reference to the hidden total price input
 
             cards.forEach(card => {
                 card.addEventListener('click', async () => {
@@ -246,22 +248,22 @@
                         tabPane.id = `pane-${cardId}`;
 
                         tabPane.innerHTML = `
-                                            <p>${cardInfo}</p>
-                                            <div class="form-group row">
-                                                        <div class="col-md-3" position-relative>
-                                                    <label for="quantity-${cardId}">Số lượng</label>
-                                                            <input type="number" class="form-control" id="quantity-${cardId}" min="1" max="5" placeholder = "Thêm tối đa 5 combo mỗi lần" value="1" />
+                                    <p>${cardInfo}</p>
+                                    <div class="form-group row">
+                                        <div class="col-md-3 position-relative">
+                                            <label for="quantity-${cardId}">Số lượng</label>
+                                            <input type="number" class="form-control" id="quantity-${cardId}" min="1" max="5" placeholder="Thêm tối đa 5 combo mỗi lần" value="1" />
+                                        </div>
+                                        <div class="col-md-3 position-relative">
+                                            <label>Tổng giá tiền</label>
+                                            <div class="input-group">
+                                                <input type="text" id="totalPrice-${cardId}" class="form-control" readonly />
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text">VND</span>
                                                 </div>
-                                                <div class="col-md-3 position-relative">
-                                                    <label>Tổng giá tiền</label>
-                                                    <div class="input-group">
-                                                        <input type="text" id="totalPrice-${cardId}" class="form-control" readonly />
-                                                        <div class="input-group-append">
-                                                            <span class="input-group-text">VND</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>`;
+                                            </div>
+                                        </div>
+                                    </div>`;
                         tabContentContainer.appendChild(tabPane);
 
                         tabsContainer.style.display = 'flex';
@@ -274,7 +276,11 @@
                         document.getElementById(`quantity-${cardId}`).addEventListener('input', function () {
                             const quantity = parseInt(this.value);
                             updateTotalPrice(cardId, comboDetails.salePrice, quantity);
+                            updateOverallTotalPrice(); // Update the overall total price whenever quantity changes
                         });
+
+                        // Update overall total price
+                        updateOverallTotalPrice();
                     } else {
                         document.getElementById(`tab-${cardId}`).parentElement.remove();
                         document.getElementById(`pane-${cardId}`).remove();
@@ -282,6 +288,9 @@
                         if (!tabsContainer.querySelectorAll('li').length) {
                             tabsContainer.style.display = 'none';
                         }
+
+                        // Update overall total price
+                        updateOverallTotalPrice();
                     }
                 });
             });
@@ -321,9 +330,66 @@
             }
 
             function updateTotalPrice(cardId, pricePerUnit, quantity = 1) {
-                const totalPrice = pricePerUnit * quantity;
-                document.getElementById(`totalPrice-${cardId}`).value = new Intl.NumberFormat('en-US').format(totalPrice);
+                const totalPrice = (pricePerUnit * quantity).toFixed(2); // Convert to 2 decimal places
+                document.getElementById(`totalPrice-${cardId}`).value = new Intl.NumberFormat('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(totalPrice);
             }
+
+            function updateOverallTotalPrice() {
+                let overallTotal = 0;
+                document.querySelectorAll('[id^="totalPrice-"]').forEach(priceInput => {
+                    const total = parseFloat(priceInput.value.replace(/,/g, '')) || 0;
+                    overallTotal += total;
+                });
+                totalPriceInput.value = overallTotal.toFixed(2); // Keep 2 decimal places for the total
+            }
+        });
+    </script>
+
+    <script>
+        document.getElementById('createCardForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const selectedCardIds = [];
+            document.querySelectorAll('.card.selected').forEach(card => {
+                const cardId = card.dataset.id;
+                const quantity = parseInt(document.getElementById(`quantity-${cardId}`).value);
+                for (let i = 0; i < quantity; i++) {
+                    selectedCardIds.push(cardId);
+                }
+            });
+
+            // Ensure the hidden input is updated
+            document.getElementById('selectedCardIds').value = JSON.stringify(selectedCardIds);
+
+            // Ensure the total price is correctly set
+            const totalPrice = parseFloat(document.getElementById('totalPrice').value.replace(/,/g, ''));
+
+            // Trigger the AJAX call
+            const form = this;
+
+            $.ajax({
+                type: form.method,
+                url: form.action,
+                data: $(form).serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        // Open the payment URL in a new tab
+                        window.open(response.paymentUrl, '_blank');
+
+                        // Redirect the current tab
+                        window.location.href = '/Card/ListCard';
+                    } else {
+                        alert("Error: " + response.error);
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error("AJAX error: ", textStatus, errorThrown);
+                    alert("An unexpected error occurred.");
+                }
+            });
         });
     </script>
 }

@@ -31,8 +31,8 @@ namespace Web.Controllers
             try
             {
                 int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
-? int.Parse(ViewData["SpaId"].ToString())
-: (int?)null;
+                ? int.Parse(ViewData["SpaId"].ToString())
+                : (int?)null;
                 var apiUrl = _configuration["ApiUrl"];
                 var url = $"{apiUrl}/Salary/GetAll?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}&spaId={spaId}";
                 var client = _clientFactory.CreateClient();
@@ -113,8 +113,8 @@ namespace Web.Controllers
             try
             {
                 int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
-? int.Parse(ViewData["SpaId"].ToString())
-: (int?)null;
+                ? int.Parse(ViewData["SpaId"].ToString())
+                : (int?)null;
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
                 var response1 = client.GetAsync($"{apiUrl}/users/role/2").Result;
@@ -160,8 +160,8 @@ namespace Web.Controllers
             try
             {
                 int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
-? int.Parse(ViewData["SpaId"].ToString())
-: (int?)null;
+                ? int.Parse(ViewData["SpaId"].ToString())
+                : (int?)null;
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
 
