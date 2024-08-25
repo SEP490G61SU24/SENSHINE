@@ -51,7 +51,7 @@ namespace API.Services.Impl
 
         public async Task<IEnumerable<ProductDTORequest>> ListProduct()
         {
-            var products = await _context.Products.Include(p=>p.Categories).Include(p=>p.ProductImages).Include(x => x.Spas).ToListAsync();
+            var products = await _context.Products.Include(p=>p.Categories).Include(p=>p.ProductImages).ToListAsync();
             return _mapper.Map<IEnumerable<ProductDTORequest>>(products);
         }
 
@@ -59,7 +59,7 @@ namespace API.Services.Impl
         {
             
             var product = await _context.Products
-                .Include(p => p.Categories).Include(p=>p.ProductImages).Include(x=>x.Spas) 
+                .Include(p => p.Categories).Include(p=>p.ProductImages)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             
@@ -78,7 +78,6 @@ namespace API.Services.Impl
             var product = await _context.Products
                 .Include(p => p.Categories)
                 .Include(p => p.ProductImages)
-                .Include(p=>p.Spas)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null)
@@ -135,7 +134,7 @@ namespace API.Services.Impl
 
 
             var products = await query
-                .Include(p => p.Categories).Include(P => P.ProductImages).Include(p=>p.Spas)
+                .Include(p => p.Categories).Include(P => P.ProductImages)
                 .ToListAsync();
 
 
@@ -197,7 +196,7 @@ namespace API.Services.Impl
             decimal? minPrice = priceParts != null && decimal.TryParse(priceParts[0], out var pMin) ? (decimal?)pMin : null;
             decimal? maxPrice = priceParts != null && decimal.TryParse(priceParts[1], out var pMax) ? (decimal?)pMax : null;
 
-            IQueryable<Product> query = _context.Products.Include(p => p.Categories).Include(P => P.ProductImages).Include(p => p.Spas).AsQueryable();
+            IQueryable<Product> query = _context.Products.Include(p => p.Categories).Include(P => P.ProductImages).AsQueryable();
 
             if (spaId.HasValue)
             {

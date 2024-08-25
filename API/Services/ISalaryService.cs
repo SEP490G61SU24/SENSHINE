@@ -7,7 +7,7 @@ namespace API.Services
     public interface ISalaryService
     {
         Task<Salary> CreateSalary(Salary salary);
-        Task<PaginatedList<SalaryDTO>> GetSalaries(int pageIndex, int pageSize, string searchTerm);
+        Task<PaginatedList<SalaryDTO>> GetSalaries(int pageIndex, int pageSize, string searchTerm, string spaId);
         List<Salary> GetAllSalaries();
         ICollection<Salary> GetSalariesByMonthAndYear(int month, int year);
         Salary GetSalary(int id);

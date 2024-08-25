@@ -187,7 +187,6 @@ namespace API.Controllers
             {
                 // Retrieve the existing invoice with related entities
                 var existingInvoice = await _dbContext.Invoices
-                    .Include(i => i.Cards)
                     .Include(i => i.InvoiceServices)
                     .Include(i => i.InvoiceCombos)
                     .FirstOrDefaultAsync(i => i.Id == id);
@@ -198,7 +197,6 @@ namespace API.Controllers
                 }
 
                 // Clear related entities (optional, depending on cascade delete configuration)
-                existingInvoice.Cards.Clear();
                 existingInvoice.InvoiceServices.Clear();
                 existingInvoice.InvoiceCombos.Clear();
 

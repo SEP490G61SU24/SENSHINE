@@ -3,8 +3,11 @@
 
 @{
     ViewData["Title"] = "Quản lý thẻ";
-    ViewData["ActionName"] = "Tạo thẻ";
-    ViewData["ActionUrl"] = "/Card/CreateCard";
+    if (ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL")
+    {
+        ViewData["ActionName"] = "Tạo thẻ";
+        ViewData["ActionUrl"] = "/Card/CreateCard";
+    }
     var cardsJson = System.Text.Json.JsonSerializer.Serialize(Model);
 }
 
@@ -49,19 +52,19 @@
                                 <!-- Filter by Status -->
                                 <div class="col">
                                     <select class="form-select" name="status" aria-label="Select Status" onchange="this.form.submit()">
-                                        <option value="" selected disabled>Trạng thái</option>
-                                        <option value="Active">Hoạt động</option>
-                                        <option value="Deactive">Không hoạt động</option>
+                                        <option value="" selected disabled class="bold-black-option">Trạng thái</option>
+                                        <option value="Active" class="bold-black-option">Hoạt động</option>
+                                        <option value="Deactive" class="bold-black-option">Không hoạt động</option>
                                     </select>
                                 </div>
 
                                 <!-- Filter by Customer -->
                                 <div class="col">
                                     <select class="form-select" name="customer" aria-label="Select Customer" onchange="this.form.submit()">
-                                        <option value="" selected disabled>Khách hàng</option>
+                                        <option value="" selected disabled class="bold-black-option">Khách hàng</option>
                                         @foreach (var user in ViewBag.Users as IEnumerable<UserDTO>)
                                         {
-                                            <option value="@user.Id">@user.FullName</option>
+                                            <option value="@user.Id" class="bold-black-option">@user.FullName</option>
                                         }
                                     </select>
                                 </div>
@@ -83,7 +86,14 @@
                         <th>Số điện thoại</th>
                         <th>Ngày tạo</th>
                         <th>Trạng thái</th>
-                        <th>Thao tác</th>
+                        @if (ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL")
+                        {
+                            <th>Thao tác</th>
+                        }
+                        else
+                        {
+                            <th>Chi nhánh</th>
+                        }
                     </tr>
                 </thead>
                 <tbody>
@@ -98,25 +108,33 @@
                             <td>
                                 @Html.DisplayFor(modelItem => item.CustomerName)
                             </td>
-                            <th>
+                            <td>
                                 @Html.DisplayFor(modelItem => item.CustomerPhone)
-                            </th>
+                            </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.CreateDate)
                             </td>
                             <td data-status="@item.Status">
                                 @Html.DisplayFor(modelItem => item.Status)
                             </td>
-                            <td>
-                                <ul class="action">
-                                    <li class="edit"><a href="/Card/UpdateCard/@item.Id"><i class="icon-pencil-alt"></i></a></li>
-                                    <li class="change state">
-                                        <a href="/Card/ChangeStateCard/@item.Id" onclick="return confirmChangeState(@item.Id)">
-                                            <i class="fas fa-sync"></i>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </td>
+                            @if (ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL")
+                            {
+                                <td>
+                                    <ul class="action">
+
+                                        <li class="edit"><a href="/Card/UpdateCard/@item.Id"><i class="icon-pencil-alt"></i></a></li>
+                                        <li class="change state">
+                                            <a href="/Card/ChangeStateCard/@item.Id" onclick="return confirmChangeState(@item.Id)">
+                                                <i class="fas fa-sync"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </td>
+                            }
+                            else
+                            {
+                                <td>@Html.DisplayFor(modelItem => item.BranchName)</td>
+                            }
                         </tr>
                     }
                 </tbody>
@@ -184,6 +202,23 @@
         .status-deactive {
             color: red;
         }
+
+        .bold-black-option {
+            color: black;
+            font-weight: bold;
+        }
+
+        /* Apply to all select elements */
+        select.form-select {
+            font-weight: bold;
+            color: black;
+        }
+
+            /* Apply specifically to placeholder option */
+            select.form-select option:disabled {
+                font-weight: bold;
+                color: black;
+            }
     </style>
 }
 

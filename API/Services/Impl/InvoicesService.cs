@@ -48,7 +48,6 @@ namespace API.Services.Impl
          .Include(i => i.Customer)
          .Include(i => i.Promotion)
          .Include(i => i.Spa)
-         .Include(i => i.Cards)
          .Include(i => i.InvoiceCombos)
          .Include(i => i.InvoiceServices)
          .ToListAsync();
@@ -64,7 +63,6 @@ namespace API.Services.Impl
                 .Include(i => i.Customer)
                 .Include(i => i.Promotion)
                 .Include(i => i.Spa)
-                .Include(i => i.Cards)
                 .Include(i => i.InvoiceCombos)
                 .Include(i => i.InvoiceServices).AsQueryable();
 
@@ -120,7 +118,6 @@ namespace API.Services.Impl
                                         .Include(i => i.Customer)
                                         .Include(i => i.Promotion)
                                         .Include(i => i.Spa)
-                                        .Include(i => i.Cards)
                                         .Include(i => i.InvoiceCombos).ThenInclude(i => i.Combo)
                                         .Include(i => i.InvoiceServices).ThenInclude(i => i.Service)
                                         .FirstOrDefaultAsync(i => i.Id == id);
@@ -142,7 +139,6 @@ namespace API.Services.Impl
                                         .Include(i => i.Customer)
                                         .Include(i => i.Promotion)
                                         .Include(i => i.Spa)
-                                        .Include(i => i.Cards)
                                         .Include(i => i.InvoiceCombos)
                                         .Include(i => i.InvoiceServices)
                                          .Where(x => x.InvoiceDate >= fromDate && x.InvoiceDate <= toDate)

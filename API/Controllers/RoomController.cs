@@ -40,7 +40,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
+        public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null, [FromQuery] string? spaId = null)
         {
             try
             {
@@ -49,7 +49,7 @@ namespace API.Controllers
                     return BadRequest("Chỉ số trang hoặc kích thước trang không hợp lệ.");
                 }
 
-                var rooms = await _roomService.GetRooms(pageIndex, pageSize, searchTerm);
+                var rooms = await _roomService.GetRooms(pageIndex, pageSize, searchTerm, spaId);
                 return Ok(rooms);
             }
             catch (Exception ex)

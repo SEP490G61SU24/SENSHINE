@@ -30,38 +30,20 @@ namespace Web.Controllers
         {
             try
             {
+                int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
+                ? int.Parse(ViewData["SpaId"].ToString())
+                : (int?)null;
                 var apiUrl = _configuration["ApiUrl"];
-                var url = $"{apiUrl}/Room/GetAll?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}";
+                var url = $"{apiUrl}/Room/GetAll?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}&spaId={spaId}";
                 var client = _clientFactory.CreateClient();
                 PaginatedList<RoomViewModel> rooms = new PaginatedList<RoomViewModel>();
                 List<BranchViewModel> branches = new List<BranchViewModel>();
                 HttpResponseMessage response = client.GetAsync(url).Result;
-                int? spaId = 0;
-                var token = HttpContext.Session.GetString("Token");
-
-                if (!string.IsNullOrEmpty(token))
-                {
-                    var userProfile = await GetUserProfileAsync(token);
-                    if (userProfile != null)
-                    {
-                        spaId = userProfile.SpaId;
-                    }
-                    else
-                    {
-                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
-                    }
-                }
 
                 if (response.IsSuccessStatusCode)
                 {
                     string data = response.Content.ReadAsStringAsync().Result;
                     rooms = JsonConvert.DeserializeObject<PaginatedList<RoomViewModel>>(data);
-
-                    // Convert to a list to apply LINQ filters
-                    var filteredRooms = rooms.Items.Where(r => r.SpaId == spaId).ToList();
-
-                    // Re-assign filtered cards back to the PaginatedList if necessary
-                    rooms.Items = filteredRooms;
 
                     foreach (var room in rooms.Items)
                     {
@@ -197,21 +179,9 @@ namespace Web.Controllers
         {
             try
             {
-                int? spaId = 0;
-                var token = HttpContext.Session.GetString("Token");
-
-                if (!string.IsNullOrEmpty(token))
-                {
-                    var userProfile = await GetUserProfileAsync(token);
-                    if (userProfile != null)
-                    {
-                        spaId = userProfile.SpaId;
-                    }
-                    else
-                    {
-                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
-                    }
-                }
+                int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
+                ? int.Parse(ViewData["SpaId"].ToString())
+                : (int?)null;
                 room.SpaId = spaId;
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
@@ -282,21 +252,9 @@ namespace Web.Controllers
         {
             try
             {
-                int? spaId = 0;
-                var token = HttpContext.Session.GetString("Token");
-
-                if (!string.IsNullOrEmpty(token))
-                {
-                    var userProfile = await GetUserProfileAsync(token);
-                    if (userProfile != null)
-                    {
-                        spaId = userProfile.SpaId;
-                    }
-                    else
-                    {
-                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
-                    }
-                }
+                int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
+                ? int.Parse(ViewData["SpaId"].ToString())
+                : (int?)null;
                 room.SpaId = spaId;
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();

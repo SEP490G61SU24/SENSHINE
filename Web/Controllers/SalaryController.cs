@@ -30,24 +30,11 @@ namespace Web.Controllers
         {
             try
             {
-                int? spaId = 0;
-                var token = HttpContext.Session.GetString("Token");
-
-                if (!string.IsNullOrEmpty(token))
-                {
-                    var userProfile = await GetUserProfileAsync(token);
-                    if (userProfile != null)
-                    {
-                        spaId = userProfile.SpaId;
-
-                    }
-                    else
-                    {
-                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
-                    }
-                }
+                int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
+                ? int.Parse(ViewData["SpaId"].ToString())
+                : (int?)null;
                 var apiUrl = _configuration["ApiUrl"];
-                var url = $"{apiUrl}/Salary/GetAll?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}";
+                var url = $"{apiUrl}/Salary/GetAll?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}&spaId={spaId}";
                 var client = _clientFactory.CreateClient();
                 PaginatedList<SalaryViewModel> salaries = new PaginatedList<SalaryViewModel>();
                 HttpResponseMessage response = await client.GetAsync(url);
@@ -57,13 +44,17 @@ namespace Web.Controllers
                     string data = response.Content.ReadAsStringAsync().Result;
                     salaries = JsonConvert.DeserializeObject<PaginatedList<SalaryViewModel>>(data);
                     HttpResponseMessage response1 = null;
+                    HttpResponseMessage response2 = null;
                     foreach (var salary in salaries.Items)
                     {
                         response1 = client.GetAsync($"{apiUrl}/users/" + salary.EmployeeId).Result;
                         string response1Body = response1.Content.ReadAsStringAsync().Result;
                         JObject json1 = JObject.Parse(response1Body);
                         salary.EmployeeName = json1["firstName"].ToString() + " " + json1["midName"].ToString() + " " + json1["lastName"].ToString();
-                        salary.BranchId = Int32.Parse(json1["spaId"].ToString());
+                        response2 = client.GetAsync($"{apiUrl}/Branch/GetById?id=" + Int32.Parse(json1["spaId"].ToString())).Result;
+                        string response2Body = response2.Content.ReadAsStringAsync().Result;
+                        JObject json2 = JObject.Parse(response2Body);
+                        salary.BranchName = json2["spaName"].ToString();
                     }
 
                     var response3 = client.GetAsync($"{apiUrl}/users/role/2").Result;
@@ -76,12 +67,18 @@ namespace Web.Controllers
                         var users5 = response5.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
                         var combinedUsers = users3.Concat(users4);
                         combinedUsers = combinedUsers.Concat(users5);
-                        combinedUsers = combinedUsers.Where(u => u.SpaId == spaId).ToList();
+
+                        if (spaId != null)
+                        {
+                            combinedUsers = combinedUsers.Where(u => u.SpaId == spaId).ToList();
+                        }
+
                         foreach (var user in combinedUsers)
                         {
                             user.FullName = string.Join(" ", user.FirstName ?? "", user.MidName ?? "", user.LastName ?? "").Trim();
                             user.FullName = string.Join(", ", user.FullName ?? "", user.Phone ?? "").Trim();
                         }
+
                         ViewBag.Users = combinedUsers;
                     }
                     else
@@ -89,21 +86,15 @@ namespace Web.Controllers
                         ViewData["Error"] = "Có lỗi xảy ra";
                     }
 
-                    // Convert to a list to apply LINQ filters
-                    var filteredSalaries = salaries.Items.Where(s => s.BranchId == spaId).ToList();
-
                     if (!month.Equals(0) && !year.Equals(0))
                     {
-                        filteredSalaries = filteredSalaries.Where(s => s.SalaryMonth == month && s.SalaryYear == year).ToList();
+                        salaries.Items = salaries.Items.Where(s => s.SalaryMonth == month && s.SalaryYear == year).ToList();
                     }
 
                     if (!employee.Equals(0))
                     {
-                        filteredSalaries = filteredSalaries.Where(s => s.EmployeeId.Equals(employee)).ToList();
+                        salaries.Items = salaries.Items.Where(s => s.EmployeeId.Equals(employee)).ToList();
                     }
-
-                    // Re-assign filtered cards back to the PaginatedList if necessary
-                    salaries.Items = filteredSalaries;
                 }
 
                 return View(salaries);
@@ -121,21 +112,9 @@ namespace Web.Controllers
         {
             try
             {
-                int? spaId = 0;
-                var token = HttpContext.Session.GetString("Token");
-
-                if (!string.IsNullOrEmpty(token))
-                {
-                    var userProfile = await GetUserProfileAsync(token);
-                    if (userProfile != null)
-                    {
-                        spaId = userProfile.SpaId;
-                    }
-                    else
-                    {
-                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
-                    }
-                }
+                int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
+                ? int.Parse(ViewData["SpaId"].ToString())
+                : (int?)null;
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
                 var response1 = client.GetAsync($"{apiUrl}/users/role/2").Result;
@@ -148,7 +127,12 @@ namespace Web.Controllers
                     var users3 = response3.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
                     var combinedUsers = users1.Concat(users2);
                     combinedUsers = combinedUsers.Concat(users3);
-                    combinedUsers = combinedUsers.Where(u => u.SpaId == spaId).ToList();
+
+                    if (spaId != null)
+                    {
+                        combinedUsers = combinedUsers.Where(u => u.SpaId == spaId).ToList();
+                    }
+
                     foreach (var user in combinedUsers)
                     {
                         user.FullName = string.Join(" ", user.FirstName ?? "", user.MidName ?? "", user.LastName ?? "").Trim();
@@ -175,21 +159,9 @@ namespace Web.Controllers
         {
             try
             {
-                int? spaId = 0;
-                var token = HttpContext.Session.GetString("Token");
-
-                if (!string.IsNullOrEmpty(token))
-                {
-                    var userProfile = await GetUserProfileAsync(token);
-                    if (userProfile != null)
-                    {
-                        spaId = userProfile.SpaId;
-                    }
-                    else
-                    {
-                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
-                    }
-                }
+                int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
+                ? int.Parse(ViewData["SpaId"].ToString())
+                : (int?)null;
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
 
@@ -203,7 +175,12 @@ namespace Web.Controllers
                     var users3 = response3.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>().Result;
                     var combinedUsers = users1.Concat(users2);
                     combinedUsers = combinedUsers.Concat(users3);
-                    combinedUsers = combinedUsers.Where(u => u.SpaId == spaId).ToList();
+
+                    if (spaId != null)
+                    {
+                        combinedUsers = combinedUsers.Where(u => u.SpaId == spaId).ToList();
+                    }
+
                     foreach (var user in combinedUsers)
                     {
                         user.FullName = string.Join(" ", user.FirstName ?? "", user.MidName ?? "", user.LastName ?? "").Trim();

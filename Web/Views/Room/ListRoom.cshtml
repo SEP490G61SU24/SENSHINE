@@ -42,7 +42,14 @@
                 <thead>
                     <tr>
                         <th>Tên phòng</th>
-                        <th>Thao tác</th>
+                        @if (ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL")
+                        {
+                            <th>Thao tác</th>
+                        }
+                        else
+                        {
+                            <th>Chi nhánh</th>
+                        }
                     </tr>
                 </thead>
                 <tbody>
@@ -54,11 +61,18 @@
                                     @item.RoomName
                                 </a>
                             </td>
-                            <td>
-                                <ul class="action">
-                                    <li class="edit"><a href="/Room/UpdateRoom/@item.Id"><i class="icon-pencil-alt"></i></a></li>
-                                </ul>
-                            </td>
+                            @if (ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL")
+                            {
+                                <td>
+                                    <ul class="action">
+                                        <li class="edit"><a href="/Room/UpdateRoom/@item.Id"><i class="icon-pencil-alt"></i></a></li>
+                                    </ul>
+                                </td>
+                            }
+                            else
+                            {
+                                <td>@item.SpaName</td>
+                            }
                         </tr>
                     }
                 </tbody>

@@ -9,9 +9,9 @@ namespace API.Models
         {
             Cards = new HashSet<Card>();
             Invoices = new HashSet<Invoice>();
+            Products = new HashSet<Product>();
             Promotions = new HashSet<Promotion>();
             Rooms = new HashSet<Room>();
-            Products = new HashSet<Product>();
         }
 
         public int Id { get; set; }
@@ -22,8 +22,8 @@ namespace API.Models
 
         public virtual ICollection<Card> Cards { get; set; }
         public virtual ICollection<Invoice> Invoices { get; set; }
-        public virtual ICollection<Promotion> Promotions { get; set; }
         public virtual ICollection<Product> Products { get; set; }
+        public virtual ICollection<Promotion> Promotions { get; set; }
         public virtual ICollection<Room> Rooms { get; set; }
     }
 }

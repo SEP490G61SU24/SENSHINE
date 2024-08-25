@@ -50,10 +50,10 @@
                                 <!-- Filter by Month -->
                                 <div class="col">
                                     <select id="monthSelect" class="form-select" name="month" aria-label="Select Month">
-                                        <option value="" selected disabled>Chọn tháng</option>
+                                        <option value="" selected disabled class="bold-black-option">Chọn tháng</option>
                                         @for (int month = 1; month <= 12; month++)
                                         {
-                                            <option value="@month">@month</option>
+                                            <option value="@month" class="bold-black-option">@month</option>
                                         }
                                     </select>
                                 </div>
@@ -61,10 +61,10 @@
                                 <!-- Filter by Year -->
                                 <div class="col">
                                     <select id="yearSelect" class="form-select" name="year" aria-label="Select Year">
-                                        <option value="" selected disabled>Chọn năm</option>
+                                        <option value="" selected disabled class="bold-black-option">Chọn năm</option>
                                         @for (int year = 2020; year <= currentYear; year++)
                                         {
-                                            <option value="@year">@year</option>
+                                            <option value="@year" class="bold-black-option">@year</option>
                                         }
                                     </select>
                                 </div>
@@ -72,10 +72,10 @@
                                 <!-- Filter by Employee -->
                                 <div class="col">
                                     <select class="form-select" name="employee" aria-label="Select Employee" onchange="this.form.submit()">
-                                        <option value="" selected disabled>Nhân viên</option>
+                                        <option value="" selected disabled class="bold-black-option">Nhân viên</option>
                                         @foreach (var user in ViewBag.Users as IEnumerable<UserDTO>)
                                         {
-                                            <option value="@user.Id">@user.FullName</option>
+                                            <option value="@user.Id" class="bold-black-option">@user.FullName</option>
                                         }
                                     </select>
                                 </div>
@@ -100,7 +100,14 @@
                         <th>Lương thực nhận (VND)</th>
                         <th>Tháng</th>
                         <th>Năm</th>
-                        <th>Thao tác</th>
+                        @if (ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL")
+                        {
+                            <th>Thao tác</th>
+                        }
+                        else
+                        {
+                            <th>Chi nhánh</th>
+                        }
                     </tr>
                 </thead>
                 <tbody>
@@ -115,11 +122,18 @@
                             <td>@string.Format("{0:N0}", item.TotalSalary)</td>
                             <td>@item.SalaryMonth</td>
                             <td>@item.SalaryYear</td>
-                            <td>
-                                <ul class="action">
-                                    <li class="edit"><a href="/Salary/UpdateSalary/@item.Id"><i class="icon-pencil-alt"></i></a></li>
-                                </ul>
-                            </td>
+                            @if (ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL")
+                            {
+                                <td>
+                                    <ul class="action">
+                                        <li class="edit"><a href="/Salary/UpdateSalary/@item.Id"><i class="icon-pencil-alt"></i></a></li>
+                                    </ul>
+                                </td>
+                            }
+                            else
+                            {
+                                <td>@item.BranchName</td>
+                            }
                         </tr>
                     }
                 </tbody>
@@ -177,6 +191,25 @@
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
     <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+
+    <style>
+        .bold-black-option {
+            color: black;
+            font-weight: bold;
+        }
+
+        /* Apply to all select elements */
+        select.form-select {
+            font-weight: bold;
+            color: black;
+        }
+
+            /* Apply specifically to placeholder option */
+            select.form-select option:disabled {
+                font-weight: bold;
+                color: black;
+            }
+    </style>
 }
 
 @section Scripts {

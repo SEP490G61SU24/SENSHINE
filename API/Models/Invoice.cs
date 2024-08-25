@@ -7,9 +7,9 @@ namespace API.Models
     {
         public Invoice()
         {
-            Cards = new HashSet<Card>();
-            InvoiceServices = new HashSet<InvoiceService>();
+            CardInvoices = new HashSet<CardInvoice>();
             InvoiceCombos = new HashSet<InvoiceCombo>();
+            InvoiceServices = new HashSet<InvoiceService>();
         }
 
         public int Id { get; set; }
@@ -18,16 +18,14 @@ namespace API.Models
         public int? PromotionId { get; set; }
         public decimal? Amount { get; set; }
         public DateTime InvoiceDate { get; set; }
+        public string Status { get; set; } = null!;
         public string? Description { get; set; }
-		public string Status { get; set; } = "Pending";
-		public virtual User? Customer { get; set; }
+
+        public virtual User? Customer { get; set; }
         public virtual Promotion? Promotion { get; set; }
         public virtual Spa? Spa { get; set; }
+        public virtual ICollection<CardInvoice> CardInvoices { get; set; }
         public virtual ICollection<InvoiceCombo> InvoiceCombos { get; set; }
         public virtual ICollection<InvoiceService> InvoiceServices { get; set; }
-
-        public virtual ICollection<Card> Cards { get; set; }
-
-
     }
 }

@@ -7,7 +7,7 @@ namespace API.Services
     public interface ICardService
     {
         Task<Card> CreateCard(Card card);
-        Task<PaginatedList<CardDTO>> GetCards(int pageIndex, int pageSize, string searchTerm);
+        Task<PaginatedList<CardDTO>> GetCards(int pageIndex, int pageSize, string searchTerm, string spaId);
         List<Card> GetAllCards();
         Card GetCard(int id);
         ICollection<Card> GetCardByNumNamePhone(string input);
@@ -16,7 +16,10 @@ namespace API.Services
         bool CardExist(int id);
         bool CardExistByNumNamePhone(string input);
         ICollection<CardCombo> GetCardComboByCard(int id);
+        ICollection<CardInvoice> GetCardInvoiceByCard(int id);
         CardCombo GetCardCombo(int id);
         Task<CardCombo> CreateCardCombo(CardCombo cardCombo);
+        Task<CardInvoice> CreateCardInvoice(CardInvoice cardInvoice);
+        Task<InvoiceDTO?> GetInvoiceById(int id);
     }
 }
