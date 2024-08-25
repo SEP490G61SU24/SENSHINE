@@ -7,9 +7,10 @@ namespace API.Models
     {
         public int Id { get; set; }
         public int? EmployeeId { get; set; }
+        public string? Status { get; set; }
         public DateTime? StartDateTime { get; set; }
         public DateTime? EndDateTime { get; set; }
-        public string? Status { get; set; }
+        public string? DayOfWeek { get; set; }
 
         public virtual User? Employee { get; set; }
     }

@@ -1,4 +1,7 @@
-﻿namespace API.Models
+﻿using System;
+using System.Collections.Generic;
+
+namespace API.Models
 {
     public partial class InvoiceCombo
     {

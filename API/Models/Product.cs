@@ -7,10 +7,9 @@ namespace API.Models
     {
         public Product()
         {
+            ProductImages = new HashSet<ProductImage>();
             Appointments = new HashSet<Appointment>();
             Categories = new HashSet<Category>();
-            ProductImages = new HashSet<ProductImage>();
-           
         }
 
         public int Id { get; set; }
@@ -18,9 +17,11 @@ namespace API.Models
         public decimal? Price { get; set; }
         public int Quantity { get; set; }
         public int SpaId { get; set; }
-        public virtual Spa? Spas { get; set; }
+
+        public virtual Spa Spa { get; set; } = null!;
+        public virtual ICollection<ProductImage> ProductImages { get; set; }
+
         public virtual ICollection<Appointment> Appointments { get; set; }
         public virtual ICollection<Category> Categories { get; set; }
-        public virtual ICollection<ProductImage>? ProductImages { get; set; }
     }
 }

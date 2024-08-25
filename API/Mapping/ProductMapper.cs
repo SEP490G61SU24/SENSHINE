@@ -18,7 +18,6 @@ namespace API.Mapping
                    Id=c.Id,
                    CategoryName = c.CategoryName
                })))
-               .ForMember(dest=>dest.SpaName,opt=>opt.MapFrom(src=>src.Spas.SpaName))
                .ForMember(dest => dest.SpaId, opt => opt.MapFrom(src => src.SpaId))
                .ForMember(dest => dest.ProductImages, opt => opt.MapFrom(src => src.ProductImages.Select(pi => new ProductImageDTO
                { 
