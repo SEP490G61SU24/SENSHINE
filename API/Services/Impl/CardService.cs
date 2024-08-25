@@ -40,7 +40,7 @@ namespace API.Services.Impl
         public async Task<PaginatedList<CardDTO>> GetCards(int pageIndex, int pageSize, string searchTerm, string spaId)
         {
             // Tạo query cơ bản
-            IQueryable<Card> query = _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices);
+            IQueryable<Card> query = _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos);
 
             int? spaIdInt = spaId != null && spaId != "ALL"
             ? int.Parse(spaId)
@@ -83,7 +83,7 @@ namespace API.Services.Impl
         {
             try
             {
-                return _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices)
+                return _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos)
                                       .Where(c => c.Id == id).FirstOrDefault();
             }
             catch (Exception ex)
@@ -98,7 +98,7 @@ namespace API.Services.Impl
             try
             {
                 input = input.ToLower();
-                var cards = _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices);
+                var cards = _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos);
 
                 return cards.Where(c => c.CardNumber.ToLower().Contains(input)
                                      || (c.Customer.FirstName + " " + c.Customer.MidName + " " + c.Customer.LastName)
@@ -234,7 +234,7 @@ namespace API.Services.Impl
         {
             try
             {
-                return _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).Include(i => i.Invoices).ToList();
+                return _context.Cards.Include(c => c.Customer).Include(c => c.CardCombos).ToList();
             }
             catch (Exception ex)
             {

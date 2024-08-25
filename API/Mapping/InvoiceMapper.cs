@@ -50,8 +50,6 @@ namespace API.Mapping
                 .ForMember(dest => dest.InvoiceCombos,
                            opt => opt.Ignore())
                 .ForMember(dest => dest.InvoiceServices,
-                           opt => opt.Ignore())
-                .ForMember(dest => dest.Cards,
                            opt => opt.Ignore());
 
             CreateMap<Card, CardDTO2>()
