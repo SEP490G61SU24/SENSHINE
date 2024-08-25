@@ -120,24 +120,27 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label asp-for="ProductName" class="control-label">Product Name</label>
-                                    <input asp-for="ProductName" class="form-control" />
+                                    <input asp-for="ProductName" class="form-control" required/>
                                     <span asp-validation-for="ProductName" class="text-danger"></span>
+                                    <div class="invalid-tooltip">Vui lòng nhập tên sản phẩm.</div>
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label asp-for="Price" class="control-label">Price</label>
-                                    <input asp-for="Price" class="form-control" />
+                                    <input asp-for="Price" class="form-control" required/>
                                     <span asp-validation-for="Price" class="text-danger"></span>
+                                    <div class="invalid-tooltip">Vui lòng nhập giá.</div>
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label asp-for="Quantity" class="control-label">Quantity</label>
-                                    <input asp-for="Quantity" class="form-control" />
+                                    <input asp-for="Quantity" class="form-control" required/>
                                     <span asp-validation-for="Quantity" class="text-danger"></span>
+                                    <div class="invalid-tooltip">Vui lòng nhập số lượng.</div>
                                 </div>
                             </div>
 
@@ -162,7 +165,10 @@
                                 </div>
                                 <!-- Hidden field for Category IDs -->
                                 <input type="hidden" id="CategoryIds" name="CategoryIds" />
-                                <span asp-validation-for="CategoryIds" class="text-danger"></span>
+                                <span asp-validation-for="CategoryIds" class="text-danger" required></span>
+                                <textarea asp-for="CategoryIdsString" class="form-control d-none"></textarea>
+                                <span asp-validation-for="CategoryIdsString" class="text-danger"></span>
+                                <div class="invalid-tooltip">Vui lòng chọn ít nhất một danh mục.</div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
@@ -178,8 +184,7 @@
                                         </div>
                                     </div>
                                     <div id="imagePreview" class="image-preview mt-2"></div>
-                                    <textarea asp-for="CategoryIdsString" class="form-control d-none" rows="1"></textarea>
-                                    <span asp-validation-for="CategoryIdsString" class="text-danger"></span>
+                                    
                                 </div>
                             </div>
 

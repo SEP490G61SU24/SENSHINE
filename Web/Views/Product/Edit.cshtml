@@ -123,7 +123,7 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label asp-for="ProductName" class="control-label">Product Name</label>
-                                    <input asp-for="ProductName" class="form-control" />
+                                    <input asp-for="ProductName" class="form-control" required/>
                                     <span asp-validation-for="ProductName" class="text-danger"></span>
                                 </div>
                             </div>
@@ -132,7 +132,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label asp-for="Price" class="control-label">Price</label>
-                                    <input asp-for="Price" class="form-control" />
+                                    <input asp-for="Price" class="form-control" required />
                                     <span asp-validation-for="Price" class="text-danger"></span>
                                 </div>
                             </div>
@@ -141,7 +141,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label asp-for="Quantity" class="control-label">Quantity</label>
-                                    <input asp-for="Quantity" class="form-control" />
+                                    <input asp-for="Quantity" class="form-control" required />
                                     <span asp-validation-for="Quantity" class="text-danger"></span>
                                 </div>
                             </div>

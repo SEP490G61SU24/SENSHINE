@@ -6,7 +6,7 @@ namespace API.Services
 {
     public interface INewsService
     {
-        Task<News> AddNews(NewsDTO newsDto);
+        Task<News> AddNews(News newsDto);
         Task<News> EditNews(int id, NewsDTO newsDto);
         Task<IEnumerable<NewsDTO>> ListNews();
         Task<FilteredPaginatedList<NewsDTO>> GetNews(int pageIndex, int pageSize, string searchTerm, DateTime? startDate = null, DateTime? endDate = null);

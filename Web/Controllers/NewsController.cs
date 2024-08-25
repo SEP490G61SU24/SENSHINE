@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using Web.Models;
 namespace Web.Controllers
@@ -60,6 +61,44 @@ namespace Web.Controllers
             }
         }
 
+        protected async Task<UploadResponseDTO> UploadImageAsync(IFormFile image)
+        {
+            try
+            {
+                if (image == null || image.Length == 0)
+                {
+                    _logger.LogError("No image file provided for upload.");
+                    return null;
+                }
+                var uploadEndpoint = $"https://apiupanh.kstest.pro/api/image/upload";
+
+                using var client = _clientFactory.CreateClient();
+                using var content = new MultipartFormDataContent();
+
+                var fileContent = new StreamContent(image.OpenReadStream());
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue("multipart/form-data");
+                content.Add(fileContent, "image", image.FileName);
+
+                var response = await client.PostAsync(uploadEndpoint, content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseData = await response.Content.ReadFromJsonAsync<UploadResponseDTO>();
+                    return responseData;
+                }
+                else
+                {
+                    _logger.LogError($"Image upload failed. Status code: {response.StatusCode}");
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred during image upload.");
+                return null;
+            }
+        }
+
 
         [HttpGet]
         public IActionResult Add()
@@ -72,24 +111,38 @@ namespace Web.Controllers
         {
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
-            if (!ModelState.IsValid)
+            string imageUrl = null;
+
+            if (newsDto.CoverImage != null && newsDto.CoverImage.Length > 0)
             {
-                return View(newsDto);
+                var uploadResponse = await UploadImageAsync(newsDto.CoverImage);
+                if (uploadResponse != null && uploadResponse.Status)
+                {
+                    imageUrl = uploadResponse.Data;
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Image upload failed.");
+                    return View(newsDto);
+                }
             }
 
+            newsDto.Cover = imageUrl ?? newsDto.Cover;
             string json = JsonConvert.SerializeObject(newsDto);
-            StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
-            HttpResponseMessage response = await client.PostAsync($"{apiUrl}/AddNews", content);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await client.PostAsync($"{apiUrl}/AddNews", content);
 
             if (response.IsSuccessStatusCode)
             {
                 return RedirectToAction("NewsList");
             }
 
-            // Log error message here
+            _logger.LogError($"Failed to add news. Status code: {response.StatusCode}, Reason: {await response.Content.ReadAsStringAsync()}");
             ModelState.AddModelError(string.Empty, "An error occurred while adding the news.");
             return View(newsDto);
         }
+
+
 
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
