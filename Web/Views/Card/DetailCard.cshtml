@@ -75,12 +75,12 @@
                                     <ul class="action">
                                         <li class="use card">
                                             <a href="/Card/UseCard?id=@cardCombo.Id&cardId=@Model.Id" onclick="return confirmUsage(@cardCombo.Id)">
-                                                <i class="icon-pencil-alt"></i>
+                                                <i class="icon-pencil-alt"></i> Sử dụng
                                             </a>
                                         </li>
                                         <li class="note card">
                                             <a href="#" data-bs-toggle="modal" data-bs-target="#usageNoteModal-@cardCombo.Id">
-                                                <i class="icon-pencil-alt"></i> Show Note
+                                                <i class="icon-eye"></i> Lịch sử
                                             </a>
                                         </li>
                                     </ul>
@@ -187,7 +187,7 @@
 
     <script>
         function confirmUsage(id) {
-            if (confirm("Xác nhận dùng combo này?")) {
+            if (confirm("Xác nhận sử dụng combo này?")) {
                 return true;
             } else {
                 return false;
