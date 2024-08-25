@@ -20,44 +20,27 @@ namespace Web.Controllers
             _logger = logger;
         }
 
-        // GET: ReportController/ReportRevenue
         public async Task<IActionResult> ReportRevenue()
         {
             var apiUrl = _configuration["ApiUrl"];
-            var client = _clientFactory.CreateClient();
+            string timeRange = "1year";
+            // Construct the API endpoint URL
+            var url = $"{apiUrl}/report-summary?period={timeRange}";
 
-            // Get the current year
-            var now = DateTime.Now;
-            var startDate = new DateTime(now.Year, 1, 1); // Start of the year
-            var endDate = new DateTime(now.Year, 12, 31); // End of the year
+            // Fetch the report summary data from the API
+            var combinedReport = await GetDataFromApi<CombinedReportDTO>(url);
+            if (combinedReport == null) return View("Error");
 
-            // Fetch revenue report data
-            var revenueReports = await GetDataFromApi<List<RevenueReport>>($"{apiUrl}/revenue-report?startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}");
-            if (revenueReports == null) return View("Error");
-
-            // Fetch invoice status summary data
-            var invoiceStatusSummary = await GetDataFromApi<List<RevenueReport>>($"{apiUrl}/invoice-status-summary");
-            if (invoiceStatusSummary == null) return View("Error");
-
-            // Fetch service summary data
-            var serviceSummary = await GetDataFromApi<List<ServiceSummary>>($"{apiUrl}/invoice-service-summary");
-            if (serviceSummary == null) return View("Error");
-
-            // Fetch combo summary data
-            var comboSummary = await GetDataFromApi<List<ComboSummary>>($"{apiUrl}/invoice-combo-summary");
-            if (comboSummary == null) return View("Error");
-
-            // Combine data into view model
-            var combinedReport = new CombinedReportViewModel
+            // Pass the data to the view
+            var viewModel = new CombinedReportViewModel
             {
-                RevenueReports = revenueReports,
-                InvoiceStatusSummary = invoiceStatusSummary,
-                ComboSummaries = comboSummary,
-                ServiceSummaries = serviceSummary
+                RevenueReports = combinedReport.RevenueReports,
+                InvoiceStatusSummary = combinedReport.InvoiceStatusSummary,
+                ServiceSummaries = combinedReport.ServiceSummaries,
+                ComboSummaries = combinedReport.ComboSummaries
             };
 
-            // Pass combined data to the view
-            return View(combinedReport);
+            return View(viewModel);
         }
 
         private async Task<T> GetDataFromApi<T>(string url)
@@ -77,5 +60,6 @@ namespace Web.Controllers
                 return default;
             }
         }
+
     }
 }

@@ -366,7 +366,7 @@ namespace API.Services.Impl
                           .FirstOrDefaultAsync(u => u.Id == id);
             return _mapper.Map<UserDTO>(user);
         }
-
+       
         public async Task<UserDTO> GetByUserName(string username)
         {
             var user = await _context.Users
@@ -445,5 +445,23 @@ namespace API.Services.Impl
 
             return true;
 		}
-	}
+
+        public async Task<IEnumerable<UserDTO>> GetCustomerByName(string name)
+        {
+            var usersQuery = _context.Users
+                                     .Include(u => u.Roles)
+                                     .Where(u => u.Roles.Any(r => r.Id == 5));
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                usersQuery = usersQuery.Where(u => (u.FirstName + " " + u.MidName + " " + u.LastName).Contains(name));
+            }
+
+            var users = await usersQuery.ToListAsync();
+
+            return _mapper.Map<IEnumerable<UserDTO>>(users);
+        }
+
+
+    }
 }
