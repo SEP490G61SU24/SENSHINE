@@ -17,7 +17,7 @@ namespace API.Services.Impl
             _context = context;
             this.mapper = mapper;
         }
-        public async Task<News> AddNews(NewsDTO newsDto)
+        public async Task<News> AddNews(News newsDto)
         {
             var news = mapper.Map<News>(newsDto);
             _context.News.Add(news);

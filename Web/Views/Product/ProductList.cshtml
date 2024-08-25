@@ -32,6 +32,7 @@
         <div class="table-responsive custom-scrollbar">
             <div class="search-page">
                 <form class="theme-form mb-3" method="GET">
+                    <div class="d-flex justify-content-between align-items-center">
                     <div class="dataTables_length" id="table_length">
                         <label>
                             Hiển thị
@@ -50,8 +51,19 @@
                             </select>
                             bản ghi
                         </label>
-                    </div>
-                    <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2 g-3 mt-3">
+                        </div>
+                            <!-- Filter Toggle Icon -->
+                            <div>
+                                <a data-bs-toggle="collapse" href="#collapseFilter" role="button" aria-expanded="false" aria-controls="collapseFilter">
+                                    <i class="filter-icon" data-feather="filter"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <!-- Collapsible Filter Section -->
+                        <div class="collapse mt-3" id="collapseFilter">
+                            <div class="card card-body">
+                                <div class="row g-3">
+                   
                         <div class="col">
                             <label for="categoryname" class="form-label">Select Category</label>
                             <select id="categoryname" name="categoryName" class="form-select" aria-label="Select Category" onchange="updateCategoryHiddenInput()">
@@ -92,6 +104,8 @@
                             <input type="hidden" id="hiddenPriceRange"  value="@Model.PriceRange" />
                         </div>
                     </div>
+                                </div>
+                            </div>
                     <div class="input-group m-0 flex-nowrap">
                         <input class="form-control-plaintext" name="searchTerm" type="search" value="@(Model.SearchTerm ?? null)" placeholder="Nhập tên, số điện thoại ..."><button class="btn btn-primary input-group-text">Tìm kiếm</button>
                     </div>

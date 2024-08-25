@@ -60,7 +60,7 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label asp-for="Cover" class="control-label">Image URL</label>
+                                    <label asp-for="Cover" class="control-label">Image</label>
                                     <input asp-for="Cover" class="form-control" />
                                     <span asp-validation-for="Cover" class="text-danger"></span>
                                 </div>
@@ -75,7 +75,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label asp-for="Title" class="control-label">Title</label>
-                                    <input asp-for="Title" class="form-control" />
+                                    <input asp-for="Title" class="form-control" required />
                                     <span asp-validation-for="Title" class="text-danger"></span>
                                 </div>
                             </div>
@@ -89,7 +89,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label asp-for="PublishedDate" class="control-label">Published Date</label>
-                                    <input asp-for="PublishedDate" type="date" class="form-control" />
+                                    <input asp-for="PublishedDate" type="date" class="form-control" required />
                                     <span asp-validation-for="PublishedDate" class="text-danger"></span>
                                 </div>
                             </div>

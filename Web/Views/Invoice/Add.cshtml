@@ -142,7 +142,7 @@
                 <select class="form-select select2" name="CustomerId" id="CustomerId" required>
                     <option selected disabled value="">Select Customer...</option>
                 </select>
-                <div class="invalid-tooltip">Select a Customer!</div>
+                <div class="invalid-tooltip">Chọn khách hàng.</div>
             </div>
 
 
@@ -155,7 +155,7 @@
                         <option value="@promotion.Id" data-discount="@promotion.DiscountPercentage">@promotion.PromotionName</option>
                     }
                 </select>
-                <div class="invalid-tooltip">Select a Promotion!</div>
+                <div class="invalid-tooltip">Chọn khuyến mãi</div>
                 
             </div>
 
@@ -212,7 +212,7 @@
                         }
                     </div>
                     <input type="hidden" id="ComboIdsString" name="ComboIdsString">
-                    
+                    <div class="invalid-tooltip">Chọn combo.</div>
                 </div>
             </div>
 
@@ -235,17 +235,17 @@
                         }
                     </div>
                     <input type="hidden" id="ServiceIdsString" name="ServiceIdsString">
-                    
+                    <div class="invalid-tooltip">Chọn dịch vụ.</div>
                 </div>
             </div>
             <div class="col-md-4 position-relative">
                 <label class="form-label" for="Amount">Tiền</label>
                 <input class="form-control" name="Amount" id="Amount" type="number" step="0.01" placeholder="Total Amount" required readonly>
-                <div class="invalid-tooltip">Enter a valid amount!</div>
+                <div class="invalid-tooltip">Nhập tiền</div>
             </div>
             <div class="col-md-12 position-relative">
                 <label class="form-label" for="Description">Chú thích</label>
-                <textarea class="form-control" name="Description" id="Description" placeholder="Enter Description"></textarea>
+                <textarea class="form-control" name="Description" id="Description" placeholder="Nhập chú thích"></textarea>
             </div>
 
             <div class="col-12">
