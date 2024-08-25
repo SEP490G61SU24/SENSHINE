@@ -16,7 +16,10 @@ namespace API.Services
         bool CardExist(int id);
         bool CardExistByNumNamePhone(string input);
         ICollection<CardCombo> GetCardComboByCard(int id);
+        ICollection<CardInvoice> GetCardInvoiceByCard(int id);
         CardCombo GetCardCombo(int id);
         Task<CardCombo> CreateCardCombo(CardCombo cardCombo);
+        Task<CardInvoice> CreateCardInvoice(CardInvoice cardInvoice);
+        Task<InvoiceDTO?> GetInvoiceById(int id);
     }
 }

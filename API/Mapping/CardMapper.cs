@@ -18,6 +18,10 @@ namespace API.Mapping
             CreateMap<CardCombo, CardComboDTO>()
                 .ForMember(dest => dest.ComboId, opt => opt.MapFrom(src => src.Combo.Id));
             CreateMap<CardComboDTO, CardCombo>();
+
+            CreateMap<CardInvoice, CardInvoiceDTO>()
+                .ForMember(dest => dest.InvoiceId, opt => opt.MapFrom(src => src.Invoice.Id));
+            CreateMap<CardInvoiceDTO, CardInvoice>();
         }
     }
 }

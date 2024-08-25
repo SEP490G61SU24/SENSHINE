@@ -8,6 +8,8 @@ using Microsoft.IdentityModel.Tokens;
 using API.Dtos;
 using API.Models;
 using API.Ultils;
+using System.Runtime.Intrinsics.X86;
+using System.Linq;
 
 namespace Web.Controllers
 {
@@ -122,25 +124,33 @@ namespace Web.Controllers
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
                 CardViewModel card = new CardViewModel();
-                List<CardComboViewModel> cardCombos = new List<CardComboViewModel>();
                 ComboViewModel combo = new ComboViewModel();
+                InvoiceDTO invoice = new InvoiceDTO();
+                List<CardComboViewModel> cardCombos = new List<CardComboViewModel>();
+                List<CardInvoiceViewModel> cardInvoices = new List<CardInvoiceViewModel>();
 
                 HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Card/GetById?id=" + id);
-                HttpResponseMessage response1 = await client.GetAsync($"{apiUrl}/Card/GetCardComboByCard?id=" + id);
+                HttpResponseMessage responseCombo = await client.GetAsync($"{apiUrl}/Card/GetCardComboByCard?id=" + id);
+                HttpResponseMessage responseInvoice = await client.GetAsync($"{apiUrl}/Card/GetCardInvoiceByCard?id=" + id);
 
-                if (response.IsSuccessStatusCode && response1.IsSuccessStatusCode)
+                if (response.IsSuccessStatusCode && responseCombo.IsSuccessStatusCode && responseInvoice.IsSuccessStatusCode)
                 {
                     string data = await response.Content.ReadAsStringAsync();
-                    string data1 = await response1.Content.ReadAsStringAsync();
                     card = JsonConvert.DeserializeObject<CardViewModel>(data);
-                    HttpResponseMessage response4 = await client.GetAsync($"{apiUrl}/Branch/GetById?id=" + card.BranchId);
-                    string data4 = await response4.Content.ReadAsStringAsync();
-                    var branchName = JsonConvert.DeserializeObject<BranchViewModel>(data4).SpaName;
+
+                    string dataCombo = await responseCombo.Content.ReadAsStringAsync();
+                    string dataInvoice = await responseInvoice.Content.ReadAsStringAsync();
+
+                    HttpResponseMessage response1 = await client.GetAsync($"{apiUrl}/Branch/GetById?id=" + card.BranchId);
+                    string data1 = await response1.Content.ReadAsStringAsync();
+                    var branchName = JsonConvert.DeserializeObject<BranchViewModel>(data1).SpaName;
                     ViewBag.BranchName = branchName;
 
-                    cardCombos = JsonConvert.DeserializeObject<List<CardComboViewModel>>(data1);
+                    cardCombos = JsonConvert.DeserializeObject<List<CardComboViewModel>>(dataCombo);
+                    cardInvoices = JsonConvert.DeserializeObject<List<CardInvoiceViewModel>>(dataInvoice);
 
                     HttpResponseMessage response2 = await client.GetAsync($"{apiUrl}/users/" + card.CustomerId);
+
                     if (response2.IsSuccessStatusCode)
                     {
                         string response2Body = response2.Content.ReadAsStringAsync().Result;
@@ -152,6 +162,7 @@ namespace Web.Controllers
                     {
                         ViewData["Error"] = "Có lỗi xảy ra";
                     }
+
                     foreach (var cc in cardCombos)
                     {
                         HttpResponseMessage response3 = await client.GetAsync($"{apiUrl}/Combo/GetByID?IdCombo=" + cc.ComboId);
@@ -160,6 +171,18 @@ namespace Web.Controllers
                         cc.ComboName = combo.Name;
                         cc.SessionLeft = combo.Quantity - cc.SessionDone;
                     }
+
+                    foreach (var ci in cardInvoices)
+                    {
+                        HttpResponseMessage response4 = await client.GetAsync($"{apiUrl}/Card/GetInvoice?id=" + ci.InvoiceId);
+                        string data4 = await response4.Content.ReadAsStringAsync();
+                        invoice = JsonConvert.DeserializeObject<InvoiceDTO>(data4);
+                        ci.Amount = invoice.Amount;
+                        ci.InvoiceDate = invoice.InvoiceDate;
+                        ci.Description = invoice.Description;
+                        ci.Status = invoice.Status;
+                        ci.CustomerName = invoice.CustomerName;
+                    }
                 }
 
                 if (card == null)
@@ -167,6 +190,7 @@ namespace Web.Controllers
                     ViewData["Error"] = "Không tìm thấy thẻ";
                 }
                 ViewBag.CardCombos = cardCombos;
+                ViewBag.CardInvoices = cardInvoices;
                 return View(card);
             }
             catch (Exception ex)
@@ -224,13 +248,14 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateCard(CardCreateModel card, string selectedCardIds)
+        public async Task<IActionResult> CreateCard(CardCreateModel card, string selectedCardIds, decimal totalPrice)
         {
             try
             {
+                var cardInvoice = new CardInvoiceDTO();
                 int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
-                ? int.Parse(ViewData["SpaId"].ToString())
-                : (int?)null;
+                    ? int.Parse(ViewData["SpaId"].ToString())
+                    : (int?)null;
 
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
@@ -240,61 +265,98 @@ namespace Web.Controllers
                 card.Status = "Active";
                 card.BranchId = spaId;
 
-                if (ModelState.IsValid)
+                if (!ModelState.IsValid)
                 {
-                    var json = JsonConvert.SerializeObject(card);
-                    var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    HttpResponseMessage response = await client.PostAsync($"{apiUrl}/Card/Create", content);
+                    return Json(new { success = false, error = "Model validation failed." });
+                }
 
-                    if (response.IsSuccessStatusCode)
+                var json = JsonConvert.SerializeObject(card);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                HttpResponseMessage response = await client.PostAsync($"{apiUrl}/Card/Create", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogError("Error creating card: {0}", await response.Content.ReadAsStringAsync());
+                    return Json(new { success = false, error = "An error occurred while creating the card." });
+                }
+
+                if (!string.IsNullOrEmpty(selectedCardIds) && selectedCardIds != "[]")
+                {
+                    HttpResponseMessage response1 = await client.GetAsync($"{apiUrl}/Card/GetByNumNamePhone?input=" + card.CardNumber);
+                    string data = await response1.Content.ReadAsStringAsync();
+                    List<CardViewModel> cardCreated = JsonConvert.DeserializeObject<List<CardViewModel>>(data);
+                    int idCard = cardCreated.FirstOrDefault()?.Id ?? 0;
+                    cardInvoice.CardId = idCard;
+                    if (idCard == 0)
                     {
-                        if (string.IsNullOrEmpty(selectedCardIds) || selectedCardIds == "[]")
-                        {
-                            return RedirectToAction("ListCard");
-                        }
-                        else
-                        {
-                            HttpResponseMessage response1 = await client.GetAsync($"{apiUrl}/Card/GetByNumNamePhone?input=" + card.CardNumber);
-                            string data = response1.Content.ReadAsStringAsync().Result;
-                            List<CardViewModel> cardCreated = JsonConvert.DeserializeObject<List<CardViewModel>>(data);
-                            int idd = 0;
-                            foreach (var cct in cardCreated)
-                            {
-                                idd = cct.Id;
-                            }
-                            CardComboViewModel cardCombo = new CardComboViewModel();
-                            List<CardComboViewModel> listCardCombo = new List<CardComboViewModel>();
-
-                            List<int> selectedIds = JsonConvert.DeserializeObject<List<int>>(selectedCardIds);
-
-                            foreach (var id in selectedIds)
-                            {
-                                cardCombo.Id = 0;
-                                cardCombo.CardId = idd;
-                                cardCombo.ComboId = id;
-                                cardCombo.SessionDone = 0;
-                                var json2 = JsonConvert.SerializeObject(cardCombo);
-                                Console.WriteLine(json2);
-                                var content2 = new StringContent(json2, Encoding.UTF8, "application/json");
-                                HttpResponseMessage response2 = await client.PostAsync($"{apiUrl}/Card/AddCombo", content2);
-                            }
-                        }
-                        return RedirectToAction("ListCard");
+                        return Json(new { success = false, error = "Failed to retrieve created card ID." });
                     }
-                    else
+
+                    List<int> selectedIds = JsonConvert.DeserializeObject<List<int>>(selectedCardIds);
+
+                    foreach (var id in selectedIds)
                     {
-                        ViewData["Error"] = "Có lỗi xảy ra";
-                        return View(card);
+                        var cardCombo = new CardComboViewModel
+                        {
+                            Id = 0,
+                            CardId = idCard,
+                            ComboId = id,
+                            SessionDone = 0
+                        };
+
+                        var jsonCardCombo = JsonConvert.SerializeObject(cardCombo);
+                        var contentCardCombo = new StringContent(jsonCardCombo, Encoding.UTF8, "application/json");
+                        await client.PostAsync($"{apiUrl}/Card/AddCombo", contentCardCombo);
                     }
                 }
 
-                return View("Error");
+                List<int> selectedIds2 = JsonConvert.DeserializeObject<List<int>>(selectedCardIds);
+                var invoice = new InvoiceViewModel
+                {
+                    ComboQuantities = selectedIds2
+                                .GroupBy(id => id)
+                                .ToDictionary(group => group.Key, group => (int?)group.Count()),
+                    CustomerId = card.CustomerId,
+                    ComboIds = JsonConvert.DeserializeObject<List<int>>(selectedCardIds).Distinct().ToList(),
+                    SpaId = spaId,
+                    InvoiceDate = DateTime.Now,
+                    Status = "Pending",
+                    Amount = totalPrice,
+                    Description = "Hóa đơn cho thẻ " + card.CardNumber
+                };
+
+                var contentInvoice = new StringContent(JsonConvert.SerializeObject(invoice), Encoding.UTF8, "application/json");
+                HttpResponseMessage responseInvoice = await client.PostAsync($"{apiUrl}/AddInvoice", contentInvoice);
+
+                if (!responseInvoice.IsSuccessStatusCode)
+                {
+                    string errorMessage = await responseInvoice.Content.ReadAsStringAsync();
+                    _logger.LogError("Failed to create invoice: {0}", errorMessage);
+                    return Json(new { success = false, error = $"An error occurred while adding the invoice: {errorMessage}" });
+                }
+
+                var invoiceData = await responseInvoice.Content.ReadAsStringAsync();
+                var createdInvoice = JsonConvert.DeserializeObject<InvoiceViewModel>(invoiceData);
+
+                if (createdInvoice.Id == 0)
+                {
+                    return Json(new { success = false, error = "Failed to retrieve the created invoice ID." });
+                }
+
+                cardInvoice.Id = 0;
+                cardInvoice.InvoiceId = createdInvoice.Id;
+
+                var jsonCardInvoice = JsonConvert.SerializeObject(cardInvoice);
+                var contentCardInvoice = new StringContent(jsonCardInvoice, Encoding.UTF8, "application/json");
+                await client.PostAsync($"{apiUrl}/Card/AddInvoice", contentCardInvoice);
+
+                var paymentUrl = Url.Action("Payment", "Invoice", new { id = createdInvoice.Id });
+                return Json(new { success = true, paymentUrl = paymentUrl });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error");
-                ViewData["Error"] = "Có lỗi xảy ra";
-                return View("Error");
+                _logger.LogError(ex, "Error occurred while creating the card and invoice.");
+                return Json(new { success = false, error = "An unexpected error occurred." });
             }
         }
 
@@ -306,7 +368,7 @@ namespace Web.Controllers
                 int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
                 ? int.Parse(ViewData["SpaId"].ToString())
                 : (int?)null;
-                
+
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
                 CardCreateModel card = null;
@@ -350,68 +412,110 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateCard(CardCreateModel card, string selectedCardIds)
+        public async Task<IActionResult> UpdateCard(CardCreateModel card, string selectedCardIds, decimal totalPrice)
         {
             try
             {
+                var cardInvoice = new CardInvoiceDTO();
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
 
-                if (ModelState.IsValid)
+                if (!ModelState.IsValid)
                 {
-                    var json = JsonConvert.SerializeObject(card);
-                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    return Json(new { success = false, error = "Model validation failed." });
+                }
 
-                    HttpResponseMessage response = await client.PutAsync($"{apiUrl}/Card/Update?id=" + card.Id, content);
+                var json = JsonConvert.SerializeObject(card);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                    if (response.IsSuccessStatusCode)
+                // Update the card
+                HttpResponseMessage response = await client.PutAsync($"{apiUrl}/Card/Update?id=" + card.Id, content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogError("Error updating card: {0}", await response.Content.ReadAsStringAsync());
+                    return Json(new { success = false, error = "An error occurred while updating the card." });
+                }
+
+                // Check if there are selected combos to add
+                if (!string.IsNullOrEmpty(selectedCardIds) && selectedCardIds != "[]")
+                {
+                    HttpResponseMessage response3 = await client.GetAsync($"{apiUrl}/Card/GetByNumNamePhone?input=" + card.CardNumber);
+                    string data3 = await response3.Content.ReadAsStringAsync();
+                    List<CardViewModel> cardUpdated = JsonConvert.DeserializeObject<List<CardViewModel>>(data3);
+                    int idCard = cardUpdated.FirstOrDefault()?.Id ?? 0;
+                    cardInvoice.CardId = idCard;
+
+                    if (idCard == 0)
                     {
-                        if (string.IsNullOrEmpty(selectedCardIds) || selectedCardIds == "[]")
-                        {
-                            return RedirectToAction("ListCard");
-                        }
-                        else
-                        {
-                            HttpResponseMessage response3 = await client.GetAsync($"{apiUrl}/Card/GetByNumNamePhone?input=" + card.CardNumber);
-                            string data3 = response3.Content.ReadAsStringAsync().Result;
-                            List<CardViewModel> cardUpdated = JsonConvert.DeserializeObject<List<CardViewModel>>(data3);
-                            int idd = 0;
-                            foreach (var cct in cardUpdated)
-                            {
-                                idd = cct.Id;
-                            }
-                            CardComboViewModel cardCombo = new CardComboViewModel();
-                            List<CardComboViewModel> listCardCombo = new List<CardComboViewModel>();
-
-                            List<int> selectedIds = JsonConvert.DeserializeObject<List<int>>(selectedCardIds);
-
-                            foreach (var id in selectedIds)
-                            {
-                                cardCombo.Id = 0;
-                                cardCombo.CardId = idd;
-                                cardCombo.ComboId = id;
-                                cardCombo.SessionDone = 0;
-                                var json4 = JsonConvert.SerializeObject(cardCombo);
-                                var content4 = new StringContent(json4, Encoding.UTF8, "application/json");
-                                HttpResponseMessage response4 = await client.PostAsync($"{apiUrl}/Card/AddCombo", content4);
-                            }
-                        }
-                        return RedirectToAction("ListCard");
+                        return Json(new { success = false, error = "Failed to retrieve updated card ID." });
                     }
-                    else
+
+                    List<int> selectedIds = JsonConvert.DeserializeObject<List<int>>(selectedCardIds);
+
+                    foreach (var id in selectedIds)
                     {
-                        ViewData["Error"] = "Có lỗi xảy ra";
-                        return View(card);
+                        var cardCombo = new CardComboViewModel
+                        {
+                            Id = 0,
+                            CardId = idCard,
+                            ComboId = id,
+                            SessionDone = 0
+                        };
+
+                        var json4 = JsonConvert.SerializeObject(cardCombo);
+                        var content4 = new StringContent(json4, Encoding.UTF8, "application/json");
+                        await client.PostAsync($"{apiUrl}/Card/AddCombo", content4);
                     }
                 }
 
-                return View("Error");
+                List<int> selectedIds2 = JsonConvert.DeserializeObject<List<int>>(selectedCardIds);
+                var invoice = new InvoiceViewModel
+                {
+                    ComboQuantities = selectedIds2
+                                .GroupBy(id => id)
+                                .ToDictionary(group => group.Key, group => (int?)group.Count()),
+                    CustomerId = card.CustomerId,
+                    ComboIds = JsonConvert.DeserializeObject<List<int>>(selectedCardIds).Distinct().ToList(),
+                    SpaId = card.BranchId,
+                    InvoiceDate = DateTime.Now,
+                    Status = "Pending",
+                    Amount = totalPrice,
+                    Description = "Hóa đơn cho thẻ cập nhật " + card.CardNumber
+                };
+
+                var contentInvoice = new StringContent(JsonConvert.SerializeObject(invoice), Encoding.UTF8, "application/json");
+                HttpResponseMessage responseInvoice = await client.PostAsync($"{apiUrl}/AddInvoice", contentInvoice);
+
+                if (!responseInvoice.IsSuccessStatusCode)
+                {
+                    string errorMessage = await responseInvoice.Content.ReadAsStringAsync();
+                    _logger.LogError("Failed to create invoice: {0}", errorMessage);
+                    return Json(new { success = false, error = $"An error occurred while adding the invoice: {errorMessage}" });
+                }
+
+                var invoiceData = await responseInvoice.Content.ReadAsStringAsync();
+                var createdInvoice = JsonConvert.DeserializeObject<InvoiceViewModel>(invoiceData);
+
+                if (createdInvoice.Id == 0)
+                {
+                    return Json(new { success = false, error = "Failed to retrieve the created invoice ID." });
+                }
+
+                cardInvoice.Id = 0;
+                cardInvoice.InvoiceId = createdInvoice.Id;
+
+                var jsonCardInvoice = JsonConvert.SerializeObject(cardInvoice);
+                var contentCardInvoice = new StringContent(jsonCardInvoice, Encoding.UTF8, "application/json");
+                await client.PostAsync($"{apiUrl}/Card/AddInvoice", contentCardInvoice);
+
+                var paymentUrl = Url.Action("Payment", "Invoice", new { id = createdInvoice.Id });
+                return Json(new { success = true, paymentUrl = paymentUrl });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error");
-                ViewData["Error"] = "Có lỗi xảy ra";
-                return View("Error");
+                _logger.LogError(ex, "Error occurred while updating the card and creating the invoice.");
+                return Json(new { success = false, error = "An unexpected error occurred." });
             }
         }
 

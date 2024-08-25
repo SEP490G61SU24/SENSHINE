@@ -242,5 +242,57 @@ namespace API.Services.Impl
                 throw new Exception("Error retrieving cards.", ex);
             }
         }
+
+        public ICollection<CardInvoice> GetCardInvoiceByCard(int id)
+        {
+            try
+            {
+                // Fetch all related card combos in one go
+                var invoices = _context.CardInvoices.Include(i => i.Invoice).Where(i => i.CardId == id).ToList();
+
+                return invoices;
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new Exception($"Error retrieving card combos for card ID {id}.", ex);
+            }
+        }
+
+        public async Task<CardInvoice> CreateCardInvoice(CardInvoice cardInvoice)
+        {
+            try
+            {
+                await _context.CardInvoices.AddAsync(cardInvoice);
+                await _context.SaveChangesAsync();
+
+                return cardInvoice;
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new Exception("Error creating card combo.", ex);
+            }
+        }
+
+        public async Task<InvoiceDTO?> GetInvoiceById(int id)
+        {
+            try
+            {
+                var invoice = await _context.Invoices.Include(i => i.Customer).FirstOrDefaultAsync(i => i.Id == id);
+
+                if (invoice == null)
+                {
+                    return null;
+                }
+
+                return _mapper.Map<InvoiceDTO>(invoice);
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new Exception("Error creating card combo.", ex);
+            }
+        }
     }
 }

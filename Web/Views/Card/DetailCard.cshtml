@@ -6,6 +6,7 @@
 
 @{
     List<CardComboViewModel> cardCombos = ViewBag.CardCombos;
+    List<CardInvoiceViewModel> cardInvoices = ViewBag.CardInvoices;
     string branchName = ViewBag.BranchName;
 }
 
@@ -53,6 +54,7 @@
         </div>
         <div class="card mt-4">
             <div class="card-body">
+                <h5 class="card-title">Danh sách combo</h5>
                 <table class="table table-bordered table-hover">
                     <thead class="thead-dark">
                         <tr>
@@ -68,6 +70,34 @@
                                 <td>@cardCombo.ComboName</td>
                                 <td>@cardCombo.SessionDone</td>
                                 <td>@cardCombo.SessionLeft</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Danh sách hóa đơn</h5>
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Khách hàng</th>
+                            <th>Số tiền (VND)</th>
+                            <th>Ngày tạo</th>
+                            <th>Trạng thái</th>
+                            <th>Mô tả</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var cardInvoice in cardInvoices)
+                        {
+                            <tr>
+                                <td>@cardInvoice.CustomerName</td>
+                                <td>@cardInvoice.Amount</td>
+                                <td>@cardInvoice.InvoiceDate</td>
+                                <td>@cardInvoice.Status</td>
+                                <td>@cardInvoice.Description</td>
                             </tr>
                         }
                     </tbody>
