@@ -1,5 +1,4 @@
 ﻿using API.Dtos;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Web.Models;
@@ -22,25 +21,34 @@ namespace Web.Controllers
 
         public async Task<IActionResult> ReportRevenue()
         {
-            var apiUrl = _configuration["ApiUrl"];
-            string timeRange = "1year";
-            // Construct the API endpoint URL
-            var url = $"{apiUrl}/report-summary?period={timeRange}";
-
-            // Fetch the report summary data from the API
-            var combinedReport = await GetDataFromApi<CombinedReportDTO>(url);
-            if (combinedReport == null) return View("Error");
-
-            // Pass the data to the view
-            var viewModel = new CombinedReportViewModel
+            try
             {
-                RevenueReports = combinedReport.RevenueReports,
-                InvoiceStatusSummary = combinedReport.InvoiceStatusSummary,
-                ServiceSummaries = combinedReport.ServiceSummaries,
-                ComboSummaries = combinedReport.ComboSummaries
-            };
+                var apiUrl = _configuration["ApiUrl"];
+                string timeRange = "1year";
+                // Construct the API endpoint URL
+                var url = $"{apiUrl}/report-summary?period={timeRange}";
 
-            return View(viewModel);
+                // Fetch the report summary data from the API
+                var combinedReport = await GetDataFromApi<CombinedReportDTO>(url);
+                if (combinedReport == null) return View("Error");
+
+                // Pass the data to the view
+                var viewModel = new CombinedReportViewModel
+                {
+                    RevenueReports = combinedReport.RevenueReports,
+                    InvoiceStatusSummary = combinedReport.InvoiceStatusSummary,
+                    ServiceSummaries = combinedReport.ServiceSummaries,
+                    ComboSummaries = combinedReport.ComboSummaries
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
         }
 
         private async Task<T> GetDataFromApi<T>(string url)

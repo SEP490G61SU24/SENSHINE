@@ -3,11 +3,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Text;
 using Web.Models;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.Configuration;
 using API.Ultils;
-using Microsoft.EntityFrameworkCore;
-using API.Models;
 
 namespace Web.Controllers
 {
@@ -65,8 +61,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error");
-                ViewData["Error"] = "Có lỗi xảy ra";
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
                 return View("Error");
             }
         }
@@ -92,8 +88,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error");
-                ViewData["Error"] = "Có lỗi xảy ra";
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
                 return View("Error");
             }
         }
@@ -153,8 +149,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error");
-                ViewData["Error"] = "Có lỗi xảy ra";
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
                 return View("Error");
             }
         }
@@ -168,8 +164,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error");
-                ViewData["Error"] = "Có lỗi xảy ra";
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
                 return View("Error");
             }
         }
@@ -209,8 +205,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error");
-                ViewData["Error"] = "Có lỗi xảy ra";
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
                 return View("Error");
             }
         }
@@ -241,8 +237,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error");
-                ViewData["Error"] = "Có lỗi xảy ra";
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
                 return View("Error");
             }
         }
@@ -281,8 +277,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error");
-                ViewData["Error"] = "Có lỗi xảy ra";
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
                 return View("Error");
             }
         }

@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Web.Models;
 
 namespace Web.Controllers
@@ -12,7 +9,6 @@ namespace Web.Controllers
         private readonly IConfiguration _configuration;
         private readonly IHttpClientFactory _clientFactory;
         private readonly ILogger<UserController> _logger;
-
 
         public DashboardController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<UserController> logger) : base(configuration, clientFactory, logger)
         {
@@ -62,7 +58,7 @@ namespace Web.Controllers
                 ModelState.AddModelError(string.Empty, "An error occurred while fetching salary data.");
             }
 
-            return model;
+            return model;    
         }
     }
 }

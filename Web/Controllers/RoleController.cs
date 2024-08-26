@@ -22,19 +22,28 @@ namespace Web.Controllers
 
 		public async Task<IActionResult> Index()
 		{
-			var apiUrl = _configuration["ApiUrl"];
-			var client = _clientFactory.CreateClient();
-			var response = await client.GetAsync($"{apiUrl}/roles");
-			if (response.IsSuccessStatusCode)
+			try
 			{
-				var data = await response.Content.ReadFromJsonAsync<IEnumerable<RoleDTO>>();
-				return View(data);
+				var apiUrl = _configuration["ApiUrl"];
+				var client = _clientFactory.CreateClient();
+				var response = await client.GetAsync($"{apiUrl}/roles");
+				if (response.IsSuccessStatusCode)
+				{
+					var data = await response.Content.ReadFromJsonAsync<IEnumerable<RoleDTO>>();
+					return View(data);
+				}
+				else
+				{
+					return View("Error");
+				}
 			}
-			else
-			{
-				return View("Error");
-			}
-		}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
+        }
 
 		public IActionResult Add()
 		{
@@ -67,13 +76,13 @@ namespace Web.Controllers
 					return View();
 				}
 			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error during login");
-				ViewData["Error"] = "An error occurred";
-				return View();
-			}
-		}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
+        }
 
 		[HttpGet]
 		public async Task<IActionResult> Edit(int id)
@@ -116,13 +125,13 @@ namespace Web.Controllers
 
 				return View(viewModel);
 			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error during login");
-				ViewData["Error"] = "An error occurred";
-				return View("Error");
-			}
-		}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
+        }
 
         [HttpPost]
         public async Task<IActionResult> Edit(RoleEditViewModel model)
@@ -168,9 +177,9 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during role edit");
-                ViewData["Error"] = "An error occurred";
-                return View(model);
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
             }
         }
 
@@ -190,16 +199,16 @@ namespace Web.Controllers
 				}
 				else
 				{
-					ViewData["Error"] = "Có lỗi xảy ra!";
-					return View();
-				}
+                    ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                    return View("Error");
+                }
 			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error during login");
-				ViewData["Error"] = "Có lỗi xảy ra!";
-				return View();
-			}
-		}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
+        }
 	}
 }

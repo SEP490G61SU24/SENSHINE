@@ -101,8 +101,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error");
-                ViewData["Error"] = "Có lỗi xảy ra";
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
                 return View("Error");
             }
         }
@@ -148,8 +148,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error");
-                ViewData["Error"] = "Có lỗi xảy ra";
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
                 return View("Error");
             }
         }
@@ -216,8 +216,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error");
-                ViewData["Error"] = "Có lỗi xảy ra";
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
                 return View("Error");
             }
         }
@@ -259,8 +259,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error");
-                ViewData["Error"] = "Có lỗi xảy ra";
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
                 return View("Error");
             }
         }
@@ -305,8 +305,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error");
-                ViewData["Error"] = "Có lỗi xảy ra";
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
                 return View("Error");
             }
         }

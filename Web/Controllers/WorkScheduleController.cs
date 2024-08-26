@@ -24,22 +24,31 @@ namespace Web.Controllers
 
         public async Task<IActionResult> Index(int pageIndex = 1, int pageSize = 10, string searchTerm = null)
         {
-            var spaId = ViewData["SpaId"];
-            var apiUrl = _configuration["ApiUrl"];
-			var client = _clientFactory.CreateClient();
+			try
+			{
+				var spaId = ViewData["SpaId"];
+				var apiUrl = _configuration["ApiUrl"];
+				var client = _clientFactory.CreateClient();
 
-            var url = $"{apiUrl}/work-schedules?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}&spaId={spaId}";
+				var url = $"{apiUrl}/work-schedules?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}&spaId={spaId}";
 
-            var response = await client.GetAsync(url);
+				var response = await client.GetAsync(url);
 
-            if (response.IsSuccessStatusCode)
+				if (response.IsSuccessStatusCode)
+				{
+					var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<WorkScheduleDTO>>();
+					paginatedResult.SearchTerm = searchTerm;
+					return View(paginatedResult);
+				}
+				else
+				{
+					return View("Error");
+				}
+			}
+            catch (Exception ex)
             {
-                var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<WorkScheduleDTO>>();
-                paginatedResult.SearchTerm = searchTerm;
-                return View(paginatedResult);
-            }
-            else
-            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
                 return View("Error");
             }
         }
@@ -99,13 +108,13 @@ namespace Web.Controllers
 
 				return View(viewData);
 			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error fetching work schedule for user");
-				ViewData["Error"] = "An error occurred";
-				return View("Error");
-			}
-		}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
+        }
 
 		private int GetCurrentWeekOfYear()
 		{
@@ -138,13 +147,13 @@ namespace Web.Controllers
 
 				return View(viewData);
 			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error during login");
-				ViewData["Error"] = "An error occurred";
-				return View("Error");
-			}
-		}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
+        }
 
 		[HttpPost]
 		public async Task<IActionResult> Add(WorkScheduleViewModel model)
@@ -202,13 +211,13 @@ namespace Web.Controllers
 					return View(model);
 				}
 			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error during work schedule creation");
-				ViewData["Error"] = "An error occurred";
-				return View("Error");
-			}
-		}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
+        }
 
 		[HttpGet]
 		public async Task<IActionResult> Edit(int id)
@@ -261,13 +270,13 @@ namespace Web.Controllers
 
 				return View(viewData);
 			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error during login");
-				ViewData["Error"] = "An error occurred";
-				return View("Error");
-			}
-		}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
+        }
 
 		[HttpPost]
 		public async Task<IActionResult> Edit(WorkScheduleViewModel model)
@@ -343,13 +352,13 @@ namespace Web.Controllers
 					return View(model);
 				}
 			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error during work schedule creation");
-				ViewData["Error"] = "An error occurred";
-				return View("Error");
-			}
-		}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
+        }
 
 		[HttpDelete]
 		public async Task<IActionResult> Delete(string id)
@@ -371,12 +380,12 @@ namespace Web.Controllers
 					return View();
 				}
 			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error during login");
-				ViewData["Error"] = "Có lỗi xảy ra!";
-				return View();
-			}
-		}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
+        }
 	}
 }

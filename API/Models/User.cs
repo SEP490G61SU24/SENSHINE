@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace API.Models
+﻿namespace API.Models
 {
     public partial class User
     {
@@ -26,6 +23,7 @@ namespace API.Models
         public string? LastName { get; set; }
         public string? Phone { get; set; }
         public DateTime? BirthDate { get; set; }
+        public DateTime CreatedAt { get; set; }
         public string Status { get; set; } = null!;
         public string StatusWorking { get; set; } = null!;
         public int? SpaId { get; set; }

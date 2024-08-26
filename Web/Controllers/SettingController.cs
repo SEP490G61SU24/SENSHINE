@@ -21,19 +21,28 @@ namespace Web.Controllers
 
 		public async Task<IActionResult> Index()
 		{
-			var apiUrl = _configuration["ApiUrl"];
-			var client = _clientFactory.CreateClient();
-			var response = await client.GetAsync($"{apiUrl}/systemsettings");
-			if (response.IsSuccessStatusCode)
+			try
 			{
-				var datas = await response.Content.ReadFromJsonAsync<IEnumerable<SettingViewModel>>();
-				return View(datas);
+				var apiUrl = _configuration["ApiUrl"];
+				var client = _clientFactory.CreateClient();
+				var response = await client.GetAsync($"{apiUrl}/systemsettings");
+				if (response.IsSuccessStatusCode)
+				{
+					var datas = await response.Content.ReadFromJsonAsync<IEnumerable<SettingViewModel>>();
+					return View(datas);
+				}
+				else
+				{
+					return View("Error");
+				}
 			}
-			else
-			{
-				return View("Error");
-			}
-		}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
+        }
 
 		public IActionResult Add()
 		{
@@ -66,13 +75,13 @@ namespace Web.Controllers
 					return View();
 				}
 			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error during login");
-				ViewData["Error"] = "Có lỗi xảy ra!";
-				return View();
-			}
-		}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
+        }
 
 		[HttpGet]
 		public async Task<IActionResult> Edit(int id)
@@ -94,10 +103,10 @@ namespace Web.Controllers
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, "Error during login");
-				ViewData["Error"] = "An error occurred";
-				return View("Error");
-			}
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
 		}
 
 		[HttpPost]
@@ -126,13 +135,13 @@ namespace Web.Controllers
 					return View();
 				}
 			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error during login");
-				ViewData["Error"] = "Có lỗi xảy ra!";
-				return View();
-			}
-		}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
+        }
 
 		[HttpDelete]
 		public async Task<IActionResult> Delete(string id)
@@ -155,12 +164,12 @@ namespace Web.Controllers
 					return View();
 				}
 			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error during login");
-				ViewData["Error"] = "Có lỗi xảy ra!";
-				return View();
-			}
-		}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
+        }
 	}
 }

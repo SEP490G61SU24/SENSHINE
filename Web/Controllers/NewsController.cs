@@ -23,40 +23,47 @@ namespace Web.Controllers
             _logger = logger;
         }
         
-
-
         [HttpGet]
         public async Task<IActionResult> NewsList(int pageIndex = 1, int pageSize = 10, string searchTerm = null, DateTime? startDate = null, DateTime? endDate = null)
         {
-            var apiUrl = _configuration["ApiUrl"];
-            var client = _clientFactory.CreateClient();
-            var urlBuilder = new StringBuilder($"{apiUrl}/GetNewsPaging?");
-            if (startDate != null)
+            try
             {
-                urlBuilder.Append($"startDate={startDate}&");
-            }
+                var apiUrl = _configuration["ApiUrl"];
+                var client = _clientFactory.CreateClient();
+                var urlBuilder = new StringBuilder($"{apiUrl}/GetNewsPaging?");
+                if (startDate != null)
+                {
+                    urlBuilder.Append($"startDate={startDate}&");
+                }
 
-            if (endDate != null)
-            {
-                urlBuilder.Append($"endDate={endDate}&");
-            }
+                if (endDate != null)
+                {
+                    urlBuilder.Append($"endDate={endDate}&");
+                }
 
-            urlBuilder.Append($"pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}");
+                urlBuilder.Append($"pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}");
 
-            // Remove the trailing '&' if it exists
-            var url = urlBuilder.ToString().TrimEnd('&');
+                // Remove the trailing '&' if it exists
+                var url = urlBuilder.ToString().TrimEnd('&');
 
-            HttpResponseMessage response = await client.GetAsync(url);
+                HttpResponseMessage response = await client.GetAsync(url);
             
 
-            if (response.IsSuccessStatusCode)
-            {
-                var paginatedResult = await response.Content.ReadFromJsonAsync<FilteredPaginatedList<NewsViewModel>>();
-                paginatedResult.SearchTerm = searchTerm;
-                return View(paginatedResult);
+                if (response.IsSuccessStatusCode)
+                {
+                    var paginatedResult = await response.Content.ReadFromJsonAsync<FilteredPaginatedList<NewsViewModel>>();
+                    paginatedResult.SearchTerm = searchTerm;
+                    return View(paginatedResult);
+                }
+                else
+                {
+                    return View("Error");
+                }
             }
-            else
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
                 return View("Error");
             }
         }
@@ -94,7 +101,7 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred during image upload.");
+                _logger.LogError($"Image upload failed: {ex.Message}");
                 return null;
             }
         }
@@ -109,37 +116,47 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(NewsDTO newsDto)
         {
-            var apiUrl = _configuration["ApiUrl"];
-            var client = _clientFactory.CreateClient();
-            string imageUrl = null;
-
-            if (newsDto.CoverImage != null && newsDto.CoverImage.Length > 0)
+            try
             {
-                var uploadResponse = await UploadImageAsync(newsDto.CoverImage);
-                if (uploadResponse != null && uploadResponse.Status)
+
+                var apiUrl = _configuration["ApiUrl"];
+                var client = _clientFactory.CreateClient();
+                string imageUrl = null;
+
+                if (newsDto.CoverImage != null && newsDto.CoverImage.Length > 0)
                 {
-                    imageUrl = uploadResponse.Data;
+                    var uploadResponse = await UploadImageAsync(newsDto.CoverImage);
+                    if (uploadResponse != null && uploadResponse.Status)
+                    {
+                        imageUrl = uploadResponse.Data;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "Image upload failed.");
+                        return View(newsDto);
+                    }
                 }
-                else
+
+                newsDto.Cover = imageUrl ?? newsDto.Cover;
+                string json = JsonConvert.SerializeObject(newsDto);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await client.PostAsync($"{apiUrl}/AddNews", content);
+
+                if (response.IsSuccessStatusCode)
                 {
-                    ModelState.AddModelError(string.Empty, "Image upload failed.");
-                    return View(newsDto);
+                    return RedirectToAction("NewsList");
                 }
+
+                _logger.LogError($"Failed to add news. Status code: {response.StatusCode}, Reason: {await response.Content.ReadAsStringAsync()}");
+                ModelState.AddModelError(string.Empty, "An error occurred while adding the news.");
+                return View(newsDto);
             }
-
-            newsDto.Cover = imageUrl ?? newsDto.Cover;
-            string json = JsonConvert.SerializeObject(newsDto);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await client.PostAsync($"{apiUrl}/AddNews", content);
-
-            if (response.IsSuccessStatusCode)
+            catch (Exception ex)
             {
-                return RedirectToAction("NewsList");
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
             }
-
-            _logger.LogError($"Failed to add news. Status code: {response.StatusCode}, Reason: {await response.Content.ReadAsStringAsync()}");
-            ModelState.AddModelError(string.Empty, "An error occurred while adding the news.");
-            return View(newsDto);
         }
 
 
@@ -147,43 +164,76 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var apiUrl = _configuration["ApiUrl"];
-            var client = _clientFactory.CreateClient();
-            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/GetNewsDetail/{id}");
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                string data = await response.Content.ReadAsStringAsync();
-                var news = JsonConvert.DeserializeObject<NewsViewModel>(data);
+                var apiUrl = _configuration["ApiUrl"];
+                var client = _clientFactory.CreateClient();
+                HttpResponseMessage response = await client.GetAsync($"{apiUrl}/GetNewsDetail/{id}");
 
-                if (news != null)
+                if (response.IsSuccessStatusCode)
                 {
-                    // Map NewsViewModel to your view model if necessary
-                    var viewModel = new NewsViewModel
+                    string data = await response.Content.ReadAsStringAsync();
+                    var news = JsonConvert.DeserializeObject<NewsViewModel>(data);
+
+                    if (news != null)
                     {
-                        IdNew = news.IdNew,
-                        Title = news.Title,
-                        Content = news.Content,
-                        PublishedDate = news.PublishedDate,
-                        Cover = news.Cover
-                    };
+                        // Map NewsViewModel to your view model if necessary
+                        var viewModel = new NewsViewModel
+                        {
+                            IdNew = news.IdNew,
+                            Title = news.Title,
+                            Content = news.Content,
+                            PublishedDate = news.PublishedDate,
+                            Cover = news.Cover
+                        };
 
-                    return View(viewModel);
+                        return View(viewModel);
+                    }
                 }
+
+                return RedirectToAction("ListNews");
             }
-
-            return RedirectToAction("ListNews");
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
         }
-
 
         [HttpPost]
         public async Task<IActionResult> Edit(int id, NewsDTO newsDto)
         {
-            var apiUrl = _configuration["ApiUrl"];
-            var client = _clientFactory.CreateClient();
-            if (!ModelState.IsValid)
+            try
             {
-                var newsViewModel = new NewsViewModel
+
+                var apiUrl = _configuration["ApiUrl"];
+                var client = _clientFactory.CreateClient();
+                if (!ModelState.IsValid)
+                {
+                    var newsViewModel = new NewsViewModel
+                    {
+                        IdNew = newsDto.IdNew,
+                        Title = newsDto.Title,
+                        Cover = newsDto.Cover,
+                        Content = newsDto.Content,
+                        PublishedDate = newsDto.PublishedDate
+                    };
+                    return View(newsViewModel);
+                }
+
+                string json = JsonConvert.SerializeObject(newsDto);
+                StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await client.PutAsync($"{apiUrl}/EditNews/{id}", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("NewsList");
+                }
+
+                // Log error message here
+                var newsViewModelError = new NewsViewModel
                 {
                     IdNew = newsDto.IdNew,
                     Title = newsDto.Title,
@@ -191,82 +241,80 @@ namespace Web.Controllers
                     Content = newsDto.Content,
                     PublishedDate = newsDto.PublishedDate
                 };
-                return View(newsViewModel);
+                ModelState.AddModelError(string.Empty, "An error occurred while editing the news.");
+                return View(newsViewModelError);
             }
-
-            string json = JsonConvert.SerializeObject(newsDto);
-            StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            HttpResponseMessage response = await client.PutAsync($"{apiUrl}/EditNews/{id}", content);
-
-            if (response.IsSuccessStatusCode)
+            catch (Exception ex)
             {
-                return RedirectToAction("NewsList");
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
             }
-
-            // Log error message here
-            var newsViewModelError = new NewsViewModel
-            {
-                IdNew = newsDto.IdNew,
-                Title = newsDto.Title,
-                Cover = newsDto.Cover,
-                Content = newsDto.Content,
-                PublishedDate = newsDto.PublishedDate
-            };
-            ModelState.AddModelError(string.Empty, "An error occurred while editing the news.");
-            return View(newsViewModelError);
         }
 
 
        
 
-                [HttpGet]
-                public async Task<IActionResult> GetNewsDetail(int id)
+        [HttpGet]
+        public async Task<IActionResult> GetNewsDetail(int id)
+        {
+            try
+            {
+                var apiUrl = _configuration["ApiUrl"];
+                var client = _clientFactory.CreateClient();
+                HttpResponseMessage response = await client.GetAsync($"{apiUrl}/GetNewsDetail/{id}");
+
+                if (response.IsSuccessStatusCode)
                 {
-            var apiUrl = _configuration["ApiUrl"];
-            var client = _clientFactory.CreateClient();
-            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/GetNewsDetail/{id}");
-
-                    if (response.IsSuccessStatusCode)
+                    string data = await response.Content.ReadAsStringAsync();
+                    var news = JsonConvert.DeserializeObject<NewsDTO>(data);
+                    return Json(new
                     {
-                        string data = await response.Content.ReadAsStringAsync();
-                        var news = JsonConvert.DeserializeObject<NewsDTO>(data);
-                        return Json(new
-                        {
-                            id = news?.IdNew,
-                            cover = news?.Cover, 
-                            title = news?.Title,
-                            content = news?.Content,
-                            publishedDate = news?.PublishedDate
-                        });
-                    }
-
-                    return NotFound();
+                        id = news?.IdNew,
+                        cover = news?.Cover, 
+                        title = news?.Title,
+                        content = news?.Content,
+                        publishedDate = news?.PublishedDate
+                    });
                 }
 
-
-
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
+        }
 
         [HttpGet]
         public async Task<IActionResult> NewsByDate(DateTime from, DateTime to)
         {
-            var apiUrl = _configuration["ApiUrl"];
-            string fromDateString = from.ToString("s");
-            string toDateString = to.ToString("s");
-            var client = _clientFactory.CreateClient();
-            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/NewsByDate?from={fromDateString}&to={toDateString}");
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                string data = await response.Content.ReadAsStringAsync();
-                var newsList = JsonConvert.DeserializeObject<IEnumerable<NewsViewModel>>(data);
-                return Json(newsList);
+                var apiUrl = _configuration["ApiUrl"];
+                string fromDateString = from.ToString("s");
+                string toDateString = to.ToString("s");
+                var client = _clientFactory.CreateClient();
+                HttpResponseMessage response = await client.GetAsync($"{apiUrl}/NewsByDate?from={fromDateString}&to={toDateString}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string data = await response.Content.ReadAsStringAsync();
+                    var newsList = JsonConvert.DeserializeObject<IEnumerable<NewsViewModel>>(data);
+                    return Json(newsList);
+                }
+
+                return Json(new List<NewsViewModel>());
             }
-
-            return Json(new List<NewsViewModel>());
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
         }
-
-
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
@@ -291,22 +339,30 @@ namespace Web.Controllers
                 return Json(new { success = false, message = "An unexpected error occurred." });
             }
         }
+
         [HttpGet]
         public async Task<IActionResult> NewsDetail(int id)
         {
-            var apiUrl = _configuration["ApiUrl"];
-            var client = _clientFactory.CreateClient();
-            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/GetNewsDetail/{id}");
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var newsDetail = await response.Content.ReadFromJsonAsync<NewsViewModel>();
-                return View(newsDetail);
+                var apiUrl = _configuration["ApiUrl"];
+                var client = _clientFactory.CreateClient();
+                HttpResponseMessage response = await client.GetAsync($"{apiUrl}/GetNewsDetail/{id}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var newsDetail = await response.Content.ReadFromJsonAsync<NewsViewModel>();
+                    return View(newsDetail);
+                }
+
+                return View("Error");
             }
-
-            return View("Error");
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
         }
-
-
     }
 }

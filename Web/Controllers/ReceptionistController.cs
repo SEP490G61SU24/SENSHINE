@@ -10,7 +10,6 @@ namespace Web.Controllers
         private readonly IHttpClientFactory _clientFactory;
         private readonly ILogger<UserController> _logger;
 
-
         public ReceptionistController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<UserController> logger) : base(configuration, clientFactory, logger)
         {
             _configuration = configuration;
