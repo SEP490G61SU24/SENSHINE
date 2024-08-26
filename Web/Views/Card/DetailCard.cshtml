@@ -61,6 +61,7 @@
                             <th>Combo</th>
                             <th>Số buổi đã sử dụng</th>
                             <th>Số buổi còn lại</th>
+                            <th>Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -70,6 +71,22 @@
                                 <td>@cardCombo.ComboName</td>
                                 <td>@cardCombo.SessionDone</td>
                                 <td>@cardCombo.SessionLeft</td>
+                                <td>
+                                    <ul class="action">
+                                        <li class="use card">
+                                            <a href="/Card/UseCard?id=@cardCombo.Id&cardId=@Model.Id" onclick="return confirmUsage(@cardCombo.Id)">
+                                                <i class="icon-pencil-alt"></i> Sử dụng
+                                            </a>
+                                        </li>
+                                        <li class="note card">
+                                            <a href="#" data-bs-toggle="modal" data-bs-target="#usageNoteModal-@cardCombo.Id">
+                                                <i class="icon-eye"></i> Lịch sử
+                                            </a>
+                                        </li>
+                                    </ul>
+
+                                    @Html.Partial("_UsageNoteModal", cardCombo)
+                                </td>
                             </tr>
                         }
                     </tbody>
@@ -167,4 +184,14 @@
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
+
+    <script>
+        function confirmUsage(id) {
+            if (confirm("Xác nhận sử dụng combo này?")) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    </script>
 }

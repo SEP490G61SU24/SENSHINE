@@ -38,19 +38,22 @@
     .image-preview {
         position: relative;
         width: 100%;
-        max-height: 300px;
+        max-height: 400px;
         overflow: hidden;
         border: 1px solid #ddd;
         padding: 5px;
         background: #f5f5f5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
         .image-preview img {
             max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 0 auto;
+            max-height: 350px;
+            object-fit: contain;
         }
+
 </style>
 
 <h1>Add News</h1>
@@ -63,14 +66,14 @@
                     <h5>News Form</h5>
                 </div>
                 <div class="card-body">
-                    <form asp-action="Add" method="post">
+                    <form asp-action="Add" method="post" enctype="multipart/form-data">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="row g-3">
 
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label asp-for="Title" class="control-label">Title</label>
-                                    <input asp-for="Title" class="form-control" />
+                                    <label asp-for="Title" class="control-label">Tiêu đề</label>
+                                    <input asp-for="Title" class="form-control" required/>
                                     <span asp-validation-for="Title" class="text-danger"></span>
                                 </div>
                             </div>
@@ -79,41 +82,35 @@
 
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label asp-for="PublishedDate" class="control-label">Published Date</label>
-                                    <input asp-for="PublishedDate" type="date" class="form-control" />
+                                    <label asp-for="PublishedDate" class="control-label">Ngày đăng</label>
+                                    <input asp-for="PublishedDate" type="date" class="form-control"required />
                                     <span asp-validation-for="PublishedDate" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="Cover" class="control-label">Image URL</label>
-                                    <input type="text" id="imageUrl" class="form-control" placeholder="Enter image URL" />
-
-                                    <!-- Hidden input to store the actual value of the Cover field -->
-                                    <input asp-for="Cover" type="hidden" id="Cover" />
+                                    <label asp-for="CoverImage" class="control-label">Upload Image</label>
+                                    <input type="file" asp-for="CoverImage" class="form-control" id="coverImageInput" />
+                                    <span asp-validation-for="CoverImage" class="text-danger"></span>
 
                                     <div id="imagePreview" class="image-preview mt-2">
                                         <img src="#" alt="Image Preview" class="img-thumbnail d-none" id="imagePreviewImg" />
                                     </div>
-
-                                    <span asp-validation-for="Cover" class="text-danger"></span>
                                 </div>
                             </div>
 
 
-
-
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label asp-for="Content" class="control-label">Content</label>
+                                    <label asp-for="Content" class="control-label">Nội dung</label>
                                     <textarea asp-for="Content" class="form-control" rows="4"></textarea>
                                     <span asp-validation-for="Content" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="form-group d-flex">
-                                    <input type="submit" value="Create" class="btn btn-primary spacing-10px" />
-                                    <a asp-action="NewsList" class="btn btn-secondary spacing-10px">Back to List</a>
+                                    <input type="submit" value="Tạo" class="btn btn-primary spacing-10px">
+                                    <a asp-action="NewsList" class="btn btn-secondary spacing-10px">Danh sách</a>
                                 </div>
                             </div>
 
@@ -154,24 +151,21 @@
 <!-- Theme js-->
 <script src="~/assets/js/script.js"></script>
 <script>
-    document.getElementById('imageUrl').addEventListener('input', function (event) {
-        const url = event.target.value;
+    document.getElementById('coverImageInput').addEventListener('change', function (event) {
+        const file = event.target.files[0];
         const previewImg = document.getElementById('imagePreviewImg');
-        const coverInput = document.getElementById('Cover');
+        const reader = new FileReader();
 
-        if (url) {
-            previewImg.src = url;
+        reader.onload = function (e) {
+            previewImg.src = e.target.result;
             previewImg.classList.remove('d-none');
-            coverInput.value = url;  // Update the hidden input value
+        };
+
+        if (file) {
+            reader.readAsDataURL(file);
         } else {
             previewImg.src = '#';
             previewImg.classList.add('d-none');
-            coverInput.value = '';  // Clear the hidden input value
         }
-
-        // Trigger change event to ensure validation picks up the new value
-        coverInput.dispatchEvent(new Event('change'));
     });
-
-
 </script>

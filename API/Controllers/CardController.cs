@@ -170,6 +170,29 @@ namespace API.Controllers
             }
         }
 
+        [HttpPut]
+        public async Task<IActionResult> UseCard(int id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var cardUsed = await _cardService.UseCardCombo(id);
+
+                if (cardUsed == null)
+                {
+                    return NotFound("Failed to change card status.");
+                }
+
+                return Ok($"Successfully use card.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while changing card status: {ex.Message}");
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetCardComboByCard(int id)
         {

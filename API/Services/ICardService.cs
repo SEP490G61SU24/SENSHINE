@@ -13,6 +13,7 @@ namespace API.Services
         ICollection<Card> GetCardByNumNamePhone(string input);
         Task<Card> UpdateCard(int id, Card card);
         Task<Card> ActiveDeactiveCard(int id);
+        Task<CardComboDTO> UseCardCombo(int id);
         bool CardExist(int id);
         bool CardExistByNumNamePhone(string input);
         ICollection<CardCombo> GetCardComboByCard(int id);

@@ -1,0 +1,25 @@
+﻿@model Web.Models.CardComboViewModel
+
+<div class="modal fade" id="usageNoteModal-@Model.Id" tabindex="-1" aria-labelledby="usageNoteModalLabel-@Model.Id" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: white; color: black;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="usageNoteModalLabel-@Model.Id">Usage Note</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @if (string.IsNullOrWhiteSpace(Model.UsageNote))
+                {
+                    <p>combo chưa được sử dụng</p>
+                }
+                else
+                {
+                    <p style="white-space: pre-wrap;">@Html.Raw(Model.UsageNote)</p>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

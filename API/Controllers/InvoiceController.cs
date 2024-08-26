@@ -259,87 +259,95 @@ namespace API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
-        [HttpGet("revenue-report")]
-        public async Task<IActionResult> GetRevenueReport(DateTime startDate, DateTime endDate)
+        [HttpGet("report-summary")]
+        public async Task<IActionResult> GetReportSummary(string? period=null)
         {
-            var reports = await _dbContext.Invoices
-                .Where(i => i.InvoiceDate >= startDate && i.InvoiceDate <= endDate)
-                .GroupBy(i => new { i.InvoiceDate.Year, i.InvoiceDate.Month, i.InvoiceDate.Day })
-                .Select(g => new RevenueReport
-                {
-                    Date = new DateTime(g.Key.Year, g.Key.Month, g.Key.Day),
-                    TotalRevenue = g.Sum(i => i.Amount) ?? 0,
+            DateTime startDate;
+            DateTime endDate = DateTime.UtcNow;
 
-                })
-                .ToListAsync();
-
-            return Ok(reports);
-        }
-        [HttpGet("invoice-status-summary")]
-        public async Task<IActionResult> GetInvoiceStatusSummary()
-        {
+            
+            switch (period.ToLower())
+            {
+                case "7days":
+                    startDate = endDate.AddDays(-7);
+                    break;
+                case "1month":
+                    startDate = endDate.AddMonths(-1);
+                    break;
+                case "4months":
+                    startDate = endDate.AddMonths(-4);
+                    break;
+                case "1year":
+                    startDate = endDate.AddYears(-1);
+                    break;
+                default:
+                    return BadRequest("Invalid period specified");
+            }
+            startDate = startDate.Date;
+            endDate = endDate.Date.AddDays(1).AddTicks(-1);
             try
             {
-                var statusSummary = await _dbContext.Invoices
-                    .GroupBy(i => i.Status)  // Group invoices by status
+                // Revenue Report
+                var revenueReport = await _dbContext.Invoices
+                    .Where(i => i.InvoiceDate >= startDate && i.InvoiceDate <= endDate)
+                    .GroupBy(i => new { i.InvoiceDate.Year, i.InvoiceDate.Month, i.InvoiceDate.Day })
+                    .OrderByDescending(g => g.Key.Year)
+                    .ThenByDescending(g => g.Key.Month)
+                    .ThenByDescending(g => g.Key.Day)
                     .Select(g => new RevenueReport
                     {
-                        Status = g.Key,
-                        Count = g.Count()  // Count the number of invoices for each status
+                        Date = new DateTime(g.Key.Year, g.Key.Month, g.Key.Day),
+                        TotalRevenue = g.Sum(i => i.Amount) ?? 0
                     })
                     .ToListAsync();
 
-                return Ok(statusSummary);
-            }
-            catch (Exception ex)
-            {
-                // Optionally log the exception here
-                return StatusCode(500, "Internal server error");
-            }
-        }
+                // Invoice Status Summary
+                var statusSummary = await _dbContext.Invoices
+                    .Where(i => i.InvoiceDate >= startDate && i.InvoiceDate <= endDate)
+                    .GroupBy(i => i.Status)
+                    .Select(g => new RevenueReport
+                    {
+                        Status = g.Key,
+                        Count = g.Count()
+                    })
+                    .ToListAsync();
 
-        [HttpGet("invoice-service-summary")]
-        public async Task<IActionResult> GetInvoiceServiceSummary()
-        {
-            try
-            {
-                var summary = await _dbContext.Invoices
+                // Invoice Service Summary
+                var serviceSummary = await _dbContext.Invoices
+                    .Where(i => i.InvoiceDate >= startDate && i.InvoiceDate <= endDate)
                     .SelectMany(i => i.InvoiceServices)
-                    .GroupBy(i => new { i.ServiceId, i.Service.ServiceName })  // Group by ServiceId, Service Name, and Invoice Date
+                    .GroupBy(i => new { i.ServiceId, i.Service.ServiceName })
                     .Select(g => new ServiceSummary
                     {
                         ServiceId = g.Key.ServiceId,
                         ServiceName = g.Key.ServiceName,
-                        TotalQuantity = g.Sum(i => i.Quantity.GetValueOrDefault()),
+                        TotalQuantity = g.Sum(i => i.Quantity.GetValueOrDefault())
                     })
                     .ToListAsync();
 
-                return Ok(summary);
-            }
-            catch (Exception ex)
-            {
-                // Optionally log the exception here
-                return StatusCode(500, "Internal server error");
-            }
-        }
-
-        [HttpGet("invoice-combo-summary")]
-        public async Task<IActionResult> GetInvoiceComboSummary()
-        {
-            try
-            {
+                // Invoice Combo Summary
                 var comboSummary = await _dbContext.Invoices
+                    .Where(i => i.InvoiceDate >= startDate && i.InvoiceDate <= endDate)
                     .SelectMany(i => i.InvoiceCombos)
-                    .GroupBy(ic => new { ic.ComboId, ic.Combo.Name })  // Group by ComboId, Combo Name, and Invoice Date
+                    .GroupBy(ic => new { ic.ComboId, ic.Combo.Name })
                     .Select(g => new ComboSummary
                     {
                         ComboId = g.Key.ComboId,
                         ComboName = g.Key.Name,
-                        TotalQuantity = g.Sum(ic => ic.Quantity.GetValueOrDefault()),
+                        TotalQuantity = g.Sum(ic => ic.Quantity.GetValueOrDefault())
                     })
                     .ToListAsync();
 
-                return Ok(comboSummary);
+                // Combine results into the view model
+                var result = new CombinedReportDTO
+                {
+                    RevenueReports = revenueReport,
+                    InvoiceStatusSummary = statusSummary,
+                    ServiceSummaries = serviceSummary,
+                    ComboSummaries = comboSummary
+                };
+
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -347,6 +355,8 @@ namespace API.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
+
         [HttpGet("daily-revenue")]
         public async Task<IActionResult> GetDailyRevenueForCurrentMonth()
         {

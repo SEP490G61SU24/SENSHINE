@@ -200,7 +200,27 @@ namespace API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
-
+        [HttpGet("GetCustomer")]
+        public async Task<IActionResult> GetCustomer(string? name = null)
+        {
+            try
+            {
+                var users = await _userService.GetCustomerByName(name);
+                return Ok(users);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
+        }
         [HttpGet("page/role/{roleId}")]
         public async Task<IActionResult> GetUsersByRoleWithPage(int roleId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null, [FromQuery] string? spaId = null)
         {

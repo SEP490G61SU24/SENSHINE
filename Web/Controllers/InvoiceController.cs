@@ -113,23 +113,7 @@ namespace Web.Controllers
         }
        
 
-        private async Task<List<BranchViewModel>> LoadSpasAsync()
-        {
-            var apiUrl = _configuration["ApiUrl"];
-            var client = _clientFactory.CreateClient();
-            List<BranchViewModel> spas = new List<BranchViewModel>();
-            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Branch/GetAll");
-            if (response.IsSuccessStatusCode)
-            {
-                string data = await response.Content.ReadAsStringAsync();
-                spas = JsonConvert.DeserializeObject<List<BranchViewModel>>(data);
-            }
-            else
-            {
-                ModelState.AddModelError(string.Empty, "An error occurred while fetching spas.");
-            }
-            return spas;
-        }
+        
 
 
 
@@ -377,9 +361,7 @@ namespace Web.Controllers
         {
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
-            // Load additional data for dropdowns or select elements
-           /* var spas = await LoadSpasAsync();
-            ViewBag.Spas = spas ?? new List<BranchViewModel>();*/
+            
 
             var promotions = await LoadPromotionsAsync();
             ViewBag.Promotions = promotions ?? new List<PromotionViewModel>();
@@ -444,8 +426,11 @@ namespace Web.Controllers
             {
                 invoiceDto.ComboIds = invoiceDto.ComboIdsString?.Split(',').Select(int.Parse).ToList();
                 invoiceDto.ServiceIds = invoiceDto.ServiceIdsString?.Split(',').Select(int.Parse).ToList();
-                var selectedPromotion = promotions?.FirstOrDefault(p => p.PromotionName.Equals(invoiceDto.PromotionName));
-                invoiceDto.PromotionId = selectedPromotion?.Id;
+                if (invoiceDto.PromotionName != null)
+                {
+                    var selectedPromotion = promotions?.FirstOrDefault(p => p.PromotionName.Equals(invoiceDto.PromotionName));
+                    invoiceDto.PromotionId = selectedPromotion?.Id;
+                }
                 invoiceDto.SpaId = user?.SpaId;
 
 
