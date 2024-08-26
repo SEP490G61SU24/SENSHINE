@@ -171,8 +171,8 @@
             <div class="sticky-header">
                 <header>
                     <nav class="navbar navbar-b navbar-dark navbar-trans navbar-expand-xl fixed-top nav-padding" id="sidebar-menu">
-                        <a class="navbar-brand p-0" href="HomePage">
-                            <img class="img-fluid" src="~/assets/images/landing/landinglogo.png" alt="">
+                        <a class="navbar-brand p-0" href="@Url.Action("HomePage", "Home")">
+                            <img class="img-100 img-h-100" src="~/assets/images/landing/landinglogo.png" alt="">
                         </a>
                         <button class="navbar-toggler navabr_btn-set custom_nav" type="button" data-bs-toggle="collapse" data-bs-target="#navbarDefault" aria-controls="navbarDefault" aria-expanded="false" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
                         <div class="navbar-collapse justify-content-center collapse hidenav" id="navbarDefault">
@@ -185,14 +185,11 @@
                                     <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <span id="dropdownMenuButton">Sen Shine Spa</span>
                                     </a>
-                                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="landing-page.html#framework-saigon" onclick="updateDropdown('SenShineSpa_SaiGon')">Sen Shine Spa Wellness</a>
-                                        <a class="dropdown-item" href="landing-page.html#framework-saigon" onclick="updateDropdown('SenShineSpa_SaiGon')">L’essence Sen Shine</a>
-                                    </div>
+                                    
                                 </li>
                             </ul>
                         </div>
-                        <div class="buy-btn"><a class="nav-link js-scroll" href="HomePage" target="_blank">Book Now</a></div>
+                        <div class="buy-btn"><a class="nav-link js-scroll" target="_blank">Book Now</a></div>
                     </nav>
                 </header>
             </div>
@@ -218,7 +215,7 @@
                     <div class="news-container">
                         @foreach (var item in Model)
                         {
-                            <a href="@Url.Action("NewsDetail", "News", new { id = item.IdNew })" class="news-item-link">
+                            <a href="@Url.Action("NewsDetail", "Home", new { id = item.IdNew })" class="news-item-link">
                                 <div class="news-item">
                                     <img src="@item.Cover" alt="News Image">
                                     <div class="news-content">

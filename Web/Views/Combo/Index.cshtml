@@ -25,7 +25,7 @@
 }
 
 @model API.Ultils.PaginatedList<Web.Models.ComboViewModel>
-
+<div class="card">
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-12">
@@ -82,14 +82,14 @@
                                     <tr id="combo-@item.Id">
                                         <td><a href="#" class="comboTitle" data-id="@item.Id">@item.Name</a></td>
                                         <td>@item.Quantity</td>
-                                        <td>@item.Price</td>
-                                        <td>@item.Discount</td>
-                                        <td>@item.SalePrice</td>
+                                        <td>@String.Format("{0:0,0} VND", @item.Price)</td>
+                                        <td>@item.Discount</td> 
+                                        <td>@String.Format("{0:0,0} VND", @item.SalePrice)</td>
                                         <td>@item.Note</td>
                                         <td>
                                             <div class="product-action">
-                                                <button class="btn btn-primary" data-id="@item.Id" onclick="editCombo(this)" style="height: 35px; width: 150px;">Edit</button>
-                                                <button class="btn btn-danger" data-id="@item.Id" onclick="confirmDelete(this)" style="height: 35px; width: 150px;">Delete</button>
+                                                <button class="btn btn-primary btn-sm" data-id="@item.Id" onclick="editCombo(this)" style="height: 35px; width: 150px;">Edit</button>
+                                                <button class="btn btn-danger btn-sm" data-id="@item.Id" onclick="confirmDelete(this)" style="height: 35px; width: 150px;">Delete</button>
                                             </div>
                                         </td>
                                     </tr>
@@ -125,7 +125,7 @@
         </div>
     </div>
 </div>
-
+</div>
 <script>
     $(document).ready(function () {
         $(".comboTitle").click(function (event) {
