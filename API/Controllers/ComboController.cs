@@ -28,9 +28,17 @@ namespace API.Controllers
                 var listOfCombo = await _comboService.GetAllComboAsync();
                 return Ok(listOfCombo);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error while fetching the list of combos: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -49,9 +57,13 @@ namespace API.Controllers
             {
                 return BadRequest(ex.Message);
             }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error while fetching combo: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -74,11 +86,11 @@ namespace API.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                return StatusCode(500, ex.Message);
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error while creating combo: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -103,11 +115,11 @@ namespace API.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                return StatusCode(500, ex.Message);
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error while updating combo: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -128,11 +140,11 @@ namespace API.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                return StatusCode(500, ex.Message);
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error while deleting combo: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -151,9 +163,13 @@ namespace API.Controllers
             {
                 return BadRequest(ex.Message);
             }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error while fetching paginated combos: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
     }

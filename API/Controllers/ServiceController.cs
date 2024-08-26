@@ -1,8 +1,6 @@
 ﻿using API.Dtos;
 using API.Models;
 using API.Services;
-using API.Services.Impl;
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -11,13 +9,12 @@ namespace API.Controllers
     [ApiController]
     public class ServiceController : Controller
     {
-        private readonly SenShineSpaContext _dbContext;
         private readonly ISpaService spaService;
-        public ServiceController(SenShineSpaContext dbContext, ISpaService spaService)
+        public ServiceController(ISpaService spaService)
         {
-            this._dbContext = dbContext;
             this.spaService = spaService;
         }
+
         //Lay ra danh sach toan bo service 
         [HttpGet]
         public async Task<IActionResult> GetAllServices()
@@ -27,9 +24,17 @@ namespace API.Controllers
                 var listOfServices = await spaService.GetAllServiceAsync();
                 return Ok(listOfServices);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Lỗi khi lấy danh sách dịch vụ: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -37,18 +42,33 @@ namespace API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetByID(int Id)
         {
-            if (Id < 1)
+            try
             {
-                return BadRequest("ID Service không tồn tại");
-            }
-            else
-            {
-                var service = await spaService.FindServiceWithItsId(Id);
-                if (service == null)
+                if (Id < 1)
                 {
-                    return NotFound("Service không tồn tại");
+                    return BadRequest("ID Service không tồn tại");
                 }
-                return Ok(service);
+                else
+                {
+                    var service = await spaService.FindServiceWithItsId(Id);
+                    if (service == null)
+                    {
+                        return NotFound("Service không tồn tại");
+                    }
+                    return Ok(service);
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -75,9 +95,17 @@ namespace API.Controllers
                 var createdService = await spaService.CreateServiceAsync(newService);
                 return Ok($"Tạo mới dịch vụ {createdService.ServiceName} thành công");
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Lỗi khi tạo dịch vụ mới: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -116,12 +144,19 @@ namespace API.Controllers
                 }
                 return Ok(updatedService);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Lỗi khi cập nhật dịch vụ: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
-
 
         // DELETE: api/service/delete/{id}
         [HttpDelete("delete/{id}")]
@@ -141,12 +176,19 @@ namespace API.Controllers
                 }
                 return Ok($"Đã xóa dịch vụ có ID {deletedService.Id} thành công!");
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Lỗi khi xóa dịch vụ: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
-       
     }
 
 }

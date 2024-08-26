@@ -1,12 +1,9 @@
 ﻿using API.Dtos;
 using API.Models;
 using API.Services;
-using API.Services.Impl;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace API.Controllers
 {
@@ -29,22 +26,52 @@ namespace API.Controllers
         [HttpGet("ListInvoice")]
         public async Task<ActionResult<IEnumerable<InvoiceDTO>>> GetInvoices()
         {
-            var invoices = await _invoiceService.ListInvoices();
-            return Ok(invoices);
+            try
+            {
+                var invoices = await _invoiceService.ListInvoices();
+                return Ok(invoices);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
 
         [HttpGet("DetailInvoiceById")]
         public async Task<ActionResult<InvoiceDTO>> GetInvoice(int id)
         {
-            var invoice = await _invoiceService.GetInvoiceDetail(id);
-
-            if (invoice == null)
+            try
             {
-                return NotFound();
-            }
+                var invoice = await _invoiceService.GetInvoiceDetail(id);
 
-            return Ok(invoice);
+                if (invoice == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(invoice);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
 
@@ -101,18 +128,19 @@ namespace API.Controllers
                 var createdInvoiceDto = _mapper.Map<InvoiceDTO>(newInvoice);
                 return CreatedAtAction(nameof(GetInvoice), new { id = newInvoice.Id }, createdInvoiceDto);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                // Log the exception (implement logging as needed)
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
-
-
-
-
-
-
 
         [HttpPut("EditInvoice/{id}")]
         public async Task<ActionResult<InvoiceDTO>> EditInvoice(int id, [FromBody] InvoiceDTO invoiceDto)
@@ -172,9 +200,17 @@ namespace API.Controllers
                 var updatedInvoiceDto = _mapper.Map<InvoiceDTO>(existingInvoice);
                 return Ok(updatedInvoiceDto);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -206,36 +242,74 @@ namespace API.Controllers
 
                 return NoContent(); // Return 204 No Content on successful deletion
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
         [HttpPut("UpdateInvoiceStatus")]
         public async Task<IActionResult> UpdateInvoiceStatus(int id)
         {
-            var invoice = await _dbContext.Invoices.FindAsync(id);
-
-            if (invoice == null)
+            try
             {
-                return NotFound("Invoice not found.");
+                var invoice = await _dbContext.Invoices.FindAsync(id);
+
+                if (invoice == null)
+                {
+                    return NotFound("Invoice not found.");
+                }
+                string status = "Paid";
+                invoice.Status = status;
+
+                _dbContext.Invoices.Update(invoice);
+                await _dbContext.SaveChangesAsync();
+
+                return Ok(new { Message = "Invoice status updated successfully." });
             }
-            string status = "Paid";
-            invoice.Status = status;
-
-            _dbContext.Invoices.Update(invoice);
-            await _dbContext.SaveChangesAsync();
-
-            return Ok(new { Message = "Invoice status updated successfully." });
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
 
         [HttpGet("GetInvoiceByDate")]
         public async Task<ActionResult<IEnumerable<InvoiceDTO>>> GetInvoicesByDateRange([FromQuery] DateTime from, [FromQuery] DateTime to)
         {
-            var invoices = await _invoiceService.InvoicesByDateRange(from, to);
-            return Ok(invoices);
+            try
+            {
+                var invoices = await _invoiceService.InvoicesByDateRange(from, to);
+                return Ok(invoices);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
         [HttpGet("GetInvoicesPaging")]
         public async Task<IActionResult> GetAllInvoicesPaging([FromQuery] int? idspa = null, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null, [FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null, [FromQuery] string? status = null)
@@ -249,6 +323,10 @@ namespace API.Controllers
 
                 var pageData = await _invoiceService.GetInvoiceListBySpaId(idspa, pageIndex, pageSize, searchTerm, startDate, endDate, status);
                 return Ok(pageData);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (InvalidOperationException ex)
             {
@@ -265,7 +343,6 @@ namespace API.Controllers
             DateTime startDate;
             DateTime endDate = DateTime.UtcNow;
 
-            
             switch (period.ToLower())
             {
                 case "7days":
@@ -349,10 +426,17 @@ namespace API.Controllers
 
                 return Ok(result);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                // Optionally log the exception here
-                return StatusCode(500, "Internal server error");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -365,9 +449,17 @@ namespace API.Controllers
                 var (labels, values) = await _invoiceService.GetDailyRevenueForCurrentMonth();
                 return Ok(new { Labels = labels, Values = values });
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 

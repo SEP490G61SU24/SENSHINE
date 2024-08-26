@@ -1,7 +1,6 @@
 ﻿using API.Dtos;
 using API.Models;
 using API.Services;
-using API.Services.Impl;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,9 +32,17 @@ namespace API.Controllers
 
                 return Ok($"Room {createdRoom.RoomName} created successfully.");
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while creating the room: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -52,9 +59,17 @@ namespace API.Controllers
                 var rooms = await _roomService.GetRooms(pageIndex, pageSize, searchTerm, spaId);
                 return Ok(rooms);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while retrieving rooms: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
         [HttpGet]
@@ -66,9 +81,17 @@ namespace API.Controllers
                 var rooms = _roomService.GetAllRooms();
                 return Ok(rooms);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while retrieving rooms: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
         [HttpGet]
@@ -82,9 +105,17 @@ namespace API.Controllers
                 var room = _mapper.Map<RoomDTO>(_roomService.GetRoom(id));
                 return Ok(room);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while retrieving the room: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -111,9 +142,17 @@ namespace API.Controllers
 
                 return Ok($"Room {roomUpdate.RoomName} updated successfully.");
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while updating the room: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -130,9 +169,17 @@ namespace API.Controllers
 
                 return NoContent();
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while deleting the room: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -148,9 +195,17 @@ namespace API.Controllers
                 }
                 return Ok(_mapper.Map<IEnumerable<RoomDTO>>(rooms));
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while retrieving rooms: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
     }

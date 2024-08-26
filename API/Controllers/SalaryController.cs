@@ -39,9 +39,17 @@ namespace API.Controllers
                     return Ok("Salary created successfully.");
                 }
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while creating the salary: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -58,9 +66,17 @@ namespace API.Controllers
                 var salaries = await _salaryService.GetSalaries(pageIndex, pageSize, searchTerm, spaId);
                 return Ok(salaries);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while retrieving salaries: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -75,9 +91,17 @@ namespace API.Controllers
                 var salary = _mapper.Map<SalaryDTO>(_salaryService.GetSalary(id));
                 return Ok(salary);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while retrieving the salary: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -89,9 +113,17 @@ namespace API.Controllers
                 var salaries = _mapper.Map<List<SalaryDTO>>(_salaryService.GetSalariesByMonthAndYear(month, year));
                 return Ok(salaries);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while retrieving salaries: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -124,9 +156,17 @@ namespace API.Controllers
 
                 return Ok("Salary updated successfully.");
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while updating the salary: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -143,9 +183,17 @@ namespace API.Controllers
 
                 return NoContent();
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while deleting the salary: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
         [HttpGet]
@@ -156,9 +204,17 @@ namespace API.Controllers
                 var (months, totalSalaries) = await _salaryService.GetMonthlySalariesForYear(year);
                 return Ok(new { Months = months, TotalSalaries = totalSalaries });
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 

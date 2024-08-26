@@ -24,80 +24,185 @@ namespace API.Controllers
         [HttpPost("AddNews")]
         public async Task<IActionResult> AddNews([FromBody] News newsDto)
         {
-            if (newsDto == null)
+            try
             {
-                return BadRequest();
-            }
+                if (newsDto == null)
+                {
+                    return BadRequest();
+                }
 
-            var createdNews = await _newsService.AddNews(newsDto);
-            return Ok(createdNews);
+                var createdNews = await _newsService.AddNews(newsDto);
+                return Ok(createdNews);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
         [HttpPut("EditNews/{id}")]
         public async Task<IActionResult> EditNews(int id, [FromBody] NewsDTO newsDto)
         {
-            if (newsDto == null )
+            try
             {
-                return BadRequest();
-            }
+                if (newsDto == null )
+                {
+                    return BadRequest();
+                }
 
-            var updatedNews = await _newsService.EditNews(id, newsDto);
-            if (updatedNews == null)
+                var updatedNews = await _newsService.EditNews(id, newsDto);
+                if (updatedNews == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(updatedNews);
+            }
+            catch (ArgumentException ex)
             {
-                return NotFound();
+                return BadRequest(ex.Message);
             }
-
-            return Ok(updatedNews);
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
         [HttpGet("ListAllNews")]
         public async Task<IActionResult> ListNews()
         {
-            var newsList = await _newsService.ListNews();
-            return Ok(newsList);
+            try
+            {
+                var newsList = await _newsService.ListNews();
+                return Ok(newsList);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
         [HttpGet("ListNewsSortDESCByNewDate")]
         public async Task<IActionResult> ListNewsSortByNewDate()
         {
-            var newsList = await _newsService.ListNewsSortByNewDate();
-            return Ok(newsList);
+            try
+            {
+                var newsList = await _newsService.ListNewsSortByNewDate();
+                return Ok(newsList);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
         [HttpGet("GetNewsDetail/{id}")]
         public async Task<IActionResult> GetNewsDetail(int id)
         {
-            var news = await _newsService.GetNewsDetail(id);
-            if (news == null)
+            try
             {
-                return NotFound();
-            }
+                var news = await _newsService.GetNewsDetail(id);
+                if (news == null)
+                {
+                    return NotFound();
+                }
 
-            return Ok(news);
+                return Ok(news);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
         [HttpGet("NewsByDate")]
         public async Task<IActionResult> NewsByDate([FromQuery] DateTime from, [FromQuery] DateTime to)
         {
-            if (from > to)
+            try
             {
-                return BadRequest("The 'from' date cannot be later than the 'to' date.");
-            }
+                if (from > to)
+                {
+                    return BadRequest("The 'from' date cannot be later than the 'to' date.");
+                }
 
-            var newsList = await _newsService.NewsByDate(from, to);
-            return Ok(newsList);
+                var newsList = await _newsService.NewsByDate(from, to);
+                return Ok(newsList);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
 
         [HttpDelete("DeleteNews/{id}")]
         public async Task<IActionResult> DeleteNews(int id)
         {
-            var success = await _newsService.DeleteNews(id);
-            if (!success)
+            try
             {
-                return NotFound();
-            }
+                var success = await _newsService.DeleteNews(id);
+                if (!success)
+                {
+                    return NotFound();
+                }
 
-            return NoContent();
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
         [HttpGet("GetNewsPaging")]
@@ -112,6 +217,10 @@ namespace API.Controllers
 
                 var pageData = await _newsService.GetNews(pageIndex, pageSize, searchTerm,startDate,endDate);
                 return Ok(pageData);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (InvalidOperationException ex)
             {

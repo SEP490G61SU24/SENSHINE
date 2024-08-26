@@ -1,9 +1,7 @@
 ﻿using API.Dtos;
 using API.Models;
 using API.Services;
-using API.Services.Impl;
 using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +14,7 @@ namespace API.Controllers
         private readonly IProductService _productService;
         private readonly IMapper _mapper;
         private readonly SenShineSpaContext _dbContext;
+
         public ProductController(SenShineSpaContext dbContext, IProductService productService, IMapper mapper)
         {
             this._dbContext = dbContext;
@@ -81,9 +80,17 @@ namespace API.Controllers
 
                 return CreatedAtAction(nameof(GetProductDetail), new { id = newProduct.Id }, createdProductDto);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Lỗi khi tạo sản phẩm mới: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -167,33 +174,69 @@ namespace API.Controllers
 
                 return NoContent();
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while updating the product: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
-
-
-
 
         [HttpGet("ListAllProduct")]
         public async Task<ActionResult<IEnumerable<ProductDTORequest>>> ListProduct()
         {
-            var products = await _productService.ListProduct();
-            return Ok(products);
+            try
+            {
+                var products = await _productService.ListProduct();
+                return Ok(products);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
         [HttpGet("GetProductDetailById/{id}")]
         public async Task<ActionResult<ProductDTORequest>> GetProductDetail(int id)
         {
-            var product = await _productService.GetProductDetail(id);
-            if (product == null)
+            try
             {
-                return NotFound();
-            }
+                var product = await _productService.GetProductDetail(id);
+                if (product == null)
+                {
+                    return NotFound();
+                }
 
-            return Ok(product);
+                return Ok(product);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
+
         [HttpGet("GetProductDetailForEdit/{id}")]
         public async Task<ActionResult<ProductDTORequest_2>> GetProductDetailForEdit(int id)
         {
@@ -207,38 +250,81 @@ namespace API.Controllers
         }
 
         [HttpGet("GetFilterProducts")]
-        public async Task<IActionResult> GetFilteredProducts(
-    string? categoryName = null,
-    string? quantityRange = null,
-    string? priceRange = null)
+        public async Task<IActionResult> GetFilteredProducts(string? categoryName = null, string? quantityRange = null, string? priceRange = null)
         {
-            var products = await _productService.GetProductsByFilter(categoryName, quantityRange, priceRange);
-            return Ok(products);
+            try
+            {
+                var products = await _productService.GetProductsByFilter(categoryName, quantityRange, priceRange);
+                return Ok(products);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
         [HttpGet("GetProductDetailByName/{name}")]
         public async Task<ActionResult<ProductDTO>> GetProductByName(string name)
         {
-            var product = await _productService.GetProductByName(name);
-            if (product == null)
+            try
             {
-                return NotFound();
-            }
+                var product = await _productService.GetProductByName(name);
+                if (product == null)
+                {
+                    return NotFound();
+                }
 
-            return Ok(product);
+                return Ok(product);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
         [HttpDelete("DeleteProduct/{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var product = await _productService.DeleteProductAsync(id);
-            if (product == null)
+            try
             {
-                return NotFound();
-            }
+                var product = await _productService.DeleteProductAsync(id);
+                if (product == null)
+                {
+                    return NotFound();
+                }
 
-            return NoContent();
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
+
         [HttpGet("GetProductsPaging")]
         public async Task<IActionResult> GetAllProductsPaging([FromQuery] int? spaId=null,[FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null,[FromQuery]string? categoryName = null,[FromQuery] string? quantityRange = null,[FromQuery] string? priceRange = null)
         {
@@ -251,6 +337,10 @@ namespace API.Controllers
 
                 var pageData = await _productService.GetProductList(spaId,pageIndex, pageSize, searchTerm, categoryName,quantityRange,priceRange);
                 return Ok(pageData);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (InvalidOperationException ex)
             {
