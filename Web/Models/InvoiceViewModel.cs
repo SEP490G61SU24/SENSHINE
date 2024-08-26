@@ -22,8 +22,8 @@ namespace Web.Models
 
 
         //public ICollection<int> CardIds { get; set; } = new List<int>();
-        public ICollection<int> ComboIds { get; set; } = new List<int>();
-        public ICollection<int> ServiceIds { get; set; } = new List<int>();
+        public ICollection<int>? ComboIds { get; set; } = new List<int>();
+        public ICollection<int>? ServiceIds { get; set; } = new List<int>();
         public string ComboIdsString { get; set; }
         public string ServiceIdsString { get; set; }
         public Dictionary<int, int?> ServiceQuantities { get; set; } = new Dictionary<int, int?>();
