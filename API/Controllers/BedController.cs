@@ -1,11 +1,8 @@
 ﻿using API.Dtos;
 using API.Models;
 using API.Services;
-using API.Services.Impl;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace API.Controllers
 {
@@ -40,9 +37,17 @@ namespace API.Controllers
 
                 return CreatedAtAction(nameof(GetBedById), new { id = addedBedDTO.Id }, addedBedDTO);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (InvalidOperationException ex)
             {
-                return BadRequest(ex.Message); // Return a 400 status code with the error message
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -66,9 +71,17 @@ namespace API.Controllers
 
                 return Ok(updatedBedDTO);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (InvalidOperationException ex)
             {
                 return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -76,45 +89,106 @@ namespace API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBed(int id)
         {
-            var success = await _bedService.DeleteBed(id);
-            if (!success)
+            try
             {
-                return NotFound();
-            }
+                var success = await _bedService.DeleteBed(id);
+                if (!success)
+                {
+                    return NotFound();
+                }
 
-            return NoContent();
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBedById(int id)
         {
-            var bedDTO = await _bedService.GetBedById(id);
-            if (bedDTO == null)
+            try
             {
-                return NotFound();
-            }
+                var bedDTO = await _bedService.GetBedById(id);
+                if (bedDTO == null)
+                {
+                    return NotFound();
+                }
 
-            return Ok(bedDTO);
+                return Ok(bedDTO);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllBeds()
         {
-            var bedDTOs = await _bedService.GetAllBeds();
-            return Ok(bedDTOs);
+            try
+            {
+                var bedDTOs = await _bedService.GetAllBeds();
+                return Ok(bedDTOs);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
         //lay ra danh sach phong theo RoomId
         [HttpGet("ByRoomId/{roomId}")]
         public async Task<IActionResult> GetByRoomId(int roomId)
         {
-            var beds = await _bedService.GetBedByRoomId(roomId);
-            if(beds == null)
+            try
             {
-                return NotFound();
+                var beds = await _bedService.GetBedByRoomId(roomId);
+                if(beds == null)
+                {
+                    return NotFound();
+                }
+                return Ok(_mapper.Map<IEnumerable<BedDTO>>(beds));
             }
-            return Ok(_mapper.Map<IEnumerable<BedDTO>>(beds));
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
+
         [HttpGet]
         public async Task<IActionResult> GetAllBedsPaging([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
         {
@@ -127,6 +201,10 @@ namespace API.Controllers
 
                 var pageData = await _bedService.GetBedList(pageIndex, pageSize, searchTerm);
                 return Ok(pageData);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (InvalidOperationException ex)
             {

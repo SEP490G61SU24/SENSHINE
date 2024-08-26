@@ -1,27 +1,24 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using API.Dtos;
-using API.Models;
 using API.Services;
-using API.Services.Impl;
-
 
 namespace API.Controllers
+{
+    [Route("api")]
+    [ApiController]
+    public class PromotionController : ControllerBase
     {
-        [Route("api")]
-        [ApiController]
-        public class PromotionController : ControllerBase
-        {
-            private readonly IPromotionService _promotionService;
+        private readonly IPromotionService _promotionService;
 
-            public PromotionController(IPromotionService promotionService)
-            {
-                _promotionService = promotionService;
-            }
+        public PromotionController(IPromotionService promotionService)
+        {
+            _promotionService = promotionService;
+        }
 
         [HttpPost("AddPromotion")]
-      
-            public async Task<IActionResult> AddPromotion([FromBody] PromotionDTORequest promotionDto)
+        public async Task<IActionResult> AddPromotion([FromBody] PromotionDTORequest promotionDto)
+        {
+            try
             {
                 if (!ModelState.IsValid)
                 {
@@ -30,11 +27,26 @@ namespace API.Controllers
 
                 var promotion = await _promotionService.AddPromotion(promotionDto);
                 return Ok(promotion);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
             
-            [HttpPut("EditPromotion/{id}")]
-            public async Task<IActionResult> EditPromotion(int id, [FromBody] PromotionDTORequest promotionDto)
+        [HttpPut("EditPromotion/{id}")]
+        public async Task<IActionResult> EditPromotion(int id, [FromBody] PromotionDTORequest promotionDto)
+        {
+            try
             {
                 if (!ModelState.IsValid)
                 {
@@ -49,19 +61,48 @@ namespace API.Controllers
 
                 return NoContent();
             }
-
-            
-            [HttpGet("ListAllPromotion")]
-            public async Task<ActionResult<IEnumerable<PromotionDTORespond>>> ListPromotions()
+            catch (ArgumentException ex)
             {
-            var promotions = await _promotionService.ListPromotion();
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
+        }
+
+        [HttpGet("ListAllPromotion")]
+        public async Task<ActionResult<IEnumerable<PromotionDTORespond>>> ListPromotions()
+        {
+            try
+            {
+                var promotions = await _promotionService.ListPromotion();
                 return Ok(promotions);
             }
-
-            
-            [HttpGet("GetPromotionDetail/{id}")]
-            public async Task<IActionResult> GetPromotionDetail(int id)
+            catch (ArgumentException ex)
             {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
+        }
+
+        [HttpGet("GetPromotionDetail/{id}")]
+        public async Task<IActionResult> GetPromotionDetail(int id)
+        {
+            try
+            {
+
                 var promotion = await _promotionService.GetPromotionDetail(id);
                 if (promotion == null)
                 {
@@ -70,24 +111,49 @@ namespace API.Controllers
 
                 return Ok(promotion);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
+        }
         
-
         [HttpGet("GetPromotionsByFilter")]
-        public async Task<ActionResult<IEnumerable<PromotionDTORespond>>> GetPromotionsByFilter(
-             string? spaLocation = null,
-             DateTime? startDate = null,
-             DateTime? endDate = null)
+        public async Task<ActionResult<IEnumerable<PromotionDTORespond>>> GetPromotionsByFilter(string? spaLocation = null, DateTime? startDate = null, DateTime? endDate = null)
         {
-            var promotions = await _promotionService.GetPromotionsByFilter(spaLocation, startDate, endDate);
-
-            
-            return Ok(promotions);
+            try
+            {
+                var promotions = await _promotionService.GetPromotionsByFilter(spaLocation, startDate, endDate);
+                return Ok(promotions);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
 
         [HttpDelete("DeletePromotion/{id}")]
-            public async Task<IActionResult> DeletePromotion(int id)
+        public async Task<IActionResult> DeletePromotion(int id)
+        {
+            try
             {
+
                 var result = await _promotionService.DeletePromotion(id);
                 if (!result)
                 {
@@ -96,6 +162,20 @@ namespace API.Controllers
 
                 return NoContent();
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
+        }
+
         [HttpGet("GetPromotionsPaging")]
         public async Task<IActionResult> GetAllPromotionsPaging([FromQuery]int? idspa=null, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null, [FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null)
         {
@@ -109,6 +189,10 @@ namespace API.Controllers
                 var pageData = await _promotionService.GetPromotionListBySpaId(idspa,pageIndex, pageSize, searchTerm,startDate,endDate);
                 return Ok(pageData);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (InvalidOperationException ex)
             {
                 return BadRequest(ex.Message);
@@ -119,6 +203,4 @@ namespace API.Controllers
             }
         }
     }
-    }
-
-
+}

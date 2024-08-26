@@ -1,7 +1,6 @@
 ﻿using API.Dtos;
 using API.Models;
 using API.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -27,29 +26,54 @@ namespace API.Controllers
                 var listOfReview = await reviewService.GetAllReviewAsync();
                 return Ok(listOfReview);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Lỗi khi lấy danh sách review: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
+
         //Lay ra thong tin review cu the
         [HttpGet]
         public async Task<IActionResult> GetByID(int IdReview)
         {
-            if (IdReview < 1)
+            try
             {
-                return BadRequest("ID Review không tồn tại");
-            }
-            else
-            {
-                var review = await reviewService.FindReviewWithItsId(IdReview);
-                if (review == null)
+                if (IdReview < 1)
                 {
-                    return NotFound("Review không tồn tại");
+                    return BadRequest("ID Review không tồn tại");
                 }
-                return Ok(review);
+                else
+                {
+                    var review = await reviewService.FindReviewWithItsId(IdReview);
+                    if (review == null)
+                    {
+                        return NotFound("Review không tồn tại");
+                    }
+                    return Ok(review);
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
+
         //Tạo review mới
         [HttpPost]
         [Route("/api/[controller]/[action]")]
@@ -73,9 +97,17 @@ namespace API.Controllers
                 var createdReview = await reviewService.CreateReviewAsync(newReview);
                 return Ok($"Tạo mới Review thành công");
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Lỗi khi tạo review mới: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -114,9 +146,17 @@ namespace API.Controllers
                 }
                 return Ok(updatedReview);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Lỗi khi cập nhật review: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
 
@@ -139,9 +179,17 @@ namespace API.Controllers
                 }
                 return Ok($"Đã xóa review có ID {deletedReview.Id}");
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Lỗi khi xóa review: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
     }
