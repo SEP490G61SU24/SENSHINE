@@ -1,11 +1,9 @@
 ﻿using API.Dtos;
 using API.Models;
 using API.Services;
-using API.Services.Impl;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -13,180 +11,149 @@ namespace API.Controllers
     [ApiController]
     public class ComboController : ControllerBase
     {
-        private readonly SenShineSpaContext _dbContext;
-        private readonly IComboService comboService;
+        private readonly IComboService _comboService;
         private readonly IMapper _mapper;
-        public ComboController(SenShineSpaContext dbContext, IMapper mapper, IComboService comboService)
+
+        public ComboController(IComboService comboService, IMapper mapper)
         {
-            this._dbContext = dbContext;
+            _comboService = comboService;
             _mapper = mapper;
-            this.comboService = comboService;
         }
-        //Lay ra danh sach toan bo combo 
+
         [HttpGet]
         public async Task<IActionResult> GetAllCombo()
         {
             try
             {
-                var listOfCombo = await comboService.GetAllComboAsync();
+                var listOfCombo = await _comboService.GetAllComboAsync();
                 return Ok(listOfCombo);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Lỗi khi lấy danh sách dịch vụ: {ex.Message}");
+                return StatusCode(500, $"Error while fetching the list of combos: {ex.Message}");
             }
         }
-        //Lay ra thong tin combo cu the
+
         [HttpGet]
         public async Task<IActionResult> GetByID(int IdCombo)
         {
             if (IdCombo < 1)
-            {
-                return BadRequest("ID Combo không tồn tại");
-            }
-            else
-            {
-                var combo = await comboService.FindComboWithItsId(IdCombo);
-                if (combo == null)
-                {
-                    return NotFound("Combo không tồn tại");
-                }
-                return Ok(combo);
-            }
-        }
-        // Tạo combo mới
-        [HttpPost]
-        [Route("/api/[controller]/[action]")]
-        public async Task<IActionResult> Create([FromBody] ComboDTO comboDTO)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+                return BadRequest("Invalid Combo ID.");
 
             try
             {
-                // Convert ComboDTO to Combo entity using AutoMapper
-                var newCombo = _mapper.Map<Combo>(comboDTO);
-
-                // Ensure the services being added to the combo are existing ones
-                if (comboDTO.Services != null && comboDTO.Services.Any())
-                {
-                    var serviceIds = comboDTO.Services.Select(s => s.Id).ToList();
-                    var existingServices = await _dbContext.Services
-                                                         .Where(s => serviceIds.Contains(s.Id))
-                                                         .ToListAsync();
-
-                    if (existingServices.Count != serviceIds.Count)
-                    {
-                        return BadRequest("Một hoặc nhiều dịch vụ không tồn tại.");
-                    }
-
-                    // Map the existing services to the combo
-                    newCombo.Services = existingServices;
-
-                    // Calculate the total price of the combo
-                    newCombo.Price = newCombo.Services.Sum(s => s.Amount);
-
-                    // Calculate the sale price after discount
-                    if (newCombo.Discount.HasValue && newCombo.Price.HasValue)
-                    {
-                        newCombo.SalePrice = newCombo.Price - (newCombo.Price * newCombo.Discount / 100);
-                    }
-                }
-
-                var createdCombo = await comboService.CreateComboAsync(newCombo);
-                return Ok($"Tạo mới {createdCombo.Name} thành công");
+                var combo = await _comboService.FindComboWithItsId(IdCombo);
+                return combo == null ? NotFound("Combo not found") : Ok(combo);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Lỗi khi tạo combo mới: {ex.Message}");
-            }
-        }
-
-        // Edit service
-        [HttpPut]
-        [Route("/api/[controller]/[action]/{id}")]
-        public async Task<IActionResult> UpdateCombo(int id, [FromBody] ComboDTO comboDTO)
-        {
-            if (id < 1)
-            {
-                return BadRequest("ID Combo không hợp lệ");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            try
-            {
-                var existingCombo = await comboService.FindComboWithItsId(id);
-                if (existingCombo == null)
-                {
-                    return NotFound("Không tìm thấy combo để cập nhật");
-                }
-
-                var updatedCombo = await comboService.EditComboAsync(id, comboDTO);
-                if (updatedCombo == null)
-                {
-                    return NotFound("Không tìm thấy combo để cập nhật");
-                }
-                return Ok(updatedCombo);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Lỗi khi cập nhật combo: {ex.Message}");
-            }
-        }
-
-
-
-
-        // DELETE: api/combo/delete/{id}
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCombo(int id)
-        {
-            if (id < 1)
-            {
-                return BadRequest("ID Combo không hợp lệ");
-            }
-
-            try
-            {
-                var deletedCombo = await comboService.DeleteComboAsync(id);
-                if (deletedCombo == null)
-                {
-                    return NotFound("Không tìm thấy combo để xóa");
-                }
-                return Ok($"Đã xóa combo có ID {deletedCombo.Id}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Lỗi khi xóa combo: {ex.Message}");
-            }
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetAllCombosPaging( [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
-        {
-            try
-            {
-                if (pageIndex < 1 || pageSize < 1)
-                {
-                    return BadRequest("Chỉ số trang hoặc kích thước trang không hợp lệ.");
-                }
-
-                var pageData = await comboService.GetComboList( pageIndex, pageSize, searchTerm);
-                return Ok(pageData);
-            }
-            catch (InvalidOperationException ex)
+            catch (ArgumentException ex)
             {
                 return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+                return StatusCode(500, $"Error while fetching combo: {ex.Message}");
+            }
+        }
+
+        [HttpPost]
+        [Route("/api/[controller]/[action]")]
+        public async Task<IActionResult> Create([FromBody] ComboDTO comboDTO)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var newCombo = _mapper.Map<Combo>(comboDTO);
+                var createdCombo = await _comboService.CreateComboAsync(newCombo);
+                return Ok($"Successfully created {createdCombo.Name}");
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error while creating combo: {ex.Message}");
+            }
+        }
+
+        [HttpPut]
+        [Route("/api/[controller]/[action]/{id}")]
+        public async Task<IActionResult> UpdateCombo(int id, [FromBody] ComboDTO comboDTO)
+        {
+            if (id < 1)
+                return BadRequest("Invalid Combo ID.");
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var updatedCombo = await _comboService.EditComboAsync(id, comboDTO);
+                return updatedCombo == null ? NotFound("Combo not found for update") : Ok(updatedCombo);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error while updating combo: {ex.Message}");
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCombo(int id)
+        {
+            if (id < 1)
+                return BadRequest("Invalid Combo ID.");
+
+            try
+            {
+                var deletedCombo = await _comboService.DeleteComboAsync(id);
+                return deletedCombo == null ? NotFound("Combo not found for deletion") : Ok($"Deleted combo with ID {deletedCombo.Id}");
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error while deleting combo: {ex.Message}");
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllCombosPaging([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
+        {
+            try
+            {
+                if (pageIndex < 1 || pageSize < 1)
+                    return BadRequest("Invalid page index or page size.");
+
+                var pageData = await _comboService.GetComboList(pageIndex, pageSize, searchTerm);
+                return Ok(pageData);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error while fetching paginated combos: {ex.Message}");
             }
         }
     }

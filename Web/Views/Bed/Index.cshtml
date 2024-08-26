@@ -24,6 +24,7 @@
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 }
 @model API.Ultils.PaginatedList<Web.Models.BedViewModelIndex>
+<div class="card">
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-12">
@@ -119,7 +120,7 @@
         </div>
     </div>
 </div>
-
+</div>
 <script>
     function confirmDelete(button) {
         var bedId = $(button).data("id");
