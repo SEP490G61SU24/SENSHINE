@@ -744,6 +744,10 @@ namespace API.Models
 
                 entity.Property(e => e.BirthDate).HasColumnType("date");
 
+                entity.Property(e => e.CreatedAt)
+                    .HasColumnType("date")
+                    .HasDefaultValueSql("CURRENT_DATE");
+
                 entity.Property(e => e.DistrictCode)
                     .HasMaxLength(5)
                     .IsUnicode(false)
