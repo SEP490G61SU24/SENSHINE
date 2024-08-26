@@ -1,14 +1,9 @@
 ﻿using API.Dtos;
-using API.Models;
 using API.Ultils;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Net.Http;
 using System.Text;
 using Web.Models;
-
-
 
 namespace Web.Controllers
 {
@@ -24,6 +19,7 @@ namespace Web.Controllers
             _clientFactory = clientFactory;
             _logger = logger;
         }
+
         private async Task<UserViewModel> LoadUserAsync()
         {
             var user = new UserViewModel();
@@ -111,11 +107,6 @@ namespace Web.Controllers
                 return View("Error");
             }
         }
-       
-
-        
-
-
 
         private async Task<List<PromotionViewModel>> LoadPromotionsAsync()
         {
@@ -189,16 +180,11 @@ namespace Web.Controllers
             return services;
         }
 
-
         [HttpGet]
         public async Task<IActionResult> Add()
         {
-            var apiUrl = _configuration["ApiUrl"];
-            var client = _clientFactory.CreateClient();
             try
             {
-               
-
                 var promotions = await LoadPromotionsAsync();
                 ViewBag.Promotions = promotions ?? new List<PromotionViewModel>();
 
@@ -210,13 +196,11 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-
                 ModelState.AddModelError(string.Empty, "An error occurred while loading data.");
             }
 
             return View();
         }
-
 
         [HttpPost]
         public async Task<IActionResult> Add(InvoiceViewModel invoiceDto)
@@ -351,11 +335,6 @@ namespace Web.Controllers
             return RedirectToAction("InvoiceList");
         }
 
-
-
-
-
-
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -373,10 +352,8 @@ namespace Web.Controllers
             var services = await LoadServicesAsync();
             ViewBag.Services = services ?? new List<ServiceViewModel>();
 
-
             // Fetch invoice details from the API
             HttpResponseMessage response = await client.GetAsync($"{apiUrl}/DetailInvoiceById?id={id}");
-
 
             if (response.IsSuccessStatusCode)
             {
@@ -397,30 +374,22 @@ namespace Web.Controllers
             return RedirectToAction("InvoiceList");
         }
 
-
-
         // POST: InvoiceController/Edit/5
         [HttpPost]
-
         public async Task<IActionResult> Edit(int id, InvoiceViewModel invoiceDto)
-
         {
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
             var user = await LoadUserAsync();
-            
 
             var promotions = await LoadPromotionsAsync();
             ViewBag.Promotions = promotions ?? new List<PromotionViewModel>();
-
-
 
             var combos = await LoadCombosAsync();
             ViewBag.Combos = combos ?? new List<ComboViewModel>();
 
             var services = await LoadServicesAsync();
             ViewBag.Services = services ?? new List<ServiceViewModel>();
-
 
             try
             {
@@ -432,7 +401,6 @@ namespace Web.Controllers
                     invoiceDto.PromotionId = selectedPromotion?.Id;
                 }
                 invoiceDto.SpaId = user?.SpaId;
-
 
                 string jsonData = JsonConvert.SerializeObject(invoiceDto);
                 StringContent content = new StringContent(jsonData, Encoding.UTF8, "application/json");
@@ -469,7 +437,6 @@ namespace Web.Controllers
 
                     return Json(new { success = true });
                 }
-
 
                 return Json(new { success = false, message = "An error occurred while deleting the product." });
             }
@@ -543,8 +510,5 @@ namespace Web.Controllers
                 return StatusCode(500, new { message = $"General Error: {ex.Message}" });
             }
         }
-       
-
     }
-
 }

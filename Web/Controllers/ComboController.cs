@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using System.Text;
 using Web.Models;
-using System.Collections.Generic;
 using API.Dtos;
 using API.Ultils;
 
@@ -14,83 +13,107 @@ namespace Web.Controllers
         private readonly IHttpClientFactory _clientFactory;
         private readonly ILogger<UserController> _logger;
 
-
         public ComboController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<UserController> logger) : base(configuration, clientFactory, logger)
         {
             _configuration = configuration;
             _clientFactory = clientFactory;
             _logger = logger;
         }
-    
 
         // Hiển thị danh sách combo
         public async Task<IActionResult> Index(int pageIndex = 1,int pageSize =10,string searchTerm=null)
         {
-
-            var apiUrl = _configuration["ApiUrl"];
-            var client = _clientFactory.CreateClient();
-            
-            List<ComboViewModel> comboList = new List<ComboViewModel>();
-
-            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Combo/GetAllCombosPaging?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}");
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<ComboViewModel>>();
-                paginatedResult.SearchTerm=searchTerm;
-                return View(paginatedResult);
+                var apiUrl = _configuration["ApiUrl"];
+                var client = _clientFactory.CreateClient();
+            
+                List<ComboViewModel> comboList = new List<ComboViewModel>();
+
+                HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Combo/GetAllCombosPaging?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<ComboViewModel>>();
+                    paginatedResult.SearchTerm=searchTerm;
+                    return View(paginatedResult);
+                }
+                return View("Error");
             }
-            return View("Error");
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
         }
 
         // Tạo combo mới
         [HttpGet]
         public async Task<IActionResult> CreateCombo()
         {
-            var services = await GetAvailableServices();
-            ViewBag.Services = services;
-            return View();
+            try
+            {
+                var services = await GetAvailableServices();
+                ViewBag.Services = services;
+                return View();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateCombo(ComboViewModel comboViewModel)
         {
-            var apiUrl = _configuration["ApiUrl"];
-            var client = _clientFactory.CreateClient();
-
-            if (!ModelState.IsValid)
+            try
             {
-                var services = await GetAvailableServices();
-                ViewBag.Services = services;
+                var apiUrl = _configuration["ApiUrl"];
+                var client = _clientFactory.CreateClient();
+
+                if (!ModelState.IsValid)
+                {
+                    var services = await GetAvailableServices();
+                    ViewBag.Services = services;
+                    return View(comboViewModel);
+                }
+
+                var comboDTO = new ComboDTO
+                {
+                    Name = comboViewModel.Name,
+                    Quantity = comboViewModel.Quantity,
+                    Note = comboViewModel.Note,
+                    Price = comboViewModel.Price,
+                    Discount = comboViewModel.Discount,
+                    SalePrice = comboViewModel.SalePrice,
+                    Services = comboViewModel.SelectedServiceIds.Select(id => new ServiceDTO { Id = id,ServiceName="" }).ToList()
+                };
+
+                string jsonString = JsonConvert.SerializeObject(comboDTO);
+                var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await client.PostAsync($"{apiUrl}/Combo/Create", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("Index"); // Chuyển hướng về trang danh sách combo
+                }
+
+                string errorMessage = await response.Content.ReadAsStringAsync();
+                ModelState.AddModelError(string.Empty, errorMessage);
+                var servicesList = await GetAvailableServices();
+                ViewBag.Services = servicesList;
                 return View(comboViewModel);
             }
-
-            var comboDTO = new ComboDTO
+            catch (Exception ex)
             {
-                Name = comboViewModel.Name,
-                Quantity = comboViewModel.Quantity,
-                Note = comboViewModel.Note,
-                Price = comboViewModel.Price,
-                Discount = comboViewModel.Discount,
-                SalePrice = comboViewModel.SalePrice,
-                Services = comboViewModel.SelectedServiceIds.Select(id => new ServiceDTO { Id = id,ServiceName="" }).ToList()
-            };
-
-            string jsonString = JsonConvert.SerializeObject(comboDTO);
-            var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
-
-            HttpResponseMessage response = await client.PostAsync($"{apiUrl}/Combo/Create", content);
-
-            if (response.IsSuccessStatusCode)
-            {
-                return RedirectToAction("Index"); // Chuyển hướng về trang danh sách combo
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
             }
-
-            string errorMessage = await response.Content.ReadAsStringAsync();
-            ModelState.AddModelError(string.Empty, errorMessage);
-            var servicesList = await GetAvailableServices();
-            ViewBag.Services = servicesList;
-            return View(comboViewModel);
         }
 
         private async Task<List<ServiceViewModel>> GetAvailableServices()
@@ -109,6 +132,7 @@ namespace Web.Controllers
 
             return services;
         }
+
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
@@ -131,69 +155,85 @@ namespace Web.Controllers
                 return Json(new { success = false, message = "An unexpected error occurred." });
             }
         }
+
         // GET: /Combo/EditCombo/{id}
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var combo = await GetComboById(id);
-            if (combo == null)
+            try
             {
-                return NotFound();
+                var combo = await GetComboById(id);
+                if (combo == null)
+                {
+                    return NotFound();
+                }
+
+                var services = await GetAvailableServices();
+                ViewBag.Services = services;
+
+                return View(combo);
             }
-
-            var services = await GetAvailableServices();
-            ViewBag.Services = services;
-
-            return View(combo);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
         }
 
         // POST: /Combo/EditCombo
         [HttpPost]
         public async Task<IActionResult> Edit(ComboViewModel comboViewModel)
         {
-
-            var apiUrl = _configuration["ApiUrl"];
-            var client = _clientFactory.CreateClient();
-            if (!ModelState.IsValid)
+            try
             {
-                var services = await GetAvailableServices();
-                ViewBag.Services = services;
+                var apiUrl = _configuration["ApiUrl"];
+                var client = _clientFactory.CreateClient();
+                if (!ModelState.IsValid)
+                {
+                    var services = await GetAvailableServices();
+                    ViewBag.Services = services;
+                    return View(comboViewModel);
+                }
+
+                var comboDTO = new ComboDTO
+                {
+                    Id = comboViewModel.Id,
+                    Name = comboViewModel.Name,
+                    Quantity = comboViewModel.Quantity,
+                    Note = comboViewModel.Note,
+                    Price = comboViewModel.Price,
+                    Discount = comboViewModel.Discount,
+                    SalePrice = comboViewModel.SalePrice,
+                    Services = comboViewModel.SelectedServiceIds.Select(id => new ServiceDTO { Id = id, ServiceName = "" }).ToList()
+                };
+
+                string jsonString = JsonConvert.SerializeObject(comboDTO);
+                var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await client.PutAsync($"{apiUrl}/Combo/UpdateCombo/{comboViewModel.Id}", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("Index");
+                }
+
+                string errorMessage = await response.Content.ReadAsStringAsync();
+                ModelState.AddModelError(string.Empty, errorMessage);
+                var servicesList = await GetAvailableServices();
+                ViewBag.Services = servicesList;
                 return View(comboViewModel);
             }
-
-            var comboDTO = new ComboDTO
+            catch (Exception ex)
             {
-                Id = comboViewModel.Id,
-                Name = comboViewModel.Name,
-                Quantity = comboViewModel.Quantity,
-                Note = comboViewModel.Note,
-                Price = comboViewModel.Price,
-                Discount = comboViewModel.Discount,
-                SalePrice = comboViewModel.SalePrice,
-                Services = comboViewModel.SelectedServiceIds.Select(id => new ServiceDTO { Id = id, ServiceName = "" }).ToList()
-            };
-
-            string jsonString = JsonConvert.SerializeObject(comboDTO);
-            var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
-
-            HttpResponseMessage response = await client.PutAsync($"{apiUrl}/Combo/UpdateCombo/{comboViewModel.Id}", content);
-
-            if (response.IsSuccessStatusCode)
-            {
-                return RedirectToAction("Index");
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
             }
-
-            string errorMessage = await response.Content.ReadAsStringAsync();
-            ModelState.AddModelError(string.Empty, errorMessage);
-            var servicesList = await GetAvailableServices();
-            ViewBag.Services = servicesList;
-            return View(comboViewModel);
         }
 
         private async Task<ComboViewModel> GetComboById(int id)
         {
-
-
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
             HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Combo/GetByID?IdCombo={id}");
@@ -206,7 +246,5 @@ namespace Web.Controllers
 
             return null;
         }
-
-
     }
 }

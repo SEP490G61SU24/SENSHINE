@@ -4,7 +4,6 @@ using System.Text;
 using System.Text.Json;
 using API.Ultils;
 using Web.Models;
-using System.Net;
 
 namespace Web.Controllers
 {
@@ -25,21 +24,30 @@ namespace Web.Controllers
 
         public async Task<IActionResult> Index(int pageIndex = 1, int pageSize = 10, string searchTerm = null)
         {
-            var apiUrl = _configuration["ApiUrl"];
-			var client = _clientFactory.CreateClient();
+			try
+			{
+				var apiUrl = _configuration["ApiUrl"];
+				var client = _clientFactory.CreateClient();
 
-            var url = $"{apiUrl}/rules?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}";
+				var url = $"{apiUrl}/rules?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}";
 
-            var response = await client.GetAsync(url);
+				var response = await client.GetAsync(url);
 
-            if (response.IsSuccessStatusCode)
+				if (response.IsSuccessStatusCode)
+				{
+					var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<RuleDTO>>();
+					paginatedResult.SearchTerm = searchTerm;
+					return View(paginatedResult);
+				}
+				else
+				{
+					return View("Error");
+				}
+			}
+            catch (Exception ex)
             {
-                var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<RuleDTO>>();
-                paginatedResult.SearchTerm = searchTerm;
-                return View(paginatedResult);
-            }
-            else
-            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
                 return View("Error");
             }
         }
@@ -70,12 +78,12 @@ namespace Web.Controllers
                     return View();
                 }
             }
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error during login");
-				ViewData["Error"] = "An error occurred";
-				return View();
-			}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
         }
 
 		[HttpPost]
@@ -106,13 +114,13 @@ namespace Web.Controllers
 					return View();
 				}
 			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error during login");
-				ViewData["Error"] = "An error occurred";
-				return View();
-			}
-		}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
+        }
 
 		[HttpGet]
 		public async Task<IActionResult> Edit(int id)
@@ -143,13 +151,13 @@ namespace Web.Controllers
 
                 return View(model);
 			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error during login");
-				ViewData["Error"] = "An error occurred";
-				return View("Error");
-			}
-		}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
+        }
 
 		[HttpPost]
 		public async Task<IActionResult> Edit(RuleEditViewModel model)
@@ -182,13 +190,13 @@ namespace Web.Controllers
 					return RedirectToAction("Edit", "Rule", new {id = data.Id});
 				}
 			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error during login");
-				ViewData["Error"] = "An error occurred";
-				return View();
-			}
-		}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
+        }
 
         [HttpDelete]
         public async Task<IActionResult> Delete(string id)
@@ -212,9 +220,9 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during login");
-                ViewData["Error"] = "Có lỗi xảy ra!";
-                return View();
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
             }
         }
     }

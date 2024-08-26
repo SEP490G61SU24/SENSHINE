@@ -4,13 +4,8 @@ using Web.Models;
 using System.Text;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json.Linq;
-using Microsoft.IdentityModel.Tokens;
 using API.Dtos;
-using API.Models;
 using API.Ultils;
-using System.Runtime.Intrinsics.X86;
-using System.Linq;
-using static Microsoft.AspNetCore.Razor.Language.TagHelperMetadata;
 
 namespace Web.Controllers
 {
@@ -111,9 +106,9 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error");
-                ViewData["Error"] = "Có lỗi xảy ra";
-                return View();
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
             }
         }
 
@@ -200,8 +195,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error");
-                ViewData["Error"] = "Có lỗi xảy ra";
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
                 return View("Error");
             }
         }
@@ -246,8 +241,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error");
-                ViewData["Error"] = "Có lỗi xảy ra";
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
                 return View("Error");
             }
         }
@@ -367,8 +362,9 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while creating the card and invoice.");
-                return Json(new { success = false, error = "An unexpected error occurred." });
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
             }
         }
 
@@ -417,8 +413,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error");
-                ViewData["Error"] = "Có lỗi xảy ra";
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
                 return View("Error");
             }
         }
@@ -532,8 +528,9 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while updating the card and creating the invoice.");
-                return Json(new { success = false, error = "An unexpected error occurred." });
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
             }
         }
 
@@ -560,8 +557,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error");
-                ViewData["Error"] = "Có lỗi xảy ra";
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
                 return View("Error");
             }
         }
@@ -589,9 +586,9 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error");
-                TempData["Error"] = "Có lỗi xảy ra.";
-                return RedirectToAction("DetailCard", new { id = cardId });
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
             }
         }
     }

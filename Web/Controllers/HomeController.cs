@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using Web.Models;
@@ -31,55 +30,82 @@ public class HomeController : Controller
     [Route("/")]
     public async Task<IActionResult> HomePageAsync()
     {
-        List<NewsViewModel> viewList = new List<NewsViewModel>();
-        HttpResponseMessage response = await _httpClient.GetAsync("/api/ListNewsSortDESCByNewDate");
-
-        if (response.IsSuccessStatusCode)
+        try
         {
-            string data = await response.Content.ReadAsStringAsync();
-            viewList = JsonConvert.DeserializeObject<List<NewsViewModel>>(data);
-        }
-        else
-        {
-            // Log error message here
-            ModelState.AddModelError(string.Empty, "An error occurred while fetching the news list.");
-        }
+            List<NewsViewModel> viewList = new List<NewsViewModel>();
+            HttpResponseMessage response = await _httpClient.GetAsync("/api/ListNewsSortDESCByNewDate");
 
-        return View(viewList);
+            if (response.IsSuccessStatusCode)
+            {
+                string data = await response.Content.ReadAsStringAsync();
+                viewList = JsonConvert.DeserializeObject<List<NewsViewModel>>(data);
+            }
+            else
+            {
+                // Log error message here
+                ModelState.AddModelError(string.Empty, "An error occurred while fetching the news list.");
+            }
+
+            return View(viewList);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+            ViewData["Error"] = "CÓ LỖI XẢY RA!";
+            return View("Error");
+        }
     }
 
     [Route("Home/Public/[action]")]
     public async Task<IActionResult> NewsPage()
     {
-        List<NewsViewModel> viewList = new List<NewsViewModel>();
-        HttpResponseMessage response = await _httpClient.GetAsync("/api/ListAllNews");
-
-        if (response.IsSuccessStatusCode)
+        try
         {
-            string data = await response.Content.ReadAsStringAsync();
-            viewList = JsonConvert.DeserializeObject<List<NewsViewModel>>(data);
-        }
-        else
-        {
-            // Log error message here
-            ModelState.AddModelError(string.Empty, "An error occurred while fetching the news list.");
-        }
+            List<NewsViewModel> viewList = new List<NewsViewModel>();
+            HttpResponseMessage response = await _httpClient.GetAsync("/api/ListAllNews");
 
-        return View(viewList);
+            if (response.IsSuccessStatusCode)
+            {
+                string data = await response.Content.ReadAsStringAsync();
+                viewList = JsonConvert.DeserializeObject<List<NewsViewModel>>(data);
+            }
+            else
+            {
+                // Log error message here
+                ModelState.AddModelError(string.Empty, "An error occurred while fetching the news list.");
+            }
+
+            return View(viewList);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+            ViewData["Error"] = "CÓ LỖI XẢY RA!";
+            return View("Error");
+        }
     }
 
     [Route("Home/Public/[action]/{id}")]
     public async Task<IActionResult> NewsDetail(int id)
     {
-        HttpResponseMessage response = await _httpClient.GetAsync($"api/GetNewsDetail/{id}");
-
-        if (response.IsSuccessStatusCode)
+        try
         {
-            var newsDetail = await response.Content.ReadFromJsonAsync<NewsViewModel>();
-            return View(newsDetail);
-        }
+            HttpResponseMessage response = await _httpClient.GetAsync($"api/GetNewsDetail/{id}");
 
-        return View("Error");
+            if (response.IsSuccessStatusCode)
+            {
+                var newsDetail = await response.Content.ReadFromJsonAsync<NewsViewModel>();
+                return View(newsDetail);
+            }
+
+            return View("Error");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+            ViewData["Error"] = "CÓ LỖI XẢY RA!";
+            return View("Error");
+        }
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -76,9 +76,9 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during login");
-                ViewData["Error"] = "An error occurred";
-                return View();
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
             }
         }
 
@@ -161,13 +161,13 @@ namespace Web.Controllers
 				    return View(model);
 			    }
 		    }
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error during work schedule creation");
-				ViewData["Error"] = "An error occurred";
-				return View("Error");
-			}
-		}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
+        }
 
 	}
 }

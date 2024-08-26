@@ -1,13 +1,7 @@
-﻿using API.Models;
-using API.Ultils;
+﻿using API.Ultils;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 using Web.Models;
 
 namespace Web.Controllers
@@ -18,7 +12,6 @@ namespace Web.Controllers
         private readonly IHttpClientFactory _clientFactory;
         private readonly ILogger<UserController> _logger;
 
-
         public BedController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<UserController> logger) : base(configuration, clientFactory, logger)
         {
             _configuration = configuration;
@@ -28,59 +21,68 @@ namespace Web.Controllers
 
         public async Task<IActionResult> Index(int pageIndex = 1, int pageSize = 10, string searchTerm = null)
         {
-            int? spaId = 0;
-            var token = HttpContext.Session.GetString("Token");
+            try
+            {
+                int? spaId = 0;
+                var token = HttpContext.Session.GetString("Token");
            
-            if (!string.IsNullOrEmpty(token))
-            {
-                var userProfile = await GetUserProfileAsync(token);
-                if (userProfile != null)
+                if (!string.IsNullOrEmpty(token))
                 {
-                    spaId = userProfile.SpaId;
-                }
-                else
-                {
-                    ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
-                }
-            }
-
-            var apiUrl = _configuration["ApiUrl"];
-            var client = _clientFactory.CreateClient();
-            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Room/GetAllRoom");
-            HttpResponseMessage response3 = await client.GetAsync($"{apiUrl}/Bed/GetAllBedsPaging?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}");
-            if (response.IsSuccessStatusCode&&response3.IsSuccessStatusCode)
-            {
-                string jsonString = await response.Content.ReadAsStringAsync();
-                var roomList = JsonConvert.DeserializeObject<List<RoomViewModel>>(jsonString);
-                roomList = roomList.Where(x => x.SpaId == spaId).ToList();
-                string jsonString3 = await response3.Content.ReadAsStringAsync();
-                var bedList = JsonConvert.DeserializeObject<PaginatedList<BedViewModelIndex>>(jsonString3);
-
-                var megreList = new List<BedViewModelIndex>();
-                var totalCount = 0;
-                foreach (var room in roomList)
-                {
-                  
-                    var filterbed = bedList.Items.Where(x=>x.RoomId==room.Id);
-                    // Gán RoomName cho từng bed
-                    foreach (var bed in filterbed)
+                    var userProfile = await GetUserProfileAsync(token);
+                    if (userProfile != null)
                     {
-                        bed.RoomName = room.RoomName;
-                        
+                        spaId = userProfile.SpaId;
                     }
-                    megreList = megreList.Concat(filterbed).ToList();
-                    totalCount += filterbed.Count();
+                    else
+                    {
+                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
+                    }
                 }
-                return View(new PaginatedList<BedViewModelIndex>
+
+                var apiUrl = _configuration["ApiUrl"];
+                var client = _clientFactory.CreateClient();
+                HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Room/GetAllRoom");
+                HttpResponseMessage response3 = await client.GetAsync($"{apiUrl}/Bed/GetAllBedsPaging?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}");
+                if (response.IsSuccessStatusCode&&response3.IsSuccessStatusCode)
                 {
-                    Items = megreList,
-                    TotalCount = totalCount,
-                    PageIndex = bedList.PageIndex,
-                    PageSize = bedList.PageSize,
-                    SearchTerm = bedList.SearchTerm // Assuming both lists have the same SearchTerm
-                }); 
+                    string jsonString = await response.Content.ReadAsStringAsync();
+                    var roomList = JsonConvert.DeserializeObject<List<RoomViewModel>>(jsonString);
+                    roomList = roomList.Where(x => x.SpaId == spaId).ToList();
+                    string jsonString3 = await response3.Content.ReadAsStringAsync();
+                    var bedList = JsonConvert.DeserializeObject<PaginatedList<BedViewModelIndex>>(jsonString3);
+
+                    var megreList = new List<BedViewModelIndex>();
+                    var totalCount = 0;
+                    foreach (var room in roomList)
+                    {
+                  
+                        var filterbed = bedList.Items.Where(x=>x.RoomId==room.Id);
+                        // Gán RoomName cho từng bed
+                        foreach (var bed in filterbed)
+                        {
+                            bed.RoomName = room.RoomName;
+                        
+                        }
+                        megreList = megreList.Concat(filterbed).ToList();
+                        totalCount += filterbed.Count();
+                    }
+                    return View(new PaginatedList<BedViewModelIndex>
+                    {
+                        Items = megreList,
+                        TotalCount = totalCount,
+                        PageIndex = bedList.PageIndex,
+                        PageSize = bedList.PageSize,
+                        SearchTerm = bedList.SearchTerm // Assuming both lists have the same SearchTerm
+                    }); 
+                }
+                return View(null); 
             }
-            return View(null); 
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
         }
 
 
@@ -161,46 +163,64 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var bed = await GetBedById(id);
-            if (bed == null)
+            try
             {
-                return NotFound();
+                var bed = await GetBedById(id);
+                if (bed == null)
+                {
+                    return NotFound();
+                }
+
+                var rooms = await GetAvailableRooms();
+                ViewBag.Rooms = rooms;
+
+                return View(bed);
             }
-
-            var rooms = await GetAvailableRooms();
-            ViewBag.Rooms = rooms;
-
-            return View(bed);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> Edit(BedViewModel bedViewModel)
         {
-            var apiUrl = _configuration["ApiUrl"];
-            var client = _clientFactory.CreateClient();
-            if (!ModelState.IsValid)
+            try
             {
-                var rooms = await GetAvailableRooms();
-                ViewBag.Rooms = rooms;
+                var apiUrl = _configuration["ApiUrl"];
+                var client = _clientFactory.CreateClient();
+                if (!ModelState.IsValid)
+                {
+                    var rooms = await GetAvailableRooms();
+                    ViewBag.Rooms = rooms;
+                    return View(bedViewModel);
+                }
+
+                string jsonString = JsonConvert.SerializeObject(bedViewModel);
+                var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await client.PutAsync($"{apiUrl}/Bed/UpdateBed/{bedViewModel.Id}", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("Index");
+                }
+
+                string errorMessage = await response.Content.ReadAsStringAsync();
+                ModelState.AddModelError(string.Empty, errorMessage);
+                ViewBag.ErrorMessage = "Cannot create two beds with the same BedNumber in the same room.";
+                var roomsList = await GetAvailableRooms();
+                ViewBag.Rooms = roomsList;
                 return View(bedViewModel);
             }
-
-            string jsonString = JsonConvert.SerializeObject(bedViewModel);
-            var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
-
-            HttpResponseMessage response = await client.PutAsync($"{apiUrl}/Bed/UpdateBed/{bedViewModel.Id}", content);
-
-            if (response.IsSuccessStatusCode)
+            catch (Exception ex)
             {
-                return RedirectToAction("Index");
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
             }
-
-            string errorMessage = await response.Content.ReadAsStringAsync();
-            ModelState.AddModelError(string.Empty, errorMessage);
-            ViewBag.ErrorMessage = "Cannot create two beds with the same BedNumber in the same room.";
-            var roomsList = await GetAvailableRooms();
-            ViewBag.Rooms = roomsList;
-            return View(bedViewModel);
         }
 
         [HttpDelete]

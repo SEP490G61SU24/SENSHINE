@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Text.Json;
-using System.Globalization;
 using API.Dtos;
 using API.Ultils;
+using Web.Utils;
 
 namespace Web.Controllers
 {
@@ -46,9 +46,9 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during login");
-                ViewData["Error"] = "An error occurred";
-                return View();
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
             }
         }
 
@@ -85,7 +85,7 @@ namespace Web.Controllers
                     user.MidName = string.Join(" ", nameArr.Skip(1).Take(nameArr.Length - 2));
                 }
 
-				user.UserName = (RemoveDiacritics(user.LastName) + user.ProvinceCode + GenerateRandomString(4)).ToLower();
+				user.UserName = (StringUtils.RemoveDiacritics(user.LastName) + user.ProvinceCode + StringUtils.GenerateRandomString(4)).ToLower();
                 user.RoleId = (int) UserRoleEnum.CUSTOMER;
                 user.SpaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
                             ? int.Parse(ViewData["SpaId"].ToString())
@@ -111,13 +111,13 @@ namespace Web.Controllers
                     return View();
 				}
 			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error during login");
-				ViewData["Error"] = "An error occurred";
-				return View();
-			}
-		}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
+        }
 
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
@@ -142,8 +142,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during login");
-                ViewData["Error"] = "An error occurred";
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
                 return View("Error");
             }
         }
@@ -198,41 +198,10 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during login");
-                ViewData["Error"] = "An error occurred";
-                return View();
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
             }
         }
-
-        public static string GenerateRandomString(int length)
-		{
-			const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-			char[] stringChars = new char[length];
-
-			for (int i = 0; i < length; i++)
-			{
-				stringChars[i] = chars[new Random().Next(chars.Length)];
-			}
-
-			return new string(stringChars);
-		}
-
-		public static string RemoveDiacritics(string text)
-		{
-			var normalizedString = text.Normalize(NormalizationForm.FormD);
-			var stringBuilder = new StringBuilder();
-
-			foreach (var c in normalizedString)
-			{
-				var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
-				if (unicodeCategory != UnicodeCategory.NonSpacingMark)
-				{
-					stringBuilder.Append(c);
-				}
-			}
-
-			return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
-		}
-
 	}
 }
