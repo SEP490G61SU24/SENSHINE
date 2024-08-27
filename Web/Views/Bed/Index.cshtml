@@ -191,47 +191,37 @@
         function confirmDelete(button) {
             var bedId = $(button).data("id");
 
-            swal({
+            Swal.fire({
                 title: 'Bạn có chắc chắn muốn xóa?',
                 text: "Dữ liệu sẽ bị mất khi xác nhận!",
                 icon: 'warning',
-                buttons: {
-                    cancel: {
-                        text: 'Không, hủy bỏ!',
-                        value: null,
-                        visible: true,
-                        className: 'btn btn-secondary',
-                        closeModal: true
-                    },
-                    confirm: {
-                        text: 'Xác nhận!',
-                        value: true,
-                        visible: true,
-                        className: 'btn btn-success',
-                        closeModal: true
-                    }
-                }
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Xác nhận!',
+                cancelButtonText: 'Không, hủy bỏ!'
             }).then((result) => {
-                if (result) {
+                if (result.isConfirmed) {
                     $.ajax({
                         url: '/Bed/Delete/' + bedId,
                         type: 'DELETE',
                         success: function (response) {
                             if (response.success) {
-                                swal('Đã xóa!', 'Dữ liệu đã được xóa thành công.', 'success').then(() => {
+                                Swal.fire('Đã xóa!', 'Dữ liệu đã được xóa thành công.', 'success').then(() => {
                                     $('#bed-' + bedId).remove();
                                 });
                             } else {
-                                swal('Lỗi!', response.message, 'error');
+                                Swal.fire('Lỗi!', response.message, 'error');
                             }
                         },
                         error: function () {
-                            swal('Lỗi!', 'Có lỗi xảy ra khi xóa dữ liệu.', 'error');
+                            Swal.fire('Lỗi!', 'Có lỗi xảy ra khi xóa dữ liệu.', 'error');
                         }
                     });
                 }
             });
         }
+
 
     </script>
 }
