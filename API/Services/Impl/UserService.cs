@@ -140,7 +140,7 @@ namespace API.Services.Impl
             }
             else
             {
-                role = await _context.Roles.SingleOrDefaultAsync(r => r.RoleName == "STAFF");
+                role = await _context.Roles.SingleOrDefaultAsync(r => r.RoleName == UserRoleEnum.STAFF.ToString());
                 if (role == null)
                 {
                     throw new InvalidOperationException("Vai trò mặc định 'STAFF' không tìm thấy.");
@@ -218,7 +218,7 @@ namespace API.Services.Impl
             }
             else
             {
-                role = await _context.Roles.SingleOrDefaultAsync(r => r.RoleName == "STAFF");
+                role = await _context.Roles.SingleOrDefaultAsync(r => r.RoleName == UserRoleEnum.STAFF.ToString());
                 if (role == null)
                 {
                     throw new InvalidOperationException("Vai trò mặc định 'STAFF' không tìm thấy.");
