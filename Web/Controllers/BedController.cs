@@ -1,4 +1,5 @@
-﻿using API.Ultils;
+﻿using API.Dtos;
+using API.Ultils;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Text;
@@ -23,21 +24,10 @@ namespace Web.Controllers
         {
             try
             {
-                int? spaId = 0;
-                var token = HttpContext.Session.GetString("Token");
-           
-                if (!string.IsNullOrEmpty(token))
-                {
-                    var userProfile = await GetUserProfileAsync(token);
-                    if (userProfile != null)
-                    {
-                        spaId = userProfile.SpaId;
-                    }
-                    else
-                    {
-                        ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
-                    }
-                }
+                var cardInvoice = new CardInvoiceDTO();
+                int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
+                    ? int.Parse(ViewData["SpaId"].ToString())
+                    : (int?)null;
 
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
@@ -85,7 +75,6 @@ namespace Web.Controllers
             }
         }
 
-
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -98,21 +87,10 @@ namespace Web.Controllers
         public async Task<IActionResult> Create(BedViewModel bedViewModel)
         {
 
-            int? spaId = 0;
-            var token = HttpContext.Session.GetString("Token");
-
-            if (!string.IsNullOrEmpty(token))
-            {
-                var userProfile = await GetUserProfileAsync(token);
-                if (userProfile != null)
-                {
-                    spaId = userProfile.SpaId;
-                }
-                else
-                {
-                    ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
-                }
-            }
+            var cardInvoice = new CardInvoiceDTO();
+            int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
+                ? int.Parse(ViewData["SpaId"].ToString())
+                : (int?)null;
             try
             {
                 var apiUrl = _configuration["ApiUrl"];
@@ -158,7 +136,6 @@ namespace Web.Controllers
             ViewBag.Rooms = roomsList;
             return View(bedViewModel);
         }
-
 
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
@@ -247,22 +224,11 @@ namespace Web.Controllers
 
         private async Task<List<RoomViewModel>> GetAvailableRooms()
         {
+            var cardInvoice = new CardInvoiceDTO();
+            int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
+                ? int.Parse(ViewData["SpaId"].ToString())
+                : (int?)null;
 
-            int? spaId = 0;
-            var token = HttpContext.Session.GetString("Token");
-
-            if (!string.IsNullOrEmpty(token))
-            {
-                var userProfile = await GetUserProfileAsync(token);
-                if (userProfile != null)
-                {
-                    spaId = userProfile.SpaId;
-                }
-                else
-                {
-                    ViewData["Error"] = "Không lấy được dữ liệu của người dùng hiện tại";
-                }
-            }
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
             List<RoomViewModel> rooms = new List<RoomViewModel>();

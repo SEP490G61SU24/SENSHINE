@@ -206,9 +206,8 @@ namespace Web.Controllers
                     }
                     else
                     {
-                        ViewData["Error"] = "Nhân viên này đã có lương tháng " + salary.SalaryMonth + " năm " + salary.SalaryYear;
+                        ViewData["Error"] = "Nhân viên này không tồn tại hoặc đã có lương tháng " + salary.SalaryMonth + " năm " + salary.SalaryYear;
                         return View(salary);
-
                     }
                 }
 
