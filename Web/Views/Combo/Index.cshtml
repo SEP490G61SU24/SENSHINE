@@ -1,30 +1,32 @@
-﻿@section Styles {
+﻿@model API.Ultils.PaginatedList<Web.Models.ComboViewModel>
+
+@section Styles {
     <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
-    <!-- ico-font-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
-    <!-- Themify icon-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/themify.css">
-    <!-- Flag icon-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/flag-icon.css">
-    <!-- Feather icon-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/feather-icon.css">
-    <!-- Plugins css start-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/datatables.css">
-    <!-- Plugins css Ends-->
-    <!-- Bootstrap css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/sweetalert2.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
-    <!-- App css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
-    <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 }
 
-@model API.Ultils.PaginatedList<Web.Models.ComboViewModel>
+@{
+    ViewData["Title"] = "Danh Sách Combo";
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
 
 <div class="container-fluid">
     <div class="row">
@@ -83,14 +85,14 @@
                                         <td><a href="#" class="comboTitle" data-id="@item.Id">@item.Name</a></td>
                                         <td>@item.Quantity</td>
                                         <td>@String.Format("{0:0,0} VND", @item.Price)</td>
-                                        <td>@item.Discount</td> 
+                                        <td>@item.Discount</td>
                                         <td>@String.Format("{0:0,0} VND", @item.SalePrice)</td>
                                         <td>@item.Note</td>
                                         <td>
-                                            <div class="product-action">
-                                                <button class="btn btn-primary btn-sm" data-id="@item.Id" onclick="editCombo(this)" style="height: 35px; width: 150px;">Edit</button>
-                                                <button class="btn btn-danger btn-sm" data-id="@item.Id" onclick="confirmDelete(this)" style="height: 35px; width: 150px;">Delete</button>
-                                            </div>
+                                            <ul class="action">
+                                                <li class="edit"><a href="#" data-id="@item.Id" onclick="editCombo(this)"><i class="icon-pencil-alt"></i></a></li>
+                                                <li class="delete"><a href="#" data-id="@item.Id" onclick="confirmDelete(this)"><i class="icon-trash"></i></a></li>
+                                            </ul>
                                         </td>
                                     </tr>
                                 }
@@ -126,130 +128,22 @@
     </div>
 </div>
 
-<script>
-    $(document).ready(function () {
-        $(".comboTitle").click(function (event) {
-            event.preventDefault();
-            var comboId = $(this).data("id");
-
-            $.ajax({
-                url: '/Combo/GetComboDetail/' + comboId,
-                method: 'GET',
-                success: function (data) {
-                    // Set default values for properties
-                    var comboName = data.name || 'No Title';
-                    var price = data.price !== null ? data.price.toFixed(2) : 'No Price';
-                    var discount = data.discount !== null ? data.discount.toFixed(2) : 'No Discount';
-                    var salePrice = data.salePrice !== null ? data.salePrice.toFixed(2) : 'No Sale Price';
-                    var services = data.services || [];
-
-                    // Update HTML elements with the API data
-                    $("#comboName").text(comboName);
-                    $("#comboPrice").text('Price: ' + price);
-                    $("#comboDiscount").text('Discount: ' + discount);
-                    $("#comboSalePrice").text('Sale Price: ' + salePrice);
-
-                    // Update service list
-                    var serviceList = $("#serviceList");
-                    serviceList.empty();
-                    $.each(services, function (index, service) {
-                        serviceList.append('<li>' + service.name + ' - ' + service.price.toFixed(2) + '</li>');
-                    });
-
-                    $("#editComboBtn").data("id", comboId);
-                    $("#deleteComboBtn").data("id", comboId);
-
-                    // Show the detail section
-                    $("#comboDetail").show();
-                },
-                error: function () {
-                    alert("An error occurred while fetching the combo details.");
-                }
-            });
-        });
-
-        $("#editComboBtn").click(function () {
-            var comboId = $(this).data("id");
-            window.location.href = '/Combo/Edit/' + comboId;
-        });
-
-        $("#deleteComboBtn").click(function () {
-            var comboId = $(this).data("id");
-
-            if (confirm("Are you sure you want to delete this combo?")) {
-                $.ajax({
-                    url: '/Combo/Delete/' + comboId,
-                    method: 'DELETE',
-                    success: function (response) {
-                        if (response.success) {
-                            alert("Combo deleted successfully.");
-                            $('#combo-' + comboId).remove();
-                            $("#comboDetail").hide();
-                        } else {
-                            alert("Failed to delete the combo.");
-                        }
-                    },
-                    error: function () {
-                        alert("An error occurred while deleting the combo.");
-                    }
-                });
-            }
-        });
-    });
-
-    function editCombo(button) {
-        var comboId = $(button).data("id");
-        window.location.href = '/Combo/Edit/' + comboId;
-    }
-
-    function confirmDelete(button) {
-        var comboId = $(button).data("id");
-
-        if (confirm("Are you sure you want to delete this combo?")) {
-            $.ajax({
-                url: '/Combo/Delete/' + comboId,
-                method: 'DELETE',
-                success: function (response) {
-                    if (response.success) {
-                        alert("Combo deleted successfully.");
-                        $('#combo-' + comboId).remove();
-                    } else {
-                        alert("Failed to delete the combo.");
-                    }
-                },
-                error: function () {
-                    alert("An error occurred while deleting the combo.");
-                }
-            });
-        }
-    }
-</script>
-
 @section Scripts {
     <script src="~/assets/js/jquery.min.js"></script>
-    <!-- Bootstrap js-->
     <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
-    <!-- feather icon js-->
     <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
     <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
-    <!-- scrollbar js-->
     <script src="~/assets/js/scrollbar/simplebar.js"></script>
     <script src="~/assets/js/scrollbar/custom.js"></script>
-    <!-- Sidebar jquery-->
     <script src="~/assets/js/config.js"></script>
-    <!-- Plugins JS start-->
     <script src="~/assets/js/sidebar-menu.js"></script>
     <script src="~/assets/js/sidebar-pin.js"></script>
     <script src="~/assets/js/slick/slick.min.js"></script>
     <script src="~/assets/js/slick/slick.js"></script>
     <script src="~/assets/js/header-slick.js"></script>
-    <!-- calendar js-->
     <script src="~/assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
     <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
-    <!-- Plugins JS Ends-->
-    <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
-    <!-- sweet alert -->
     <script src="~/assets/js/sweet-alert/sweetalert.min.js"></script>
     <script>
         $(document).ready(function () {
@@ -258,5 +152,56 @@
                 searching: false
             });
         });
+
+        function editCombo(button) {
+            var comboId = $(button).data("id");
+            window.location.href = '/Combo/Edit/' + comboId;
+        }
+
+        function confirmDelete(button) {
+            var comboId = $(button).data("id");
+
+            swal({
+                title: 'Bạn có chắc chắn muốn xóa?',
+                text: "Dữ liệu sẽ bị mất khi xác nhận!",
+                icon: 'warning',
+                buttons: {
+                    cancel: {
+                        text: 'Không, hủy bỏ!',
+                        value: null,
+                        visible: true,
+                        className: 'btn btn-secondary',
+                        closeModal: true
+                    },
+                    confirm: {
+                        text: 'Xác nhận!',
+                        value: true,
+                        visible: true,
+                        className: 'btn btn-success',
+                        closeModal: true
+                    }
+                }
+            }).then((result) => {
+                if (result) {
+                    $.ajax({
+                        url: '/Combo/Delete/' + comboId,
+                        type: 'DELETE',  // Ensure DELETE method is used
+                        success: function (response) {
+                            if (response.success) {
+                                swal('Đã xóa!', 'Dữ liệu đã được xóa thành công.', 'success').then(() => {
+                                    $('#combo-' + comboId).remove();
+                                });
+                            } else {
+                                swal('Lỗi!', response.message, 'error');
+                            }
+                        },
+                        error: function () {
+                            swal('Lỗi!', 'Có lỗi xảy ra khi xóa dữ liệu.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
     </script>
-    }
+}

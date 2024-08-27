@@ -13,12 +13,14 @@ namespace API.Controllers
     public class AppointmentController : Controller
     {
         private readonly IAppointmentService _appointmentService;
-        private readonly SenShineSpaContext _dbContext;
+        private readonly IUserService _userService;
+        private readonly ISpaService _spaService;
         private readonly IMapper _mapper;
-        public AppointmentController(IAppointmentService appointmentService, SenShineSpaContext dbContext, IMapper mapper)
+        public AppointmentController(IAppointmentService appointmentService, IUserService userService, ISpaService spaService,IMapper mapper)
         {
             _appointmentService = appointmentService;
-            _dbContext = dbContext;
+            _userService = userService;
+            _spaService = spaService;
             _mapper = mapper;
         }
 
@@ -134,24 +136,19 @@ namespace API.Controllers
             try
             {
                 // Kiểm tra sự tồn tại của khách hàng trong cơ sở dữ liệu
-                if (appointmentDTO.CustomerId.HasValue)
+                var cus = await _userService.GetById(appointmentDTO.CustomerId);
+                if (cus == null)
                 {
-                    var customerExists = await _dbContext.Users.AnyAsync(c => c.Id == appointmentDTO.CustomerId.Value);
-                    if (!customerExists)
-                    {
-                        return BadRequest("Customer does not exist.");
-                    }
+                    return BadRequest("Khách hàng không tồn tại.");
                 }
 
                 // Kiểm tra sự tồn tại của nhân viên trong cơ sở dữ liệu
-                if (appointmentDTO.EmployeeId.HasValue)
+                var emp = await _userService.GetById(appointmentDTO.EmployeeId);
+                if (emp == null)
                 {
-                    var employeeExists = await _dbContext.Users.AnyAsync(e => e.Id == appointmentDTO.EmployeeId.Value);
-                    if (!employeeExists)
-                    {
-                        return BadRequest("Employee does not exist.");
-                    }
+                    return BadRequest("Nhân viên không tồn tại.");
                 }
+
                 // Kiểm tra thời gian slot của cuộc hẹn
                 var validSlots = new List<string>
                 {
@@ -170,7 +167,6 @@ namespace API.Controllers
                 {
                     return BadRequest("Invalid appointment slot.");
                 }
-
 
                 // Kiểm tra trạng thái cuộc hẹn
                 var validStatuses = new List<string>
@@ -191,27 +187,24 @@ namespace API.Controllers
                 if (appointmentDTO.AppointmentDate.HasValue &&
                     appointmentDTO.AppointmentDate.Value.Date < DateTime.UtcNow.Date)
                 {
-                    return BadRequest("Cannot create an appointment for a past date.");
+                    return BadRequest("Không thể đặt lịch trong quá khứ.");
                 }
                 // Kiểm tra sự tồn tại của dịch vụ được thêm vào cuộc hẹn
                 List<Service> existingServices = new List<Service>();
                 if (appointmentDTO.Services != null && appointmentDTO.Services.Any())
                 {
-                    var serviceIds = appointmentDTO.Services.Select(s => s.Id).ToList();
-                    existingServices = await _dbContext.Services
-                                                        .Where(s => serviceIds.Contains(s.Id))
-                                                        .ToListAsync();
+                    var checkValidSv = await _spaService.ValidateServicesAsync(appointmentDTO);
 
-                    if (existingServices.Count != serviceIds.Count)
+                    if (!checkValidSv)
                     {
-                        return BadRequest("One or more services do not exist.");
+                        return BadRequest("Một hoặc nhiều dịch vụ không tồn tại.");
                     }
 
                     // Đảm bảo các dịch vụ tồn tại không bị theo dõi trong ngữ cảnh
-                    foreach (var service in existingServices)
-                    {
-                        _dbContext.Entry(service).State = EntityState.Unchanged;
-                    }
+                    //foreach (var service in existingServices)
+                    //{
+                    //    _dbContext.Entry(service).State = EntityState.Unchanged;
+                    //}
                 }
 
                 // Ánh xạ DTO thành đối tượng Appointment và gán dịch vụ, sản phẩm đã kiểm tra
@@ -249,24 +242,23 @@ namespace API.Controllers
 
             try
             {
-                var existingAppointment = await _dbContext.Appointments
-                                                          .Include(a => a.Services)
-                                                          .FirstOrDefaultAsync(a => a.Id == id);
+                var existingAppointment = await _appointmentService.GetAppointmentByIdAsync(appointmentDTO.Id);
+
                 if (existingAppointment == null)
                 {
-                    return NotFound("Appointment not found.");
+                    return NotFound("Không tìm thấy lịch hẹn.");
                 }
 
                 // Kiểm tra trạng thái cuộc hẹn
                 var validStatuses = new List<string>
-        {
-            AppointmentStatusUtils.Cancelled,
-            AppointmentStatusUtils.Pending,
-            AppointmentStatusUtils.Doing,
-            AppointmentStatusUtils.Finished,
-            AppointmentStatusUtils.Combo
+                {
+                    AppointmentStatusUtils.Cancelled,
+                    AppointmentStatusUtils.Pending,
+                    AppointmentStatusUtils.Doing,
+                    AppointmentStatusUtils.Finished,
+                    AppointmentStatusUtils.Combo
 
-        };
+                };
 
                 if (!validStatuses.Contains(appointmentDTO.Status))
                 {
@@ -275,63 +267,38 @@ namespace API.Controllers
 
                 // Kiểm tra thời gian slot của cuộc hẹn
                 var validSlots = new List<string>
-        {
-            AppointmentSlotUtils.Slot1,
-            AppointmentSlotUtils.Slot2,
-            AppointmentSlotUtils.Slot3,
-            AppointmentSlotUtils.Slot4,
-            AppointmentSlotUtils.Slot5,
-            AppointmentSlotUtils.Slot6,
-            AppointmentSlotUtils.Slot7,
-            AppointmentSlotUtils.Slot8,
-            AppointmentSlotUtils.Slot9
-        };
+                {
+                    AppointmentSlotUtils.Slot1,
+                    AppointmentSlotUtils.Slot2,
+                    AppointmentSlotUtils.Slot3,
+                    AppointmentSlotUtils.Slot4,
+                    AppointmentSlotUtils.Slot5,
+                    AppointmentSlotUtils.Slot6,
+                    AppointmentSlotUtils.Slot7,
+                    AppointmentSlotUtils.Slot8,
+                    AppointmentSlotUtils.Slot9
+                };
 
                 if (!validSlots.Contains(appointmentDTO.AppointmentSlot))
                 {
                     return BadRequest("Invalid appointment slot.");
                 }
 
-                // Kiểm tra sự tồn tại của khách hàng
-                if (appointmentDTO.CustomerId.HasValue)
+                // Kiểm tra sự tồn tại của khách hàng trong cơ sở dữ liệu
+                var cus = await _userService.GetById(appointmentDTO.CustomerId);
+                if (cus == null)
                 {
-                    var customerExists = await _dbContext.Users.AnyAsync(c => c.Id == appointmentDTO.CustomerId.Value);
-                    if (!customerExists)
-                    {
-                        return BadRequest("Customer does not exist.");
-                    }
+                    return BadRequest("Khách hàng không tồn tại.");
                 }
 
-                // Kiểm tra sự tồn tại của nhân viên
-                if (appointmentDTO.EmployeeId.HasValue)
+                // Kiểm tra sự tồn tại của nhân viên trong cơ sở dữ liệu
+                var emp = await _userService.GetById(appointmentDTO.EmployeeId);
+                if (emp == null)
                 {
-                    var employeeExists = await _dbContext.Users.AnyAsync(e => e.Id == appointmentDTO.EmployeeId.Value);
-                    if (!employeeExists)
-                    {
-                        return BadRequest("Employee does not exist.");
-                    }
+                    return BadRequest("Nhân viên không tồn tại.");
                 }
 
-                // Xử lý dịch vụ
-                List<Service> existingServices = new List<Service>();
-                if (appointmentDTO.Services != null && appointmentDTO.Services.Any())
-                {
-                    var serviceIds = appointmentDTO.Services.Select(s => s.Id).ToList();
-                    existingServices = await _dbContext.Services
-                                                       .Where(s => serviceIds.Contains(s.Id))
-                                                       .ToListAsync();
-
-                    if (existingServices.Count != serviceIds.Count)
-                    {
-                        return BadRequest("One or more services do not exist.");
-                    }
-                }
-
-                // Ánh xạ và cập nhật cuộc hẹn
-                _mapper.Map(appointmentDTO, existingAppointment);
-                existingAppointment.Services = existingServices;
-
-                await _dbContext.SaveChangesAsync();
+                await _appointmentService.UpdateAppointmentAsync(appointmentDTO.Id, appointmentDTO);
 
                 return Ok($"Update Appointment Successful With ID: {existingAppointment.Id}");
             }

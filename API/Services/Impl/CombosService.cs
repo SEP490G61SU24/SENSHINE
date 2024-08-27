@@ -86,9 +86,10 @@ namespace API.Services.Impl
 
                 combo.Price = combo.Services.Sum(s => s.Amount);
 
+                // Calculate SalePrice based on the new formula
                 if (combo.Discount.HasValue && combo.Price.HasValue)
                 {
-                    combo.SalePrice = combo.Price - (combo.Price * combo.Discount / 100);
+                    combo.SalePrice = combo.Price * combo.Quantity * (combo.Discount / 100);
                 }
 
                 await _dbContext.SaveChangesAsync();
@@ -100,6 +101,7 @@ namespace API.Services.Impl
                 throw new InvalidOperationException("An error occurred while updating the combo.", ex);
             }
         }
+
 
         public async Task<ComboDTO> FindComboWithItsId(int id)
         {

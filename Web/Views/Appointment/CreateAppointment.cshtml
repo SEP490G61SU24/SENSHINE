@@ -36,107 +36,109 @@
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 }
 
-<div class="container mt-3">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <form asp-action="CreateAppointment">
-                <div class="form-group">
-                    <label asp-for="CustomerId" class="control-label">Tên Khách Hàng</label>
-                    <select asp-for="CustomerId" class="form-control" id="customerSelect">
-                        <option value="">Select Customer</option>
-                        @if (customers != null)
-                        {
-                            @foreach (var customer in customers)
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <form asp-action="CreateAppointment">
+                    <div class="form-group">
+                        <label asp-for="CustomerId" class="control-label">Tên Khách Hàng</label>
+                        <select asp-for="CustomerId" class="form-control" id="customerSelect">
+                            <option value="">Select Customer</option>
+                            @if (customers != null)
                             {
-                                <option value="@customer.Id">@customer.FirstName @customer.MidName @customer.LastName</option>
+                                @foreach (var customer in customers)
+                                {
+                                    <option value="@customer.Id">@customer.FirstName @customer.MidName @customer.LastName</option>
+                                }
                             }
-                        }
-                    </select>
-                    <span asp-validation-for="CustomerId" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="EmployeeId" class="control-label">Nhân Viên Phục Vụ</label>
-                    <select asp-for="EmployeeId" class="form-control" id="employeeSelect">
-                        <option value="">Select Employee</option>
+                        </select>
+                        <span asp-validation-for="CustomerId" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EmployeeId" class="control-label">Nhân Viên Phục Vụ</label>
+                        <select asp-for="EmployeeId" class="form-control" id="employeeSelect">
+                            <option value="">Select Employee</option>
 
-                        @if (employees != null)
-                        {
-                            @foreach (var employee in employees)
+                            @if (employees != null)
                             {
-                                <option value="@employee.Id">@employee.FirstName @employee.MidName @employee.LastName</option>
+                                @foreach (var employee in employees)
+                                {
+                                    <option value="@employee.Id">@employee.FirstName @employee.MidName @employee.LastName</option>
+                                }
                             }
-                        }
-                    </select>
-                    <span asp-validation-for="EmployeeId" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="AppointmentDate" class="control-label">Thời Gian Check In</label>
-                    <input asp-for="AppointmentDate" class="form-control" type="datetime-local" />
-                    <span asp-validation-for="AppointmentDate" class="text-danger"></span>
-                </div>
+                        </select>
+                        <span asp-validation-for="EmployeeId" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AppointmentDate" class="control-label">Thời Gian Check In</label>
+                        <input asp-for="AppointmentDate" class="form-control" type="datetime-local" />
+                        <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+                    </div>
 
-                <div class="form-group">
-                    <label asp-for="AppointmentSlot" class="control-label">Slot</label>
-                    <select asp-for="AppointmentSlot" class="form-control" id="slotSelect">
-                        <option value="Slot1">Slot 1: 8h30 - 10h</option>
-                        <option value="Slot2">Slot 2: 10h - 11h30</option>
-                        <option value="Slot3">Slot 3: 11h30 - 13h</option>
-                        <option value="Slot4">Slot 4: 13h - 14h30</option>
-                        <option value="Slot5">Slot 5: 14h30 - 16h</option>
-                        <option value="Slot6">Slot 6: 16h - 17h30</option>
-                        <option value="Slot7">Slot 7: 17h30 - 19h</option>
-                        <option value="Slot8">Slot 8: 19h - 20h30</option>
-                        <option value="Slot9">Slot 9: 20h30 - 22h</option>
-                    </select>
-                    <span asp-validation-for="AppointmentSlot" class="text-danger"></span>
-                </div>
+                    <div class="form-group">
+                        <label asp-for="AppointmentSlot" class="control-label">Slot</label>
+                        <select asp-for="AppointmentSlot" class="form-control" id="slotSelect">
+                            <option value="Slot1">Slot 1: 8h30 - 10h</option>
+                            <option value="Slot2">Slot 2: 10h - 11h30</option>
+                            <option value="Slot3">Slot 3: 11h30 - 13h</option>
+                            <option value="Slot4">Slot 4: 13h - 14h30</option>
+                            <option value="Slot5">Slot 5: 14h30 - 16h</option>
+                            <option value="Slot6">Slot 6: 16h - 17h30</option>
+                            <option value="Slot7">Slot 7: 17h30 - 19h</option>
+                            <option value="Slot8">Slot 8: 19h - 20h30</option>
+                            <option value="Slot9">Slot 9: 20h30 - 22h</option>
+                        </select>
+                        <span asp-validation-for="AppointmentSlot" class="text-danger"></span>
+                    </div>
 
-                <div class="form-group">
-                    <label asp-for="SelectedServiceIds" class="control-label">Dịch Vụ Sử Dụng</label>
-                    <select asp-for="SelectedServiceIds" class="form-control" multiple id="serviceSelect">
-                        @if (services != null)
-                        {
-                            @foreach (var service in services)
+                    <div class="form-group">
+                        <label asp-for="SelectedServiceIds" class="control-label">Dịch Vụ Sử Dụng</label>
+                        <select asp-for="SelectedServiceIds" class="form-control" multiple id="serviceSelect">
+                            @if (services != null)
                             {
-                                <option value="@service.Id">@service.ServiceName</option>
+                                @foreach (var service in services)
+                                {
+                                    <option value="@service.Id">@service.ServiceName</option>
+                                }
                             }
-                        }
-                    </select>
-                    <span asp-validation-for="SelectedServiceIds" class="text-danger"></span>
-                </div>
-                <div class="row">
-                <div class="col-md-3 position-relative">
-                    <label class="form-label" for="provinceDropdown">Chọn Phòng Phục Vụ</label>
-                    <select class="form-select" name="RoomId" id="provinceDropdown" required="">
-                        <option selected disabled value="">Chọn...</option>
-                    </select>
-                    <div class="invalid-tooltip">Vui lòng chọn phòng phục vụ</div>
-                </div>
-                <div class="col-md-3 position-relative">
-                    <label class="form-label" for="districtDropdown">Chọn Giường Phục Vụ</label>
-                    <select class="form-select" name="BedId" id="districtDropdown" required="">
-                        <option selected disabled value="">Chọn...</option>
-                    </select>
-                    <div class="invalid-tooltip">Vui lòng chọn giường phục vụ</div>
-                </div>
-                </div>
+                        </select>
+                        <span asp-validation-for="SelectedServiceIds" class="text-danger"></span>
+                    </div>
+                    <div class="row">
+                    <div class="col-md-3 position-relative">
+                        <label class="form-label" for="provinceDropdown">Chọn Phòng Phục Vụ</label>
+                        <select class="form-select" name="RoomId" id="provinceDropdown" required="">
+                            <option selected disabled value="">Chọn...</option>
+                        </select>
+                        <div class="invalid-tooltip">Vui lòng chọn phòng phục vụ</div>
+                    </div>
+                    <div class="col-md-3 position-relative">
+                        <label class="form-label" for="districtDropdown">Chọn Giường Phục Vụ</label>
+                        <select class="form-select" name="BedId" id="districtDropdown" required="">
+                            <option selected disabled value="">Chọn...</option>
+                        </select>
+                        <div class="invalid-tooltip">Vui lòng chọn giường phục vụ</div>
+                    </div>
+                    </div>
 
-                <div class="form-group">
-                    <label asp-for="Status" class="control-label">Trạng Thái</label>
-                    <select asp-for="Status" class="form-control" id="statusSelect">
-                        <option value="Cancel">Cancelled</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Doing">Doing</option>
-                        <option value="Combo">Combo Order</option>
-                        <option value="Finished">Finished</option>
-                    </select>
-                    <span asp-validation-for="Status" class="text-danger"></span>
-                </div>
-                <div class="mt-4">
-                    <a asp-action="ListAppointment" class="btn btn-secondary">Cancel</a>
-                    <input type="submit" value="Create" class="btn btn-primary" />
-                </div>
-            </form>
+                    <div class="form-group">
+                        <label asp-for="Status" class="control-label">Trạng Thái</label>
+                        <select asp-for="Status" class="form-control" id="statusSelect">
+                            <option value="Cancel">Cancelled</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Doing">Doing</option>
+                            <option value="Combo">Combo Order</option>
+                            <option value="Finished">Finished</option>
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger"></span>
+                    </div>
+                    <div class="mt-4">
+                        <a asp-action="ListAppointment" class="btn btn-secondary">Cancel</a>
+                        <input type="submit" value="Create" class="btn btn-primary" />
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>

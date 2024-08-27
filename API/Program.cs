@@ -60,6 +60,7 @@ namespace API
             builder.Services.AddAutoMapper(typeof(RoleMapper));
             builder.Services.AddAutoMapper(typeof(WorkScheduleMapper));
             builder.Services.AddAutoMapper(typeof(ComboMapper));
+            builder.Services.AddAutoMapper(typeof(AppointmentMapper));
 
             builder.Services.AddQuartz(q =>
             {

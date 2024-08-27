@@ -20,26 +20,118 @@ namespace API.Services.Impl
 
         public async Task<InvoiceDTO> AddInvoice(InvoiceDTO invoiceDto)
         {
-            var invoice = _mapper.Map<Invoice>(invoiceDto);
-            _context.Invoices.Add(invoice);
+            var newInvoice = _mapper.Map<Invoice>(invoiceDto);
+
+            // Add the invoice to the context
+            _context.Invoices.Add(newInvoice);
+
+            // Save changes to get the Id for the new invoice
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<InvoiceDTO>(invoice);
+            // Handle Services
+            if (invoiceDto.ServiceIds != null && invoiceDto.ServiceIds.Any())
+            {
+                var serviceQuantities = invoiceDto.ServiceQuantities ?? new Dictionary<int, int?>();
+
+                foreach (var serviceId in invoiceDto.ServiceIds)
+                {
+                    newInvoice.InvoiceServices.Add(new InvoiceService
+                    {
+                        InvoiceId = newInvoice.Id,
+                        ServiceId = serviceId,
+                        Quantity = serviceQuantities.ContainsKey(serviceId) ? serviceQuantities[serviceId] : null
+                    });
+                }
+            }
+
+            // Handle Combos
+            if (invoiceDto.ComboIds != null && invoiceDto.ComboIds.Any())
+            {
+                var comboQuantities = invoiceDto.ComboQuantities ?? new Dictionary<int, int?>();
+
+                foreach (var comboId in invoiceDto.ComboIds)
+                {
+                    newInvoice.InvoiceCombos.Add(new InvoiceCombo
+                    {
+                        InvoiceId = newInvoice.Id,
+                        ComboId = comboId,
+                        Quantity = comboQuantities.ContainsKey(comboId) ? comboQuantities[comboId] : null
+                    });
+                }
+            }
+
+            // Save changes again to persist InvoiceServices and InvoiceCombos
+            await _context.SaveChangesAsync();
+
+            // Map back to DTO to return
+            return _mapper.Map<InvoiceDTO>(newInvoice);
         }
+    
 
         public async Task<InvoiceDTO> EditInvoice(int id, InvoiceDTO invoiceDto)
         {
-            var invoice = await _context.Invoices.FindAsync(id);
-            if (invoice == null)
+            /* var invoice = await _context.Invoices.FindAsync(id);
+             if (invoice == null)
+             {
+                 return null;
+             }
+
+             _mapper.Map(invoiceDto, invoice);
+             _context.Invoices.Update(invoice);
+             await _context.SaveChangesAsync();
+
+             return _mapper.Map<InvoiceDTO>(invoice);*/
+            // Retrieve the existing invoice with related entities
+            var existingInvoice = await _context.Invoices
+                .Include(i => i.InvoiceServices)
+                .Include(i => i.InvoiceCombos)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (existingInvoice == null)
             {
-                return null;
+                throw new ArgumentException("Invoice not found.");
             }
 
-            _mapper.Map(invoiceDto, invoice);
-            _context.Invoices.Update(invoice);
+            // Map basic properties from DTO to existing invoice
+            _mapper.Map(invoiceDto, existingInvoice);
+
+            // Update Services
+            existingInvoice.InvoiceServices.Clear();
+            if (invoiceDto.ServiceIds != null)
+            {
+                var serviceQuantities = invoiceDto.ServiceQuantities ?? new Dictionary<int, int?>();
+                foreach (var serviceId in invoiceDto.ServiceIds)
+                {
+                    existingInvoice.InvoiceServices.Add(new InvoiceService
+                    {
+                        InvoiceId = existingInvoice.Id,
+                        ServiceId = serviceId,
+                        Quantity = serviceQuantities.ContainsKey(serviceId) ? serviceQuantities[serviceId] : null
+                    });
+                }
+            }
+
+            // Update Combos
+            existingInvoice.InvoiceCombos.Clear();
+            if (invoiceDto.ComboIds != null)
+            {
+                var comboQuantities = invoiceDto.ComboQuantities ?? new Dictionary<int, int?>();
+                foreach (var comboId in invoiceDto.ComboIds)
+                {
+                    existingInvoice.InvoiceCombos.Add(new InvoiceCombo
+                    {
+                        InvoiceId = existingInvoice.Id,
+                        ComboId = comboId,
+                        Quantity = comboQuantities.ContainsKey(comboId) ? comboQuantities[comboId] : null
+                    });
+                }
+            }
+
+            // Save the updated invoice
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<InvoiceDTO>(invoice);
+            // Map back to DTO to return
+            return _mapper.Map<InvoiceDTO>(existingInvoice);
         }
 
         public async Task<IEnumerable<InvoiceDTO>> ListInvoices()

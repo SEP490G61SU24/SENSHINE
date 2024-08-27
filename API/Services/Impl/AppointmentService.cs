@@ -75,27 +75,28 @@ namespace API.Services.Impl
             return appointment;
         }
 
-        public async Task<Appointment> UpdateAppointmentAsync(int id, Appointment appointment)
+        public async Task<Appointment> UpdateAppointmentAsync(int id, AppointmentDTO appointmentDTO)
         {
             var existingAppointment = await _dbContext.Appointments
                                                        .Include(a => a.Services)
                                                        .FirstOrDefaultAsync(x => x.Id == id);
             if (existingAppointment == null)
             {
-                return null;
+                throw new InvalidOperationException("Không tìm thấy lịch hẹn.");
             }
 
-            existingAppointment.CustomerId = appointment.CustomerId;
-            existingAppointment.EmployeeId = appointment.EmployeeId;
-            existingAppointment.AppointmentDate = appointment.AppointmentDate;
-            existingAppointment.Status = appointment.Status;
-            existingAppointment.AppointmentSlot = appointment.AppointmentSlot;
-            existingAppointment.RoomName = appointment.RoomName;
-            existingAppointment.BedNumber = appointment.BedNumber;
+            _mapper.Map(appointmentDTO, existingAppointment);
 
             // Xử lý cập nhật các dịch vụ
             existingAppointment.Services.Clear();
-            foreach (var service in appointment.Services)
+
+            var serviceIds = appointmentDTO.Services.Select(s => s.Id).ToList();
+
+            var existingServices = await _dbContext.Services
+                                                   .Where(s => serviceIds.Contains(s.Id))
+                                                   .ToListAsync();
+
+            foreach (var service in existingServices)
             {
                 _dbContext.Entry(service).State = EntityState.Unchanged;
                 existingAppointment.Services.Add(service);
