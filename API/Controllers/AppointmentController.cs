@@ -57,52 +57,7 @@ namespace API.Controllers
                     return NotFound("Appointment not found");
                 }
 
-                // Fetch address information in service method
-                var customerWard = await _dbContext.Wards.FirstOrDefaultAsync(w => w.Code == appointment.Customer.WardCode);
-                var customerDistrict = customerWard != null ? await _dbContext.Districts.FirstOrDefaultAsync(d => d.Code == customerWard.DistrictCode) : null;
-                var customerProvince = customerDistrict != null ? await _dbContext.Provinces.FirstOrDefaultAsync(p => p.Code == customerDistrict.ProvinceCode) : null;
-
-                var customerAddress = $"{customerWard?.Name ?? "-"} - {customerDistrict?.Name ?? "-"} - {customerProvince?.Name ?? "-"}";
-
-                var appointmentDTO = new AppointmentDTO
-                {
-                    Id = appointment.Id,
-                    CustomerId = appointment.CustomerId,
-                    EmployeeId = appointment.EmployeeId,
-                    AppointmentDate = appointment.AppointmentDate,
-                    AppointmentSlot = appointment.AppointmentSlot,
-                    RoomName = appointment.RoomName,
-                    BedNumber = appointment.BedNumber,
-
-                    Status = appointment.Status,
-                    Customer = new AppointmentUserDTO
-                    {
-                        Id = appointment.Customer.Id,
-                        FullName = appointment.Customer.FirstName + " " + appointment.Customer.MidName + " " + appointment.Customer.LastName,
-                        Phone = appointment.Customer.Phone,
-                        Address = customerAddress
-                    },
-                    Employee = new AppointmentUserDTO
-                    {
-                        Id = appointment.Employee.Id,
-                        FullName = appointment.Employee.FirstName + " " + appointment.Employee.MidName + " " + appointment.Employee.LastName,
-                        Phone = appointment.Employee.Phone
-                    },
-                    Services = appointment.Services.Select(s => new ServiceDTO
-                    {
-                        Id = s.Id,
-                        ServiceName = s.ServiceName,
-                        Amount = s.Amount,
-                        Description = s.Description
-                    }).ToList(),
-                    Products = appointment.Products.Select(p => new AppointmentDTO.AppointmentProductDTO
-                    {
-                        ProductId = p.Id,
-                        ProductName = p.ProductName
-                    }).ToList()
-                };
-
-                return Ok(appointmentDTO);
+                return Ok(appointment);
             }
             catch (Exception ex)
             {
@@ -119,7 +74,7 @@ namespace API.Controllers
                 var appointmentDTOs = await _appointmentService.GetAppointmentsByCustomerIdAsync(customerId);
                 if (appointmentDTOs == null || !appointmentDTOs.Any())
                 {
-                    return NotFound("No appointments found for this customer");
+                    return NoContent();
                 }
                 return Ok(appointmentDTOs);
             }
@@ -147,60 +102,10 @@ namespace API.Controllers
                 var appointments = await _appointmentService.GetAppointmentsByDateAsync(appointmentDate);
                 if (appointments == null || appointments.Count == 0)
                 {
-                    return NotFound("Appointments not found for the specified date");
+                    return NoContent();
                 }
 
-                // Fetch address information for each appointment
-                var appointmentDTOs = new List<AppointmentDTO>();
-
-                foreach (var appointment in appointments)
-                {
-                    var customerWard = await _dbContext.Wards.FirstOrDefaultAsync(w => w.Code == appointment.Customer.WardCode);
-                    var customerDistrict = customerWard != null ? await _dbContext.Districts.FirstOrDefaultAsync(d => d.Code == customerWard.DistrictCode) : null;
-                    var customerProvince = customerDistrict != null ? await _dbContext.Provinces.FirstOrDefaultAsync(p => p.Code == customerDistrict.ProvinceCode) : null;
-
-                    var address = $"{customerWard?.Name ?? "-"} - {customerDistrict?.Name ?? "-"} - {customerProvince?.Name ?? "-"}";
-
-                    appointmentDTOs.Add(new AppointmentDTO
-                    {
-                        Id = appointment.Id,
-                        CustomerId = appointment.CustomerId,
-                        EmployeeId = appointment.EmployeeId,
-                        AppointmentDate = appointment.AppointmentDate,
-                        AppointmentSlot = appointment.AppointmentSlot,
-                        RoomName = appointment.RoomName,
-                        BedNumber = appointment.BedNumber,
-
-                        Status = appointment.Status,
-                        Customer = new AppointmentUserDTO
-                        {
-                            Id = appointment.Customer.Id,
-                            FullName = appointment.Customer.FirstName + " " + appointment.Customer.MidName + " " + appointment.Customer.LastName,
-                            Phone = appointment.Customer.Phone,
-                            Address = address
-                        },
-                        Employee = new AppointmentUserDTO
-                        {
-                            Id = appointment.Employee.Id,
-                            FullName = appointment.Employee.FirstName + " " + appointment.Employee.MidName + " " + appointment.Employee.LastName,
-                            Phone = appointment.Employee.Phone
-                        },
-                        Services = appointment.Services.Select(s => new ServiceDTO
-                        {
-                            Id = s.Id,
-                            ServiceName = s.ServiceName,
-                            Amount = s.Amount,
-                            Description = s.Description
-                        }).ToList(),
-                        Products = appointment.Products.Select(p => new AppointmentDTO.AppointmentProductDTO
-                        {
-                            ProductId = p.Id,
-                            ProductName = p.ProductName
-                        }).ToList()
-                    });
-                }
-
-                return Ok(appointmentDTOs);
+                return Ok(appointments);
             }
             catch (ArgumentException ex)
             {
@@ -309,31 +214,9 @@ namespace API.Controllers
                     }
                 }
 
-                // Kiểm tra sự tồn tại của sản phẩm được thêm vào cuộc hẹn
-                List<Product> existingProducts = new List<Product>();
-                if (appointmentDTO.Products != null && appointmentDTO.Products.Any())
-                {
-                    var productIds = appointmentDTO.Products.Select(p => p.ProductId).ToList();
-                    existingProducts = await _dbContext.Products
-                                                       .Where(p => productIds.Contains(p.Id))
-                                                       .ToListAsync();
-
-                    if (existingProducts.Count != productIds.Count)
-                    {
-                        return BadRequest("One or more products do not exist.");
-                    }
-
-                    // Đảm bảo các sản phẩm tồn tại không bị theo dõi trong ngữ cảnh
-                    foreach (var product in existingProducts)
-                    {
-                        _dbContext.Entry(product).State = EntityState.Unchanged;
-                    }
-                }
-
                 // Ánh xạ DTO thành đối tượng Appointment và gán dịch vụ, sản phẩm đã kiểm tra
                 var appointment = _mapper.Map<Appointment>(appointmentDTO);
                 appointment.Services = existingServices;
-                appointment.Products = existingProducts;
 
                 // Tạo cuộc hẹn mới
                 await _appointmentService.CreateAppointmentAsync(appointment);
@@ -368,7 +251,6 @@ namespace API.Controllers
             {
                 var existingAppointment = await _dbContext.Appointments
                                                           .Include(a => a.Services)
-                                                          .Include(a => a.Products)
                                                           .FirstOrDefaultAsync(a => a.Id == id);
                 if (existingAppointment == null)
                 {
@@ -445,25 +327,9 @@ namespace API.Controllers
                     }
                 }
 
-                // Xử lý sản phẩm
-                List<Product> existingProducts = new List<Product>();
-                if (appointmentDTO.Products != null && appointmentDTO.Products.Any())
-                {
-                    var productIds = appointmentDTO.Products.Select(p => p.ProductId).ToList();
-                    existingProducts = await _dbContext.Products
-                                                       .Where(p => productIds.Contains(p.Id))
-                                                       .ToListAsync();
-
-                    if (existingProducts.Count != productIds.Count)
-                    {
-                        return BadRequest("One or more products do not exist.");
-                    }
-                }
-
                 // Ánh xạ và cập nhật cuộc hẹn
                 _mapper.Map(appointmentDTO, existingAppointment);
                 existingAppointment.Services = existingServices;
-                existingAppointment.Products = existingProducts;
 
                 await _dbContext.SaveChangesAsync();
 

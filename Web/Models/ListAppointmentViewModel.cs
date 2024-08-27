@@ -31,8 +31,6 @@ namespace Web.Models
         public AppointmentUserViewModel Customer { get; set; }
         public AppointmentUserViewModel Employee { get; set; }
         public List<ServiceViewModel> Services { get; set; }
-        public List<ProductViewModel> Products { get; set; }
-
 
         public class RoomAppointmentViewModel
         {

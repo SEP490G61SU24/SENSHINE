@@ -13,16 +13,8 @@ namespace API.Dtos
         public string? RoomName { get; set; }
         public string? BedNumber { get; set; } 
 
-        public virtual AppointmentUserDTO? Customer { get; set; }
-        public virtual AppointmentUserDTO? Employee { get; set; }
+        public virtual UserDTO? Customer { get; set; }
+        public virtual UserDTO? Employee { get; set; }
         public virtual ICollection<ServiceDTO> Services { get; set; }
-        public virtual ICollection<AppointmentProductDTO> Products { get; set; }
-
-
-        public class AppointmentProductDTO
-        {
-            public int ProductId { get; set; }
-            public string ProductName { get; set; }
-        }
     }
 }
