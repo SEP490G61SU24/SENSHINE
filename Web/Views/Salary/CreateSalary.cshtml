@@ -17,7 +17,7 @@
             <div class="col-md-6 position-relative">
                 <label asp-for="BaseSalary" class="control-label"></label>
                 <div class="input-group">
-                    <input asp-for="BaseSalary" class="form-control" />
+                    <input asp-for="BaseSalary" class="form-control" pattern="^\d+(\.\d{1,2})?$" title="Please enter a positive number without any special characters or letters." />
                     <div class="input-group-append">
                         <span class="input-group-text">VND</span>
                     </div>
@@ -27,7 +27,7 @@
             <div class="col-md-6 position-relative">
                 <label asp-for="Allowances" class="control-label"></label>
                 <div class="input-group">
-                    <input asp-for="Allowances" class="form-control" />
+                    <input asp-for="Allowances" class="form-control" pattern="^\d+(\.\d{1,2})?$" title="Please enter a positive number without any special characters or letters." />
                     <div class="input-group-append">
                         <span class="input-group-text">VND</span>
                     </div>
@@ -37,7 +37,7 @@
             <div class="col-md-6 position-relative">
                 <label asp-for="Bonus" class="control-label"></label>
                 <div class="input-group">
-                    <input asp-for="Bonus" class="form-control" />
+                    <input asp-for="Bonus" class="form-control" pattern="^\d+(\.\d{1,2})?$" title="Please enter a positive number without any special characters or letters." />
                     <div class="input-group-append">
                         <span class="input-group-text">VND</span>
                     </div>
@@ -47,7 +47,7 @@
             <div class="col-md-6 position-relative">
                 <label asp-for="Deductions" class="control-label"></label>
                 <div class="input-group">
-                    <input asp-for="Deductions" class="form-control" />
+                    <input asp-for="Deductions" class="form-control" pattern="^\d+(\.\d{1,2})?$" title="Please enter a positive number without any special characters or letters." />
                     <div class="input-group-append">
                         <span class="input-group-text">VND</span>
                     </div>
