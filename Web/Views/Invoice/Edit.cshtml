@@ -1,7 +1,7 @@
 ﻿@model Web.Models.InvoiceViewModel
 
 @{
-    ViewData["Title"] = "Edit Invoice";
+    
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -115,7 +115,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h5>Edit Invoice</h5>
+                    <h5>Chỉnh sửa hóa đơn</h5>
                 </div>
                 <div class="card-body">
                     <form asp-action="Edit">
@@ -173,20 +173,35 @@
                                 </div>
                             </div>
 
-                                
-                            
 
-                            <!-- Display Promotion Name -->
+
+                            <!-- Display Promotion Name with Select -->
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label asp-for="PromotionName" class="control-label">Khuyến mãi</label>
-                                    <input asp-for="PromotionName" class="form-control" readonly />
+                                    <select asp-for="PromotionName" class="form-control" id="PromotionSelect" onchange="updatePromotionDiscount()">
+                                        <option value="0">-- Chọn khuyến mãi --</option>
+                                        @foreach (var promotion in ViewBag.Promotions)
+                                        {
+                                            if (Model.PromotionName == promotion.PromotionName)
+                                            {
+                                                <option value="@promotion.DiscountPercentage" selected>
+                                                    @promotion.PromotionName
+                                                </option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@promotion.DiscountPercentage">
+                                                    @promotion.PromotionName
+                                                </option>
+                                            }
+                                        }
+                                    </select>
                                     <span asp-validation-for="PromotionName" class="text-danger"></span>
-
                                     <input type="hidden" id="PromotionDiscount" value="@Model.DiscountPercentage" />
-
                                 </div>
                             </div>
+
 
                             <!-- Display Spa Name -->
                             @* <div class="col-md-4">
@@ -303,7 +318,12 @@
     <script src="~/assets/js/script.js"></script>
 
     <script>
+        function updatePromotionDiscount() {
+            var selectedPromotion = $('#PromotionSelect').find(":selected").val();
+            $('#PromotionDiscount').val(selectedPromotion);
+        }
         $(document).ready(function () {
+         
             // Function to calculate the total amount
             function calculateTotalAmount() {
                 var totalAmount = 0;
@@ -383,10 +403,11 @@
 
             // Handle promotion change if applicable
             $('#PromotionDiscount').on('change', function () {
+
                 calculateTotalAmount();
             });
         });
     </script>
-
+   
     
 }
