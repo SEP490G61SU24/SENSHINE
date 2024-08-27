@@ -34,6 +34,7 @@
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
     <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+
 }
 
 <div class="card">
@@ -72,8 +73,8 @@
                     </div>
 
                     <div class="col-md-8 position-relative">
-                        <label asp-for="AppointmentDate" class="form-label">Thời Gian Cuộc Hẹn</label>
-                        <input asp-for="AppointmentDate" class="form-control" type="datetime-local" />
+                        <label asp-for="AppointmentDate" class="form-label">Thời Gian Check In</label>
+                        <input asp-for="AppointmentDate" class="form-control" type="datetime-local" id="appointmentDateInput" />
                         <span asp-validation-for="AppointmentDate" class="text-danger"></span>
                     </div>
                     <div class="col-md-8 position-relative">
@@ -118,8 +119,8 @@
                     </div>
 
                     <div class="mt-4">
-                        <input type="submit" value="Lưu lại" class="btn btn-primary" />
                         <a asp-action="ListAppointment" class="btn btn-secondary">Hủy</a>
+                        <input type="submit" value="Lưu lại" class="btn btn-primary" />
                     </div>
                 </form>
             </div>
@@ -151,4 +152,56 @@
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
+
+    <script>
+                //Set Date
+            document.addEventListener('DOMContentLoaded', function () {
+                const slotSelect = document.getElementById('slotSelect');
+                const appointmentDateInput = document.getElementById('appointmentDateInput');
+
+                slotSelect.addEventListener('change', function () {
+                    const slot = slotSelect.value;
+                    let date = new Date();
+
+                    switch (slot) {
+                        case 'Slot1':
+                            date.setHours(8, 30, 0, 0);
+                            break;
+                        case 'Slot2':
+                            date.setHours(10, 0, 0, 0);
+                            break;
+                        case 'Slot3':
+                            date.setHours(11, 30, 0, 0);
+                            break;
+                        case 'Slot4':
+                            date.setHours(13, 0, 0, 0);
+                            break;
+                        case 'Slot5':
+                            date.setHours(14, 30, 0, 0);
+                            break;
+                        case 'Slot6':
+                            date.setHours(16, 0, 0, 0);
+                            break;
+                        case 'Slot7':
+                            date.setHours(17, 30, 0, 0);
+                            break;
+                        case 'Slot8':
+                            date.setHours(19, 0, 0, 0);
+                            break;
+                        case 'Slot9':
+                            date.setHours(20, 30, 0, 0);
+                            break;
+                        default:
+                            date = null;
+                    }
+
+                    if (date) {
+                        const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)); // Điều chỉnh múi giờ
+                        appointmentDateInput.value = localDate.toISOString().slice(0, 16); // Định dạng datetime-local
+                    } else {
+                        appointmentDateInput.value = ''; // Xóa giá trị nếu không có slot
+                    }
+                });
+            });
+        </script>
 }
