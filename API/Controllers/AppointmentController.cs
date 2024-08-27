@@ -123,7 +123,6 @@ namespace API.Controllers
             }
         }
 
-
         // Create - Tạo mới cuộc hẹn
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AppointmentDTO appointmentDTO)
@@ -189,30 +188,9 @@ namespace API.Controllers
                 {
                     return BadRequest("Không thể đặt lịch trong quá khứ.");
                 }
-                // Kiểm tra sự tồn tại của dịch vụ được thêm vào cuộc hẹn
-                List<Service> existingServices = new List<Service>();
-                if (appointmentDTO.Services != null && appointmentDTO.Services.Any())
-                {
-                    var checkValidSv = await _spaService.ValidateServicesAsync(appointmentDTO);
-
-                    if (!checkValidSv)
-                    {
-                        return BadRequest("Một hoặc nhiều dịch vụ không tồn tại.");
-                    }
-
-                    // Đảm bảo các dịch vụ tồn tại không bị theo dõi trong ngữ cảnh
-                    //foreach (var service in existingServices)
-                    //{
-                    //    _dbContext.Entry(service).State = EntityState.Unchanged;
-                    //}
-                }
-
-                // Ánh xạ DTO thành đối tượng Appointment và gán dịch vụ, sản phẩm đã kiểm tra
-                var appointment = _mapper.Map<Appointment>(appointmentDTO);
-                appointment.Services = existingServices;
 
                 // Tạo cuộc hẹn mới
-                await _appointmentService.CreateAppointmentAsync(appointment);
+                var appointment = await _appointmentService.CreateAppointmentAsync(appointmentDTO);
 
                 return Ok($"Create Appointment Successfully With ID: {appointment.Id}");
             }
