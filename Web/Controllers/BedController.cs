@@ -79,9 +79,17 @@ namespace Web.Controllers
         public async Task<IActionResult> Create()
         {
             var rooms = await GetAvailableRooms();
+
+            if (rooms == null || !rooms.Any())
+            {
+                TempData["ErrorMessage"] = "Không có phòng để tạo giường.";
+                return RedirectToAction("Index");
+            }
+
             ViewBag.Rooms = rooms;
             return View();
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Create(BedViewModel bedViewModel)
