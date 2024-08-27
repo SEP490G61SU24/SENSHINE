@@ -24,15 +24,20 @@ namespace Web.Controllers
         {
             try
             {
-                var cardInvoice = new CardInvoiceDTO();
                 int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
                     ? int.Parse(ViewData["SpaId"].ToString())
                     : (int?)null;
 
+                if (ViewData["SpaId"] == null || ViewData["SpaId"].ToString() == "ALL")
+                {
+                    TempData["Error"] = "Chọn chi nhánh để xem danh sách giường.";
+                    return RedirectToAction("ListRoom", "Room");
+                }
+
                 var apiUrl = _configuration["ApiUrl"];
                 var client = _clientFactory.CreateClient();
                 HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Room/GetAllRoom");
-                HttpResponseMessage response3 = await client.GetAsync($"{apiUrl}/Bed/GetAllBedsPaging?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}");
+                HttpResponseMessage response3 = await client.GetAsync($"{apiUrl}/Bed/GetAllBedsPaging?pageIndex={pageIndex}&pageSize={1000}&searchTerm={searchTerm}");
                 if (response.IsSuccessStatusCode&&response3.IsSuccessStatusCode)
                 {
                     string jsonString = await response.Content.ReadAsStringAsync();
@@ -45,16 +50,15 @@ namespace Web.Controllers
                     var totalCount = 0;
                     foreach (var room in roomList)
                     {
-                  
                         var filterbed = bedList.Items.Where(x=>x.RoomId==room.Id);
                         // Gán RoomName cho từng bed
                         foreach (var bed in filterbed)
                         {
                             bed.RoomName = room.RoomName;
-                        
+                            totalCount = totalCount + 1;
                         }
+
                         megreList = megreList.Concat(filterbed).ToList();
-                        totalCount += filterbed.Count();
                     }
                     return View(new PaginatedList<BedViewModelIndex>
                     {
@@ -79,17 +83,9 @@ namespace Web.Controllers
         public async Task<IActionResult> Create()
         {
             var rooms = await GetAvailableRooms();
-
-            if (rooms == null || !rooms.Any())
-            {
-                TempData["ErrorMessage"] = "Không có phòng để tạo giường.";
-                return RedirectToAction("Index");
-            }
-
             ViewBag.Rooms = rooms;
             return View();
         }
-
 
         [HttpPost]
         public async Task<IActionResult> Create(BedViewModel bedViewModel)
