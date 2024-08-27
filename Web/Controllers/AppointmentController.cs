@@ -131,8 +131,8 @@ namespace Web.Controllers
 
             var appointmentDTO = new AppointmentDTO
             {
-                CustomerId = appointmentViewModel.CustomerId,
-                EmployeeId = appointmentViewModel.EmployeeId,
+                CustomerId = appointmentViewModel.CustomerId.Value,
+                EmployeeId = appointmentViewModel.EmployeeId.Value,
                 AppointmentDate = appointmentViewModel.AppointmentDate,
                 AppointmentSlot = appointmentViewModel.AppointmentSlot,
                 RoomName = appointmentViewModel.RoomName,
@@ -148,6 +148,7 @@ namespace Web.Controllers
 
             if (response.IsSuccessStatusCode)
             {
+                TempData["SuccessMsg"] = "Thêm lịch hẹn thành công!";
                 return RedirectToAction("ListAppointment");
             }
 
@@ -224,8 +225,8 @@ namespace Web.Controllers
             var appointmentDTO = new AppointmentDTO
             {
                 Id = id,
-                CustomerId = appointmentViewModel.CustomerId,
-                EmployeeId = appointmentViewModel.EmployeeId,
+                CustomerId = appointmentViewModel.CustomerId.Value,
+                EmployeeId = appointmentViewModel.EmployeeId.Value,
                 AppointmentDate = appointmentViewModel.AppointmentDate,
                 AppointmentSlot = appointmentViewModel.AppointmentSlot,
                 RoomName = appointmentViewModel.RoomName,
@@ -241,6 +242,7 @@ namespace Web.Controllers
 
             if (response.IsSuccessStatusCode)
             {
+                TempData["SuccessMsg"] = "Sửa lịch hẹn thành công!";
                 return RedirectToAction("ListAppointment");
             }
 
