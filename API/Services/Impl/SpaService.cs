@@ -1,4 +1,5 @@
-﻿using API.Models;
+﻿using API.Dtos;
+using API.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Services.Impl
@@ -10,6 +11,7 @@ namespace API.Services.Impl
         {
             this._dbContext = dbContext;
         }
+
         //Tạo service mới
         public async Task<Service> CreateServiceAsync(Service services)
         {
@@ -17,6 +19,7 @@ namespace API.Services.Impl
             await _dbContext.SaveChangesAsync();
             return services;
         }
+
         //Xóa service
         public async Task<Service> DeleteServiceAsync(int Id)
         {
@@ -29,6 +32,7 @@ namespace API.Services.Impl
             await _dbContext.SaveChangesAsync();
             return existingService;
         }
+
         //Sửa thông tin service
         public async Task<Service> EditServiceAsync(int Id, Service services)
         {
@@ -49,7 +53,6 @@ namespace API.Services.Impl
             return await _dbContext.Services.FirstOrDefaultAsync(x => x.Id == Id);
         }
 
-
         public async Task<List<Service>> GetAllServiceAsync()
         {
             return await _dbContext.Services.ToListAsync();
@@ -60,6 +63,18 @@ namespace API.Services.Impl
             var services = await _dbContext.Services.Include(c => c.InvoiceServices)
                 .Where(p => p.InvoiceServices.Any(c => c.InvoiceId == id)).ToListAsync();
             return services;
+        }
+
+        public async Task<bool> ValidateServicesAsync(AppointmentDTO appointmentDTO)
+        {
+            var serviceIds = appointmentDTO.Services.Select(s => s.Id).ToList();
+
+            var existingServices = await _dbContext.Services
+                                                   .Where(s => serviceIds.Contains(s.Id))
+                                                   .ToListAsync();
+
+            // Return true if the count matches, indicating all services exist
+            return existingServices.Count == serviceIds.Count;
         }
     }
 }
