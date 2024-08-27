@@ -68,8 +68,17 @@ namespace API.Services.Impl
             return appDto;
         }
 
-        public async Task<Appointment> CreateAppointmentAsync(Appointment appointment)
+        public async Task<Appointment> CreateAppointmentAsync(AppointmentDTO appointmentDTO)
         {
+            var serviceIds = appointmentDTO.Services.Select(s => s.Id).ToList();
+
+            var existingServices = await _dbContext.Services
+                                                   .Where(s => serviceIds.Contains(s.Id))
+                                                   .ToListAsync();
+
+            var appointment = _mapper.Map<Appointment>(appointmentDTO);
+            appointment.Services = existingServices;
+
             await _dbContext.Appointments.AddAsync(appointment);
             await _dbContext.SaveChangesAsync();
             return appointment;
