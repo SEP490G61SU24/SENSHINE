@@ -278,7 +278,7 @@ namespace Web.Controllers
                 if (!response.IsSuccessStatusCode)
                 {
                     _logger.LogError("Error creating card: {0}", await response.Content.ReadAsStringAsync());
-                    return Json(new { success = false, error = "An error occurred while creating the card." });
+                    return Json(new { success = false, error = "Khách hàng không tồn tại." });
                 }
 
                 if (!string.IsNullOrEmpty(selectedCardIds) && selectedCardIds != "[]")
