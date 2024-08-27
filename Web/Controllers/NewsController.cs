@@ -144,6 +144,7 @@ namespace Web.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
+                    TempData["SuccessMsg"] = "Thêm tin tức thành công!";
                     return RedirectToAction("NewsList");
                 }
 
@@ -254,6 +255,7 @@ namespace Web.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
+                    TempData["SuccessMsg"] = "Sửa tin tức thành công!";
                     return RedirectToAction("NewsList");
                 }
                 else
