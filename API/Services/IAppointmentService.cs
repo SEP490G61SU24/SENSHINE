@@ -12,7 +12,7 @@ namespace API.Services
         Task<List<AppointmentDTO>> GetAppointmentsByDateAsync(DateTime appointmentDate);
         Task<AppointmentDTO> GetAppointmentByIdAsync(int id);
         Task<Appointment> CreateAppointmentAsync(Appointment appointment);
-        Task<Appointment> UpdateAppointmentAsync(int id, Appointment appointment);
+        Task<Appointment> UpdateAppointmentAsync(int id, AppointmentDTO appointmentDTO);
         Task<Appointment> DeleteAppointmentAsync(int id);
         Task<List<AppointmentDTO>> GetAppointmentsByCustomerIdAsync(int customerId);
 

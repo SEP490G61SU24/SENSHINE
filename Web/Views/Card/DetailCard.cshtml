@@ -74,7 +74,7 @@
                                 <td>
                                     <ul class="action">
                                         <li class="use card">
-                                            <a href="/Card/UseCard?id=@cardCombo.Id&cardId=@Model.Id" onclick="return confirmUsage(@cardCombo.Id)">
+                                            <a href="javascript:void(0);" onclick="return confirmUsage(@cardCombo.Id)">
                                                 <i class="icon-pencil-alt"></i> Sử dụng
                                             </a>
                                         </li>
@@ -152,6 +152,7 @@
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
     <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/sweetalert2.css">
 
     <style>
         .table tbody tr:last-child td {
@@ -184,14 +185,28 @@
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
+    <!-- sweet alert -->
+    <script src="~/assets/js/sweet-alert/sweetalert.min.js"></script>
+    <!-- SweetAlert JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         function confirmUsage(id) {
-            if (confirm("Xác nhận sử dụng combo này?")) {
-                return true;
-            } else {
-                return false;
-            }
+            Swal.fire({
+                title: 'Bạn có chắc chắn?',
+                text: "Xác nhận sử dụng combo này?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Xác nhận',
+                cancelButtonText: 'Hủy bỏ'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '/Card/UseCard?id=' + id + '&cardId=@Model.Id';
+                }
+            });
+            return false;  // Prevent the default anchor click behavior
         }
     </script>
 }

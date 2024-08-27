@@ -191,6 +191,7 @@ namespace Web.Controllers
 
                     if (response.IsSuccessStatusCode)
                     {
+                        TempData["SuccessMsg"] = "Thêm thành công!";
                         return RedirectToAction("ListRoom");
                     }
                     else
@@ -264,6 +265,7 @@ namespace Web.Controllers
 
                     if (response.IsSuccessStatusCode)
                     {
+                        TempData["SuccessMsg"] = "Cập nhật thành công!";
                         return RedirectToAction("ListRoom");
                     }
                     else

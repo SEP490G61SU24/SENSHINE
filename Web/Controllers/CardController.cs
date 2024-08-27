@@ -358,6 +358,7 @@ namespace Web.Controllers
                 await client.PostAsync($"{apiUrl}/Card/AddInvoice", contentCardInvoice);
 
                 var paymentUrl = Url.Action("Payment", "Invoice", new { id = createdInvoice.Id });
+                TempData["SuccessMsg"] = "Thêm thành công!";
                 return Json(new { success = true, paymentUrl = paymentUrl });
             }
             catch (Exception ex)
@@ -524,6 +525,8 @@ namespace Web.Controllers
                 await client.PostAsync($"{apiUrl}/Card/AddInvoice", contentCardInvoice);
 
                 var paymentUrl = Url.Action("Payment", "Invoice", new { id = createdInvoice.Id });
+
+                TempData["SuccessMsg"] = "Cập nhật thành công!";
                 return Json(new { success = true, paymentUrl = paymentUrl });
             }
             catch (Exception ex)
