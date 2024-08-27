@@ -61,7 +61,7 @@ namespace API.Dtos
             public int? Quantity { get; set; }
 
             
-            public ServiceDTO2? Service { get; set; }
+            public ServiceDTO? Service { get; set; }
         }
     public class UpdateInvoiceStatus
     {
