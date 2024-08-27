@@ -5,6 +5,7 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Text.RegularExpressions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace API.Services.Impl
 {
@@ -37,7 +38,7 @@ namespace API.Services.Impl
 
             if (user == null || !PasswordUtils.VerifyPassword(password, user.Password))
             {
-                return null;
+                throw new UnauthorizedAccessException("Tài khoản hoặc mật khẩu không đúng.");
             }
 
             var userDto = _mapper.Map<UserDTO>(user);
@@ -200,7 +201,17 @@ namespace API.Services.Impl
             user.DistrictCode = userDto.DistrictCode;
             user.WardCode = userDto.WardCode;
 
-            if (userDto.SpaId.HasValue)
+			if (!string.IsNullOrEmpty(userDto.Status))
+			{
+				user.Status = userDto.Status;
+			}
+
+			if (!string.IsNullOrEmpty(userDto.StatusWorking))
+			{
+				user.StatusWorking = userDto.StatusWorking;
+			}
+
+			if (userDto.SpaId.HasValue)
             {
                 user.SpaId = userDto.SpaId.Value;
             }
@@ -245,16 +256,27 @@ namespace API.Services.Impl
             return true;
         }
 
-        public async Task<IEnumerable<UserDTO>> GetUsersByRole(int roleId)
+        public async Task<IEnumerable<UserDTO>> GetUsersByRole(int roleId, string spaId = null)
         {
-            var users = await _context.Users
-                                 .Include(u => u.Roles)
-                                 .Where(u => u.Roles.Any(r => r.Id == roleId))
-                                 .ToListAsync();
+            int? spaIdInt = spaId != null && spaId != "ALL"
+             ? int.Parse(spaId)
+             : (int?)null;
+
+            var query = _context.Users.Include(u => u.Roles)
+                              .Where(u => u.Roles.Any(r => r.Id == roleId));
+
+            if (spaIdInt.HasValue)
+            {
+                query = query.Where(u => u.SpaId == spaIdInt.Value);
+            }
+
+            var users = await query.ToListAsync();
+
             if (users == null)
             {
                 return Enumerable.Empty<UserDTO>();
             }
+
             return _mapper.Map<IEnumerable<UserDTO>>(users);
         }
 

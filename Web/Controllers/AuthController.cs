@@ -65,12 +65,13 @@ namespace Web.Controllers
                         Expires = DateTimeOffset.UtcNow.AddHours(24) // Thời gian hết hạn của cookie
                     });
 
-					ViewData["SuccessMsg"] = "Đăng nhập thành công!";
+                    TempData["SuccessMsg"] = "Đăng nhập thành công!";
                     return RedirectToAction("Index", "Dashboard");
                 }
                 else
                 {
-                    ViewData["Error"] = "Tài khoản hoặc mật khẩu không chính xác!";
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    ViewData["Error"] = responseString;
                     return View();
                 }
             }

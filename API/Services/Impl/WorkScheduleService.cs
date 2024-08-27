@@ -392,14 +392,14 @@ namespace API.Services.Impl
 
 					if (hasOngoingWork)
 					{
-						employee.Status = UserWorkingStatusEnum.INSERVICE.ToString();
+						employee.StatusWorking = UserWorkingStatusEnum.INSERVICE.ToString();
 					}
 					else
 					{
 						var anyAvailableWork = employee.WorkSchedules.Any(ws => ws.Status == WorkscheduleStatusEnum.AVAILABLE.ToString() &&
 																				 ws.EndDateTime >= currentDateTime);
 
-						employee.Status = anyAvailableWork ? UserWorkingStatusEnum.AVAILABLE.ToString() : UserWorkingStatusEnum.OFFDUTY.ToString();
+						employee.StatusWorking = anyAvailableWork ? UserWorkingStatusEnum.AVAILABLE.ToString() : UserWorkingStatusEnum.OFFDUTY.ToString();
 					}
 				}
 			}

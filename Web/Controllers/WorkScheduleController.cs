@@ -1,10 +1,10 @@
 ﻿using API.Dtos;
 using API.Ultils;
 using Microsoft.AspNetCore.Mvc;
-using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using Web.Models;
+using Web.Utils;
 
 namespace Web.Controllers
 {
@@ -70,8 +70,8 @@ namespace Web.Controllers
 				using var client = _clientFactory.CreateClient();
 
 				// Nếu không có tuần nào được chọn, chọn tuần, năm hiện tại
-				var currentWeek = selectedWeek ?? GetCurrentWeekOfYear();
-				var currentYear = selectedYear ?? GetCurrentYear();
+				var currentWeek = selectedWeek ?? DateUtils.GetCurrentWeekOfYear();
+				var currentYear = selectedYear ?? DateUtils.GetCurrentWeekOfYear();
 
 				//// Lấy danh sách năm
 				//var yearsResponse = await client.GetAsync($"{apiUrl}/work-schedules/years?employeeId={employeeId}");
@@ -116,24 +116,16 @@ namespace Web.Controllers
             }
         }
 
-		private int GetCurrentWeekOfYear()
-		{
-			return CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(DateTime.UtcNow, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
-		}
-		private int GetCurrentYear()
-		{
-			return DateTime.UtcNow.Year;
-		}
-
 		public async Task<IActionResult> Add()
 		{
 			try
 			{
+				var spaId = ViewData["SpaId"];
 				var apiUrl = _configuration["ApiUrl"];
 				var client = _clientFactory.CreateClient();
 
 				// Lấy tất cả emp
-				var employeeResponse = await client.GetAsync($"{apiUrl}/users/role/4");
+				var employeeResponse = await client.GetAsync($"{apiUrl}/users/role/{(int)UserRoleEnum.STAFF}/?spaId={spaId}");
 				if (!employeeResponse.IsSuccessStatusCode)
 				{
 					return View("Error");
@@ -162,7 +154,7 @@ namespace Web.Controllers
 			{
 				var apiUrl = _configuration["ApiUrl"];
 				using var client = _clientFactory.CreateClient();
-				var employeeResponse = await client.GetAsync($"{apiUrl}/users/role/4");
+				var employeeResponse = await client.GetAsync($"{apiUrl}/users/role/" + (int)UserRoleEnum.STAFF);
 				var employeeData = await employeeResponse.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>();
 
 				if (!ModelState.IsValid)
@@ -224,11 +216,12 @@ namespace Web.Controllers
 		{
 			try
 			{
-				var apiUrl = _configuration["ApiUrl"];
+                var spaId = ViewData["SpaId"];
+                var apiUrl = _configuration["ApiUrl"];
 				var client = _clientFactory.CreateClient();
 
 				// Lấy tất cả emp
-				var employeeResponse = await client.GetAsync($"{apiUrl}/users/role/4");
+				var employeeResponse = await client.GetAsync($"{apiUrl}/users/role/{(int)UserRoleEnum.STAFF}/?spaId={spaId}");
 				if (!employeeResponse.IsSuccessStatusCode)
 				{
 					return View("Error");
@@ -285,7 +278,7 @@ namespace Web.Controllers
 			{
 				var apiUrl = _configuration["ApiUrl"];
 				using var client = _clientFactory.CreateClient();
-				var employeeResponse = await client.GetAsync($"{apiUrl}/users/role/4");
+				var employeeResponse = await client.GetAsync($"{apiUrl}/users/role/" + (int)UserRoleEnum.STAFF);
 				var employeeData = await employeeResponse.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>();
 
 				if (!ModelState.IsValid)
