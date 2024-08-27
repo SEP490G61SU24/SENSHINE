@@ -5,20 +5,22 @@
 }
 
 @{
-    var statusMap = new Dictionary<string, string>
-    {
+	var statusMap = new Dictionary<string, string>
+	{
+		{ "AVAILABLE", "Sẵn sàng" },
 		{ "SCHEDULED", "Có khách đặt lịch" },
 		{ "COMPLETED", "Đã làm xong" },
-		{ "CANCELED", "Không làm" },
+		{ "CANCELED", "Đã không làm" },
 		{ "INPROGRESS", "Đang làm" }
-    };
+	};
 
 	var statusCssMap = new Dictionary<string, string>
 	{
-		{ "SCHEDULED", "color: orange;" },
+		{ "AVAILABLE", "color: #006666;" },
+		{ "SCHEDULED", "color: #5d00ff;font-weight: bold;" },
 		{ "COMPLETED", "color: green;" },
 		{ "CANCELED", "color: red;" },
-		{ "INPROGRESS", "color: yellow;" },
+		{ "INPROGRESS", "color: #0900ff;" },
 	};
 
 	var daysOfWeek = new[]
@@ -103,10 +105,12 @@
 							<td>
 								@if (schedule != null)
 								{
-									var cssClass = statusCssMap.ContainsKey(schedule.Status) ? statusCssMap[schedule.Status] : "";
+									statusCssMap.TryGetValue(schedule.Status, out var cssClass);
+
+									var statusText = statusMap.TryGetValue(schedule.Status, out var status) ? status : "";
 
 									<div style="@cssClass">
-										<strong>@statusMap[schedule.Status]</strong>
+										<strong>@statusText</strong>
 									</div>
 								}
 								else
