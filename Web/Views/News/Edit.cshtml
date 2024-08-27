@@ -1,10 +1,4 @@
 ﻿@model Web.Models.NewsViewModel
-
-@{
-    ViewData["Title"] = "Edit";
-    
-}
-
 @section Styles {
     <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
     <!-- ico-font-->
@@ -45,30 +39,30 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h5>Edit News Details</h5>
+                    <h5>Chỉnh sửa tin tức</h5>
                 </div>
                 <div class="card-body">
-                    <form asp-action="Edit" method="post">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="row g-3">
-                            
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    
                                     <img id="imagePreview" src="@(!string.IsNullOrEmpty(Model.Cover) ? Model.Cover : "https://via.placeholder.com/150")" alt="Image Preview" class="img-fluid fixed-size-image" />
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label asp-for="Cover" class="control-label">Image</label>
-                                    <input asp-for="Cover" class="form-control" />
+                                    <label asp-for="CoverImage" class="control-label">Image</label>
+                                    <input id="coverImageInput" asp-for="CoverImage" type="file" class="form-control" />
+                                    <input hidden asp-for="Cover" type="text" class="form-control" />
                                     <span asp-validation-for="Cover" class="text-danger"></span>
                                 </div>
                             </div>
+
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label asp-for="IdNew" class="control-label">News ID</label>
-                                    <input asp-for="IdNew" class="form-control" />
+                                    <input asp-for="IdNew" class="form-control" readonly />
                                     <span asp-validation-for="IdNew" class="text-danger"></span>
                                 </div>
                             </div>
@@ -93,14 +87,13 @@
                                     <span asp-validation-for="PublishedDate" class="text-danger"></span>
                                 </div>
                             </div>
-                            
+
                             <div class="col-12">
                                 <div class="form-group d-flex" style="display: flex; gap: 10px;">
-                                    <input type="submit" value="Lưu" style="height: 35px; width: 180px;" class="btn btn-primary spacing-10px">
+                                    <input type="submit" value="Lưu" style="height: 35px; width: 180px;" class="btn btn-primary spacing-10px" />
                                     <a asp-action="NewsList" style="height: 35px; width: 180px;" class="btn btn-secondary spacing-10px">Danh sách</a>
                                 </div>
                             </div>
-
                         </div>
                     </form>
                 </div>
@@ -135,3 +128,20 @@
 <!-- Plugins JS Ends-->
 <!-- Theme js-->
 <script src="~/assets/js/script.js"></script>
+<script>
+    document.getElementById('coverImageInput').addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        const previewImg = document.getElementById('imagePreview');
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            previewImg.src = e.target.result;
+        };
+
+        if (file) {
+            reader.readAsDataURL(file);
+        } else {
+            previewImg.src = 'https://via.placeholder.com/150'; // Default placeholder image URL
+        }
+    });
+</script>

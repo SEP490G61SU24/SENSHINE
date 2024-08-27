@@ -138,7 +138,7 @@
             <div class="col-md-4 position-relative">
                 <label class="form-label" for="PromotionId">Khuyến mãi</label>
                 <select class="form-select" name="PromotionId" id="PromotionId">
-                    <option selected disabled value="">Select Promotion...</option>
+                    <option selected disabled value="">Chọn khuyến mãi</option>
                     @foreach (var promotion in promotions)
                     {
                         <option value="@promotion.Id" data-discount="@promotion.DiscountPercentage">@promotion.PromotionName</option>
@@ -329,7 +329,7 @@
                     });
 
                     if (selectedItems.length === 0) {
-                        customSelect.appendChild(document.createTextNode('Select...'));
+                        customSelect.appendChild(document.createTextNode('Chọn...'));
                     }
 
                     hiddenInput.value = selectedItems.map(item => item.id).join(',');

@@ -24,7 +24,7 @@ namespace Web.Controllers
             try
             {
                 var apiUrl = _configuration["ApiUrl"];
-                string timeRange = "1year";
+                string timeRange = "100years";
                 // Construct the API endpoint URL
                 var url = $"{apiUrl}/report-summary?period={timeRange}";
 

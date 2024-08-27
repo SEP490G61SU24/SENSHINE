@@ -80,53 +80,8 @@ namespace API.Controllers
         {
             try
             {
-                // Map DTO to Invoice entity
-                var newInvoice = _mapper.Map<Invoice>(invoiceDto);
-
-                // Add the invoice to the context
-                _dbContext.Invoices.Add(newInvoice);
-
-                // Save changes to get the Id for the new invoice
-                await _dbContext.SaveChangesAsync();
-
-                // Handle Services
-                if (invoiceDto.ServiceIds != null && invoiceDto.ServiceIds.Any())
-                {
-                    var serviceQuantities = invoiceDto.ServiceQuantities ?? new Dictionary<int, int?>();
-
-                    foreach (var serviceId in invoiceDto.ServiceIds)
-                    {
-                        newInvoice.InvoiceServices.Add(new InvoiceService
-                        {
-                            InvoiceId = newInvoice.Id,
-                            ServiceId = serviceId,
-                            Quantity = serviceQuantities.ContainsKey(serviceId) ? serviceQuantities[serviceId] : null
-                        });
-                    }
-                }
-
-                // Handle Combos
-                if (invoiceDto.ComboIds != null && invoiceDto.ComboIds.Any())
-                {
-                    var comboQuantities = invoiceDto.ComboQuantities ?? new Dictionary<int, int?>();
-
-                    foreach (var comboId in invoiceDto.ComboIds)
-                    {
-                        newInvoice.InvoiceCombos.Add(new InvoiceCombo
-                        {
-                            InvoiceId = newInvoice.Id,
-                            ComboId = comboId,
-                            Quantity = comboQuantities.ContainsKey(comboId) ? comboQuantities[comboId] : null
-                        });
-                    }
-                }
-
-                // Save changes again to persist InvoiceServices and InvoiceCombos
-                await _dbContext.SaveChangesAsync();
-
-                // Map back to DTO to return
-                var createdInvoiceDto = _mapper.Map<InvoiceDTO>(newInvoice);
-                return CreatedAtAction(nameof(GetInvoice), new { id = newInvoice.Id }, createdInvoiceDto);
+                var createdInvoiceDto = await _invoiceService.AddInvoice(invoiceDto);
+                return CreatedAtAction(nameof(GetInvoice), new { id = createdInvoiceDto.Id }, createdInvoiceDto);
             }
             catch (ArgumentException ex)
             {
@@ -147,62 +102,12 @@ namespace API.Controllers
         {
             try
             {
-                // Retrieve the existing invoice with related entities
-                var existingInvoice = await _dbContext.Invoices
-                    .Include(i => i.InvoiceServices)
-                    .Include(i => i.InvoiceCombos)
-                    .FirstOrDefaultAsync(i => i.Id == id);
-
-                if (existingInvoice == null)
-                {
-                    return NotFound("Invoice not found.");
-                }
-
-                // Map basic properties from DTO to existing invoice
-                _mapper.Map(invoiceDto, existingInvoice);
-
-                // Update Services
-                existingInvoice.InvoiceServices.Clear();
-                if (invoiceDto.ServiceIds != null)
-                {
-                    var serviceQuantities = invoiceDto.ServiceQuantities ?? new Dictionary<int, int?>();
-                    foreach (var serviceId in invoiceDto.ServiceIds)
-                    {
-                        existingInvoice.InvoiceServices.Add(new InvoiceService
-                        {
-                            InvoiceId = existingInvoice.Id,
-                            ServiceId = serviceId,
-                            Quantity = serviceQuantities.ContainsKey(serviceId) ? serviceQuantities[serviceId] : null
-                        });
-                    }
-                }
-
-                // Update Combos
-                existingInvoice.InvoiceCombos.Clear();
-                if (invoiceDto.ComboIds != null)
-                {
-                    var comboQuantities = invoiceDto.ComboQuantities ?? new Dictionary<int, int?>();
-                    foreach (var comboId in invoiceDto.ComboIds)
-                    {
-                        existingInvoice.InvoiceCombos.Add(new InvoiceCombo
-                        {
-                            InvoiceId = existingInvoice.Id,
-                            ComboId = comboId,
-                            Quantity = comboQuantities.ContainsKey(comboId) ? comboQuantities[comboId] : null
-                        });
-                    }
-                }
-
-                // Save the updated invoice
-                await _dbContext.SaveChangesAsync();
-
-                // Map back to DTO to return
-                var updatedInvoiceDto = _mapper.Map<InvoiceDTO>(existingInvoice);
+                var updatedInvoiceDto = await _invoiceService.EditInvoice(id, invoiceDto);
                 return Ok(updatedInvoiceDto);
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return NotFound(ex.Message);
             }
             catch (InvalidOperationException ex)
             {
@@ -356,6 +261,9 @@ namespace API.Controllers
                     break;
                 case "1year":
                     startDate = endDate.AddYears(-1);
+                    break;
+                case "100years":
+                    startDate = endDate.AddYears(-100);
                     break;
                 default:
                     return BadRequest("Invalid period specified");

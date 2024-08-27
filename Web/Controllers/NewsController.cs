@@ -206,9 +206,7 @@ namespace Web.Controllers
         {
             try
             {
-
-                var apiUrl = _configuration["ApiUrl"];
-                var client = _clientFactory.CreateClient();
+                // Check if the model state is valid
                 if (!ModelState.IsValid)
                 {
                     var newsViewModel = new NewsViewModel
@@ -222,27 +220,60 @@ namespace Web.Controllers
                     return View(newsViewModel);
                 }
 
+                var apiUrl = _configuration["ApiUrl"];
+                var client = _clientFactory.CreateClient();
+                string imageUrl = newsDto.Cover; // Default to existing Cover URL
+
+                // Check if a new image is being uploaded
+                if (newsDto.CoverImage != null && newsDto.CoverImage.Length > 0)
+                {
+                    var uploadResponse = await UploadImageAsync(newsDto.CoverImage);
+
+                    if (uploadResponse != null && uploadResponse.Status)
+                    {
+                        imageUrl = uploadResponse.Data;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "Image upload failed.");
+                        // Return the view with the model state errors
+                        return View(newsDto);
+                    }
+                }
+
+                // Update the Cover URL
+                newsDto.Cover = imageUrl;
+                newsDto.CoverImage = null;
+
+                // Serialize the updated newsDto to JSON
                 string json = JsonConvert.SerializeObject(newsDto);
                 StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
 
+                // Make the PUT request to update the news
                 HttpResponseMessage response = await client.PutAsync($"{apiUrl}/EditNews/{id}", content);
 
                 if (response.IsSuccessStatusCode)
                 {
                     return RedirectToAction("NewsList");
                 }
-
-                // Log error message here
-                var newsViewModelError = new NewsViewModel
+                else
                 {
-                    IdNew = newsDto.IdNew,
-                    Title = newsDto.Title,
-                    Cover = newsDto.Cover,
-                    Content = newsDto.Content,
-                    PublishedDate = newsDto.PublishedDate
-                };
-                ModelState.AddModelError(string.Empty, "An error occurred while editing the news.");
-                return View(newsViewModelError);
+                    // Log the error response content
+                    var errorMessage = await response.Content.ReadAsStringAsync();
+                    _logger.LogError($"Error response from API: {errorMessage}");
+
+                    // Return view with error message
+                    var newsViewModelError = new NewsViewModel
+                    {
+                        IdNew = newsDto.IdNew,
+                        Title = newsDto.Title,
+                        Cover = newsDto.Cover,
+                        Content = newsDto.Content,
+                        PublishedDate = newsDto.PublishedDate
+                    };
+                    ModelState.AddModelError(string.Empty, "An error occurred while editing the news.");
+                    return View(newsViewModelError);
+                }
             }
             catch (Exception ex)
             {
