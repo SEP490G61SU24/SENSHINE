@@ -158,45 +158,6 @@ namespace Web.Controllers
         
 
         [HttpGet]
-        public async Task<IActionResult> FilterProducts(string categoryName, string quantityRange, string priceRange)
-        {
-            var apiUrl = _configuration["ApiUrl"];
-            var client = _clientFactory.CreateClient();
-            // Build the query string for filtering products
-            var queryParameters = new List<string>();
-
-            if (!string.IsNullOrEmpty(categoryName))
-            {
-                queryParameters.Add($"categoryName={Uri.EscapeDataString(categoryName)}");
-            }
-            if (!string.IsNullOrEmpty(quantityRange))
-            {
-                queryParameters.Add($"quantityRange={Uri.EscapeDataString(quantityRange)}");
-            }
-            if (!string.IsNullOrEmpty(priceRange))
-            {
-                queryParameters.Add($"priceRange={Uri.EscapeDataString(priceRange)}");
-            }
-
-            string queryString = string.Join("&", queryParameters);
-            string requestUri = $"{apiUrl}/GetFilterProducts?{queryString}";
-
-            // Send the GET request to the API endpoint
-            HttpResponseMessage response = await client.GetAsync(requestUri);
-
-            if (response.IsSuccessStatusCode)
-            {
-                string data = await response.Content.ReadAsStringAsync();
-                var productList = JsonConvert.DeserializeObject<IEnumerable<ProductViewModel>>(data);
-                return Json(productList);
-            }
-
-            // Handle any unsuccessful responses or errors
-            return Json(new List<ProductViewModel>());
-        }
-
-
-        [HttpGet]
         public async Task<IActionResult> Add()
         {
             var apiUrl = _configuration["ApiUrl"];
@@ -333,67 +294,6 @@ namespace Web.Controllers
             return View(productDto); 
         }
 
-
-
-
-
-
-        [HttpGet]
-        public async Task<IActionResult> GetProductDetail(int id)
-        {
-            var apiUrl = _configuration["ApiUrl"];
-            var client = _clientFactory.CreateClient();
-            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/GetProductDetailById/{id}");
-
-            if (response.IsSuccessStatusCode)
-            {
-               
-                string data = await response.Content.ReadAsStringAsync();
-                var product = JsonConvert.DeserializeObject<ProductDTORequest>(data);
-
-               
-                if (product == null)
-                {
-                    return NotFound();
-                }
-
-               
-                var result = new
-                {
-                    id = product.Id,
-                    name = product.ProductName,
-                    price = product.Price,
-                    quantity = product.Quantity,
-                    categories = product.Categories?.Select(c => c.CategoryName),
-                    imageUrl = product.ProductImages?.Select(c=>c.ImageUrl).FirstOrDefault()
-                };
-
-                return Json(result);
-            }
-
-            
-            return NotFound();
-        }
-
-
-
-        [HttpGet]
-    public async Task<IActionResult> ProductsByCategory(int categoryId)
-    {
-            var apiUrl = _configuration["ApiUrl"];
-            var client = _clientFactory.CreateClient();
-            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/ProductsByCategory/{categoryId}");
-
-        if (response.IsSuccessStatusCode)
-        {
-            string data = await response.Content.ReadAsStringAsync();
-            var products = JsonConvert.DeserializeObject<IEnumerable<ProductDTO>>(data);
-            return View(products);
-        }
-
-        ModelState.AddModelError(string.Empty, "An error occurred while fetching products by category.");
-        return View(new List<ProductDTO>());
-    }
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)

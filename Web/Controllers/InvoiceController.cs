@@ -259,44 +259,6 @@ namespace Web.Controllers
         }
 
 
-        /* private async Task<List<ComboViewModel>> LoadCombosByInvoiceIdAsync(int Id)
-         {
-             List<ComboViewModel> combos = new List<ComboViewModel>();
-             HttpResponseMessage comboResponse = await _httpClient.GetAsync($"api/GetCombosByInvoiceId?id={Id}");
-
-             if (comboResponse.IsSuccessStatusCode)
-             {
-                 string responseData = await comboResponse.Content.ReadAsStringAsync();
-
-                 combos = JsonConvert.DeserializeObject<List<ComboViewModel>>(responseData);
-             }
-             else
-             {
-                 // Handle error (e.g., log it)
-                 ModelState.AddModelError(string.Empty, "An error occurred while fetching combos.");
-             }
-
-             return combos;
-         }
-         private async Task<List<ServiceViewModel>> LoadServicesByInvoiceIdAsync(int Id)
-         {
-             List<ServiceViewModel> services = new List<ServiceViewModel>();
-             HttpResponseMessage serviceResponse = await _httpClient.GetAsync($"/GetServicesByInvoiceId?id={Id}");
-
-             if (serviceResponse.IsSuccessStatusCode)
-             {
-                 string responseData = await serviceResponse.Content.ReadAsStringAsync();
-
-                 services = JsonConvert.DeserializeObject<List<ServiceViewModel>>(responseData);
-             }
-             else
-             {
-                 // Handle error (e.g., log it)
-                 ModelState.AddModelError(string.Empty, "An error occurred while fetching services.");
-             }
-
-             return services;
-         }*/
         public static string GenerateQRCodeUrl(string? content, string price)
         {
             string encodedContent = Uri.EscapeDataString(content ?? string.Empty);
