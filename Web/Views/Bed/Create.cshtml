@@ -1,4 +1,10 @@
-﻿<link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
+﻿@model Web.Models.BedViewModel
+@{
+    ViewData["Title"] = "Tạo Giường";
+}
+
+
+<link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
 <!-- ico-font-->
 <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
 <!-- Themify icon-->
@@ -22,12 +28,8 @@
 <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
 <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 
-@model Web.Models.BedViewModel
-
-@{
-    ViewBag.Title = "Tạo Giường";
-}
-
+<div class="card">
+    <div class="card-body">
 <form asp-action="Create" method="post">
     @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
     {
@@ -62,6 +64,10 @@
     <br />
     <button type="submit" class="btn btn-primary">Create</button>
 </form>
+
+    </div>
+</div>
+
 
 <script src="~/assets/js/jquery.min.js"></script>
 <!-- Bootstrap js-->

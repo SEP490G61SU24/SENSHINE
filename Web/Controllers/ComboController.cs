@@ -48,13 +48,18 @@ namespace Web.Controllers
             }
         }
 
-        // Tạo combo mới
         [HttpGet]
         public async Task<IActionResult> CreateCombo()
         {
             try
             {
                 var services = await GetAvailableServices();
+                if (services == null || !services.Any())
+                {
+                    TempData["ErrorMessage"] = "Không có dịch vụ nào khả dụng để tạo combo.";
+                    return RedirectToAction("Index");
+                }
+
                 ViewBag.Services = services;
                 return View();
             }
@@ -65,6 +70,7 @@ namespace Web.Controllers
                 return View("Error");
             }
         }
+
 
         [HttpPost]
         public async Task<IActionResult> CreateCombo(ComboViewModel comboViewModel)
