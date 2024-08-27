@@ -9,8 +9,8 @@ namespace API.Services
     public interface IAppointmentService
     {
         Task<List<AppointmentDTO>> GetAllAppointmentsAsync();
-        Task<List<Appointment>> GetAppointmentsByDateAsync(DateTime appointmentDate);
-        Task<Appointment> GetAppointmentByIdAsync(int id);
+        Task<List<AppointmentDTO>> GetAppointmentsByDateAsync(DateTime appointmentDate);
+        Task<AppointmentDTO> GetAppointmentByIdAsync(int id);
         Task<Appointment> CreateAppointmentAsync(Appointment appointment);
         Task<Appointment> UpdateAppointmentAsync(int id, Appointment appointment);
         Task<Appointment> DeleteAppointmentAsync(int id);

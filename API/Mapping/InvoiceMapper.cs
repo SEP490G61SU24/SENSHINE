@@ -78,7 +78,7 @@ namespace API.Mapping
                 .ForMember(dest => dest.SalePrice,
                            opt => opt.MapFrom(src => src.SalePrice)).ReverseMap();
 
-            CreateMap<Service, ServiceDTO2>()
+            CreateMap<Service, ServiceDTO>()
                 .ForMember(dest => dest.ServiceName,
                            opt => opt.MapFrom(src => src.ServiceName))
                 .ForMember(dest => dest.Amount,

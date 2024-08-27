@@ -372,20 +372,20 @@
     </script>
     <script>
         $(document).ready(function () {
-           
+
             $('#CustomerId').select2({
-                placeholder: 'chọn khách hàng...',
+                placeholder: 'Chọn khách hàng...',
                 allowClear: true,
-                minimumInputLength: 1,
+                minimumInputLength: 0, // Allow dropdown to open without any input
                 ajax: {
-                    url: 'http://localhost:5297/api/users/GetCustomer',
+                    url: function (params) {
+                        if (params.term) {
+                            return `http://localhost:5297/api/users/GetCustomer?name=${encodeURIComponent(params.term)}`;
+                        }
+                        return 'http://localhost:5297/api/users/GetCustomer';
+                    },
                     dataType: 'json',
                     delay: 250,
-                    data: function (params) {
-                        return {
-                            name: params.term 
-                        };
-                    },
                     processResults: function (data) {
                         return {
                             results: data.map(function (customer) {
@@ -404,11 +404,10 @@
             $('#CustomerId').on('select2:select', function (e) {
                 var selectedCustomerId = $(this).val();
                 console.log('Selected Customer ID:', selectedCustomerId);
-               
             });
         });
-
     </script>
+
     <script>
 
         document.addEventListener('DOMContentLoaded', () => {

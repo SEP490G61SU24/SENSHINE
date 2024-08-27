@@ -1,20 +1,19 @@
 ﻿using API.Dtos;
 using API.Models;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace API.Services.Impl
 {
     public class AppointmentService : IAppointmentService
     {
         private readonly SenShineSpaContext _dbContext;
+        private readonly IMapper _mapper;
 
-        public AppointmentService(SenShineSpaContext dbContext)
+        public AppointmentService(SenShineSpaContext dbContext, IMapper mapper)
         {
             _dbContext = dbContext;
+            _mapper = mapper;
         }
 
         public async Task<List<AppointmentDTO>> GetAllAppointmentsAsync()
@@ -23,59 +22,11 @@ namespace API.Services.Impl
                 .Include(a => a.Customer)
                 .Include(a => a.Employee)
                 .Include(a => a.Services)
-                .Include(a => a.Products)
                 .ToListAsync();
 
-            var appointmentDTOs = new List<AppointmentDTO>();
+            var listDtos = _mapper.Map<List<AppointmentDTO>>(appointments);
 
-            foreach (var appointment in appointments)
-            {
-                var customerWard = await _dbContext.Wards.FirstOrDefaultAsync(w => w.Code == appointment.Customer.WardCode);
-                var customerDistrict = customerWard != null ? await _dbContext.Districts.FirstOrDefaultAsync(d => d.Code == customerWard.DistrictCode) : null;
-                var customerProvince = customerDistrict != null ? await _dbContext.Provinces.FirstOrDefaultAsync(p => p.Code == customerDistrict.ProvinceCode) : null;
-
-                var address = $"{customerWard?.Name ?? "-"} - {customerDistrict?.Name ?? "-"} - {customerProvince?.Name ?? "-"}";
-
-                appointmentDTOs.Add(new AppointmentDTO
-                {
-                    Id = appointment.Id,
-                    CustomerId = appointment.CustomerId,
-                    EmployeeId = appointment.EmployeeId,
-                    AppointmentDate = appointment.AppointmentDate,
-                    AppointmentSlot = appointment.AppointmentSlot,
-                    RoomName = appointment.RoomName,
-                    BedNumber = appointment.BedNumber,
-
-                    Status = appointment.Status,
-                    Customer = new AppointmentUserDTO
-                    {
-                        Id = appointment.Customer.Id,
-                        FullName = appointment.Customer.FirstName + " " + appointment.Customer.MidName + " " + appointment.Customer.LastName,
-                        Phone = appointment.Customer.Phone,
-                        Address = address
-                    },
-                    Employee = new AppointmentUserDTO
-                    {
-                        Id = appointment.Employee.Id,
-                        FullName = appointment.Employee.FirstName + " " + appointment.Employee.MidName + " " + appointment.Employee.LastName,
-                        Phone = appointment.Employee.Phone
-                    },
-                    Services = appointment.Services.Select(s => new ServiceDTO
-                    {
-                        Id = s.Id,
-                        ServiceName = s.ServiceName,
-                        Amount = s.Amount,
-                        Description = s.Description
-                    }).ToList(),
-                    Products = appointment.Products.Select(p => new AppointmentDTO.AppointmentProductDTO
-                    {
-                        ProductId = p.Id,
-                        ProductName = p.ProductName
-                    }).ToList()
-                });
-            }
-
-            return appointmentDTOs;
+            return listDtos;
         }
 
         //Tim kiem theo ID cua khach hang
@@ -85,81 +36,36 @@ namespace API.Services.Impl
                 .Include(a => a.Customer)
                 .Include(a => a.Employee)
                 .Include(a => a.Services)
-                .Include(a => a.Products)
                 .Where(a => a.CustomerId == customerId)
                 .ToListAsync();
 
-            var appointmentDTOs = new List<AppointmentDTO>();
+            var listDtos = _mapper.Map<List<AppointmentDTO>>(appointments);
 
-            foreach (var appointment in appointments)
-            {
-                var customerWard = await _dbContext.Wards.FirstOrDefaultAsync(w => w.Code == appointment.Customer.WardCode);
-                var customerDistrict = customerWard != null ? await _dbContext.Districts.FirstOrDefaultAsync(d => d.Code == customerWard.DistrictCode) : null;
-                var customerProvince = customerDistrict != null ? await _dbContext.Provinces.FirstOrDefaultAsync(p => p.Code == customerDistrict.ProvinceCode) : null;
-
-                var address = $"{customerWard?.Name ?? "-"} - {customerDistrict?.Name ?? "-"} - {customerProvince?.Name ?? "-"}";
-
-                appointmentDTOs.Add(new AppointmentDTO
-                {
-                    Id = appointment.Id,
-                    CustomerId = appointment.CustomerId,
-                    EmployeeId = appointment.EmployeeId,
-                    AppointmentDate = appointment.AppointmentDate,
-                    AppointmentSlot = appointment.AppointmentSlot,
-                    RoomName = appointment.RoomName,
-                    BedNumber = appointment.BedNumber,
-
-                    Status = appointment.Status,
-                    Customer = new AppointmentUserDTO
-                    {
-                        Id = appointment.Customer.Id,
-                        FullName = appointment.Customer.FirstName + " " + appointment.Customer.MidName + " " + appointment.Customer.LastName,
-                        Phone = appointment.Customer.Phone,
-                        Address = address
-                    },
-                    Employee = new AppointmentUserDTO
-                    {
-                        Id = appointment.Employee.Id,
-                        FullName = appointment.Employee.FirstName + " " + appointment.Employee.MidName + " " + appointment.Employee.LastName,
-                        Phone = appointment.Employee.Phone
-                    },
-                    Services = appointment.Services.Select(s => new ServiceDTO
-                    {
-                        Id = s.Id,
-                        ServiceName = s.ServiceName,
-                        Amount = s.Amount,
-                        Description = s.Description
-                    }).ToList(),
-                    Products = appointment.Products.Select(p => new AppointmentDTO.AppointmentProductDTO
-                    {
-                        ProductId = p.Id,
-                        ProductName = p.ProductName
-                    }).ToList()
-                });
-            }
-
-            return appointmentDTOs;
+            return listDtos;
         }
 
-        public async Task<List<Appointment>> GetAppointmentsByDateAsync(DateTime appointmentDate)
+        public async Task<List<AppointmentDTO>> GetAppointmentsByDateAsync(DateTime appointmentDate)
         {
-            return await _dbContext.Appointments
+            var appointments = await _dbContext.Appointments
                 .Include(a => a.Customer)
                 .Include(a => a.Employee)
                 .Include(a => a.Services)
-                .Include(a => a.Products)
                 //.Where(a => a.AppointmentDate.Date == appointmentDate.Date)
                 .ToListAsync();
+            var listDtos = _mapper.Map<List<AppointmentDTO>>(appointments);
+
+            return listDtos;
         }
 
-        public async Task<Appointment> GetAppointmentByIdAsync(int id)
+        public async Task<AppointmentDTO> GetAppointmentByIdAsync(int id)
         {
-            return await _dbContext.Appointments
+            var appoint = await _dbContext.Appointments
                 .Include(a => a.Customer)
                 .Include(a => a.Employee)
                 .Include(a => a.Services)
-                .Include(a => a.Products)
                 .FirstOrDefaultAsync(a => a.Id == id);
+            var appDto = _mapper.Map<AppointmentDTO>(appoint);
+            return appDto;
         }
 
         public async Task<Appointment> CreateAppointmentAsync(Appointment appointment)
@@ -173,7 +79,6 @@ namespace API.Services.Impl
         {
             var existingAppointment = await _dbContext.Appointments
                                                        .Include(a => a.Services)
-                                                       .Include(a => a.Products)
                                                        .FirstOrDefaultAsync(x => x.Id == id);
             if (existingAppointment == null)
             {
@@ -196,14 +101,6 @@ namespace API.Services.Impl
                 existingAppointment.Services.Add(service);
             }
 
-            // Xử lý cập nhật các sản phẩm
-            existingAppointment.Products.Clear();
-            foreach (var product in appointment.Products)
-            {
-                _dbContext.Entry(product).State = EntityState.Unchanged;
-                existingAppointment.Products.Add(product);
-            }
-
             await _dbContext.SaveChangesAsync();
             return existingAppointment;
         }
@@ -215,7 +112,6 @@ namespace API.Services.Impl
             // Tìm appointment theo ID
             var existingAppointment = await _dbContext.Appointments
                                                  .Include(c => c.Services)
-                                                 .Include(a => a.Products) // Bao gồm các dịch vụ liên quan
                                                  .FirstOrDefaultAsync(c => c.Id == id);
 
             if (existingAppointment == null)
@@ -227,11 +123,6 @@ namespace API.Services.Impl
             {
                 // Xóa liên kết giữa combo và dịch vụ
                 existingAppointment.Services.Remove(service);
-            }
-            // Xóa product
-            foreach (var product in existingAppointment.Products.ToList())
-            {
-                existingAppointment.Products.Remove(product);
             }
 
             _dbContext.Appointments.Remove(existingAppointment);

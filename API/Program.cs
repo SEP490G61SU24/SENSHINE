@@ -32,8 +32,6 @@ namespace API
             builder.Services.AddScoped<INewsService, NewsService>();
             builder.Services.AddScoped<ICardService, CardService>();
             builder.Services.AddScoped<IComboService, CombosService>();
-            builder.Services.AddScoped<ICategoryService, CategoryService>();
-            builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddScoped<IAppointmentService, AppointmentService>();
             builder.Services.AddScoped<IWorkScheduleService, WorkScheduleService>();
             builder.Services.AddScoped<ISystemSettingService, SystemSettingService>();
@@ -54,7 +52,6 @@ namespace API
             builder.Services.AddAutoMapper(typeof(InvoiceMapper));
             builder.Services.AddAutoMapper(typeof(UserMapper));
             builder.Services.AddAutoMapper(typeof(NewMapper));
-            builder.Services.AddAutoMapper(typeof(ProductMapper));
             builder.Services.AddAutoMapper(typeof(PromotionMapper));
             builder.Services.AddAutoMapper(typeof(CardMapper));
             builder.Services.AddAutoMapper(typeof(BranchMapper));

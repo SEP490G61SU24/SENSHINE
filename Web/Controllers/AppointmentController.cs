@@ -101,12 +101,10 @@ namespace Web.Controllers
         public async Task<IActionResult> CreateAppointment()
         {
             var services = await GetAvailableServices();
-            var products = await GetAvailableProducts();
             var employees = await GetAvailableEmployees();
             var customers = await GetAvailableCustomers();
 
             ViewBag.Services = services ?? new List<ServiceViewModel>();
-            ViewBag.Products = products ?? new List<ProductViewModel>();
             ViewBag.Employees = employees ?? new List<AppointmentEmployeeViewModel>();
             ViewBag.Customers = customers ?? new List<AppointmentCustomerViewModel>();
 
@@ -121,12 +119,10 @@ namespace Web.Controllers
             if (!ModelState.IsValid)
             {
                 var services = await GetAvailableServices();
-                var products = await GetAvailableProducts();
                 var employees = await GetAvailableEmployees();
                 var customers = await GetAvailableCustomers();
 
                 ViewBag.Services = services;
-                ViewBag.Products = products;
                 ViewBag.Employees = employees;
                 ViewBag.Customers = customers;
 
@@ -143,7 +139,6 @@ namespace Web.Controllers
                 BedNumber = appointmentViewModel.BedNumber,
                 Status = appointmentViewModel.Status,
                 Services = appointmentViewModel.SelectedServiceIds.Select(id => new ServiceDTO { Id = id, ServiceName = "" }).ToList(),
-                Products = appointmentViewModel.SelectedProductIds.Select(id => new AppointmentDTO.AppointmentProductDTO { ProductId = id, ProductName = "" }).ToList()
             };
 
             string jsonString = JsonConvert.SerializeObject(appointmentDTO);
@@ -160,12 +155,10 @@ namespace Web.Controllers
             ModelState.AddModelError(string.Empty, errorMessage);
 
             var servicesList = await GetAvailableServices();
-            var productsList = await GetAvailableProducts();
             var employeesList = await GetAvailableEmployees();
             var customersList = await GetAvailableCustomers();
 
             ViewBag.Services = servicesList;
-            ViewBag.Products = productsList;
             ViewBag.Employees = employeesList;
             ViewBag.Customers = customersList;
 
@@ -197,16 +190,13 @@ namespace Web.Controllers
                 BedNumber = appointmentDTO.BedNumber,
                 Status = appointmentDTO.Status,
                 SelectedServiceIds = appointmentDTO.Services.Select(s => s.Id).ToList(),
-                SelectedProductIds = appointmentDTO.Products.Select(p => p.ProductId).ToList()
             };
 
             var services = await GetAvailableServices();
-            var products = await GetAvailableProducts();
             var employees = await GetAvailableEmployees();
             var customers = await GetAvailableCustomers();
 
             ViewBag.Services = services ?? new List<ServiceViewModel>();
-            ViewBag.Products = products ?? new List<ProductViewModel>();
             ViewBag.Employees = employees ?? new List<AppointmentEmployeeViewModel>();
             ViewBag.Customers = customers ?? new List<AppointmentCustomerViewModel>();
 
@@ -221,12 +211,10 @@ namespace Web.Controllers
             if (!ModelState.IsValid)
             {
                 var services = await GetAvailableServices();
-                var products = await GetAvailableProducts();
                 var employees = await GetAvailableEmployees();
                 var customers = await GetAvailableCustomers();
 
                 ViewBag.Services = services;
-                ViewBag.Products = products;
                 ViewBag.Employees = employees;
                 ViewBag.Customers = customers;
 
@@ -244,7 +232,6 @@ namespace Web.Controllers
                 BedNumber = appointmentViewModel.BedNumber,
                 Status = appointmentViewModel.Status,
                 Services = appointmentViewModel.SelectedServiceIds.Select(id => new ServiceDTO { Id = id, ServiceName = "" }).ToList(),
-                Products = appointmentViewModel.SelectedProductIds.Select(id => new AppointmentDTO.AppointmentProductDTO { ProductId = id, ProductName = "" }).ToList()
             };
 
             string jsonString = JsonConvert.SerializeObject(appointmentDTO);
@@ -261,12 +248,10 @@ namespace Web.Controllers
             ModelState.AddModelError(string.Empty, errorMessage);
 
             var servicesList = await GetAvailableServices();
-            var productsList = await GetAvailableProducts();
             var employeesList = await GetAvailableEmployees();
             var customersList = await GetAvailableCustomers();
 
             ViewBag.Services = servicesList;
-            ViewBag.Products = productsList;
             ViewBag.Employees = employeesList;
             ViewBag.Customers = customersList;
 
@@ -290,22 +275,7 @@ namespace Web.Controllers
 
             return services;
         }
-        private async Task<List<ProductViewModel>> GetAvailableProducts()
-        {
-            var client = _clientFactory.CreateClient();
-            var apiUrl = _configuration["ApiUrl"];
-            List<ProductViewModel> products = new List<ProductViewModel>();
-            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/ListAllProduct");
-
-            if (response.IsSuccessStatusCode)
-            {
-                string jsonString = await response.Content.ReadAsStringAsync();
-                products = JsonConvert.DeserializeObject<List<ProductViewModel>>(jsonString);
-            }
-
-            return products;
-        }
-
+        
         private async Task<List<AppointmentEmployeeViewModel>> GetAvailableEmployees()
         {
             var client = _clientFactory.CreateClient();

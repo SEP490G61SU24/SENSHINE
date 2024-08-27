@@ -392,7 +392,7 @@ namespace Web.Controllers
             var client = _clientFactory.CreateClient();
             try
             {
-                var response = await client.DeleteAsync($"{apiUrl}/DeleteProduct/{id}");
+                var response = await client.DeleteAsync($"{apiUrl}/DeleteInvoice/{id}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -400,7 +400,7 @@ namespace Web.Controllers
                     return Json(new { success = true });
                 }
 
-                return Json(new { success = false, message = "An error occurred while deleting the product." });
+                return Json(new { success = false, message = "An error occurred while deleting the Invoice." });
             }
             catch (Exception ex)
             {
@@ -412,8 +412,7 @@ namespace Web.Controllers
         {
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
-            content = "le hoang phuc";
-            price = 4912500;
+            
             try
             {
                 // Define the URL for the API endpoint

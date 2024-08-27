@@ -10,8 +10,7 @@ public class AutoMapperProfile : Profile
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
             .ForMember(dest => dest.Services, opt => opt.Ignore())
             .ForMember(dest => dest.Customer, opt => opt.Ignore())
-            .ForMember(dest => dest.Employee, opt => opt.Ignore())
-            .ForMember(dest => dest.Products, opt => opt.MapFrom(src => src.Products));
+            .ForMember(dest => dest.Employee, opt => opt.Ignore());
 
         CreateMap<Appointment, AppointmentDTO>()
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
@@ -35,10 +34,5 @@ public class AutoMapperProfile : Profile
                 Amount = s.Amount,
                 Description = s.Description
             }).ToList()));
-
-        CreateMap<AppointmentDTO.AppointmentProductDTO, Product>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore()) // Giả sử Product đã tồn tại trong cơ sở dữ liệu, bạn có thể không cần ánh xạ Id
-            .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.ProductName));
-
     }
 }

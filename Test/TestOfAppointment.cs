@@ -50,10 +50,6 @@ namespace Test_SenShineSpa
                 {
                     new ServiceDTO { Id = 1, ServiceName = "Massage", Amount = 100, Description = "Relaxing massage" }
                 },
-                Products = new List<AppointmentDTO.AppointmentProductDTO>
-                {
-                    new AppointmentDTO.AppointmentProductDTO { ProductId = 1, ProductName = "Essential Oil" }
-                }
             };
 
             // Act
