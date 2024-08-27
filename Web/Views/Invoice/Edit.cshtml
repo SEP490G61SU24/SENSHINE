@@ -245,7 +245,7 @@
                                     <div class="custom-select-wrapper">        
                                         <div id="serviceSelect" class="custom-select mb-4">
                                             <h5 class="mb-3">Dịch vụ</h5>
-                                            @foreach (var service in ViewBag.Services ?? new List<API.Dtos.ServiceDTO2>())
+                                            @foreach (var service in ViewBag.Services ?? new List<API.Dtos.ServiceDTO>())
                                             {
                                                 var selectedService = Model.InvoiceServices.FirstOrDefault(s => s.ServiceId == service.Id);
                                                 var quantity = selectedService?.Quantity ?? 0;
