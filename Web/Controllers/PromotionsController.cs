@@ -135,6 +135,7 @@ namespace Web.Controllers
 
             if (response.IsSuccessStatusCode)
             {
+                TempData["SuccessMsg"] = "Thêm khuyến mãi thành công!";
                 return RedirectToAction("ListPromotion");
             }
 
@@ -207,6 +208,7 @@ namespace Web.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
+                    TempData["SuccessMsg"] = "Sửa khuyến mãi thành công!";
                     return RedirectToAction("ListPromotion"); // Redirect to list view on success.
                 }
 

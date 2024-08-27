@@ -102,6 +102,11 @@
                 color: #006837;
             }
 
+        .img-fluid-z {
+            width: auto;
+            height: auto; /* Maintain aspect ratio */
+        }
+
 </style>
 </head>
 
@@ -140,48 +145,41 @@
                         </nav>
                     </header>
                 </div>
-                <div class="row justify-content-center">
-                    <div class="content text-center">
-                        <div>
-                            <h1 class="text-center">
-                                The SenShine Spa
-                            </h1>
-                        </div>
-                    </div>
-                    <div class="user-content">
-                        <span class="text-center">.</span>
-                    </div>
-
-                    <div class="star-animate">
-                    </div>
-                    <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
-
-                        <div class="screen-1">
-                            <div class="carousel-inner">
-                                <div class="carousel-item active">
-                                    <img class="img-fluid" src="~/assets/images/landing/demo/banner1.png" alt="First slide">
-                                </div>
-                                <div class="carousel-item">
-                                    <img class="img-fluid" src="~/assets/images/landing/demo/banner3.png" alt="Second slide">
-                                </div>
-
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8 col-sm-10">
+                            <div class="best-selling">
+                            <img class="img-fluid-z" src="../assets/images/landing/demo/banner3.png" alt="selling-product">
+                                <div class="img-shadow"></div>
                             </div>
+                            <div class="nft-marketplace">
+                            <img class="img-fluid-z" src="../assets/images/landing/demo/banner3.png" alt="nft-marketplace">
+                                <div class="nft-marketplace-shadow"></div>
+                            </div>
+                            <div class="content text-center">
+                                <div>
+                                    <h1 class="text-center">
+                                        SENSHINE SPA
+                                    </h1>
+                                    <div class="arrow-animate">
+                                        <svg>
+                                            <use href="../assets/svg/icon-sprite.svg#animated-arrow"> </use>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="user-content"></div>
+                       
+                        <div class="screen-1"> <img class="img-fluid" src="../assets/images/landing/demo/banner1.png" alt="dashboard-img"></div>
+                            
+                            <div class="star-img"> <img class="img-fluid start-animate fa-spin" src="../assets/images/landing/star.png" alt="star"></div>
+                            
+                            <div class="star-img-left">  <img class="img-fluid start-animate-rotate fa-spin" src="../assets/images/landing/star.png" alt="star"></div>
                         </div>
-                        <button class="carousel-control-prev" type="button" id="prevBtn" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Previous</span>
-                        </button>
-                        <button class="carousel-control-next" type="button" id="nextBtn" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Next</span>
-                        </button>
-                        
                     </div>
-
                 </div>
-
             </div>
-        </div>
+
+              
         
         <section class="intro-section" id="intro" style="padding: 50px 0; background-color: #f8f8f8;">
             <div class="container">
@@ -251,6 +249,13 @@
         <!-- feather icon js-->
         <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
         <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
+    <script src="~/assets/js/tooltip-init.js"></script>
+    <script src="~/assets/js/animation/wow/wow.min.js"></script>
+    <script src="~/assets/js/landing_sticky.js"></script>
+    <script src="~/assets/js/slick/slick.min.js"></script>
+    <script src="~/assets/js/slick/slick.js"></script>
+    <script src="~/assets/js/landing-slick.js"></script>
+    <script src="~/assets/js/header-slick.js"></script>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <!-- Bootstrap js-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
