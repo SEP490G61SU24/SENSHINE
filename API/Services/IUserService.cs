@@ -19,5 +19,6 @@ namespace API.Services
         Task<PaginatedList<UserDTO>> GetUsersByRoleWithPage(int roleId, int pageIndex, int pageSize, string searchTerm, string spaId);
         Task<string> GetAddress(string wardCode, string districtCode, string provinceCode);
         Task<bool> ChangePassword(string userName, string currentPassword, string newPassword, bool userChange);
-	}
+        Task<UserDTO> UpdateUserWorkingStatus(int userId, string newStatusWorking);
+    }
 }

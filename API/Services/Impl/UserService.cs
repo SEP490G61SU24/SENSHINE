@@ -484,6 +484,27 @@ namespace API.Services.Impl
             return _mapper.Map<IEnumerable<UserDTO>>(users);
         }
 
+        public async Task<UserDTO> UpdateUserWorkingStatus(int userId, string newStatusWorking)
+        {
+            if (!Enum.TryParse(typeof(UserWorkingStatusEnum), newStatusWorking, true, out var validStatus))
+            {
+                throw new ArgumentException("Trạng thái làm việc không hợp lệ.");
+            }
+
+            var user = await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new InvalidOperationException("Người dùng không tồn tại.");
+            }
+
+            user.StatusWorking = newStatusWorking;
+
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<UserDTO>(user);
+        }
 
     }
 }
