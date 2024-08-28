@@ -93,11 +93,11 @@
                                         <td>@item.BedNumber</td>
                                         <td>@item.RoomName</td>
                                         <td>
-                                            @if (item.StatusWorking == "ACTIVE")
+                                            @if (item.StatusWorking == "Available")
                                             {
                                                 <span>Trống</span>
                                             }
-                                            else if (item.StatusWorking == "INACTIVE")
+                                            else if (item.StatusWorking == "Unavailable")
                                             {
                                                 <span>Bận</span>
                                             }
