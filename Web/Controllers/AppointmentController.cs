@@ -23,6 +23,10 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ListAppointment()
         {
+            int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
+            ? int.Parse(ViewData["SpaId"].ToString())
+            : (int?)null;
+
             var client = _clientFactory.CreateClient();
             var apiUrl = _configuration["ApiUrl"];
             List<ListAppointmentViewModel> appointmentsList = new List<ListAppointmentViewModel>();
@@ -35,6 +39,7 @@ namespace Web.Controllers
                 {
                     string data = await response.Content.ReadAsStringAsync();
                     appointmentsList = JsonConvert.DeserializeObject<List<ListAppointmentViewModel>>(data);
+                    appointmentsList = appointmentsList.Where(a => a.Employee.SpaId == spaId).ToList();
                 }
             }
             catch (Exception ex)
