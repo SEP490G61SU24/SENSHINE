@@ -127,9 +127,15 @@
                                 </td>
                             <td>
                                 <ul class="action">
+                                        @if (item.Status != "Paid")
+                                        {
                                     <li class="edit"><a href="@Url.Action("Edit", "Invoice", new { id = item.Id })"><i class="icon-pencil-alt"></i></a></li>
+                                        }
                                     <li class="payment"><a href="@Url.Action("Payment", "Invoice", new { id = item.Id })"><i class="icon-eye"></i></a></li>
+                                        @if (item.Status != "Paid")
+                                        {
                                     <li class="delete"><a href="#" onclick="confirmDelete(@item.Id)"><i class="icon-trash"></i></a></li>
+                                        }
                                 </ul>
                             </td>
                         </tr>

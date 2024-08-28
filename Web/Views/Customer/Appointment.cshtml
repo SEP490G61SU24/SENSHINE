@@ -43,7 +43,7 @@
                         <th>Trạng thái</th>
                         <th>Nhân viên chăm sóc</th>
                         <th>Giường - Phòng</th>
-                        @* <th>Hành Động</th> *@
+                            @* <th>Hành Động</th> *@
                     </tr>
                 </thead>
                 <tbody>
@@ -52,21 +52,28 @@
                         <tr>
                             <td>@item.Id</td>
                             <td>
-                                @foreach(var sv in item.Services)
+                                @if (item.Services != null && item.Services.Any())
                                 {
-                                    @sv.ServiceName <br />
+                                    foreach (var sv in item.Services)
+                                    {
+                                        @sv.ServiceName <br />
+                                    }
+                                }
+                                else
+                                {
+                                    <span>Không có dịch vụ</span>
                                 }
                             </td>
                             <td>@item.AppointmentSlot - @item.AppointmentDate</td>
                             <td>@item.Status</td>
                             <td>@item.Employee.FullName (@item.Employee.Phone)</td>
-                            <td>@item.BedNumber - @item.RoomName</td>
+                            <td>@item.Bed.BedNumber - @item.RoomName</td>
                             @* <td>
-                                <ul class="action">
-                                    <li class="edit"><a href="#"><i class="icon-pencil-alt"></i> Sửa thông tin</a></li>
-                                    <li class="delete"><a href="#"><i class="icon-calendar"></i> Lịch hẹn</a></li>
-                                </ul>
-                            </td> *@
+                        <ul class="action">
+                        <li class="edit"><a href="#"><i class="icon-pencil-alt"></i> Sửa thông tin</a></li>
+                        <li class="delete"><a href="#"><i class="icon-calendar"></i> Lịch hẹn</a></li>
+                        </ul>
+                        </td> *@
                         </tr>
                     }
                 </tbody>

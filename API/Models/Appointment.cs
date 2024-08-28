@@ -13,12 +13,12 @@ namespace API.Models
         public int Id { get; set; }
         public int CustomerId { get; set; }
         public int EmployeeId { get; set; }
+        public int BedId { get; set; }
         public DateTime AppointmentDate { get; set; }
         public string AppointmentSlot { get; set; } = null!;
-        public string? BedNumber { get; set; }
-        public string? RoomName { get; set; }
         public string Status { get; set; } = null!;
 
+        public virtual Bed Bed { get; set; } = null!;
         public virtual User Customer { get; set; } = null!;
         public virtual User Employee { get; set; } = null!;
 

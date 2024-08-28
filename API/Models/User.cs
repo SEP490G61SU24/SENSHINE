@@ -1,4 +1,7 @@
-﻿namespace API.Models
+﻿using System;
+using System.Collections.Generic;
+
+namespace API.Models
 {
     public partial class User
     {
@@ -23,13 +26,13 @@
         public string? LastName { get; set; }
         public string? Phone { get; set; }
         public DateTime? BirthDate { get; set; }
-        public DateTime CreatedAt { get; set; }
         public string Status { get; set; } = null!;
         public string StatusWorking { get; set; } = null!;
         public int? SpaId { get; set; }
         public string? ProvinceCode { get; set; }
         public string? DistrictCode { get; set; }
         public string? WardCode { get; set; }
+        public DateTime? CreatedAt { get; set; }
 
         public virtual ICollection<Appointment> AppointmentCustomers { get; set; }
         public virtual ICollection<Appointment> AppointmentEmployees { get; set; }
