@@ -280,6 +280,9 @@ namespace Web.Controllers
         
         private async Task<List<AppointmentEmployeeViewModel>> GetAvailableEmployees()
         {
+            int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
+            ? int.Parse(ViewData["SpaId"].ToString())
+            : (int?)null;
             var client = _clientFactory.CreateClient();
             var apiUrl = _configuration["ApiUrl"];
             List<AppointmentEmployeeViewModel> employees = new List<AppointmentEmployeeViewModel>();
@@ -289,6 +292,7 @@ namespace Web.Controllers
             {
                 string jsonString = await response.Content.ReadAsStringAsync();
                 employees = JsonConvert.DeserializeObject<List<AppointmentEmployeeViewModel>>(jsonString);
+                employees = employees.Where(e=> e.SpaId == spaId).ToList();
             }
 
             return employees;
@@ -296,6 +300,9 @@ namespace Web.Controllers
 
         private async Task<List<AppointmentCustomerViewModel>> GetAvailableCustomers()
         {
+            int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
+            ? int.Parse(ViewData["SpaId"].ToString())
+            : (int?)null;
             var client = _clientFactory.CreateClient();
             var apiUrl = _configuration["ApiUrl"];
             List<AppointmentCustomerViewModel> customers = new List<AppointmentCustomerViewModel>();
@@ -305,6 +312,7 @@ namespace Web.Controllers
             {
                 string jsonString = await response.Content.ReadAsStringAsync();
                 customers = JsonConvert.DeserializeObject<List<AppointmentCustomerViewModel>>(jsonString);
+                customers = customers.Where(c => c.SpaId == spaId).ToList();
             }
 
             return customers;
