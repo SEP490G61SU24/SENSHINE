@@ -13,7 +13,7 @@ namespace API.Dtos
         public string? RoomName { get; set; }
         public string Status { get; set; }
 
-        public virtual Bed? Bed { get; set; } = null!;
+        public virtual BedDTO? Bed { get; set; } = null!;
         public virtual UserDTO? Customer { get; set; }
         public virtual UserDTO? Employee { get; set; }
 
