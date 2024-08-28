@@ -73,7 +73,7 @@
                     </div>
 
                     <div class="col-md-8 position-relative">
-                        <label asp-for="AppointmentDate" class="form-label">Thời Gian Check In</label>
+                        <label asp-for="AppointmentDate" class="form-label">Thời Gian Đặt Lịch</label>
                         <input asp-for="AppointmentDate" class="form-control" type="datetime-local" id="appointmentDateInput" />
                         <span asp-validation-for="AppointmentDate" class="text-danger"></span>
                     </div>
@@ -117,7 +117,22 @@
                         </select>
                         <span asp-validation-for="Status" class="text-danger"></span>
                     </div>
-
+                    <div class="row">
+                        <div class="col-md-3 position-relative">
+                            <label class="form-label" for="roomDropdown">Chọn Phòng Phục Vụ</label>
+                            <select class="form-select" name="RoomId" id="roomDropdown" required="">
+                                <option selected disabled value="">Chọn...</option>
+                            </select>
+                            <div class="invalid-tooltip">Vui lòng chọn phòng phục vụ</div>
+                        </div>
+                        <div class="col-md-3 position-relative">
+                            <label class="form-label" for="bedDropdown">Chọn Giường Phục Vụ</label>
+                            <select class="form-select" name="BedId" id="bedDropdown" required="">
+                                <option selected disabled value="">Chọn...</option>
+                            </select>
+                            <div class="invalid-tooltip">Vui lòng chọn giường phục vụ</div>
+                        </div>
+                    </div>
                     <div class="mt-4">
                         <a asp-action="ListAppointment" class="btn btn-secondary">Hủy</a>
                         <input type="submit" value="Lưu lại" class="btn btn-primary" />
@@ -152,4 +167,45 @@
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Load danh sách phòng dựa vào spaId
+            $.ajax({
+                url: `http://localhost:5297/api/Room/GetBySpaId?spaId=${spaId}`,
+                type: 'GET',
+                success: function (rooms) {
+                    rooms.forEach(room => {
+                        $('#roomDropdown').append(new Option(room.roomName, room.id));
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error("Failed to load rooms:", error);
+                }
+            });
+
+            // Khi thay đổi chọn phòng
+            $('#roomDropdown').change(function () {
+                var roomId = $(this).val();  // Lấy roomId từ dropdown
+                if (roomId) {
+                    // Gọi API để lấy danh sách giường dựa vào roomId
+                    $.ajax({
+                        url: `http://localhost:5297/api/Bed/GetByRoomId/ByRoomId/${roomId}`,  // Sử dụng roomId để gọi API
+                        type: 'GET',
+                        success: function (beds) {
+                            // Làm rỗng danh sách giường và thêm option mặc định
+                            $('#bedDropdown').empty().append('<option selected disabled value="">Chọn...</option>');
+                            // Thêm các giường thuộc roomId đã chọn
+                            beds.forEach(bed => {
+                                $('#bedDropdown').append(new Option(bed.bedNumber, bed.roomId));
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Failed to load beds:", error);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 }
