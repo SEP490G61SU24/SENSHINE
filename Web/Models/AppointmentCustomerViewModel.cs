@@ -15,5 +15,6 @@
         public string? WardCode { get; set; }
         public int RoleId { get; set; }
         public int RoleNames { get; set; }
+        public int? SpaId { get; set; }
     }
 }
