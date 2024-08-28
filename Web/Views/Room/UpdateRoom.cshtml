@@ -14,8 +14,8 @@
             </div>
             <div class="col-md-12 position-relative">
                 <label asp-for="RoomName" class="control-label"></label>
-                <input asp-for="RoomName" class="form-control" />
-                <span asp-validation-for="RoomName" class="text-danger"></span>
+                <input asp-for="RoomName" class="form-control" required />
+                <div class="invalid-tooltip">Điền tên đầy đủ!</div>
             </div>
             <br />
             <div class="col-12">

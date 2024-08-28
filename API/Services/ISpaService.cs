@@ -1,5 +1,6 @@
 ﻿using API.Dtos;
 using API.Models;
+using API.Ultils;
 
 namespace API.Services
 {
@@ -17,5 +18,6 @@ namespace API.Services
         //xoa 1 service
         Task<Service> DeleteServiceAsync(int Id);
         Task<bool> ValidateServicesAsync(AppointmentDTO appointmentDTO);
+        Task<PaginatedList<ServiceDTO>> GetServices(int pageIndex, int pageSize, string searchTerm);
     }
 }

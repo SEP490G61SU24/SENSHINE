@@ -10,8 +10,8 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="col-md-12 position-relative">
                 <label asp-for="SpaName" class="control-label"></label>
-                <input asp-for="SpaName" class="form-control" />
-                <span asp-validation-for="SpaName" class="text-danger"></span>
+                <input asp-for="SpaName" class="form-control" required />
+                <div class="invalid-tooltip">Điền tên đầy đủ!</div>
             </div>
             <div class="col-md-4 position-relative">
                 <label class="form-label" for="provinceDropdown">Tỉnh/Thành Phố</label>

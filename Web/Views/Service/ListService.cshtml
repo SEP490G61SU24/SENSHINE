@@ -1,7 +1,9 @@
-﻿@model IEnumerable<Web.Models.ServiceViewModel>
+﻿@model API.Ultils.PaginatedList<Web.Models.ServiceViewModel>
 
 @{
     ViewData["Title"] = "Danh Sách Dịch Vụ";
+    ViewData["ActionName"] = "Thêm dịch vụ mới";
+    ViewData["ActionUrl"] = "/service/CreateService";
 }
 
 @section Styles {
@@ -19,6 +21,7 @@
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/datatables.css">
     <!-- Plugins css Ends-->
     <!-- Bootstrap css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
@@ -29,57 +32,102 @@
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 }
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h4 class="card-title">Service List</h4>
-                        <a class="btn btn-primary" href="@Url.Action("CreateService", "Service")">
-                            <i class="fa fa-plus"></i> Tạo Dịch Vụ Mới
-                        </a>
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive custom-scrollbar">
+            <div class="search-page">
+                <form class="theme-form mb-3" method="GET">
+                    <div class="dataTables_length" id="table_length">
+                        <label>
+                            Hiển thị
+                            <select aria-controls="table" class="" asp-for="PageSize" name="PageSize" id="PageSize" onchange="this.form.submit()">
+                                @foreach (var pSize in new List<(int Value, string Name)>
+                                {
+                                (Value: 5, Name: "5"),
+                                (Value: 10, Name: "10"),
+                                (Value: 25, Name: "25"),
+                                (Value: 50, Name: "50"),
+                                (Value: 100, Name: "100"),
+                                })
+                                {
+                                    <option value="@pSize.Value" selected="@(pSize.Value == Model.PageSize ? "selected" : null)">@pSize.Name</option>
+                                }
+                            </select>
+                            bản ghi
+                        </label>
                     </div>
 
-                    <div class="table-responsive custom-scrollbar">
-                        <table class="display" id="serviceTable">
-                            <thead>
-                                <tr>
-                                    <th>@Html.DisplayNameFor(model => model.Id)</th>
-                                    <th>@Html.DisplayNameFor(model => model.ServiceName)</th>
-                                    <th>@Html.DisplayNameFor(model => model.Description)</th>
-                                    <th>Hành Động</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var item in Model)
-                                {
-                                    <tr>
-                                        <td>@Html.DisplayFor(modelItem => item.Id)</td>
-                                        <td>@Html.DisplayFor(modelItem => item.ServiceName)</td>
-                                        <td>@Html.DisplayFor(modelItem => item.Description)</td>
-                                        <td>
-                                            <div class="d-flex">
-                                                <form asp-action="EditService" method="get" class="me-2">
-                                                    <input type="hidden" name="id" value="@item.Id" />
-                                                    <button type="submit" class="btn btn-link text-warning">Chỉnh Sửa</button>
-                                                </form>
-                                                <form asp-action="DetailService" method="get" class="me-2">
-                                                    <input type="hidden" name="id" value="@item.Id" />
-                                                    <button type="submit" class="btn btn-link text-info">Chi Tiết</button>
-                                                </form>
-                                                <form asp-action="DeleteService1" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Are you sure you want to delete this service?');">
-                                                    <button type="submit" class="btn btn-link text-danger">Delete</button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                    <div class="input-group m-0 flex-nowrap">
+                        <input class="form-control-plaintext" name="searchTerm" type="search" value="@(Model.SearchTerm ?? null)" placeholder="Nhập tên phòng ..."><button class="btn btn-primary input-group-text">Tìm kiếm</button>
                     </div>
+                </form>
+            </div>
+
+            <table class="display" id="table">
+                <thead>
+                    <tr>
+                        <th>Tên dịch vụ</th>
+                        <th>Mô tả</th>
+                        <th>Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.ServiceName)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Description)</td>
+@*                             <td>
+                                <div class="d-flex">
+                                    <form asp-action="EditService" method="get" class="me-2">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-link text-warning">Chỉnh Sửa</button>
+                                    </form>
+                                    <form asp-action="DetailService" method="get" class="me-2">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-link text-info">Chi Tiết</button>
+                                    </form>
+                                    <form asp-action="DeleteService1" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Are you sure you want to delete this service?');">
+                                        <button type="submit" class="btn btn-link text-danger">Xóa</button>
+                                    </form>
+                                </div>
+                            </td> *@
+                            <td>
+                                <ul class="action">
+                                    <li class="edit"><a href="@Url.Action("EditService", "Service", new { id = item.Id })"><i class="icon-pencil-alt"></i></a></li>
+                                    <li class="detail"><a href="@Url.Action("DetailService", "Service", new { id = item.Id })"><i class="icon-eye"></i></a></li>
+                                    <li class="delete"><a href="@Url.Action("DeleteService1", "Service", new { id = item.Id })" onsubmit="return confirm('Are you sure you want to delete this service?');"><i class="icon-trash"></i></a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="dataTables_wrapper no-footer">
+                <div class="dataTables_paginate paging_simple_numbers" id="table_paginate">
+                    <a class="paginate_button previous @(Model.HasPreviousPage ? "" : "disabled")"
+                       aria-controls="table"
+                       href="@(Model.HasPreviousPage ? $"?searchTerm={Model.SearchTerm}&pageIndex={Model.PageIndex - 1}&pageSize={Model.PageSize}" : "javascript:void(0);")"
+                       id="table_previous">« Trước</a>
+
+                    <span>
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <a class="@(i == Model.PageIndex ? "paginate_button current" : "paginate_button")"
+                               aria-controls="table"
+                               href="?searchTerm=@Model.SearchTerm&pageIndex=@i&pageSize=@Model.PageSize"
+                               data-dt-idx="@i">@i</a>
+                        }
+                    </span>
+
+                    <a class="paginate_button next @(Model.HasNextPage ? "" : "disabled")"
+                       aria-controls="table"
+                       href="@(Model.HasNextPage ? $"?searchTerm={Model.SearchTerm}&pageIndex={Model.PageIndex + 1}&pageSize={Model.PageSize}" : "javascript:void(0);")"
+                       id="table_next">Tiếp »</a>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
@@ -111,11 +159,9 @@
 
     <script>
         $(document).ready(function () {
-            $('#serviceTable').DataTable({
-                "paging": true,
-                "searching": true,
-                "ordering": true,
-                "info": true
+            $('#table').DataTable({
+                paging: false,
+                searching: false
             });
         });
     </script>
