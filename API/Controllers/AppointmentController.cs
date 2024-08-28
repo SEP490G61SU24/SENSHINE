@@ -14,14 +14,13 @@ namespace API.Controllers
     {
         private readonly IAppointmentService _appointmentService;
         private readonly IUserService _userService;
-        private readonly ISpaService _spaService;
-        private readonly IMapper _mapper;
-        public AppointmentController(IAppointmentService appointmentService, IUserService userService, ISpaService spaService,IMapper mapper)
+        private readonly IWorkScheduleService _workScheduleService;
+
+        public AppointmentController(IAppointmentService appointmentService, IUserService userService, IWorkScheduleService workScheduleService, IMapper mapper)
         {
             _appointmentService = appointmentService;
             _userService = userService;
-            _spaService = spaService;
-            _mapper = mapper;
+            _workScheduleService = workScheduleService;
         }
 
         [HttpGet]
@@ -191,6 +190,7 @@ namespace API.Controllers
 
                 // Tạo cuộc hẹn mới
                 var appointment = await _appointmentService.CreateAppointmentAsync(appointmentDTO);
+                await _workScheduleService.UpdateWorkScheduleStatusForAppointment(emp.Id, appointmentDTO.AppointmentDate.Value.Date, appointmentDTO.AppointmentSlot, WorkscheduleStatusEnum.SCHEDULED.ToString());
 
                 return Ok($"Create Appointment Successfully With ID: {appointment.Id}");
             }
@@ -277,6 +277,8 @@ namespace API.Controllers
                 }
 
                 await _appointmentService.UpdateAppointmentAsync(appointmentDTO.Id, appointmentDTO);
+
+                await _workScheduleService.UpdateWorkScheduleStatusForAppointment(emp.Id, appointmentDTO.AppointmentDate.Value.Date, appointmentDTO.AppointmentSlot, WorkscheduleStatusEnum.SCHEDULED.ToString());
 
                 return Ok($"Update Appointment Successful With ID: {existingAppointment.Id}");
             }

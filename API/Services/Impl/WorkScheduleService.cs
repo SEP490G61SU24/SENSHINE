@@ -4,6 +4,7 @@ using API.Models;
 using Microsoft.EntityFrameworkCore;
 using API.Ultils;
 using System.Globalization;
+using System.Net.NetworkInformation;
 
 namespace API.Services.Impl
 {
@@ -406,5 +407,64 @@ namespace API.Services.Impl
 
 			await _context.SaveChangesAsync();
 		}
-	}
+
+        public async Task UpdateWorkScheduleStatusForAppointment(int empId, DateTime appointmentDate, string slot, string newStatus)
+        {
+            var slots = new Dictionary<string, (TimeSpan StartTime, TimeSpan EndTime)>
+            {
+                { "Slot1", (new TimeSpan(8, 30, 0), new TimeSpan(10, 0, 0)) },
+                { "Slot2", (new TimeSpan(10, 0, 0), new TimeSpan(11, 30, 0)) },
+                { "Slot3", (new TimeSpan(11, 30, 0), new TimeSpan(13, 0, 0)) },
+                { "Slot4", (new TimeSpan(13, 0, 0), new TimeSpan(14, 30, 0)) },
+                { "Slot5", (new TimeSpan(14, 30, 0), new TimeSpan(16, 0, 0)) },
+                { "Slot6", (new TimeSpan(16, 0, 0), new TimeSpan(17, 30, 0)) },
+                { "Slot7", (new TimeSpan(17, 30, 0), new TimeSpan(19, 0, 0)) },
+                { "Slot8", (new TimeSpan(19, 0, 0), new TimeSpan(20, 30, 0)) },
+                { "Slot9", (new TimeSpan(20, 30, 0), new TimeSpan(22, 0, 0)) }
+            };
+
+            if (!slots.ContainsKey(slot))
+            {
+                throw new ArgumentException("Invalid slot value.", nameof(slot));
+            }
+
+            var (startTime, endTime) = slots[slot];
+            var startDateTime = appointmentDate.Date + startTime;
+            var endDateTime = appointmentDate.Date + endTime;
+
+            var workSchedule = await _context.WorkSchedules
+                .FirstOrDefaultAsync(ws =>
+                    ws.EmployeeId == empId &&
+                    ws.StartDateTime == startDateTime &&
+                    ws.EndDateTime == endDateTime);
+
+            var employee = await _context.Users.FindAsync(empId);
+            if (employee == null)
+            {
+                throw new InvalidOperationException("Employee not found.");
+            }
+
+            if (workSchedule == null)
+            {
+                workSchedule = new WorkSchedule
+                {
+                    EmployeeId = empId,
+                    Status = newStatus,
+                    StartDateTime = startDateTime,
+                    EndDateTime = endDateTime,
+                    DayOfWeek = startDateTime.ToString("dddd", new CultureInfo("vi-VN")),
+                    Employee = employee
+                };
+
+                _context.WorkSchedules.Add(workSchedule);
+            }
+            else
+            {
+                workSchedule.Status = newStatus;
+                _context.WorkSchedules.Update(workSchedule);
+            }
+
+            await _context.SaveChangesAsync();
+        }
+    }
 }
