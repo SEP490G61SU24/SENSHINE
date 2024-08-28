@@ -40,6 +40,7 @@ namespace Web.Models
 
             [DisplayName("Address")]
             public string Address { get; set; }
+            public int? SpaId { get; set; }
         }
 
     }
