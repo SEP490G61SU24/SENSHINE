@@ -20,7 +20,7 @@ namespace Web.Models
         public DateTime AppointmentDate { get; set; }
         [DisplayName("Slot")]
         public string AppointmentSlot { get; set; }
-        public string? BedNumber { get; set; }
+        public int BedId { get; set; }
         public string? RoomName { get; set; }
         [DisplayName("Status")]
         public string Status { get; set; }
