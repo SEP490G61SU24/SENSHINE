@@ -131,12 +131,21 @@ namespace Web.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     var user = await response.Content.ReadFromJsonAsync<UserDTO>();
-                    user.FullName = string.Join(" ", new[] { user.FirstName, user.MidName, user.LastName }.Where(name => !string.IsNullOrEmpty(name)));
+                    if (user.RoleId == (int)UserRoleEnum.CUSTOMER)
+                    {
+                        return View("~/Views/Errors/404.cshtml");
+                    }
                     return View(user);
                 }
                 else
                 {
-                    return View("Error");
+                    if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        return View("~/Views/Errors/404.cshtml");
+                    }
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    ViewData["Error"] = responseString;
+                    return View("~/Views/Errors/500.cshtml");
                 }
             }
             catch (Exception ex)
@@ -211,12 +220,21 @@ namespace Web.Controllers
                 var response = await client.GetAsync($"{apiUrl}/users/{id}");
                 if (!response.IsSuccessStatusCode)
                 {
-					var responseString = await response.Content.ReadAsStringAsync();
-					ViewData["Error"] = responseString;
-					return View("Error");
+                    if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        return View("~/Views/Errors/404.cshtml");
+                    }
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    ViewData["Error"] = responseString;
+                    return View("~/Views/Errors/500.cshtml");
 				}
 
                 var user = await response.Content.ReadFromJsonAsync<UserDTO>();
+
+                if (user.RoleId == (int)UserRoleEnum.CUSTOMER)
+                {
+                    return View("~/Views/Errors/404.cshtml");
+                }
 
                 var cpDto = new ChangePasswordDTO
                 {
@@ -311,11 +329,21 @@ namespace Web.Controllers
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    ViewData["Error"] = "Lấy dữ liệu người dùng không thành công!";
-                    return View("Error");
+                    if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        return View("~/Views/Errors/404.cshtml");
+                    }
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    ViewData["Error"] = responseString;
+                    return View("~/Views/Errors/500.cshtml");
                 }
 
                 UserDTO uDto = await response.Content.ReadFromJsonAsync<UserDTO>();
+
+                if (uDto.RoleId == (int)UserRoleEnum.CUSTOMER)
+                {
+                    return View("~/Views/Errors/404.cshtml");
+                }
 
                 var employeeId = id;
                 ViewData["employeeId"] = employeeId;
