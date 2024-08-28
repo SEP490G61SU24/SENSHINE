@@ -130,14 +130,21 @@ namespace Web.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     var user = await response.Content.ReadFromJsonAsync<UserDTO>();
-                    user.FullName = string.Join(" ", new[] { user.FirstName, user.MidName, user.LastName }.Where(name => !string.IsNullOrEmpty(name)));
+                    if (user.RoleId != (int)UserRoleEnum.CUSTOMER)
+                    {
+                        return View("~/Views/Errors/404.cshtml");
+                    }
                     return View(user);
                 }
                 else
                 {
+                    if(response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        return View("~/Views/Errors/404.cshtml");
+                    }
                     var responseString = await response.Content.ReadAsStringAsync();
                     ViewData["Error"] = responseString;
-                    return View("Error");
+                    return View("~/Views/Errors/500.cshtml");
                 }
             }
             catch (Exception ex)
@@ -203,5 +210,55 @@ namespace Web.Controllers
                 return View("Error");
             }
         }
-	}
+
+        [HttpGet]
+        public async Task<IActionResult> Appointment(int id)
+        {
+            try
+            {
+                var apiUrl = _configuration["ApiUrl"];
+                var client = _clientFactory.CreateClient();
+                var response = await client.GetAsync($"{apiUrl}/Appointment/GetByCustomerId/customer/{id}");
+
+                var responseUser = await client.GetAsync($"{apiUrl}/users/{id}");
+                if (responseUser.IsSuccessStatusCode)
+                {
+                    var user = await responseUser.Content.ReadFromJsonAsync<UserDTO>();
+                    if (user.RoleId != (int)UserRoleEnum.CUSTOMER)
+                    {
+                        return View("~/Views/Errors/404.cshtml");
+                    }
+                    ViewData["CusDetail"] = $"{user.FullName}  ({user.Phone})";
+                }
+                else
+                {
+                    if (responseUser.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        return View("~/Views/Errors/404.cshtml");
+                    }
+                    var responseUserString = await responseUser.Content.ReadAsStringAsync();
+                    ViewData["Error"] = responseUserString;
+                    return View("~/Views/Errors/500.cshtml");
+                }
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var appointments = await response.Content.ReadFromJsonAsync<List<AppointmentDTO>>();
+                    return View(appointments);
+                }
+                else
+                {
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    ViewData["Error"] = responseString;
+                    return View("Error");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
+            }
+        }
+    }
 }
