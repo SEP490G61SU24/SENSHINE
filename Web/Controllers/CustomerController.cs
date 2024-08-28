@@ -243,8 +243,16 @@ namespace Web.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var appointments = await response.Content.ReadFromJsonAsync<List<AppointmentDTO>>();
-                    return View(appointments);
+                    if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
+                    {
+                        var appointments = new List<AppointmentDTO>();
+                        return View(appointments);
+                    }
+                    else
+                    {
+                        var appointments = await response.Content.ReadFromJsonAsync<List<AppointmentDTO>>();
+                        return View(appointments);
+                    }
                 }
                 else
                 {
