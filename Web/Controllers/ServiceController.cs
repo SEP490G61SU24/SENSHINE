@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using API.Ultils;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Text;
 using Web.Models;
 
@@ -20,29 +22,26 @@ namespace Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ListService(string searchString)
+        public async Task<IActionResult> ListService(int pageIndex = 1, int pageSize = 10, string searchTerm = null)
         {
-            var client = _clientFactory.CreateClient();
-            var apiUrl = _configuration["ApiUrl"];
-            List<ServiceViewModel> servicesList = new List<ServiceViewModel>();
-
             try
             {
-                // Gọi API để lấy danh sách dịch vụ
-                HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Service/GetAllServices");
+                var apiUrl = _configuration["ApiUrl"];
+                var url = $"{apiUrl}/Service/GetAll?pageIndex={pageIndex}&pageSize={pageSize}&searchTerm={searchTerm}";
+                var client = _clientFactory.CreateClient();
+                PaginatedList<ServiceViewModel> services = new PaginatedList<ServiceViewModel>();
+                HttpResponseMessage response = client.GetAsync(url).Result;
 
                 if (response.IsSuccessStatusCode)
                 {
-                    string data = await response.Content.ReadAsStringAsync();
-                    servicesList = JsonConvert.DeserializeObject<List<ServiceViewModel>>(data);
-
-                    // Lọc dữ liệu nếu có từ khóa tìm kiếm
-                    if (!String.IsNullOrEmpty(searchString))
-                    {
-                        servicesList = servicesList.Where(s => s.ServiceName.Contains(searchString, StringComparison.OrdinalIgnoreCase)).ToList();
-                    }
+                    string data = response.Content.ReadAsStringAsync().Result;
+                    services = JsonConvert.DeserializeObject<PaginatedList<ServiceViewModel>>(data);
+                    return View(services);
                 }
-                return View(servicesList);
+                else
+                {
+                    return View("Error");
+                }
             }
             catch (Exception ex)
             {

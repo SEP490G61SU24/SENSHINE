@@ -1,5 +1,7 @@
 ﻿using API.Dtos;
 using API.Models;
+using API.Ultils;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Services.Impl
@@ -7,9 +9,11 @@ namespace API.Services.Impl
     public class SpaService : ISpaService
     {
         private readonly SenShineSpaContext _dbContext;
-        public SpaService(SenShineSpaContext dbContext)
+        private readonly IMapper _mapper;
+        public SpaService(SenShineSpaContext dbContext, IMapper mapper)
         {
             this._dbContext = dbContext;
+            _mapper = mapper;
         }
 
         //Tạo service mới
@@ -75,6 +79,35 @@ namespace API.Services.Impl
 
             // Return true if the count matches, indicating all services exist
             return existingServices.Count == serviceIds.Count;
+        }
+
+        public async Task<PaginatedList<ServiceDTO>> GetServices(int pageIndex, int pageSize, string searchTerm)
+        {
+            // Tạo query cơ bản
+            IQueryable<Service> query = _dbContext.Services;
+
+            // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(s => s.ServiceName.Contains(searchTerm));
+            }
+
+            // Đếm tổng số bản ghi để tính tổng số trang
+            var count = await query.CountAsync();
+
+            // Lấy danh sách với phân trang
+            var services = await query.Skip((pageIndex - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync();
+            var servicesDtos = _mapper.Map<IEnumerable<ServiceDTO>>(services);
+
+            return new PaginatedList<ServiceDTO>
+            {
+                Items = servicesDtos,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = count,
+            };
         }
     }
 }

@@ -21,5 +21,8 @@ public class AppointmentMapper : Profile
                 Amount = s.Amount,
                 Description = s.Description
             }).ToList()));
+
+        CreateMap<ServiceDTO, Service>();
+        CreateMap<Service, ServiceDTO>();
     }
 }
