@@ -184,7 +184,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetBySpaId(int spaId)
+        public async Task<IActionResult> GetBySpaId(string spaId = null)
         {
             try
             {
