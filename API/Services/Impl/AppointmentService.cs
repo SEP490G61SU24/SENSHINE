@@ -36,6 +36,7 @@ namespace API.Services.Impl
                 .Include(a => a.Customer)
                 .Include(a => a.Employee)
                 .Include(a => a.Services)
+                .Include(a => a.Bed)
                 .Where(a => a.Customer.Id == customerId)
                 .ToListAsync();
 
