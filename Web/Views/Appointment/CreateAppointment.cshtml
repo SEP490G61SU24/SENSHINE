@@ -9,9 +9,6 @@
 
 @section Styles {
 <!-- Google font-->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
     <!-- ico-font-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
@@ -40,11 +37,11 @@
     <div class="card-body">
         <div class="row">
             <div class="col-md-8 offset-md-2">
-                <form asp-action="CreateAppointment">
-                    <div class="form-group">
-                        <label asp-for="CustomerId" class="control-label">Tên Khách Hàng</label>
-                        <select asp-for="CustomerId" class="form-control" id="customerSelect">
-                            <option value="">Select Customer</option>
+                <form asp-action="CreateAppointment" class="row g-3 needs-validation custom-input" novalidate="">                   
+                    <div class="col-md-8 position-relative">
+                        <label asp-for="CustomerId" for="CustomerId" class="form-label">Tên Khách Hàng</label>
+                        <select asp-for="CustomerId" class="form-control" id="CustomerId" required>
+                            <option value="">Chọn khách hàng</option>
                             @if (customers != null)
                             {
                                 @foreach (var customer in customers)
@@ -53,12 +50,12 @@
                                 }
                             }
                         </select>
-                        <span asp-validation-for="CustomerId" class="text-danger"></span>
+                        <div class="invalid-tooltip">Chọn khách hàng.</div>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="EmployeeId" class="control-label">Nhân Viên Phục Vụ</label>
-                        <select asp-for="EmployeeId" class="form-control" id="employeeSelect">
-                            <option value="">Select Employee</option>
+                    <div class="col-md-8 position-relative">
+                        <label asp-for="EmployeeId" for="EmployeeId" class="form-label">Nhân Viên Phục Vụ</label>
+                        <select asp-for="EmployeeId" class="form-select" id="EmployeeId" required>
+                            <option value="">Chọn nhân viên</option>
 
                             @if (employees != null)
                             {
@@ -68,17 +65,18 @@
                                 }
                             }
                         </select>
-                        <span asp-validation-for="EmployeeId" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="AppointmentDate" class="control-label">Thời Gian Check In</label>
-                        <input asp-for="AppointmentDate" class="form-control" type="datetime-local" id="appointmentDateInput" />
-                        <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+                        <div class="invalid-tooltip">Chọn nhân viên.</div>
                     </div>
 
-                    <div class="form-group">
-                        <label asp-for="AppointmentSlot" class="control-label">Slot</label>
-                        <select asp-for="AppointmentSlot" class="form-control" id="slotSelect">
+                    <div class="col-md-6 position-relative">
+                        <label class="form-label" for="AppointmentDate">Ngày đặt lịch</label>
+                        <input asp-for="AppointmentDate" class="form-control digits" name="AppointmentDate" id="AppointmentDate" type="date" value="@DateTime.Now.ToString("dd/MM/yyyy")" required>
+                        <div class="invalid-tooltip">Nhập ngày đặt lịch!</div>
+                    </div>
+
+                    <div class="col-md-8 position-relative">
+                        <label asp-for="AppointmentSlot" for="AppointmentSlot" class="form-label">Slot</label>
+                        <select asp-for="AppointmentSlot" class="form-select" id="AppointmentSlot" required>
                             <option value="Slot1">Slot 1: 8h30 - 10h</option>
                             <option value="Slot2">Slot 2: 10h - 11h30</option>
                             <option value="Slot3">Slot 3: 11h30 - 13h</option>
@@ -89,12 +87,12 @@
                             <option value="Slot8">Slot 8: 19h - 20h30</option>
                             <option value="Slot9">Slot 9: 20h30 - 22h</option>
                         </select>
-                        <span asp-validation-for="AppointmentSlot" class="text-danger"></span>
+                        <div class="invalid-tooltip">Chọn slot.</div>
                     </div>
 
-                    <div class="form-group">
-                        <label asp-for="SelectedServiceIds" class="control-label">Dịch Vụ Sử Dụng</label>
-                        <select asp-for="SelectedServiceIds" class="form-control" multiple id="serviceSelect">
+                    <div class="col-md-8 position-relative">
+                        <label asp-for="SelectedServiceIds" for="SelectedServiceIds" class="form-label">Dịch Vụ Sử Dụng</label>
+                        <select asp-for="SelectedServiceIds" class="form-select" multiple id="SelectedServiceIds" required>
                             @if (services != null)
                             {
                                 @foreach (var service in services)
@@ -103,40 +101,51 @@
                                 }
                             }
                         </select>
-                        <span asp-validation-for="SelectedServiceIds" class="text-danger"></span>
+                        <div class="invalid-tooltip">Chọn dịch vụ.</div>
                     </div>
                     <div class="row">
-                    <div class="col-md-3 position-relative">
-                        <label class="form-label" for="provinceDropdown">Chọn Phòng Phục Vụ</label>
-                        <select class="form-select" name="RoomId" id="provinceDropdown" required="">
-                            <option selected disabled value="">Chọn...</option>
-                        </select>
-                        <div class="invalid-tooltip">Vui lòng chọn phòng phục vụ</div>
-                    </div>
-                    <div class="col-md-3 position-relative">
-                        <label class="form-label" for="districtDropdown">Chọn Giường Phục Vụ</label>
-                        <select class="form-select" name="BedId" id="districtDropdown" required="">
-                            <option selected disabled value="">Chọn...</option>
-                        </select>
-                        <div class="invalid-tooltip">Vui lòng chọn giường phục vụ</div>
-                    </div>
+                        <div class="col-md-3 position-relative">
+                            <label class="form-label" for="roomDropdown">Chọn Phòng Phục Vụ</label>
+                            <select class="form-select" name="RoomId" id="roomDropdown" required="">
+                                <option selected disabled value="">Chọn...</option>
+                            </select>
+                            <div class="invalid-tooltip">Vui lòng chọn phòng phục vụ</div>
+                        </div>
+                        <div class="col-md-3 position-relative">
+                            <label class="form-label" for="bedDropdown">Chọn Giường Phục Vụ</label>
+                            <select class="form-select" name="BedId" id="bedDropdown" required="">
+                                <option selected disabled value="">Chọn...</option>
+                            </select>
+                            <div class="invalid-tooltip">Vui lòng chọn giường phục vụ</div>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label asp-for="Status" class="control-label">Trạng Thái</label>
-                        <select asp-for="Status" class="form-control" id="statusSelect">
+                    <div class="col-md-3 position-relative">
+                        <label asp-for="Status" for="statusSelect" class="form-label">Trạng Thái</label>
+                        <select asp-for="Status" class="form-select" id="statusSelect" required>
                             <option value="Cancel">Cancelled</option>
                             <option value="Pending">Pending</option>
                             <option value="Doing">Doing</option>
                             <option value="Combo">Combo Order</option>
                             <option value="Finished">Finished</option>
                         </select>
-                        <span asp-validation-for="Status" class="text-danger"></span>
+                        <div class="invalid-tooltip">Chọn dịch vụ.</div>
                     </div>
-                    <div class="mt-4">
-                        <a asp-action="ListAppointment" class="btn btn-secondary">Cancel</a>
-                        <input type="submit" value="Create" class="btn btn-primary" />
-                    </div>
+
+                    @if (ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL")
+                    {
+                        <div class="col-12">
+                            <button class="btn btn-primary" type="submit">Thêm Mới</button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-12">
+                            <div class="alert alert-danger dark" role="alert">
+                                <p>Bạn đang ở chế độ toàn bộ spa, không thể thêm. Hãy chọn chi nhánh SPA trước.</p>
+                            </div>
+                        </div>
+                    }
                 </form>
             </div>
         </div>
@@ -162,8 +171,8 @@
     <script src="~/assets/js/slick/slick.js"></script>
     <script src="~/assets/js/header-slick.js"></script>
     <!-- calendar js-->
-    <script src="~/assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
-    <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
+    <script src="~/assets/js/form-validation-custom.js"></script>
+    <script src="~/assets/js/height-equal.js"></script>
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
@@ -172,11 +181,11 @@
         $(document).ready(function () {
             // Load danh sách phòng dựa vào spaId
             $.ajax({
-                url: 'http://localhost:5297/api/Room/GetBySpaId?spaId=1',  // Đường dẫn API đúng
+                url: `http://localhost:5297/api/Room/GetBySpaId?spaId=${spaId}`,
                 type: 'GET',
                 success: function (rooms) {
                     rooms.forEach(room => {
-                        $('#provinceDropdown').append(new Option(room.roomName, room.id));
+                        $('#roomDropdown').append(new Option(room.roomName, room.id));
                     });
                 },
                 error: function (xhr, status, error) {
@@ -185,7 +194,7 @@
             });
 
             // Khi thay đổi chọn phòng
-            $('#provinceDropdown').change(function () {
+            $('#roomDropdown').change(function () {
                 var roomId = $(this).val();  // Lấy roomId từ dropdown
                 if (roomId) {
                     // Gọi API để lấy danh sách giường dựa vào roomId
@@ -194,66 +203,16 @@
                         type: 'GET',
                         success: function (beds) {
                             // Làm rỗng danh sách giường và thêm option mặc định
-                            $('#districtDropdown').empty().append('<option selected disabled value="">Chọn...</option>');
+                            $('#bedDropdown').empty().append('<option selected disabled value="">Chọn...</option>');
                             // Thêm các giường thuộc roomId đã chọn
                             beds.forEach(bed => {
-                                $('#districtDropdown').append(new Option(bed.bedNumber, bed.roomId));
+                                $('#bedDropdown').append(new Option(bed.bedNumber, bed.roomId));
                             });
                         },
                         error: function (xhr, status, error) {
                             console.error("Failed to load beds:", error);
                         }
                     });
-                }
-            });
-        });
-
-        //Set Date
-        document.addEventListener('DOMContentLoaded', function () {
-            const slotSelect = document.getElementById('slotSelect');
-            const appointmentDateInput = document.getElementById('appointmentDateInput');
-
-            slotSelect.addEventListener('change', function () {
-                const slot = slotSelect.value;
-                let date = new Date();
-
-                switch (slot) {
-                    case 'Slot1':
-                        date.setHours(8, 30, 0, 0);
-                        break;
-                    case 'Slot2':
-                        date.setHours(10, 0, 0, 0);
-                        break;
-                    case 'Slot3':
-                        date.setHours(11, 30, 0, 0);
-                        break;
-                    case 'Slot4':
-                        date.setHours(13, 0, 0, 0);
-                        break;
-                    case 'Slot5':
-                        date.setHours(14, 30, 0, 0);
-                        break;
-                    case 'Slot6':
-                        date.setHours(16, 0, 0, 0);
-                        break;
-                    case 'Slot7':
-                        date.setHours(17, 30, 0, 0);
-                        break;
-                    case 'Slot8':
-                        date.setHours(19, 0, 0, 0);
-                        break;
-                    case 'Slot9':
-                        date.setHours(20, 30, 0, 0);
-                        break;
-                    default:
-                        date = null;
-                }
-
-                if (date) {
-                    const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)); // Điều chỉnh múi giờ
-                    appointmentDateInput.value = localDate.toISOString().slice(0, 16); // Định dạng datetime-local
-                } else {
-                    appointmentDateInput.value = ''; // Xóa giá trị nếu không có slot
                 }
             });
         });

@@ -17,7 +17,7 @@ namespace Web.Models
         public int? EmployeeId { get; set; }
 
         [DisplayName("Appointment Date")]
-        public DateTime AppointmentDate { get; set; }
+        public DateTime? AppointmentDate { get; set; }
         [DisplayName("Slot")]
         public string AppointmentSlot { get; set; }
         public int BedId { get; set; }

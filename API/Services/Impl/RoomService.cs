@@ -4,6 +4,7 @@ using API.Ultils;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace API.Services.Impl
 {
@@ -115,13 +116,22 @@ namespace API.Services.Impl
             }
         }
 
-        public async Task<IEnumerable<Room>> GetRoomBySpaId(int spaId)
+        public async Task<IEnumerable<Room>> GetRoomBySpaId(string spaId = null)
         {
             try
             {
-                return await _context.Rooms.Include(r => r.Spa)
-                                           .Where(r => r.Spa.Id == spaId)
-                                           .ToListAsync();
+                var query = _context.Rooms.Include(r => r.Spa).AsQueryable();
+                                           
+                int? spaIdInt = spaId != null && spaId != "ALL"
+                 ? int.Parse(spaId)
+                 : (int?)null;
+
+                if (spaIdInt.HasValue)
+                {
+                    query = query.Where(r => r.Spa.Id == spaIdInt.Value);
+                }                    
+
+                return await query.ToListAsync();
             }
             catch (Exception ex)
             {
