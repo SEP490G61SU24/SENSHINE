@@ -1,0 +1,118 @@
+﻿@model List<API.Dtos.AppointmentDTO>
+
+@{
+    ViewData["Title"] = "Thông tin đặt lịch: " + ViewData["CusDetail"];
+}
+
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
+    <!-- ico-font-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
+    <!-- Themify icon-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/themify.css">
+    <!-- Flag icon-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/flag-icon.css">
+    <!-- Feather icon-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/feather-icon.css">
+    <!-- Plugins css start-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/datatables.css">
+    <!-- Plugins css Ends-->
+    <!-- Bootstrap css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
+    <!-- App css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
+    <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
+    <!-- Responsive css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+}
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive custom-scrollbar">
+            <table class="display" id="table">
+                <thead>
+                    <tr>
+                    <tr>
+                        <th>ID</th>
+                        <th>Dịch vụ</th>
+                        <th>Thời gian</th>
+                        <th>Trạng thái</th>
+                        <th>Nhân viên chăm sóc</th>
+                        <th>Giường - Phòng</th>
+                            @* <th>Hành Động</th> *@
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>
+                                @if (item.Services != null && item.Services.Any())
+                                {
+                                    foreach (var sv in item.Services)
+                                    {
+                                        @sv.ServiceName <br />
+                                    }
+                                }
+                                else
+                                {
+                                    <span>Không có dịch vụ</span>
+                                }
+                            </td>
+                            <td>@item.AppointmentSlot - @item.AppointmentDate</td>
+                            <td>@item.Status</td>
+                            <td>@item.Employee.FullName (@item.Employee.Phone)</td>
+                            <td>@item.Bed.BedNumber - @item.RoomName</td>
+                            @* <td>
+                        <ul class="action">
+                        <li class="edit"><a href="#"><i class="icon-pencil-alt"></i> Sửa thông tin</a></li>
+                        <li class="delete"><a href="#"><i class="icon-calendar"></i> Lịch hẹn</a></li>
+                        </ul>
+                        </td> *@
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/assets/js/jquery.min.js"></script>
+    <!-- Bootstrap js-->
+    <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
+    <!-- feather icon js-->
+    <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
+    <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
+    <!-- scrollbar js-->
+    <script src="~/assets/js/scrollbar/simplebar.js"></script>
+    <script src="~/assets/js/scrollbar/custom.js"></script>
+    <!-- Sidebar jquery-->
+    <script src="~/assets/js/config.js"></script>
+    <!-- Plugins JS start-->
+    <script src="~/assets/js/sidebar-menu.js"></script>
+    <script src="~/assets/js/sidebar-pin.js"></script>
+    <script src="~/assets/js/slick/slick.min.js"></script>
+    <script src="~/assets/js/slick/slick.js"></script>
+    <script src="~/assets/js/header-slick.js"></script>
+    <!-- calendar js-->
+    <script src="~/assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
+    <!-- Plugins JS Ends-->
+    <!-- Theme js-->
+    <script src="~/assets/js/script.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#table').DataTable({
+                paging: false,
+                searching: false
+            });
+        });
+    </script>
+}

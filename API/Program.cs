@@ -72,6 +72,8 @@ namespace API
                            .WithCronSchedule("0 * * * * ?"));
             });
 
+            builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+
             // Configure JWT authentication
             builder.Services.AddAuthentication(options =>
             {

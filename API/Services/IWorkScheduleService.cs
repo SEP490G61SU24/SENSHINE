@@ -15,5 +15,8 @@ namespace API.Services
         Task<IEnumerable<WorkScheduleDTO>> GetWorkSchedulesByWeek(int employeeId, DateTime startDate, DateTime endDate);
         Task<IEnumerable<WeekOptionDTO>> GetAvailableWeeks(int employeeId, int year);
         Task<IEnumerable<int>> GetAvailableYears(int employeeId);
-    }
+        Task CreateWorkSchedulesForNextTwoMonths();
+        Task UpdateWorkSchedulesStatus();
+
+	}
 }

@@ -36,7 +36,7 @@ namespace API.Services.Impl
                 .Include(a => a.Customer)
                 .Include(a => a.Employee)
                 .Include(a => a.Services)
-                .Where(a => a.CustomerId == customerId)
+                .Where(a => a.Customer.Id == customerId)
                 .ToListAsync();
 
             var listDtos = _mapper.Map<List<AppointmentDTO>>(appointments);

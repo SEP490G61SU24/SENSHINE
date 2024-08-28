@@ -180,11 +180,11 @@ namespace API.Controllers
         }
 
         [HttpGet("role/{roleId}")]
-        public async Task<IActionResult> GetUsersByRole(int roleId)
+        public async Task<IActionResult> GetUsersByRole(int roleId, [FromQuery] string? spaId = null)
         {
             try
             {
-                var users = await _userService.GetUsersByRole(roleId);
+                var users = await _userService.GetUsersByRole(roleId, spaId);
                 return Ok(users);
             }
             catch (ArgumentException ex)

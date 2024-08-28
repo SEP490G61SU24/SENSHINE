@@ -225,6 +225,7 @@ namespace Web.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     // Redirect to InvoiceList if the request is successful
+                    TempData["SuccessMsg"] = "Thêm hóa đơn thành công!";
                     return RedirectToAction("InvoiceList");
                 }
 
@@ -370,6 +371,7 @@ namespace Web.Controllers
                 HttpResponseMessage response = await client.PutAsync($"{apiUrl}/EditInvoice/{id}", content);
                 if (response.IsSuccessStatusCode)
                 {
+                    TempData["SuccessMsg"] = "Sửa hóa đơn thành công!";
                     return RedirectToAction(nameof(InvoiceList));
                 }
                 else

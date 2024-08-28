@@ -136,7 +136,7 @@ namespace Web.Controllers
                 AppointmentDate = appointmentViewModel.AppointmentDate,
                 AppointmentSlot = appointmentViewModel.AppointmentSlot,
                 RoomName = appointmentViewModel.RoomName,
-                BedNumber = appointmentViewModel.BedNumber,
+                BedId = appointmentViewModel.BedId,
                 Status = appointmentViewModel.Status,
                 Services = appointmentViewModel.SelectedServiceIds.Select(id => new ServiceDTO { Id = id, ServiceName = "" }).ToList(),
             };
@@ -188,7 +188,7 @@ namespace Web.Controllers
                 AppointmentDate = appointmentDTO.AppointmentDate ?? DateTime.Now,
                 AppointmentSlot = appointmentDTO.AppointmentSlot,
                 RoomName = appointmentDTO.RoomName,
-                BedNumber = appointmentDTO.BedNumber,
+                BedId = appointmentDTO.BedId,
                 Status = appointmentDTO.Status,
                 SelectedServiceIds = appointmentDTO.Services.Select(s => s.Id).ToList(),
             };
@@ -230,7 +230,7 @@ namespace Web.Controllers
                 AppointmentDate = appointmentViewModel.AppointmentDate,
                 AppointmentSlot = appointmentViewModel.AppointmentSlot,
                 RoomName = appointmentViewModel.RoomName,
-                BedNumber = appointmentViewModel.BedNumber,
+                BedId = appointmentViewModel.BedId,
                 Status = appointmentViewModel.Status,
                 Services = appointmentViewModel.SelectedServiceIds.Select(id => new ServiceDTO { Id = id, ServiceName = "" }).ToList(),
             };

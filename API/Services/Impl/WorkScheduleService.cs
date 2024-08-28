@@ -137,13 +137,26 @@ namespace API.Services.Impl
 
         public async Task<IEnumerable<WorkScheduleDTO>> GetWorkSchedulesByWeek(int employeeId, DateTime startDate, DateTime endDate)
         {
-            var workSchedules = await _context.WorkSchedules
-                .Include(ws => ws.Employee)
-                .Where(ws => ws.EmployeeId == employeeId &&
-                (ws.StartDateTime <= endDate && ws.EndDateTime >= startDate))
-                .ToListAsync();
+            //var workSchedules = await _context.WorkSchedules
+            //    .Include(ws => ws.Employee)
+            //    .Where(ws => ws.EmployeeId == employeeId &&
+            //    (ws.StartDateTime <= endDate && ws.EndDateTime >= startDate))
+            //    .ToListAsync();
 
-            return _mapper.Map<IEnumerable<WorkScheduleDTO>>(workSchedules);
+			// Chuyển đổi startDate và endDate thành thời gian bắt đầu và kết thúc của ngày
+			var startOfWeek = startDate.Date;
+			var endOfWeek = endDate.Date.AddDays(1).AddTicks(-1); // Đến cuối ngày
+
+			// Truy vấn lịch làm việc trong khoảng thời gian
+			var workSchedules = await _context.WorkSchedules
+				.Where(ws => ws.EmployeeId == employeeId
+							 && ws.StartDateTime >= startOfWeek
+							 && ws.EndDateTime <= endOfWeek)
+				.ToListAsync();
+
+			var workSchedulesDto = _mapper.Map<IEnumerable<WorkScheduleDTO>>(workSchedules);
+
+			return workSchedulesDto;
         }
 
         public async Task<IEnumerable<WeekOptionDTO>> GetAvailableWeeks(int employeeId, int year)
@@ -274,5 +287,124 @@ namespace API.Services.Impl
 
 			return years;
         }
-    }
+
+        public async Task CreateWorkSchedulesForNextTwoMonths()
+        {
+            var currentDate = DateTime.Now;
+            var firstDayOfCurrentMonth = new DateTime(currentDate.Year, currentDate.Month, 1);
+            var twoMonthsAhead = firstDayOfCurrentMonth.AddMonths(2);
+            var lastDayOfNextTwoMonths = new DateTime(twoMonthsAhead.Year, twoMonthsAhead.Month, DateTime.DaysInMonth(twoMonthsAhead.Year, twoMonthsAhead.Month));
+
+            // Lấy danh sách staff
+            var employees = await _context.Users.Include(u => u.Roles).Where(u => u.Roles.Any(r => r.Id == (int)UserRoleEnum.STAFF)).ToListAsync();
+
+            var slots = new List<(TimeSpan StartTime, TimeSpan EndTime)>
+            {
+                (new TimeSpan(8, 30, 0), new TimeSpan(10, 0, 0)),
+                (new TimeSpan(10, 0, 0), new TimeSpan(11, 30, 0)),
+                (new TimeSpan(11, 30, 0), new TimeSpan(13, 0, 0)),
+                (new TimeSpan(13, 0, 0), new TimeSpan(14, 30, 0)),
+                (new TimeSpan(14, 30, 0), new TimeSpan(16, 0, 0)),
+                (new TimeSpan(16, 0, 0), new TimeSpan(17, 30, 0)),
+                (new TimeSpan(17, 30, 0), new TimeSpan(19, 0, 0)),
+                (new TimeSpan(19, 0, 0), new TimeSpan(20, 30, 0)),
+                (new TimeSpan(20, 30, 0), new TimeSpan(22, 0, 0))
+            };
+
+            foreach (var employee in employees)
+            {
+                for (var date = firstDayOfCurrentMonth; date <= lastDayOfNextTwoMonths; date = date.AddDays(1))
+                {
+                    foreach (var (startTime, endTime) in slots)
+                    {
+                        var startDateTime = date + startTime;
+                        var endDateTime = date + endTime;
+
+                        var existingSchedule = await _context.WorkSchedules
+                            .AnyAsync(ws => ws.EmployeeId == employee.Id && ws.StartDateTime == startDateTime && ws.EndDateTime == endDateTime);
+
+                        if (!existingSchedule)
+                        {
+                            var workSchedule = new WorkSchedule
+                            {
+                                EmployeeId = employee.Id,
+                                Status = WorkscheduleStatusEnum.AVAILABLE.ToString(),
+                                StartDateTime = startDateTime,
+                                EndDateTime = endDateTime,
+                                DayOfWeek = startDateTime.ToString("dddd", new CultureInfo("vi-VN")),
+                                Employee = employee,
+                            };
+
+                            _context.WorkSchedules.Add(workSchedule);
+                        }
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+		public async Task UpdateWorkSchedulesStatus()
+		{
+			var currentDateTime = DateTime.Now;
+
+			var workSchedules = await _context.WorkSchedules
+				.Where(ws => ws.Status != WorkscheduleStatusEnum.CANCELED.ToString())
+				.ToListAsync();
+			var employeeIdsToUpdate = new HashSet<int>();
+
+			foreach (var schedule in workSchedules)
+			{
+				bool statusUpdated = false;
+
+				if (currentDateTime >= schedule.StartDateTime && schedule.Status == WorkscheduleStatusEnum.SCHEDULED.ToString())
+				{
+					schedule.Status = WorkscheduleStatusEnum.INPROGRESS.ToString();
+					statusUpdated = true;
+				}
+				else if (currentDateTime > schedule.EndDateTime && schedule.Status == WorkscheduleStatusEnum.AVAILABLE.ToString())
+				{
+					schedule.Status = WorkscheduleStatusEnum.CANCELED.ToString();
+					statusUpdated = true;
+				}
+				else if (currentDateTime > schedule.EndDateTime && schedule.Status == WorkscheduleStatusEnum.INPROGRESS.ToString())
+				{
+					schedule.Status = WorkscheduleStatusEnum.COMPLETED.ToString();
+					statusUpdated = true;
+				}
+
+				if (statusUpdated)
+				{
+					employeeIdsToUpdate.Add(schedule.Employee.Id);
+				}
+			}
+
+			if (employeeIdsToUpdate.Any())
+			{
+				var employees = await _context.Users
+					.Where(u => employeeIdsToUpdate.Contains(u.Id))
+					.ToListAsync();
+
+				foreach (var employee in employees)
+				{
+					// Xác định trạng thái của nhân viên dựa trên lịch làm việc của họ
+					var hasOngoingWork = employee.WorkSchedules.Any(ws => ws.Status == WorkscheduleStatusEnum.INPROGRESS.ToString());
+
+					if (hasOngoingWork)
+					{
+						employee.StatusWorking = UserWorkingStatusEnum.INSERVICE.ToString();
+					}
+					else
+					{
+						var anyAvailableWork = employee.WorkSchedules.Any(ws => ws.Status == WorkscheduleStatusEnum.AVAILABLE.ToString() &&
+																				 ws.EndDateTime >= currentDateTime);
+
+						employee.StatusWorking = anyAvailableWork ? UserWorkingStatusEnum.AVAILABLE.ToString() : UserWorkingStatusEnum.OFFDUTY.ToString();
+					}
+				}
+			}
+
+			await _context.SaveChangesAsync();
+		}
+	}
 }
