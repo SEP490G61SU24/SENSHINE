@@ -7,6 +7,14 @@
         ViewData["ActionName"] = "Thêm người dùng mới";
         ViewData["ActionUrl"] = "/user/add";
     }
+
+    var statusMap = new Dictionary<string, string>
+    {
+        { "AVAILABLE", "Sẵn sàng" },
+        { "INSERVICE", "Đang phục vụ" },
+        { "OFFDUTY", "Khoài ca" },
+        { "UNAVAILABLE", "Không khả dụng" },
+    };
 }
 
 @section Styles {
@@ -76,6 +84,7 @@
                         <th>Điện Thoại</th>
                         <th>Chức Vụ</th>
                         <th>Địa Chỉ</th>
+                        <th>Trạng Thái</th>
                         <th>Hành Động</th>
                     </tr>
                 </thead>
@@ -89,6 +98,12 @@
                             <td>@(item.Phone ?? "N/A")</td>
                             <td>@(item.RoleName ?? "N/A")</td>
                             <td>@(item.Address ?? "N/A")</td>
+                            <td>
+                                @{
+                                    var statusText = statusMap.TryGetValue(item.StatusWorking, out var status) ? status : "";
+                                }
+                                @statusText
+                            </td>
                             <td>
                                 <ul class="action">
                                     <li class="edit"><a href="/user/edit/@item.Id"><i class="icon-pencil-alt"></i> Sửa thông tin</a></li>

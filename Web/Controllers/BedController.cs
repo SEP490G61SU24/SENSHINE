@@ -211,7 +211,7 @@ namespace Web.Controllers
             var client = _clientFactory.CreateClient();
             try
             {
-                var response = await client.DeleteAsync($"{apiUrl}/api/Bed/DeleteBed/{id}");
+                var response = await client.DeleteAsync($"{apiUrl}/Bed/DeleteBed/{id}");
 
                 if (response.IsSuccessStatusCode)
                 {

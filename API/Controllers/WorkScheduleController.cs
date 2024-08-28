@@ -107,8 +107,16 @@ namespace API.Controllers
 					return BadRequest("ID nhân viên bắt buộc!");
 				}
 
-				var startDate = ISOWeek.ToDateTime(year, weekNumber, DayOfWeek.Monday);
-				var endDate = ISOWeek.ToDateTime(year, weekNumber, DayOfWeek.Sunday);
+				// Xác định múi giờ Việt Nam
+				var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+				// Lấy ngày bắt đầu và kết thúc của tuần trong múi giờ UTC
+				var startDateUtc = ISOWeek.ToDateTime(year, weekNumber, DayOfWeek.Monday);
+				var endDateUtc = ISOWeek.ToDateTime(year, weekNumber, DayOfWeek.Sunday);
+
+				// Chuyển đổi từ UTC sang múi giờ Việt Nam
+				var startDate = TimeZoneInfo.ConvertTimeFromUtc(startDateUtc, vietnamTimeZone);
+				var endDate = TimeZoneInfo.ConvertTimeFromUtc(endDateUtc, vietnamTimeZone);
 
 				var workSchedules = await _workScheduleService.GetWorkSchedulesByWeek(int.Parse(employeeId), startDate, endDate);
 				return Ok(workSchedules);

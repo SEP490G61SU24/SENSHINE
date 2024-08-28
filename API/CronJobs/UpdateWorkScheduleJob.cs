@@ -14,7 +14,15 @@ namespace API.CronJobs
 
         public async Task Execute(IJobExecutionContext context)
         {
-            await _workScheduleService.GetAllWorkSchedules();
+            try
+            {
+                await _workScheduleService.CreateWorkSchedulesForNextTwoMonths();
+                await _workScheduleService.UpdateWorkSchedulesStatus();
+			}
+            catch (Exception ex)
+            {
+                Console.WriteLine($"CRON LỖI: {ex.Message}");
+            }
         }
     }
 }

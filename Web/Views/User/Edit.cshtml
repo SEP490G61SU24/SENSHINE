@@ -35,7 +35,7 @@
             <input asp-for="Id" name="Id" hidden>
             <div class="col-md-6 position-relative">
                 <label class="form-label" for="FullName">Họ và Tên</label>
-                <input class="form-control" asp-for="FullName" name="FullName" id="FullName" type="text" placeholder="Nguyễn Quang Trường" required="" pattern="^[\p{L}]{2,}([\s][\p{L}]{2,})+$">
+                <input class="form-control" asp-for="FullName" name="FullName" id="FullName" type="text" placeholder="Nguyễn Quang Trường" required="" pattern="^[\p{L}]+(?:[\s][\p{L}]+)*$">
                 <div class="invalid-tooltip">Điền tên đầy đủ!</div>
             </div>
             <div class="col-md-6 position-relative">
@@ -93,6 +93,22 @@
                     <option selected="" disabled="" value="">Chọn...</option>
                 </select>
                 <div class="invalid-tooltip">Chọn phường, xã.</div>
+            </div>
+            <div class="col-md-6 position-relative">
+                <label class="form-label" for="RoleId">Trạng thái truy cập</label>
+                <select class="form-select" asp-for="Status" name="Status" id="Status" required>
+                    <option value="" disabled>Chọn...</option>
+                    @foreach (var sts in new List<(string Status, string Name)>
+                    {
+                    (Status: "ACTIVE", Name: "Hoạt động"),
+                    (Status: "PENDING", Name: "Chờ xác nhận"),
+                    (Status: "INACTIVE", Name: "Không hoạt động"),
+                    })
+                    {
+                        <option value="@sts.Status" selected="@(sts.Status == Model.Status ? "selected" : null)">@sts.Name</option>
+                    }
+                </select>
+                <div class="invalid-tooltip">Chọn trạng thái.</div>
             </div>
 
             <div class="col-12">

@@ -11,5 +11,6 @@ namespace API.Dtos
         public string? Status { get; set; }
         public string? EmployeeName { get; set; }
         public string? Phone { get; set; }
-    }
+		public string? DayOfWeek { get; set; }
+	}
 }
