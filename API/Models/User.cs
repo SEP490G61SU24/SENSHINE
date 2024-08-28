@@ -7,7 +7,6 @@ namespace API.Models
     {
         public User()
         {
-            AppointmentBeds = new HashSet<Appointment>();
             AppointmentCustomers = new HashSet<Appointment>();
             AppointmentEmployees = new HashSet<Appointment>();
             Cards = new HashSet<Card>();
@@ -35,7 +34,6 @@ namespace API.Models
         public string? WardCode { get; set; }
         public DateTime? CreatedAt { get; set; }
 
-        public virtual ICollection<Appointment> AppointmentBeds { get; set; }
         public virtual ICollection<Appointment> AppointmentCustomers { get; set; }
         public virtual ICollection<Appointment> AppointmentEmployees { get; set; }
         public virtual ICollection<Card> Cards { get; set; }

@@ -122,7 +122,7 @@ namespace API.Models
                     .HasDefaultValueSql("('PENDING')");
 
                 entity.HasOne(d => d.Bed)
-                    .WithMany(p => p.AppointmentBeds)
+                    .WithMany(p => p.Appointments)
                     .HasForeignKey(d => d.BedId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__Appointme__BedId__7C4F7684");
@@ -147,7 +147,7 @@ namespace API.Models
                         r => r.HasOne<Appointment>().WithMany().HasForeignKey("AppointmentId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK__Appointme__Appoi__7F2BE32F"),
                         j =>
                         {
-                            j.HasKey("AppointmentId", "ServiceId").HasName("PK__Appointm__329C47C23815712C");
+                            j.HasKey("AppointmentId", "ServiceId").HasName("PK__Appointm__329C47C28FF32FE5");
 
                             j.ToTable("Appointment_Service");
                         });
@@ -268,7 +268,7 @@ namespace API.Models
                         r => r.HasOne<Combo>().WithMany().HasForeignKey("ComboId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK__Combo_Ser__Combo__6A30C649"),
                         j =>
                         {
-                            j.HasKey("ComboId", "ServiceId").HasName("PK__Combo_Se__6113E32E275F29D1");
+                            j.HasKey("ComboId", "ServiceId").HasName("PK__Combo_Se__6113E32EBA662CB7");
 
                             j.ToTable("Combo_Service");
                         });
@@ -374,7 +374,7 @@ namespace API.Models
             modelBuilder.Entity<InvoiceCombo>(entity =>
             {
                 entity.HasKey(e => new { e.InvoiceId, e.ComboId })
-                    .HasName("PK__Invoice___2A428F3787E5A94A");
+                    .HasName("PK__Invoice___2A428F37F4A9C521");
 
                 entity.ToTable("Invoice_Combo");
 
@@ -394,7 +394,7 @@ namespace API.Models
             modelBuilder.Entity<InvoiceService>(entity =>
             {
                 entity.HasKey(e => new { e.InvoiceId, e.ServiceId })
-                    .HasName("PK__Invoice___6BC711B5AC98BC48");
+                    .HasName("PK__Invoice___6BC711B524CC6B75");
 
                 entity.ToTable("Invoice_Service");
 
@@ -730,7 +730,7 @@ namespace API.Models
                         r => r.HasOne<User>().WithMany().HasForeignKey("UserId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK__User_Role__UserI__5070F446"),
                         j =>
                         {
-                            j.HasKey("UserId", "RoleId").HasName("PK__User_Rol__AF2760AD822B98FF");
+                            j.HasKey("UserId", "RoleId").HasName("PK__User_Rol__AF2760AD8A57E814");
 
                             j.ToTable("User_Role");
                         });
