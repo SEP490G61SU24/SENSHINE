@@ -116,6 +116,44 @@ namespace Web.Controllers
         {
             var client = _clientFactory.CreateClient();
             var apiUrl = _configuration["ApiUrl"];
+
+            // Kiểm tra AppointmentDate và gán giá trị nếu không null
+            DateTime appointmentDate = appointmentViewModel.AppointmentDate ?? DateTime.Now;
+
+            // Gán giá trị cho AppointmentDate dựa trên AppointmentSlot
+            switch (appointmentViewModel.AppointmentSlot)
+            {
+                case "Slot1":
+                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(8, 30, 0));
+                    break;
+                case "Slot2":
+                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(10, 0, 0));
+                    break;
+                case "Slot3":
+                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(11, 30, 0));
+                    break;
+                case "Slot4":
+                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(13, 0, 0));
+                    break;
+                case "Slot5":
+                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(14, 30, 0));
+                    break;
+                case "Slot6":
+                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(16, 0, 0));
+                    break;
+                case "Slot7":
+                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(17, 30, 0));
+                    break;
+                case "Slot8":
+                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(19, 0, 0));
+                    break;
+                case "Slot9":
+                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(20, 30, 0));
+                    break;
+                default:
+                    break;
+            }
+
             if (!ModelState.IsValid)
             {
                 var services = await GetAvailableServices();
@@ -133,7 +171,7 @@ namespace Web.Controllers
             {
                 CustomerId = appointmentViewModel.CustomerId.Value,
                 EmployeeId = appointmentViewModel.EmployeeId.Value,
-                AppointmentDate = appointmentViewModel.AppointmentDate,
+                AppointmentDate = appointmentViewModel.AppointmentDate.Value,
                 AppointmentSlot = appointmentViewModel.AppointmentSlot,
                 RoomName = appointmentViewModel.RoomName,
                 BedId = appointmentViewModel.BedId,
@@ -166,7 +204,8 @@ namespace Web.Controllers
             return View(appointmentViewModel);
         }
 
-        //Chinh sua cuoc hen
+
+        // GET: Chỉnh sửa cuộc hẹn
         [HttpGet]
         public async Task<IActionResult> EditAppointment(int id)
         {
@@ -180,12 +219,48 @@ namespace Web.Controllers
             }
 
             var appointmentDTO = JsonConvert.DeserializeObject<AppointmentDTO>(await response.Content.ReadAsStringAsync());
+            var appointmentDate = appointmentDTO.AppointmentDate ?? DateTime.Now;
+
+            // Gán giá trị AppointmentDate dựa trên AppointmentSlot
+            switch (appointmentDTO.AppointmentSlot)
+            {
+                case "Slot1":
+                    appointmentDTO.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(8, 30, 0));
+                    break;
+                case "Slot2":
+                    appointmentDTO.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(10, 0, 0));
+                    break;
+                case "Slot3":
+                    appointmentDTO.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(11, 30, 0));
+                    break;
+                case "Slot4":
+                    appointmentDTO.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(13, 0, 0));
+                    break;
+                case "Slot5":
+                    appointmentDTO.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(14, 30, 0));
+                    break;
+                case "Slot6":
+                    appointmentDTO.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(16, 0, 0));
+                    break;
+                case "Slot7":
+                    appointmentDTO.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(17, 30, 0));
+                    break;
+                case "Slot8":
+                    appointmentDTO.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(19, 0, 0));
+                    break;
+                case "Slot9":
+                    appointmentDTO.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(20, 30, 0));
+                    break;
+                default:
+                    break;
+            }
+
             var appointmentViewModel = new AppointmentViewModel
             {
                 Id = appointmentDTO.Id,
                 CustomerId = appointmentDTO.CustomerId,
                 EmployeeId = appointmentDTO.EmployeeId,
-                AppointmentDate = appointmentDTO.AppointmentDate ?? DateTime.Now,
+                AppointmentDate = appointmentDTO.AppointmentDate,
                 AppointmentSlot = appointmentDTO.AppointmentSlot,
                 RoomName = appointmentDTO.RoomName,
                 BedId = appointmentDTO.BedId,
@@ -204,11 +279,49 @@ namespace Web.Controllers
             return View(appointmentViewModel);
         }
 
+        // POST: Chỉnh sửa cuộc hẹn
         [HttpPost]
         public async Task<IActionResult> EditAppointment(int id, AppointmentViewModel appointmentViewModel)
         {
             var client = _clientFactory.CreateClient();
             var apiUrl = _configuration["ApiUrl"];
+
+            // Gán giá trị AppointmentDate dựa trên AppointmentSlot
+            DateTime appointmentDate = appointmentViewModel.AppointmentDate ?? DateTime.Now;
+
+            switch (appointmentViewModel.AppointmentSlot)
+            {
+                case "Slot1":
+                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(8, 30, 0));
+                    break;
+                case "Slot2":
+                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(10, 0, 0));
+                    break;
+                case "Slot3":
+                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(11, 30, 0));
+                    break;
+                case "Slot4":
+                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(13, 0, 0));
+                    break;
+                case "Slot5":
+                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(14, 30, 0));
+                    break;
+                case "Slot6":
+                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(16, 0, 0));
+                    break;
+                case "Slot7":
+                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(17, 30, 0));
+                    break;
+                case "Slot8":
+                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(19, 0, 0));
+                    break;
+                case "Slot9":
+                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(20, 30, 0));
+                    break;
+                default:
+                    break;
+            }
+
             if (!ModelState.IsValid)
             {
                 var services = await GetAvailableServices();
@@ -227,7 +340,7 @@ namespace Web.Controllers
                 Id = id,
                 CustomerId = appointmentViewModel.CustomerId.Value,
                 EmployeeId = appointmentViewModel.EmployeeId.Value,
-                AppointmentDate = appointmentViewModel.AppointmentDate,
+                AppointmentDate = appointmentViewModel.AppointmentDate.Value,
                 AppointmentSlot = appointmentViewModel.AppointmentSlot,
                 RoomName = appointmentViewModel.RoomName,
                 BedId = appointmentViewModel.BedId,
@@ -261,6 +374,7 @@ namespace Web.Controllers
         }
 
 
+
         //Lay ra danh sach cac du lieu lien quan 
         private async Task<List<ServiceViewModel>> GetAvailableServices()
         {
@@ -277,7 +391,7 @@ namespace Web.Controllers
 
             return services;
         }
-        
+
         private async Task<List<AppointmentEmployeeViewModel>> GetAvailableEmployees()
         {
             var client = _clientFactory.CreateClient();
