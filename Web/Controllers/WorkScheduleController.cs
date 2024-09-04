@@ -71,7 +71,7 @@ namespace Web.Controllers
 
 				// Nếu không có tuần nào được chọn, chọn tuần, năm hiện tại
 				var currentWeek = selectedWeek ?? DateUtils.GetCurrentWeekOfYear();
-				var currentYear = selectedYear ?? DateUtils.GetCurrentWeekOfYear();
+				var currentYear = selectedYear ?? DateUtils.GetCurrentYear();
 
 				//// Lấy danh sách năm
 				//var yearsResponse = await client.GetAsync($"{apiUrl}/work-schedules/years?employeeId={employeeId}");

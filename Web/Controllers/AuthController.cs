@@ -66,7 +66,7 @@ namespace Web.Controllers
                     });
 
                     TempData["SuccessMsg"] = "Đăng nhập thành công!";
-                    return RedirectToAction("Index", "Dashboard");
+                    return RedirectToAction("My", "WorkSchedule");
                 }
                 else
                 {
