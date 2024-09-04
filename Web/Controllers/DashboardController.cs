@@ -25,6 +25,9 @@ namespace Web.Controllers
 
         private async Task<DashboardViewModel> GetDashboardDataAsync()
         {
+            int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
+                ? int.Parse(ViewData["SpaId"].ToString())
+                : (int?)null;
             var apiUrl = _configuration["ApiUrl"];
             var client = _clientFactory.CreateClient();
             var model = new DashboardViewModel();
@@ -45,7 +48,7 @@ namespace Web.Controllers
 
             // Fetch salary data with the year parameter
             int year = 2024; // Default year
-            var salaryResponse = await client.GetAsync($"{apiUrl}/Salary/GetMonthlySalariesForYear?year={year}");
+            var salaryResponse = await client.GetAsync($"{apiUrl}/Salary/GetMonthlySalariesForYear?year={year}&spaId={spaId}");
             if (salaryResponse.IsSuccessStatusCode)
             {
                 string salaryData = await salaryResponse.Content.ReadAsStringAsync();

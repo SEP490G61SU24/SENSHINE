@@ -39,11 +39,13 @@ namespace API.Services.Impl
         {
             try
             {
-                return _context.Salaries.Any(s => s.EmployeeId == salary.EmployeeId && s.SalaryMonth == salary.SalaryMonth && s.SalaryYear == salary.SalaryYear);
+                return await _context.Salaries.AnyAsync(s =>
+                    s.EmployeeId == salary.EmployeeId &&
+                    s.SalaryMonth == salary.SalaryMonth &&
+                    s.SalaryYear == salary.SalaryYear);
             }
             catch (Exception ex)
             {
-                // Handle or log the exception as needed
                 throw new Exception("Error checking salary existence by EmployeeId, Month, and Year.", ex);
             }
         }
@@ -56,7 +58,6 @@ namespace API.Services.Impl
             }
             catch (Exception ex)
             {
-                // Handle or log the exception as needed
                 throw new Exception("Error retrieving salaries.", ex);
             }
         }
@@ -69,7 +70,6 @@ namespace API.Services.Impl
             }
             catch (Exception ex)
             {
-                // Handle or log the exception as needed
                 throw new Exception($"Error retrieving salaries for Month {month} and Year {year}.", ex);
             }
         }
@@ -78,12 +78,11 @@ namespace API.Services.Impl
         {
             try
             {
-                var salaries = GetAllSalaries();
-                return salaries.FirstOrDefault(b => b.Id == id);
+                var salary = _context.Salaries.FirstOrDefault(b => b.Id == id);
+                return salary;
             }
             catch (Exception ex)
             {
-                // Handle or log the exception as needed
                 throw new Exception($"Error retrieving salary with ID {id}.", ex);
             }
         }
@@ -109,7 +108,6 @@ namespace API.Services.Impl
             }
             catch (Exception ex)
             {
-                // Handle or log the exception as needed
                 throw new Exception($"Error updating salary with ID {id}.", ex);
             }
         }
@@ -129,7 +127,6 @@ namespace API.Services.Impl
             }
             catch (Exception ex)
             {
-                // Handle or log the exception as needed
                 throw new Exception($"Error deleting salary with ID {id}.", ex);
             }
         }
@@ -142,14 +139,12 @@ namespace API.Services.Impl
             }
             catch (Exception ex)
             {
-                // Handle or log the exception as needed
                 throw new Exception($"Error checking existence of salary with ID {id}.", ex);
             }
         }
 
         public async Task<PaginatedList<SalaryDTO>> GetSalaries(int pageIndex, int pageSize, string searchTerm, string spaId)
         {
-            // Tạo query cơ bản
             IQueryable<Salary> query = _context.Salaries.Include(e => e.Employee);
 
             int? spaIdInt = spaId != null && spaId != "ALL"
@@ -161,7 +156,6 @@ namespace API.Services.Impl
                 query = query.Where(u => u.Employee.SpaId == spaIdInt.Value);
             }
 
-            // Nếu có searchTerm, thêm điều kiện tìm kiếm vào query
             if (!string.IsNullOrEmpty(searchTerm))
             {
                 query = query.Where(s => s.Employee.FirstName.Contains(searchTerm) ||
@@ -170,13 +164,12 @@ namespace API.Services.Impl
                                          s.Employee.Phone.Contains(searchTerm));
             }
 
-            // Đếm tổng số bản ghi để tính tổng số trang
             var count = await query.CountAsync();
 
-            // Lấy danh sách với phân trang
             var salaries = await query.Skip((pageIndex - 1) * pageSize)
                                    .Take(pageSize)
                                    .ToListAsync();
+
             var salariesDtos = _mapper.Map<IEnumerable<SalaryDTO>>(salaries);
 
             return new PaginatedList<SalaryDTO>
@@ -187,21 +180,36 @@ namespace API.Services.Impl
                 TotalCount = count,
             };
         }
-        public async Task<(IEnumerable<int> Months, IEnumerable<decimal> TotalSalaries)> GetMonthlySalariesForYear(int year)
-        {
-            // Initialize data for all 12 months
-            var allMonths = Enumerable.Range(1, 12).ToList();
-            var monthlySalaries = await _context.Salaries
-                .Where(s => s.SalaryYear == year)
-                .GroupBy(s => s.SalaryMonth)
-                .Select(g => new
-                {
-                    Month = g.Key,
-                    TotalSalary = g.Sum(s => s.TotalSalary)
-                })
-                .ToListAsync();
 
-            // Fill in the missing months with a salary of 0
+        public async Task<(IEnumerable<int> Months, IEnumerable<decimal> TotalSalaries)> GetMonthlySalariesForYear(int year, string spaId = null)
+        {
+            var allMonths = Enumerable.Range(1, 12).ToList();
+
+            int? spaIdInt = spaId != null && spaId != "ALL"
+             ? int.Parse(spaId)
+             : (int?)null;
+
+
+            var query = _context.Salaries
+                .Include(s => s.Employee)
+                .Where(s => s.SalaryYear == year)
+                .AsQueryable();
+
+
+            if (spaIdInt.HasValue) {
+                query = query.Where(s => s.Employee.SpaId == spaIdInt);
+            }
+
+            var monthlySalaries = await query
+                    .GroupBy(s => s.SalaryMonth)
+                    .Select(g => new
+                    {
+                        Month = g.Key,
+                        TotalSalary = g.Sum(s => s.TotalSalary)
+                    })
+                    .ToListAsync();
+
+
             var salariesByMonth = allMonths
                 .Select(month => new
                 {
@@ -216,7 +224,5 @@ namespace API.Services.Impl
 
             return (months, totalSalaries);
         }
-
-
     }
 }

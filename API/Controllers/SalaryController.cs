@@ -197,11 +197,11 @@ namespace API.Controllers
             }
         }
         [HttpGet]
-        public async Task<IActionResult> GetMonthlySalariesForYear(int year)
+        public async Task<IActionResult> GetMonthlySalariesForYear(int year, [FromQuery] string? spaId = null)
         {
             try
             {
-                var (months, totalSalaries) = await _salaryService.GetMonthlySalariesForYear(year);
+                var (months, totalSalaries) = await _salaryService.GetMonthlySalariesForYear(year, spaId);
                 return Ok(new { Months = months, TotalSalaries = totalSalaries });
             }
             catch (ArgumentException ex)
