@@ -14,6 +14,7 @@ namespace API.Models
             Notifications = new HashSet<Notification>();
             Reviews = new HashSet<Review>();
             Salaries = new HashSet<Salary>();
+            UserSlots = new HashSet<UserSlot>();
             WorkSchedules = new HashSet<WorkSchedule>();
             Roles = new HashSet<Role>();
         }
@@ -41,6 +42,7 @@ namespace API.Models
         public virtual ICollection<Notification> Notifications { get; set; }
         public virtual ICollection<Review> Reviews { get; set; }
         public virtual ICollection<Salary> Salaries { get; set; }
+        public virtual ICollection<UserSlot> UserSlots { get; set; }
         public virtual ICollection<WorkSchedule> WorkSchedules { get; set; }
 
         public virtual ICollection<Role> Roles { get; set; }

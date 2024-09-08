@@ -1,4 +1,5 @@
 ﻿using API.Dtos;
+using API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Text;
@@ -21,33 +22,18 @@ namespace Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ListAppointment()
+        public async Task<IActionResult> ListAppointment(DateTime? date)
         {
-            int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
-            ? int.Parse(ViewData["SpaId"].ToString())
-            : (int?)null;
+            // Use DateTime.Now if no date is provided
+            var selectedDate = date ?? DateTime.Now;
 
-            var client = _clientFactory.CreateClient();
-            var apiUrl = _configuration["ApiUrl"];
-            List<ListAppointmentViewModel> appointmentsList = new List<ListAppointmentViewModel>();
-
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Appointment/GetAllAppointments");
-
-                if (response.IsSuccessStatusCode)
-                {
-                    string data = await response.Content.ReadAsStringAsync();
-                    appointmentsList = JsonConvert.DeserializeObject<List<ListAppointmentViewModel>>(data);
-                    appointmentsList = appointmentsList.Where(a => a.Employee.SpaId == spaId).ToList();
-                }
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError(string.Empty, $"Error: {ex.Message}");
-            }
-
-            return View(appointmentsList);
+            var beds = await GetAllBedsInSpa();
+            var slots = await GetAllSlots();
+            ViewBag.Beds = beds;
+            ViewBag.Slots = slots;
+            ViewBag.ApiUrl = _configuration["ApiUrl"];
+            ViewBag.Date = selectedDate.ToString("yyyy-MM-dd"); // Format the date for use in the API call
+            return View();
         }
 
         [HttpGet]
@@ -106,12 +92,8 @@ namespace Web.Controllers
         public async Task<IActionResult> CreateAppointment()
         {
             var services = await GetAvailableServices();
-            var employees = await GetAvailableEmployees();
-            var customers = await GetAvailableCustomers();
 
             ViewBag.Services = services ?? new List<ServiceViewModel>();
-            ViewBag.Employees = employees ?? new List<AppointmentEmployeeViewModel>();
-            ViewBag.Customers = customers ?? new List<AppointmentCustomerViewModel>();
 
             return View();
         }
@@ -162,26 +144,14 @@ namespace Web.Controllers
             if (!ModelState.IsValid)
             {
                 var services = await GetAvailableServices();
-                var employees = await GetAvailableEmployees();
-                var customers = await GetAvailableCustomers();
 
                 ViewBag.Services = services;
-                ViewBag.Employees = employees;
-                ViewBag.Customers = customers;
 
                 return View(appointmentViewModel);
             }
 
             var appointmentDTO = new AppointmentDTO
             {
-                CustomerId = appointmentViewModel.CustomerId.Value,
-                EmployeeId = appointmentViewModel.EmployeeId.Value,
-                AppointmentDate = appointmentViewModel.AppointmentDate.Value,
-                AppointmentSlot = appointmentViewModel.AppointmentSlot,
-                RoomName = appointmentViewModel.RoomName,
-                BedId = appointmentViewModel.BedId,
-                Status = appointmentViewModel.Status,
-                Services = appointmentViewModel.SelectedServiceIds.Select(id => new ServiceDTO { Id = id, ServiceName = "" }).ToList(),
             };
 
             string jsonString = JsonConvert.SerializeObject(appointmentDTO);
@@ -199,12 +169,10 @@ namespace Web.Controllers
             ModelState.AddModelError(string.Empty, errorMessage);
 
             var servicesList = await GetAvailableServices();
-            var employeesList = await GetAvailableEmployees();
-            var customersList = await GetAvailableCustomers();
+
 
             ViewBag.Services = servicesList;
-            ViewBag.Employees = employeesList;
-            ViewBag.Customers = customersList;
+
 
             return View(appointmentViewModel);
         }
@@ -224,41 +192,8 @@ namespace Web.Controllers
             }
 
             var appointmentDTO = JsonConvert.DeserializeObject<AppointmentDTO>(await response.Content.ReadAsStringAsync());
-            var appointmentDate = appointmentDTO.AppointmentDate ?? DateTime.Now;
 
-            // Gán giá trị AppointmentDate dựa trên AppointmentSlot
-            switch (appointmentDTO.AppointmentSlot)
-            {
-                case "Slot1":
-                    appointmentDTO.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(8, 30, 0));
-                    break;
-                case "Slot2":
-                    appointmentDTO.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(10, 0, 0));
-                    break;
-                case "Slot3":
-                    appointmentDTO.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(11, 30, 0));
-                    break;
-                case "Slot4":
-                    appointmentDTO.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(13, 0, 0));
-                    break;
-                case "Slot5":
-                    appointmentDTO.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(14, 30, 0));
-                    break;
-                case "Slot6":
-                    appointmentDTO.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(16, 0, 0));
-                    break;
-                case "Slot7":
-                    appointmentDTO.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(17, 30, 0));
-                    break;
-                case "Slot8":
-                    appointmentDTO.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(19, 0, 0));
-                    break;
-                case "Slot9":
-                    appointmentDTO.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(20, 30, 0));
-                    break;
-                default:
-                    break;
-            }
+
 
             var appointmentViewModel = new AppointmentViewModel
             {
@@ -266,20 +201,16 @@ namespace Web.Controllers
                 CustomerId = appointmentDTO.CustomerId,
                 EmployeeId = appointmentDTO.EmployeeId,
                 AppointmentDate = appointmentDTO.AppointmentDate,
-                AppointmentSlot = appointmentDTO.AppointmentSlot,
-                RoomName = appointmentDTO.RoomName,
+
                 BedId = appointmentDTO.BedId,
                 Status = appointmentDTO.Status,
                 SelectedServiceIds = appointmentDTO.Services.Select(s => s.Id).ToList(),
             };
 
             var services = await GetAvailableServices();
-            var employees = await GetAvailableEmployees();
-            var customers = await GetAvailableCustomers();
+
 
             ViewBag.Services = services ?? new List<ServiceViewModel>();
-            ViewBag.Employees = employees ?? new List<AppointmentEmployeeViewModel>();
-            ViewBag.Customers = customers ?? new List<AppointmentCustomerViewModel>();
 
             return View(appointmentViewModel);
         }
@@ -330,12 +261,10 @@ namespace Web.Controllers
             if (!ModelState.IsValid)
             {
                 var services = await GetAvailableServices();
-                var employees = await GetAvailableEmployees();
-                var customers = await GetAvailableCustomers();
+
 
                 ViewBag.Services = services;
-                ViewBag.Employees = employees;
-                ViewBag.Customers = customers;
+
 
                 return View(appointmentViewModel);
             }
@@ -345,12 +274,7 @@ namespace Web.Controllers
                 Id = id,
                 CustomerId = appointmentViewModel.CustomerId.Value,
                 EmployeeId = appointmentViewModel.EmployeeId.Value,
-                AppointmentDate = appointmentViewModel.AppointmentDate.Value,
-                AppointmentSlot = appointmentViewModel.AppointmentSlot,
-                RoomName = appointmentViewModel.RoomName,
-                BedId = appointmentViewModel.BedId,
-                Status = appointmentViewModel.Status,
-                Services = appointmentViewModel.SelectedServiceIds.Select(id => new ServiceDTO { Id = id, ServiceName = "" }).ToList(),
+
             };
 
             string jsonString = JsonConvert.SerializeObject(appointmentDTO);
@@ -368,19 +292,57 @@ namespace Web.Controllers
             ModelState.AddModelError(string.Empty, errorMessage);
 
             var servicesList = await GetAvailableServices();
-            var employeesList = await GetAvailableEmployees();
-            var customersList = await GetAvailableCustomers();
-
-            ViewBag.Services = servicesList;
-            ViewBag.Employees = employeesList;
-            ViewBag.Customers = customersList;
 
             return View(appointmentViewModel);
         }
 
+        private async Task<List<SlotDTO>> GetAllSlots()
+        {
+            var client = _clientFactory.CreateClient();
+            var apiUrl = _configuration["ApiUrl"];
+            List<SlotDTO> slots = new List<SlotDTO>();
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Appointment/GetAllSlots");
 
+            if (response.IsSuccessStatusCode)
+            {
+                string jsonString = await response.Content.ReadAsStringAsync();
+                slots = JsonConvert.DeserializeObject<List<SlotDTO>>(jsonString);
+            }
 
-        //Lay ra danh sach cac du lieu lien quan 
+            return slots;
+        }
+
+        private async Task<List<BedDTO>> GetAllBedsInSpa()
+        {
+            int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
+                ? int.Parse(ViewData["SpaId"].ToString())
+                : (int?)null;
+
+            var client = _clientFactory.CreateClient();
+            var apiUrl = _configuration["ApiUrl"];
+            List<RoomDTO> rooms = new List<RoomDTO>();
+            List<BedDTO> beds = new List<BedDTO>();
+
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Room/GetBySpaId?spaId=" + spaId);
+
+            if (response.IsSuccessStatusCode)
+            {
+                string jsonString = await response.Content.ReadAsStringAsync();
+                rooms = JsonConvert.DeserializeObject<List<RoomDTO>>(jsonString);
+
+                foreach (var room in rooms)
+                {
+                    HttpResponseMessage responseBedsInThisRoom = await client.GetAsync($"{apiUrl}/Bed/GetByRoomId/ByRoomId/" + room.Id);
+                    string jsonStringBedsInThisRoom = await responseBedsInThisRoom.Content.ReadAsStringAsync();
+                    List<BedDTO> bedsInThisRoom = JsonConvert.DeserializeObject<List<BedDTO>>(jsonStringBedsInThisRoom);
+
+                    beds.AddRange(bedsInThisRoom);
+                }
+            }
+
+            return beds;
+        }
+
         private async Task<List<ServiceViewModel>> GetAvailableServices()
         {
             var client = _clientFactory.CreateClient();
@@ -397,45 +359,88 @@ namespace Web.Controllers
             return services;
         }
 
-        private async Task<List<AppointmentEmployeeViewModel>> GetAvailableEmployees()
+        private async Task<List<ComboViewModel>> GetAvailableCombos()
         {
-            int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
-            ? int.Parse(ViewData["SpaId"].ToString())
-            : (int?)null;
             var client = _clientFactory.CreateClient();
             var apiUrl = _configuration["ApiUrl"];
-            List<AppointmentEmployeeViewModel> employees = new List<AppointmentEmployeeViewModel>();
+            List<ComboViewModel> combos = new List<ComboViewModel>();
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Combo/GetAllCombo");
+
+            if (response.IsSuccessStatusCode)
+            {
+                string jsonString = await response.Content.ReadAsStringAsync();
+                combos = JsonConvert.DeserializeObject<List<ComboViewModel>>(jsonString);
+            }
+
+            return combos;
+        }
+
+        private async Task<List<UserDTO>> GetAvailableEmployeesInSlot(DateTime date, int slotId)
+        {
+            int? spaId = ViewData["SpaId"]?.ToString() != "ALL"
+                ? int.Parse(ViewData["SpaId"].ToString())
+                : (int?)null;
+
+            var client = _clientFactory.CreateClient();
+            var apiUrl = _configuration["ApiUrl"];
+
             HttpResponseMessage response = await client.GetAsync($"{apiUrl}/users/role/4");
 
-            if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode) return new List<UserDTO>();
+
+            string jsonString = await response.Content.ReadAsStringAsync();
+            var employees = JsonConvert.DeserializeObject<List<UserDTO>>(jsonString)
+                .Where(e => e.SpaId == spaId)
+                .ToList();
+
+            var availableEmployees = new List<UserDTO>();
+
+            foreach (var employee in employees)
             {
-                string jsonString = await response.Content.ReadAsStringAsync();
-                employees = JsonConvert.DeserializeObject<List<AppointmentEmployeeViewModel>>(jsonString);
-                employees = employees.Where(e=> e.SpaId == spaId).ToList();
+                HttpResponseMessage response2 = await client.GetAsync($"{apiUrl}/Appointment/UserBooked?userId={employee.Id}&slotId={slotId}&date={date}");
+                bool isBooked = JsonConvert.DeserializeObject<bool>(await response2.Content.ReadAsStringAsync());
+
+                if (!isBooked)
+                {
+                    availableEmployees.Add(employee);
+                }
             }
 
-            return employees;
+            return availableEmployees;
         }
 
-        private async Task<List<AppointmentCustomerViewModel>> GetAvailableCustomers()
+        private async Task<List<UserDTO>> GetAvailableCustomersInSlot(DateTime date, int slotId)
         {
-            int? spaId = ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL"
-            ? int.Parse(ViewData["SpaId"].ToString())
-            : (int?)null;
+            int? spaId = ViewData["SpaId"]?.ToString() != "ALL"
+                ? int.Parse(ViewData["SpaId"].ToString())
+                : (int?)null;
+
             var client = _clientFactory.CreateClient();
             var apiUrl = _configuration["ApiUrl"];
-            List<AppointmentCustomerViewModel> customers = new List<AppointmentCustomerViewModel>();
+
             HttpResponseMessage response = await client.GetAsync($"{apiUrl}/users/role/5");
 
-            if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode) return new List<UserDTO>();
+
+            string jsonString = await response.Content.ReadAsStringAsync();
+            var customers = JsonConvert.DeserializeObject<List<UserDTO>>(jsonString)
+                .Where(e => e.SpaId == spaId)
+                .ToList();
+
+            var availableCustomers = new List<UserDTO>();
+
+            foreach (var customer in customers)
             {
-                string jsonString = await response.Content.ReadAsStringAsync();
-                customers = JsonConvert.DeserializeObject<List<AppointmentCustomerViewModel>>(jsonString);
-                customers = customers.Where(c => c.SpaId == spaId).ToList();
+                HttpResponseMessage response2 = await client.GetAsync($"{apiUrl}/Appointment/UserBooked?userId={customer.Id}&slotId={slotId}&date={date}");
+                bool isBooked = JsonConvert.DeserializeObject<bool>(await response2.Content.ReadAsStringAsync());
+
+                if (!isBooked)
+                {
+                    availableCustomers.Add(customer);
+                }
             }
 
-            return customers;
+            return availableCustomers;
         }
-
     }
 }

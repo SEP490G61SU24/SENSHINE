@@ -9,6 +9,7 @@ namespace API.Models
         {
             CardCombos = new HashSet<CardCombo>();
             InvoiceCombos = new HashSet<InvoiceCombo>();
+            Appointments = new HashSet<Appointment>();
             Services = new HashSet<Service>();
         }
 
@@ -23,6 +24,7 @@ namespace API.Models
         public virtual ICollection<CardCombo> CardCombos { get; set; }
         public virtual ICollection<InvoiceCombo> InvoiceCombos { get; set; }
 
+        public virtual ICollection<Appointment> Appointments { get; set; }
         public virtual ICollection<Service> Services { get; set; }
     }
 }
