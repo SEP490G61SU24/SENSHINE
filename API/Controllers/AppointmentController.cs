@@ -73,6 +73,20 @@ namespace API.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> GetAvailableEmployeesInThisSlot(int slotId, DateTime date, string spaId)
+        {
+            return await HandleRequestAsync(async () =>
+            {
+                var employees = await _appointmentService.GetAvailableEmployeesInThisSlotAsync(slotId, date, spaId);
+                if (employees == null || !employees.Any())
+                {
+                    return NoContent();
+                }
+                return Ok(employees);
+            });
+        }
+
+        [HttpGet]
         public async Task<IActionResult> GetByDate(DateTime appointmentDate)
         {
             return await HandleRequestAsync(async () =>

@@ -24,6 +24,9 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ListAppointment(DateTime? date)
         {
+            int? spaId = ViewData["SpaId"]?.ToString() != "ALL"
+                ? int.Parse(ViewData["SpaId"].ToString())
+                : (int?)null;
             // Use DateTime.Now if no date is provided
             var selectedDate = date ?? DateTime.Now;
 
@@ -33,6 +36,7 @@ namespace Web.Controllers
             ViewBag.Slots = slots;
             ViewBag.ApiUrl = _configuration["ApiUrl"];
             ViewBag.Date = selectedDate.ToString("yyyy-MM-dd"); // Format the date for use in the API call
+            ViewBag.SpaId = spaId;
             return View();
         }
 

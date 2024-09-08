@@ -2,6 +2,8 @@
 using API.Models;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Transactions;
 
 namespace API.Services.Impl
@@ -306,6 +308,33 @@ namespace API.Services.Impl
             var slots = await _dbContext.Slots.ToListAsync();
 
             return _mapper.Map<List<SlotDTO>>(slots);
+        }
+
+        public async Task<List<UserDTO>> GetAvailableEmployeesInThisSlotAsync(int slotId, DateTime date, string spaId)
+        {
+            int? spaIdInt = spaId != null && spaId != "ALL"
+                ? int.Parse(spaId)
+                : (int?)null;
+
+            // Fetch users with the necessary role and, optionally, by spaId
+            var query = _dbContext.Users.Include(u => u.Roles)
+                             .Where(u => u.Roles.Any(r => r.Id == 4));
+
+            if (spaIdInt.HasValue)
+            {
+                query = query.Where(u => u.SpaId == spaIdInt.Value);
+            }
+
+            // Filter out users who have been booked for the specified slot and date
+            var availableUsers = await query
+                .Where(u => !_dbContext.UserSlots
+                    .Any(us => us.UserId == u.Id && us.SlotId == slotId && us.SlotDate == date && us.Status == "booked"))
+                .ToListAsync();
+
+            // Map directly to UserDTO
+            var availableEmployees = _mapper.Map<List<UserDTO>>(availableUsers);
+
+            return availableEmployees;
         }
     }
 }
