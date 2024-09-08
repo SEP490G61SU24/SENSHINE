@@ -1,19 +1,14 @@
-﻿@model IEnumerable<Web.Models.ListAppointmentViewModel>
+﻿@using API.Dtos
+@using Newtonsoft.Json
 
 @{
-    ViewData["Title"] = "Danh Sách Lịch Hẹn Tuần";
-    if (ViewData["SpaId"] != null && ViewData["SpaId"].ToString() != "ALL")
-    {
-        ViewData["ActionName"] = "Tạo Cuộc Hẹn Mới";
-        ViewData["ActionUrl"] = "/Appointment/CreateAppointment";
-    }
+    var beds = ViewBag.Beds as List<BedDTO>;
+    var slots = ViewBag.Slots as List<SlotDTO>;
+    var apiUrl = ViewBag.ApiUrl;
+    var selectedDate = ViewBag.Date ?? DateTime.Now.ToString("yyyy-MM-dd"); // Default to today's date
 }
 
 @section Styles {
-    <!-- Google font-->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
     <!-- ico-font-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
@@ -37,66 +32,71 @@
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
     <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+    <style>
+        table.table-bordered {
+            border: 1px solid #dee2e6; /* Bootstrap default border color */
+        }
+
+            table.table-bordered th,
+            table.table-bordered td {
+                border: 1px solid #dee2e6;
+            }
+
+        .date-navigation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+            .date-navigation .icon {
+                cursor: pointer;
+                font-size: 24px;
+                padding: 0 10px;
+            }
+    </style>
 }
 
-<div class="card">
-    <div class="card-body">
-        <div class="controls-container">
-            <div class="controls">
-                <div class="button-group" role="group" aria-label="Basic mixed styles example">
-                    <button id="prevDay" class="btn btn-danger"><span>&lt;</span></button>
-                    <button id="today" class="btn btn-success">Today</button>
-                    <button id="nextDay" class="btn btn-warning"><span>&gt;</span></button>
-                </div>
-                <h2 id="dayDisplay"></h2>
-            </div>
-        </div>
-
-        <div class="table-responsive custom-scrollbar">
-            <table id="appointments-container">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Tên Khách Hàng</th>
-                        <th>Nhân Viên Thực Hiện</th>
-                        <th>Dịch Vụ Sử Dụng</th>
-                        <th>Thời Gian Check In</th>
-                        <th>Slot</th>
-                        <th>Số Điện Thoại</th>
-                        <th>Trạng Thái</th>
-                        <th>Hành Động</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var appointment in Model)
-                    {
-                        <tr class="appointment" data-date="@appointment.AppointmentDate" data-day="@appointment.AppointmentDate.DayOfWeek">
-                            <td>@appointment.Id</td>
-                            <td>@appointment.Customer.FullName</td>
-                            <td>@appointment.Employee.FullName</td>
-                            <td>
-                                <ul>
-                                    @foreach (var service in appointment.Services)
-                                    {
-                                        <li>@service.ServiceName</li>
-                                    }
-                                </ul>
-                            </td>
-                            <td>@appointment.AppointmentDate</td>
-                            <td>@appointment.AppointmentSlot.Replace("Slot", "Slot ")</td>
-                            <td>@appointment.Customer.Phone</td>
-                            <td>@appointment.Status</td>
-                            <td>
-                                <a asp-action="DetailAppointment" asp-route-id="@appointment.Id">Chi Tiết</a> |
-                                <a asp-action="EditAppointment" asp-route-id="@appointment.Id">Chỉnh Sửa</a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
+<!-- Add a date selector with left and right navigation at the top of the page -->
+<div class="container date-navigation">
+    <i class="fa fa-chevron-left icon" id="prevDay"></i>
+    <form id="dateForm" method="get" class="d-inline">
+        <input type="date" id="appointmentDate" name="date" value="@selectedDate" class="form-control d-inline" style="width: 200px;" />
+    </form>
+    <i class="fa fa-chevron-right icon" id="nextDay"></i>
 </div>
+
+<br />
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Bed/Slot</th>
+            @foreach (var slot in slots)
+            {
+                <th>@slot.SlotName (@slot.TimeFrom)</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var bed in beds)
+        {
+            <tr>
+                <td>@bed.BedNumber</td>
+                @foreach (var slot in slots)
+                {
+                    <td>
+                        <!-- This will be populated dynamically based on the API call -->
+                        <div id="bed-slot-@bed.Id-@slot.Id" class="card">
+                            <div class="card-body text-center">
+                                <p>Loading...</p>
+                            </div>
+                        </div>
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
 
 @section Scripts {
     <script src="~/assets/js/jquery.min.js"></script>
@@ -123,187 +123,58 @@
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const appointmentsContainer = document.getElementById('appointments-container').querySelector('tbody');
-            let appointments = Array.from(appointmentsContainer.querySelectorAll('.appointment'));
-            let currentDay = new Date();
-
-            function formatDate(date) {
-                return date.toLocaleDateString('vi-VN', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                });
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // Helper function to change date by one day
+            function changeDate(days) {
+                var appointmentDate = $('#appointmentDate').val();
+                var currentDate = new Date(appointmentDate);
+                currentDate.setDate(currentDate.getDate() + days); // Add or subtract days
+                var newDate = currentDate.toISOString().split('T')[0]; // Format as yyyy-MM-dd
+                $('#appointmentDate').val(newDate);
+                $('#dateForm').submit(); // Submit the form with the new date
             }
 
-            function updateDayDisplay(date) {
-                document.getElementById('dayDisplay').textContent = formatDate(date);
-            }
-
-            function filterAppointmentsByDay(date) {
-                appointments.forEach(appointment => {
-                    const appointmentDate = new Date(appointment.dataset.date);
-                    if (appointmentDate.toDateString() === date.toDateString()) {
-                        appointment.style.display = 'table-row';
-                    } else {
-                        appointment.style.display = 'none';
-                    }
-                });
-            }
-
-            function addIndexToAppointments() {
-                const visibleAppointments = Array.from(appointments).filter(appointment => appointment.style.display !== 'none');
-                visibleAppointments.forEach((appointment, index) => {
-                    appointment.querySelector('.index').textContent = index + 1;
-                });
-            }
-
-            function highlightFinishedAppointments() {
-                appointments.forEach(appointment => {
-                    const status = appointment.querySelector('td:nth-child(8)').textContent.trim();
-
-                    if (status === 'Finished') {
-                        appointment.style.backgroundColor = '#d4edda'; // Màu xanh sáng cho trạng thái hoàn thành
-                    } else if (status === 'Combo') {
-                        appointment.style.backgroundColor = '#cce5ff'; // Màu xanh da trời nhạt cho trạng thái Combo
-                    } else if (status === 'Cancel') {
-                        appointment.style.backgroundColor = '#f8d7da'; // Màu đỏ nhạt cho trạng thái Cancel
-                    } else {
-                        appointment.style.backgroundColor = ''; // Xóa màu nền nếu không phải các trạng thái đã định nghĩa
-                    }
-                });
-            }
-
-            function showCurrentDay() {
-                updateDayDisplay(currentDay);
-                filterAppointmentsByDay(currentDay);
-                addIndexToAppointments(); // Thêm số thứ tự
-                highlightFinishedAppointments(); // Tô màu các cuộc hẹn đã hoàn thành
-            }
-
-            document.getElementById('prevDay').addEventListener('click', function () {
-                currentDay.setDate(currentDay.getDate() - 1);
-                showCurrentDay();
+            // Handle clicking on left and right icons
+            $('#prevDay').click(function () {
+                changeDate(-1); // Go back 1 day
             });
 
-            document.getElementById('today').addEventListener('click', function () {
-                currentDay = new Date();
-                showCurrentDay();
+            $('#nextDay').click(function () {
+                changeDate(1); // Go forward 1 day
             });
 
-            document.getElementById('nextDay').addEventListener('click', function () {
-                currentDay.setDate(currentDay.getDate() + 1);
-                showCurrentDay();
+            // Trigger form submit when the date changes
+            $('#appointmentDate').change(function () {
+                $('#dateForm').submit();
             });
 
-            showCurrentDay();
+            var beds = @Html.Raw(JsonConvert.SerializeObject(beds));
+            var slots = @Html.Raw(JsonConvert.SerializeObject(slots));
+            var apiUrl = "@apiUrl";
+            var selectedDate = $('#appointmentDate').val() || "@selectedDate"; // Default to selected or today
+
+            beds.forEach(function (bed) {
+                slots.forEach(function (slot) {
+                    var url = apiUrl + "/Appointment/BedBooked?bedId=" + bed.Id + "&slotId=" + slot.Id + "&date=" + selectedDate;
+                    console.log("Calling URL: ", url);
+
+                    $.get(url)
+                        .done(function (data) {
+                            var cardContent = '';
+                            if (data === true) {
+                                cardContent = '<h6 class="card-title text-danger">Booked</h6><p class="card-text">Not available</p>';
+                            } else {
+                                cardContent = '<h6 class="card-title text-success">Available</h6><p class="card-text">Free to book</p>';
+                            }
+                            $('#bed-slot-' + bed.Id + '-' + slot.Id + ' .card-body').html(cardContent);
+                        })
+                        .fail(function () {
+                            console.error("Failed to fetch booking data for bed " + bed.Id + " and slot " + slot.Id);
+                            $('#bed-slot-' + bed.Id + '-' + slot.Id + ' .card-body').html('<p class="text-warning">Error fetching data</p>');
+                        });
+                });
+            });
         });
-
     </script>
 }
-
-<style>
-    .controls-container {
-        margin-bottom: 20px; /* Khoảng cách dưới phần tử chứa */
-    }
-
-    .controls {
-        display: flex;
-        justify-content: space-between; /* Phân bố không gian đều giữa các phần tử */
-        align-items: center; /* Căn chỉnh theo chiều dọc */
-    }
-
-    .button-group {
-        display: flex;
-        align-items: center;
-    }
-
-    .button-group button {
-        margin-right: 5px; /* Khoảng cách giữa các nút */
-        font-size: 1em; /* Kích thước chữ của nút */
-    }
-
-    #dayDisplay {
-        text-align: center;
-        font-size: 2em;
-        margin: 0;
-        padding: 0;
-    }
-
-    .new-appointment-button {
-        text-align: center; /* Căn giữa nội dung của nút */
-        margin-left: 20px; /* Khoảng cách bên trái để đẩy ra khỏi h2 */
-    }
-
-    .new-appointment-button a {
-        font-size: 1em; /* Đặt kích thước chữ của nút tương đương với kích thước chữ của h2 và nút */
-        padding: 10px 20px; /* Tăng kích thước padding của nút */
-        line-height: 1.5em;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    table, th, td {
-        border: 1px solid #ddd;
-    }
-
-    th, td {
-        padding: 8px;
-        text-align: left;
-    }
-
-    th {
-        background-color: #f2f2f2;
-    }
-
-    .appointment:nth-child(even) {
-        background-color: #f9f9f9;
-    }
-
-    .appointment ul {
-        padding: 0;
-        list-style: none;
-    }
-
-    .appointment ul li {
-        margin: 0;
-    }
-
-    .btn-link {
-        background: none;
-        border: none;
-        color: #007bff;
-        text-decoration: underline;
-        cursor: pointer;
-        padding: 0;
-    }
-
-        .btn-link:hover {
-            color: #0056b3;
-        }
-
-    .appointment {
-        margin-bottom: 10px;
-        padding: 5px;
-        background-color: #e9ecef;
-        border-radius: 5px;
-    }
-
-    .appointment[data-status="Finished"] {
-        background-color: #d4edda; /* Light green for Finished status */
-    }
-
-    .appointment[data-status="Combo"] {
-        background-color: #cce5ff; /* Light blue for Combo status */
-    }
-
-    .appointment[data-status="Cancel"] {
-        background-color: #f8d7da; /* Light red for Cancel status */
-    }
-
-</style>
-

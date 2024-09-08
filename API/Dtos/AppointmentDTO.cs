@@ -7,16 +7,11 @@ namespace API.Dtos
         public int Id { get; set; }
         public int CustomerId { get; set; }
         public int EmployeeId { get; set; }
-        public DateTime? AppointmentDate { get; set; }
-        public string AppointmentSlot { get; set; }
         public int BedId { get; set; }
-        public string? RoomName { get; set; }
-        public string Status { get; set; }
-
-        public virtual BedDTO? Bed { get; set; } = null!;
-        public virtual UserDTO? Customer { get; set; }
-        public virtual UserDTO? Employee { get; set; }
-
-        public virtual ICollection<ServiceDTO> Services { get; set; }
+        public int SlotId { get; set; }
+        public DateTime AppointmentDate { get; set; }
+        public string? Status { get; set; }
+        public ICollection<Combo>? Combos { get; set; }
+        public ICollection<Service>? Services { get; set; }
     }
 }
