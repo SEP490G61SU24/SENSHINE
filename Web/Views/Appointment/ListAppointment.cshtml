@@ -6,6 +6,7 @@
     var slots = ViewBag.Slots as List<SlotDTO>;
     var apiUrl = ViewBag.ApiUrl;
     var selectedDate = ViewBag.Date ?? DateTime.Now.ToString("yyyy-MM-dd"); // Default to today's date
+    var spaId = ViewBag.SpaId; // Assuming SpaId is passed in ViewBag
 }
 
 @section Styles {
@@ -34,7 +35,7 @@
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
     <style>
         table.table-bordered {
-            border: 1px solid #dee2e6; /* Bootstrap default border color */
+            border: 1px solid #dee2e6;
         }
 
             table.table-bordered th,
@@ -53,6 +54,16 @@
                 font-size: 24px;
                 padding: 0 10px;
             }
+
+        .employee-list {
+            margin-top: 20px;
+            padding: 10px;
+        }
+
+            .employee-list ul {
+                list-style-type: none;
+                padding-left: 0;
+            }
     </style>
 }
 
@@ -67,6 +78,7 @@
 
 <br />
 
+<!-- Table of Beds and Slots -->
 <table class="table table-bordered">
     <thead>
         <tr>
@@ -95,6 +107,18 @@
                 }
             </tr>
         }
+        <!-- Add a new row below all beds -->
+        <tr>
+            <td>Available Employees</td> <!-- Empty first column -->
+            @foreach (var slot in slots)
+            {
+                <td>
+                    <ul id="employee-slot-@slot.Id">
+                        <li>Loading...</li>
+                    </ul>
+                </td>
+            }
+        </tr>
     </tbody>
 </table>
 
@@ -153,7 +177,9 @@
             var slots = @Html.Raw(JsonConvert.SerializeObject(slots));
             var apiUrl = "@apiUrl";
             var selectedDate = $('#appointmentDate').val() || "@selectedDate"; // Default to selected or today
+            var spaId = "@spaId"; // Assuming SpaId is available from the ViewBag
 
+            // Fetch and display bed status for each slot and bed
             beds.forEach(function (bed) {
                 slots.forEach(function (slot) {
                     var url = apiUrl + "/Appointment/BedBooked?bedId=" + bed.Id + "&slotId=" + slot.Id + "&date=" + selectedDate;
@@ -174,6 +200,30 @@
                             $('#bed-slot-' + bed.Id + '-' + slot.Id + ' .card-body').html('<p class="text-warning">Error fetching data</p>');
                         });
                 });
+            });
+
+            // Fetch and display available employees for each slot
+            slots.forEach(function (slot) {
+                var url = apiUrl + "/Appointment/GetAvailableEmployeesInThisSlot?slotId=" + slot.Id + "&date=" + selectedDate + "&spaId=" + spaId;
+                console.log("Calling URL: ", url);
+
+                $.get(url)
+                    .done(function (employees) {
+                        var employeeList = '';
+                        if (employees.length > 0) {
+                            employeeList = employees.map(function (employee) {
+                                return '<li>' + employee.firstName + ' ' + employee.midName + ' ' + employee.lastName + '</li>';
+                            }).join('');
+                        } else {
+                            employeeList = '<li>No available employees</li>';
+                        }
+
+                        $('#employee-slot-' + slot.Id).html(employeeList); // Update the employee list for this slot
+                    })
+                    .fail(function () {
+                        console.error("Failed to fetch employees for slot " + slot.Id);
+                        $('#employee-slot-' + slot.Id).html('<li class="text-warning">Error fetching data</li>');
+                    });
             });
         });
     </script>

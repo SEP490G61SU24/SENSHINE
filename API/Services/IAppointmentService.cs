@@ -10,6 +10,7 @@ namespace API.Services
     {
         Task<List<AppointmentDTO>> GetAllAppointmentsAsync();
         Task<List<SlotDTO>> GetAllSlotsAsync();
+        Task<List<UserDTO>> GetAvailableEmployeesInThisSlotAsync(int slotId, DateTime date, string spaId);
         Task<List<AppointmentDTO>> GetAppointmentsByDateAsync(DateTime appointmentDate);
         Task<AppointmentDTO> GetAppointmentByIdAsync(int id);
         Task<Appointment> CreateAppointmentAsync(AppointmentDTO appointmentDTO);
