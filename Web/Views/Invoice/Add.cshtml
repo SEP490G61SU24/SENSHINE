@@ -271,9 +271,11 @@
                 const customOptions = document.getElementById(optionsId);
                 const hiddenInput = document.getElementById(hiddenInputId);
                 const amountInput = document.getElementById('Amount');
+                const promotionSelect = document.getElementById('PromotionId');
 
                 let selectedItems = [];
                 let totalPrice = 0;
+                let discountPercentage = 0;
 
                 // Toggle custom options visibility
                 customSelect.addEventListener('click', () => {
@@ -291,13 +293,24 @@
                     }
                 });
 
+                // Handle promotion change
+                promotionSelect.addEventListener('change', function () {
+                    discountPercentage = parseFloat(promotionSelect.options[promotionSelect.selectedIndex].getAttribute('data-discount')) || 0;
+                    updateTotalPrice();  // Recalculate the total price with the new discount
+                });
+
+                // Format price as VND
+                function formatVND(price) {
+                    return price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+                }
+
                 // Update selected items based on checkbox
                 function updateSelectedItems(checkbox) {
                     const id = checkbox.value;
                     const text = checkbox.nextSibling.textContent.trim();
                     const price = parseFloat(checkbox.getAttribute('data-price'));
                     const quantityInput = checkbox.closest('.service-option')?.querySelector('.service-quantity') ||
-                    checkbox.closest('.combo-option')?.querySelector('.combo-quantity');
+                        checkbox.closest('.combo-option')?.querySelector('.combo-quantity');
                     const quantity = parseInt(quantityInput ? quantityInput.value : 1, 10);
 
                     const index = selectedItems.findIndex(item => item.id === id);
@@ -323,7 +336,7 @@
                         const button = document.createElement('button');
                         button.type = 'button';
                         button.className = 'btn btn-primary me-2';
-                        button.textContent = `${item.text} (x${item.quantity})`;
+                        button.textContent = `${item.text} (x${item.quantity}) - ${formatVND(item.price)}`;
                         button.dataset.id = item.id;
                         customSelect.appendChild(button);
                     });
@@ -335,8 +348,8 @@
                     hiddenInput.value = selectedItems.map(item => item.id).join(',');
                     updateTotalPrice();
                 }
-               
-                // Calculate total price based on selected quantities
+
+                // Calculate total price based on selected quantities and apply promotion discount
                 function updateTotalPrice() {
                     totalPrice = 0;
 
@@ -356,8 +369,11 @@
                         totalPrice += price * quantity;
                     });
 
-                    amountInput.value = totalPrice;
+                    // Apply discount
+                    const discount = (discountPercentage / 100) * totalPrice;
+                    const finalAmount = totalPrice - discount;
 
+                    amountInput.value = finalAmount;
                 }
 
                 // Initialize the custom select for this section
@@ -367,7 +383,6 @@
             // Setup custom selects
             setupCustomSelect('customSelectCombos', 'customOptionsCombos', 'ComboIdsString');
             setupCustomSelect('customSelectServices', 'customOptionsServices', 'ServiceIdsString');
-
         });
     </script>
     <script>
@@ -408,8 +423,7 @@
         });
     </script>
 
-    <script>
-
+   @*  <script>
         document.addEventListener('DOMContentLoaded', () => {
             const promotionSelect = document.getElementById('PromotionId');
             const amountInput = document.getElementById('Amount');
@@ -419,18 +433,22 @@
             promotionSelect.addEventListener('change', function () {
                 const selectedOption = promotionOptions[promotionSelect.selectedIndex];
                 const discountPercentage = parseFloat(selectedOption.getAttribute('data-discount')) || 0;
-                const totalAmount = parseFloat(amountInput.value) || 0;
+                const totalAmount = parseFloat(amountInput.value.replace('₫', '').replace(',', '')) || 0;
 
                 // Calculate discount
                 const discount = (discountPercentage / 100) * totalAmount;
                 const finalAmount = totalAmount - discount;
 
                 // Update amount input with the discounted amount
-                amountInput.value = finalAmount;
+                amountInput.value = formatVND(finalAmount);
             });
-        });
 
-    </script>
+            // Format price as VND
+            function formatVND(price) {
+                return price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+            }
+        });
+    </script> *@
    
 
 

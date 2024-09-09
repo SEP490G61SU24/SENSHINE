@@ -273,16 +273,43 @@ namespace API.Controllers
             try
             {
                 // Revenue Report
-                var revenueReport = await _dbContext.Invoices
+                // Step 1: Calculate revenue for each invoice
+                var invoiceRevenues = await _dbContext.Invoices
                     .Where(i => i.InvoiceDate >= startDate && i.InvoiceDate <= endDate)
-                    .GroupBy(i => new { i.InvoiceDate.Year, i.InvoiceDate.Month, i.InvoiceDate.Day })
+                    .Select(i => new
+                    {
+                        Date = i.InvoiceDate,
+                        ServiceRevenue = i.InvoiceServices.Sum(i => (i.Price ?? 0) * (i.Quantity ?? 0)),
+                        ComboRevenue = i.InvoiceCombos.Sum(ic => (ic.Price ?? 0) * (ic.Quantity ?? 0))
+                    })
+                    .ToListAsync(); // Execute the query and bring the results into memory
+
+                // Step 2: Aggregate revenues by date
+                var revenueReport = invoiceRevenues
+                    .GroupBy(r => new { r.Date.Year, r.Date.Month, r.Date.Day })
                     .OrderByDescending(g => g.Key.Year)
                     .ThenByDescending(g => g.Key.Month)
                     .ThenByDescending(g => g.Key.Day)
                     .Select(g => new RevenueReport
                     {
                         Date = new DateTime(g.Key.Year, g.Key.Month, g.Key.Day),
-                        TotalRevenue = g.Sum(i => i.Amount) ?? 0
+                        TotalRevenue = g.Sum(r => r.ServiceRevenue + r.ComboRevenue)
+                    })
+                    .ToList(); 
+
+
+
+
+                var discountedRevenue = await _dbContext.Invoices
+                    .Where(i => i.InvoiceDate >= startDate && i.InvoiceDate <= endDate)
+                    .GroupBy(i => new { i.InvoiceDate.Year, i.InvoiceDate.Month, i.InvoiceDate.Day })
+                    .OrderByDescending(g => g.Key.Year)
+                    .ThenByDescending(g => g.Key.Month)
+                    .ThenByDescending(g => g.Key.Day)
+                    .Select(g => new DiscountRevenueReport
+                    {
+                        Date = new DateTime(g.Key.Year, g.Key.Month, g.Key.Day),
+                        discountRevenue = g.Sum(i => i.Amount) ?? 0
                     })
                     .ToListAsync();
 
@@ -326,6 +353,7 @@ namespace API.Controllers
                 // Combine results into the view model
                 var result = new CombinedReportDTO
                 {
+                    DiscountRevenueReports= discountedRevenue,
                     RevenueReports = revenueReport,
                     InvoiceStatusSummary = statusSummary,
                     ServiceSummaries = serviceSummary,

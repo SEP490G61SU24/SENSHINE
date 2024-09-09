@@ -35,11 +35,17 @@ namespace API.Services.Impl
 
                 foreach (var serviceId in invoiceDto.ServiceIds)
                 {
+                    var price = await _context.Services
+                .Where(s => s.Id == serviceId)
+                .Select(s => s.Amount)
+                .FirstOrDefaultAsync();
                     newInvoice.InvoiceServices.Add(new InvoiceService
                     {
                         InvoiceId = newInvoice.Id,
                         ServiceId = serviceId,
-                        Quantity = serviceQuantities.ContainsKey(serviceId) ? serviceQuantities[serviceId] : null
+                        Quantity = serviceQuantities.ContainsKey(serviceId) ? serviceQuantities[serviceId] : null,
+                        Price = price
+
                     });
                 }
             }
@@ -51,11 +57,16 @@ namespace API.Services.Impl
 
                 foreach (var comboId in invoiceDto.ComboIds)
                 {
+                    var price = await _context.Combos
+               .Where(s => s.Id == comboId)
+               .Select(s => s.Price)
+               .FirstOrDefaultAsync();
                     newInvoice.InvoiceCombos.Add(new InvoiceCombo
                     {
                         InvoiceId = newInvoice.Id,
                         ComboId = comboId,
-                        Quantity = comboQuantities.ContainsKey(comboId) ? comboQuantities[comboId] : null
+                        Quantity = comboQuantities.ContainsKey(comboId) ? comboQuantities[comboId] : null,
+                        Price = price
                     });
                 }
             }
