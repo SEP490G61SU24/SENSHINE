@@ -87,17 +87,17 @@ namespace API.Services.Impl
             var appointment = _mapper.Map<Appointment>(appointmentDTO);
 
             // If services are provided, fetch the existing services
-            if (appointmentDTO.Services != null && appointmentDTO.Services.Any())
+            if (appointmentDTO.ServiceIDs != null && appointmentDTO.ServiceIDs.Any())
             {
-                var serviceIds = appointmentDTO.Services.Select(s => s.Id).ToList();
+                var serviceIds = appointmentDTO.ServiceIDs.ToList();
                 var existingServices = await GetExistingServicesAsync(serviceIds);
                 appointment.Services = existingServices;
             }
 
             // If combos are provided, fetch the existing combos
-            if (appointmentDTO.Combos != null && appointmentDTO.Combos.Any())
+            if (appointmentDTO.ComboIDs != null && appointmentDTO.ComboIDs.Any())
             {
-                var comboIds = appointmentDTO.Combos.Select(c => c.Id).ToList();
+                var comboIds = appointmentDTO.ComboIDs.ToList();
                 var existingCombos = await GetExistingCombosAsync(comboIds);
                 appointment.Combos = existingCombos;
             }
@@ -136,7 +136,7 @@ namespace API.Services.Impl
 
             // Update Services
             existingAppointment.Services.Clear();
-            var existingServices = await GetExistingServicesAsync(appointmentDTO.Services.Select(s => s.Id).ToList());
+            var existingServices = await GetExistingServicesAsync(appointmentDTO.ServiceIDs.ToList());
             foreach (var service in existingServices)
             {
                 existingAppointment.Services.Add(service);
@@ -144,7 +144,7 @@ namespace API.Services.Impl
 
             // Update Combos
             existingAppointment.Combos.Clear();
-            var existingCombos = await GetExistingCombosAsync(appointmentDTO.Combos.Select(c => c.Id).ToList());
+            var existingCombos = await GetExistingCombosAsync(appointmentDTO.ComboIDs.ToList());
             foreach (var combo in existingCombos)
             {
                 existingAppointment.Combos.Add(combo);
@@ -335,6 +335,13 @@ namespace API.Services.Impl
             var availableEmployees = _mapper.Map<List<UserDTO>>(availableUsers);
 
             return availableEmployees;
+        }
+
+        public async Task<SlotDTO> GetSlotByIdAsync(int id)
+        {
+            var slot = await _dbContext.Slots.FirstOrDefaultAsync(s => s.Id == id);
+
+            return slot == null ? null : _mapper.Map<SlotDTO>(slot);
         }
     }
 }

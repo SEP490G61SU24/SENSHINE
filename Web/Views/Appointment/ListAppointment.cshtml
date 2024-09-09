@@ -10,38 +10,62 @@
 }
 
 @section Styles {
-    <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
-    <!-- ico-font-->
-    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
-    <!-- Themify icon-->
-    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/themify.css">
-    <!-- Flag icon-->
-    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/flag-icon.css">
-    <!-- Feather icon-->
-    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/feather-icon.css">
-    <!-- Plugins css start-->
-    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
-    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
-    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
-    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
-    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/datatables.css">
-    <!-- Plugins css Ends-->
-    <!-- Bootstrap css-->
-    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
-    <!-- App css-->
-    <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
-    <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
-    <!-- Responsive css-->
-    <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+    <!-- Font & Icon Styles -->
+    <link rel="stylesheet" href="~/assets/css/font-awesome.css">
+    <link rel="stylesheet" href="~/assets/css/vendors/icofont.css">
+    <link rel="stylesheet" href="~/assets/css/vendors/themify.css">
+    <link rel="stylesheet" href="~/assets/css/vendors/flag-icon.css">
+    <link rel="stylesheet" href="~/assets/css/vendors/feather-icon.css">
+
+    <!-- Plugin Styles -->
+    <link rel="stylesheet" href="~/assets/css/vendors/slick.css">
+    <link rel="stylesheet" href="~/assets/css/vendors/slick-theme.css">
+    <link rel="stylesheet" href="~/assets/css/vendors/scrollbar.css">
+    <link rel="stylesheet" href="~/assets/css/vendors/animate.css">
+    <link rel="stylesheet" href="~/assets/css/vendors/datatables.css">
+
+    <!-- Bootstrap Styles -->
+    <link rel="stylesheet" href="~/assets/css/vendors/bootstrap.css">
+
+    <!-- App & Responsive Styles -->
+    <link rel="stylesheet" href="~/assets/css/style.css">
+    <link rel="stylesheet" href="~/assets/css/responsive.css">
+
+    <!-- Custom Styles -->
     <style>
         table.table-bordered {
             border: 1px solid #dee2e6;
+            table-layout: fixed; /* Ensure equal cell widths */
         }
 
             table.table-bordered th,
             table.table-bordered td {
                 border: 1px solid #dee2e6;
+                text-align: center; /* Horizontal centering */
+                vertical-align: middle; /* Vertical centering */
+                height: 100px; /* Adjust the height to your needs */
+                padding: 0; /* Remove extra padding */
             }
+
+        .card {
+            display: flex;
+            justify-content: center; /* Center card horizontally */
+            align-items: center; /* Center card vertically */
+            height: 100%; /* Full height of the table cell */
+            width: 100%; /* Full width of the table cell */
+            margin: 0; /* Remove margin for proper fit */
+            padding: 0; /* Remove padding */
+        }
+
+        .card-body {
+            display: flex;
+            flex-direction: column; /* Stack elements vertically */
+            justify-content: center; /* Vertically center content */
+            align-items: center; /* Horizontally center content */
+            text-align: center; /* Ensure text inside the card is centered */
+            width: 100%;
+            height: 100%; /* Full height of the card */
+        }
 
         .date-navigation {
             display: flex;
@@ -64,10 +88,14 @@
                 list-style-type: none;
                 padding-left: 0;
             }
+
+        .card.booked {
+            cursor: not-allowed;
+        }
     </style>
 }
 
-<!-- Add a date selector with left and right navigation at the top of the page -->
+<!-- Date Selector -->
 <div class="container date-navigation">
     <i class="fa fa-chevron-left icon" id="prevDay"></i>
     <form id="dateForm" method="get" class="d-inline">
@@ -78,11 +106,11 @@
 
 <br />
 
-<!-- Table of Beds and Slots -->
+<!-- Bed and Slot Table -->
 <table class="table table-bordered">
     <thead>
         <tr>
-            <th>Bed/Slot</th>
+            <th>Giường/Slot</th>
             @foreach (var slot in slots)
             {
                 <th>@slot.SlotName (@slot.TimeFrom)</th>
@@ -97,8 +125,7 @@
                 @foreach (var slot in slots)
                 {
                     <td>
-                        <!-- This will be populated dynamically based on the API call -->
-                        <div id="bed-slot-@bed.Id-@slot.Id" class="card">
+                        <div id="bed-slot-@bed.Id-@slot.Id" class="card" data-bed-id="@bed.Id" data-slot-id="@slot.Id" data-status="loading">
                             <div class="card-body text-center">
                                 <p>Loading...</p>
                             </div>
@@ -107,14 +134,14 @@
                 }
             </tr>
         }
-        <!-- Add a new row below all beds -->
+        <!-- Row for Available Employees -->
         <tr>
-            <td>Available Employees</td> <!-- Empty first column -->
+            <td>Nhân viên trực</td>
             @foreach (var slot in slots)
             {
                 <td>
                     <ul id="employee-slot-@slot.Id">
-                        <li>Loading...</li>
+                        <li>Trống</li>
                     </ul>
                 </td>
             }
@@ -122,108 +149,145 @@
     </tbody>
 </table>
 
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Create Appointment</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @if (ViewData["Error"] != null)
+                {
+                    <div class="alert alert-danger">
+                        @ViewData["Error"]
+                    </div>
+                }
+                <div id="createAppointmentContent">Loading...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
-    <script src="~/assets/js/jquery.min.js"></script>
-    <!-- Bootstrap js-->
-    <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
-    <!-- feather icon js-->
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <!-- Bootstrap Bundle (includes Popper.js) -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Feather Icons & Plugins -->
     <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
     <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
-    <!-- scrollbar js-->
     <script src="~/assets/js/scrollbar/simplebar.js"></script>
     <script src="~/assets/js/scrollbar/custom.js"></script>
-    <!-- Sidebar jquery-->
-    <script src="~/assets/js/config.js"></script>
-    <!-- Plugins JS start-->
     <script src="~/assets/js/sidebar-menu.js"></script>
     <script src="~/assets/js/sidebar-pin.js"></script>
     <script src="~/assets/js/slick/slick.min.js"></script>
     <script src="~/assets/js/slick/slick.js"></script>
     <script src="~/assets/js/header-slick.js"></script>
-    <!-- calendar js-->
     <script src="~/assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
     <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
-    <!-- Plugins JS Ends-->
-    <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
 
+    <!-- Custom Script -->
     <script type="text/javascript">
         $(document).ready(function () {
-            // Helper function to change date by one day
+            // Date navigation
             function changeDate(days) {
                 var appointmentDate = $('#appointmentDate').val();
                 var currentDate = new Date(appointmentDate);
-                currentDate.setDate(currentDate.getDate() + days); // Add or subtract days
-                var newDate = currentDate.toISOString().split('T')[0]; // Format as yyyy-MM-dd
+                currentDate.setDate(currentDate.getDate() + days);
+                var newDate = currentDate.toISOString().split('T')[0];
                 $('#appointmentDate').val(newDate);
-                $('#dateForm').submit(); // Submit the form with the new date
+                $('#dateForm').submit();
             }
 
-            // Handle clicking on left and right icons
-            $('#prevDay').click(function () {
-                changeDate(-1); // Go back 1 day
-            });
-
-            $('#nextDay').click(function () {
-                changeDate(1); // Go forward 1 day
-            });
-
-            // Trigger form submit when the date changes
-            $('#appointmentDate').change(function () {
-                $('#dateForm').submit();
-            });
+            $('#prevDay').click(function () { changeDate(-1); });
+            $('#nextDay').click(function () { changeDate(1); });
+            $('#appointmentDate').change(function () { $('#dateForm').submit(); });
 
             var beds = @Html.Raw(JsonConvert.SerializeObject(beds));
             var slots = @Html.Raw(JsonConvert.SerializeObject(slots));
             var apiUrl = "@apiUrl";
-            var selectedDate = $('#appointmentDate').val() || "@selectedDate"; // Default to selected or today
-            var spaId = "@spaId"; // Assuming SpaId is available from the ViewBag
+            var spaId = "@spaId";
 
-            // Fetch and display bed status for each slot and bed
+            // Fetch bed statuses
             beds.forEach(function (bed) {
                 slots.forEach(function (slot) {
+                    var selectedDate = $('#appointmentDate').val(); // Get the selected date
                     var url = apiUrl + "/Appointment/BedBooked?bedId=" + bed.Id + "&slotId=" + slot.Id + "&date=" + selectedDate;
-                    console.log("Calling URL: ", url);
-
                     $.get(url)
                         .done(function (data) {
-                            var cardContent = '';
-                            if (data === true) {
-                                cardContent = '<h6 class="card-title text-danger">Booked</h6><p class="card-text">Not available</p>';
+                            var card = $('#bed-slot-' + bed.Id + '-' + slot.Id);
+                            var cardBody = card.find('.card-body');
+                            if (data) {
+                                card.addClass('booked').removeClass('available');
+                                card.data('status', 'booked');
+                                cardBody.html('<h6 class="card-title text-danger">Booked</h6><p class="card-text">Not available</p>');
                             } else {
-                                cardContent = '<h6 class="card-title text-success">Available</h6><p class="card-text">Free to book</p>';
+                                card.addClass('available').removeClass('booked');
+                                card.data('status', 'available');
+                                cardBody.html('<h6 class="card-title text-success">Available</h6><p class="card-text">Free to book</p>');
                             }
-                            $('#bed-slot-' + bed.Id + '-' + slot.Id + ' .card-body').html(cardContent);
                         })
                         .fail(function () {
-                            console.error("Failed to fetch booking data for bed " + bed.Id + " and slot " + slot.Id);
                             $('#bed-slot-' + bed.Id + '-' + slot.Id + ' .card-body').html('<p class="text-warning">Error fetching data</p>');
                         });
                 });
             });
 
-            // Fetch and display available employees for each slot
+            // Fetch available employees
             slots.forEach(function (slot) {
+                var selectedDate = $('#appointmentDate').val(); // Get the selected date
                 var url = apiUrl + "/Appointment/GetAvailableEmployeesInThisSlot?slotId=" + slot.Id + "&date=" + selectedDate + "&spaId=" + spaId;
-                console.log("Calling URL: ", url);
-
                 $.get(url)
                     .done(function (employees) {
-                        var employeeList = '';
-                        if (employees.length > 0) {
-                            employeeList = employees.map(function (employee) {
-                                return '<li>' + employee.firstName + ' ' + employee.midName + ' ' + employee.lastName + '</li>';
-                            }).join('');
-                        } else {
-                            employeeList = '<li>No available employees</li>';
-                        }
-
-                        $('#employee-slot-' + slot.Id).html(employeeList); // Update the employee list for this slot
+                        var employeeList = employees.length > 0 ? employees.map(function (employee) {
+                            return '<li>' + employee.firstName + ' ' + employee.midName + ' ' + employee.lastName + '</li>';
+                        }).join('') : '<li>No available employees</li>';
+                        $('#employee-slot-' + slot.Id).html(employeeList);
                     })
                     .fail(function () {
-                        console.error("Failed to fetch employees for slot " + slot.Id);
                         $('#employee-slot-' + slot.Id).html('<li class="text-warning">Error fetching data</li>');
                     });
+            });
+
+            $('.card').click(function () {
+                if ($(this).data('status') === 'available') {
+                    var bedId = $(this).data('bed-id');
+                    var slotId = $(this).data('slot-id');
+                    var selectedDate = $('#appointmentDate').val(); // Get the selected date
+
+                    // Clear modal content and show loading message
+                    $('#createAppointmentContent').html('<p>Loading...</p>');
+
+                    // Disable the modal to prevent interaction until content is loaded
+                    $('#myModal .modal-footer button').prop('disabled', true);
+
+                    // Open the modal immediately
+                    $('#myModal').modal('show');
+
+                    // Load the content into the modal via AJAX and pass bedId, slotId, and selectedDate
+                    $.get('@Url.Action("CreateAppointmentContent", "Appointment")', { bedId: bedId, slotId: slotId, date: selectedDate }, function (data) {
+                        $('#createAppointmentContent').html(data);
+
+                        // Enable the modal buttons after content is loaded
+                        $('#myModal .modal-footer button').prop('disabled', false);
+                    }).fail(function () {
+                        $('#createAppointmentContent').html('<p class="text-warning">Error loading content.</p>');
+
+                        // Enable the modal buttons even if an error occurs
+                        $('#myModal .modal-footer button').prop('disabled', false);
+                    });
+                } else {
+                    // You can set the error message here instead of alert:
+                    var errorMessage = "Giường đã được book tại slot này.";
+                    $('#myModal').modal('show');
+                    $('#createAppointmentContent').html('<div class="alert alert-danger">' + errorMessage + '</div>');
+                }
             });
         });
     </script>
