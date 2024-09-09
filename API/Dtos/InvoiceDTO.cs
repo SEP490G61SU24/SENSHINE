@@ -74,6 +74,13 @@ namespace API.Dtos
         public string Status { get; set; }
         public int Count { get; set; }
     }
+    public class DiscountRevenueReport
+    {
+        public DateTime Date { get; set; }
+        public decimal discountRevenue { get; set; }
+        public string Status { get; set; }
+        public int Count { get; set; }
+    }
     public class ServiceSummary
     {
         public int ServiceId { get; set; }

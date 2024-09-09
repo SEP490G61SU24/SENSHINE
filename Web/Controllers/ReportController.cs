@@ -35,6 +35,7 @@ namespace Web.Controllers
                 // Pass the data to the view
                 var viewModel = new CombinedReportViewModel
                 {
+                    DiscountRevenueReports= combinedReport.DiscountRevenueReports,
                     RevenueReports = combinedReport.RevenueReports,
                     InvoiceStatusSummary = combinedReport.InvoiceStatusSummary,
                     ServiceSummaries = combinedReport.ServiceSummaries,
