@@ -6,8 +6,10 @@ public class AppointmentMapper : Profile
 {
     public AppointmentMapper()
     {
+        CreateMap<Appointment, AppointmentDTO>()
+            .ForMember(dest => dest.ServiceIDs, opt => opt.MapFrom(src => src.Services.Select(s => s.Id)))
+            .ForMember(dest => dest.ComboIDs, opt => opt.MapFrom(src => src.Combos.Select(c => c.Id).ToList()));
         CreateMap<AppointmentDTO, Appointment>();
-        CreateMap<Appointment, AppointmentDTO>();
 
         CreateMap<ServiceDTO, Service>();
         CreateMap<Service, ServiceDTO>();

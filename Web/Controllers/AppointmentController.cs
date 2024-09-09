@@ -1,9 +1,13 @@
 ﻿using API.Dtos;
 using API.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.Differencing;
 using Newtonsoft.Json;
 using System.Text;
 using Web.Models;
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace Web.Controllers
 {
@@ -40,264 +44,124 @@ namespace Web.Controllers
             return View();
         }
 
-        [HttpGet]
-        public async Task<IActionResult> DetailAppointment(int id)
+        public async Task<PartialViewResult> CreateAppointmentContent(int bedId, int slotId, string date)
         {
             var client = _clientFactory.CreateClient();
             var apiUrl = _configuration["ApiUrl"];
-            if (id <= 0)
-            {
-                return BadRequest("Invalid Appointment ID");
-            }
-
-            ListAppointmentViewModel appointment = null;
-
-            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Appointment/GetByAppointmentId/{id}");
-
-            if (response.IsSuccessStatusCode)
-            {
-                string data = await response.Content.ReadAsStringAsync();
-                appointment = JsonConvert.DeserializeObject<ListAppointmentViewModel>(data);
-            }
-
-            if (appointment == null)
-            {
-                return NotFound("Appointment not found");
-            }
-
-            return View(appointment);
-        }
-
-        //xoa cuoc hen
-        [HttpPost]
-        public async Task<IActionResult> DeleteAppointment1(int id)
-        {
-            var client = _clientFactory.CreateClient();
-            var apiUrl = _configuration["ApiUrl"];
-            if (id <= 0)
-            {
-                return BadRequest("Appointment ID không hợp lệ");
-            }
-
-            HttpResponseMessage response = await client.DeleteAsync($"{apiUrl}/Appointment/DeleteAppointment/delete/{id}");
-
-            if (response.IsSuccessStatusCode)
-            {
-                return RedirectToAction("ListAppointment");
-            }
-            else
-            {
-                return BadRequest("Có lỗi xảy ra khi xóa dịch vụ.");
-            }
-        }
-
-        // tao cuoc hen moi
-        [HttpGet]
-        public async Task<IActionResult> CreateAppointment()
-        {
+            string dateBook = null;
+            ViewBag.BedId = bedId;
+            ViewBag.SlotId = slotId;
+            ViewBag.Date = date;
             var services = await GetAvailableServices();
+            var combos = await GetAvailableCombos();
+            ViewBag.Services = services;
+            ViewBag.Combos = combos;
 
-            ViewBag.Services = services ?? new List<ServiceViewModel>();
+            var customers = await GetAvailableCustomersInSlot(DateTime.Parse(date), slotId);
+            var employees = await GetAvailableEmployeesInSlot(DateTime.Parse(date), slotId);
 
-            return View();
+            // Check if no customers or employees are available
+            if (!customers.Any())
+            {
+                ViewData["Error"] = "Không còn khách hàng trống slot này.";
+            }
+
+            if (!employees.Any())
+            {
+                ViewData["Error"] = "Không còn nhân viên trống slot này.";
+            }
+
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Appointment/GetSlotById?id=" + slotId);
+
+            if (response.IsSuccessStatusCode)
+            {
+                string jsonString = await response.Content.ReadAsStringAsync();
+                var slot = JsonConvert.DeserializeObject<SlotDTO>(jsonString);
+                dateBook = date + " " + slot.TimeFrom.ToString();
+            }
+
+            if (DateTime.ParseExact(dateBook, "yyyy-MM-dd HH:mm:ss", null) < DateTime.Now)
+            {
+                ViewData["Error"] = "Không thể book lịch trong quá khứ.";
+            }
+
+            // Prepare customers and employees data for selection
+            ViewBag.Customers = new SelectList(customers, "Id", "FullName");
+            ViewBag.Employees = new SelectList(employees, "Id", "FullName");
+
+            return PartialView("_CreateAppointmentContent");
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAppointment(AppointmentViewModel appointmentViewModel)
+        public async Task<IActionResult> CreateAppointment(AppointmentDTO model)
         {
             var client = _clientFactory.CreateClient();
             var apiUrl = _configuration["ApiUrl"];
-
-            // Kiểm tra AppointmentDate và gán giá trị nếu không null
-            DateTime appointmentDate = appointmentViewModel.AppointmentDate ?? DateTime.Now;
-
-            // Gán giá trị cho AppointmentDate dựa trên AppointmentSlot
-            switch (appointmentViewModel.AppointmentSlot)
-            {
-                case "Slot1":
-                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(8, 30, 0));
-                    break;
-                case "Slot2":
-                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(10, 0, 0));
-                    break;
-                case "Slot3":
-                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(11, 30, 0));
-                    break;
-                case "Slot4":
-                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(13, 0, 0));
-                    break;
-                case "Slot5":
-                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(14, 30, 0));
-                    break;
-                case "Slot6":
-                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(16, 0, 0));
-                    break;
-                case "Slot7":
-                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(17, 30, 0));
-                    break;
-                case "Slot8":
-                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(19, 0, 0));
-                    break;
-                case "Slot9":
-                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(20, 30, 0));
-                    break;
-                default:
-                    break;
-            }
 
             if (!ModelState.IsValid)
             {
+                ViewBag.BedId = model.BedId;
+                ViewBag.SlotId = model.SlotId;
+                ViewBag.Date = model.AppointmentDate;
                 var services = await GetAvailableServices();
-
+                var combos = await GetAvailableCombos();
                 ViewBag.Services = services;
-
-                return View(appointmentViewModel);
+                ViewBag.Combos = combos;
+                return PartialView("_CreateAppointmentContent", model);
             }
 
-            var appointmentDTO = new AppointmentDTO
-            {
-            };
-
-            string jsonString = JsonConvert.SerializeObject(appointmentDTO);
+            string jsonString = JsonConvert.SerializeObject(model);
             var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+
+            var content1 = new StringContent(JsonConvert.SerializeObject(new
+            {
+                userId = model.CustomerId,
+                slotId = model.SlotId,
+                date = model.AppointmentDate
+            }), Encoding.UTF8, "application/json");
+
+            var content2 = new StringContent(JsonConvert.SerializeObject(new
+            {
+                userId = model.EmployeeId,
+                slotId = model.SlotId,
+                date = model.AppointmentDate
+            }), Encoding.UTF8, "application/json");
+
+            var content3 = new StringContent(JsonConvert.SerializeObject(new
+            {
+                bedId = model.BedId,
+                slotId = model.SlotId,
+                date = model.AppointmentDate
+            }), Encoding.UTF8, "application/json");
 
             HttpResponseMessage response = await client.PostAsync($"{apiUrl}/Appointment/Create", content);
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["SuccessMsg"] = "Thêm lịch hẹn thành công!";
-                return RedirectToAction("ListAppointment");
+                HttpResponseMessage response1 = await client.PostAsync($"{apiUrl}/Appointment/BookUser?userId={model.CustomerId}&slotId={model.SlotId}&date={model.AppointmentDate}", content1);
+                HttpResponseMessage response2 = await client.PostAsync($"{apiUrl}/Appointment/BookUser?userId={model.EmployeeId}&slotId={model.SlotId}&date={model.AppointmentDate}", content2);
+                HttpResponseMessage response3 = await client.PostAsync($"{apiUrl}/Appointment/BookBed?bedId={model.BedId}&slotId={model.SlotId}&date={model.AppointmentDate}", content3);
+
+                if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode && response3.IsSuccessStatusCode)
+                {
+                    TempData["SuccessMsg"] = "Appointment created successfully!";
+                    return RedirectToAction("ListAppointment");
+                }
+                else
+                {
+                    string errorMessage = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("Failed to book a slot: {0}", errorMessage);
+                    ViewData["Error"] = $"An error occurred while booking a slot: {errorMessage}";
+                    return View("ErrorView");  // You can direct it to an error view or the same view with error handling
+                }
             }
-
-            string errorMessage = await response.Content.ReadAsStringAsync();
-            ModelState.AddModelError(string.Empty, errorMessage);
-
-            var servicesList = await GetAvailableServices();
-
-
-            ViewBag.Services = servicesList;
-
-
-            return View(appointmentViewModel);
-        }
-
-
-        // GET: Chỉnh sửa cuộc hẹn
-        [HttpGet]
-        public async Task<IActionResult> EditAppointment(int id)
-        {
-            var client = _clientFactory.CreateClient();
-            var apiUrl = _configuration["ApiUrl"];
-            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Appointment/GetByAppointmentId/{id}");
-
-            if (!response.IsSuccessStatusCode)
+            else
             {
-                return NotFound();
+                string errorMessage = await response.Content.ReadAsStringAsync();
+                _logger.LogError("Failed to create appointment: {0}", errorMessage);
+                ViewData["Error"] = $"An error occurred while creating a new appointment: {errorMessage}";
+                return View();  // Return the same view with error
             }
-
-            var appointmentDTO = JsonConvert.DeserializeObject<AppointmentDTO>(await response.Content.ReadAsStringAsync());
-
-
-
-            var appointmentViewModel = new AppointmentViewModel
-            {
-                Id = appointmentDTO.Id,
-                CustomerId = appointmentDTO.CustomerId,
-                EmployeeId = appointmentDTO.EmployeeId,
-                AppointmentDate = appointmentDTO.AppointmentDate,
-
-                BedId = appointmentDTO.BedId,
-                Status = appointmentDTO.Status,
-                SelectedServiceIds = appointmentDTO.Services.Select(s => s.Id).ToList(),
-            };
-
-            var services = await GetAvailableServices();
-
-
-            ViewBag.Services = services ?? new List<ServiceViewModel>();
-
-            return View(appointmentViewModel);
-        }
-
-        // POST: Chỉnh sửa cuộc hẹn
-        [HttpPost]
-        public async Task<IActionResult> EditAppointment(int id, AppointmentViewModel appointmentViewModel)
-        {
-            var client = _clientFactory.CreateClient();
-            var apiUrl = _configuration["ApiUrl"];
-
-            // Gán giá trị AppointmentDate dựa trên AppointmentSlot
-            DateTime appointmentDate = appointmentViewModel.AppointmentDate ?? DateTime.Now;
-
-            switch (appointmentViewModel.AppointmentSlot)
-            {
-                case "Slot1":
-                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(8, 30, 0));
-                    break;
-                case "Slot2":
-                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(10, 0, 0));
-                    break;
-                case "Slot3":
-                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(11, 30, 0));
-                    break;
-                case "Slot4":
-                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(13, 0, 0));
-                    break;
-                case "Slot5":
-                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(14, 30, 0));
-                    break;
-                case "Slot6":
-                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(16, 0, 0));
-                    break;
-                case "Slot7":
-                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(17, 30, 0));
-                    break;
-                case "Slot8":
-                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(19, 0, 0));
-                    break;
-                case "Slot9":
-                    appointmentViewModel.AppointmentDate = appointmentDate.Date.Add(new TimeSpan(20, 30, 0));
-                    break;
-                default:
-                    break;
-            }
-
-            if (!ModelState.IsValid)
-            {
-                var services = await GetAvailableServices();
-
-
-                ViewBag.Services = services;
-
-
-                return View(appointmentViewModel);
-            }
-
-            var appointmentDTO = new AppointmentDTO
-            {
-                Id = id,
-                CustomerId = appointmentViewModel.CustomerId.Value,
-                EmployeeId = appointmentViewModel.EmployeeId.Value,
-
-            };
-
-            string jsonString = JsonConvert.SerializeObject(appointmentDTO);
-            var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
-
-            HttpResponseMessage response = await client.PutAsync($"{apiUrl}/Appointment/UpdateAppointment/{id}", content);
-
-            if (response.IsSuccessStatusCode)
-            {
-                TempData["SuccessMsg"] = "Sửa lịch hẹn thành công!";
-                return RedirectToAction("ListAppointment");
-            }
-
-            string errorMessage = await response.Content.ReadAsStringAsync();
-            ModelState.AddModelError(string.Empty, errorMessage);
-
-            var servicesList = await GetAvailableServices();
-
-            return View(appointmentViewModel);
         }
 
         private async Task<List<SlotDTO>> GetAllSlots()

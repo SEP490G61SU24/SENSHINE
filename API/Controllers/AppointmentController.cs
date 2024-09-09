@@ -100,6 +100,20 @@ namespace API.Controllers
             });
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetSlotById(int id)
+        {
+            return await HandleRequestAsync(async () =>
+            {
+                var slot = await _appointmentService.GetSlotByIdAsync(id);
+                if (slot == null)
+                {
+                    return NoContent();
+                }
+                return Ok(slot);
+            });
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AppointmentDTO appointmentDTO)
         {

@@ -1,0 +1,101 @@
+﻿@model API.Dtos.AppointmentDTO
+
+<div>
+    <!-- Error Message -->
+    @if (ViewData["Error"] != null)
+    {
+        <!-- Display the error message and hide other content -->
+        <div class="alert alert-danger">
+            @ViewData["Error"]
+        </div>
+    }
+    else
+    {
+        <!-- Form for creating an appointment, displayed only if there is no error -->
+        <form id="appointmentForm" asp-action="CreateAppointment" method="post">
+            <input type="hidden" asp-for="BedId" />
+            <input type="hidden" asp-for="SlotId" />
+            <input type="hidden" asp-for="AppointmentDate" value="@ViewBag.Date" />
+            <input type="hidden" asp-for="Status" value="Confirmed" />
+
+            <!-- Customer Selection -->
+            <b>Chọn khách hàng</b>
+            <div class="d-flex align-items-center">
+                <select id="selectCustomerId" asp-for="CustomerId" class="form-control custom-select" asp-items="@ViewBag.Customers"></select>
+                <span asp-validation-for="CustomerId" class="text-danger custom-span"></span>
+            </div>
+
+            <!-- Employee Selection -->
+            <b>Chọn nhân viên</b>
+            <div class="d-flex align-items-center">
+                <select id="selectEmployeeId" asp-for="EmployeeId" class="form-control custom-select" asp-items="@ViewBag.Employees"></select>
+                <span asp-validation-for="EmployeeId" class="text-danger custom-span"></span>
+            </div>
+
+            <!-- Date Display -->
+            <div class="form-group">
+                <label for="AppointmentDate">Appointment Date</label>
+                <input type="text" class="form-control" asp-for="AppointmentDate" value="@ViewBag.Date" readonly />
+                <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+            </div>
+
+            <!-- Combo Selection -->
+            <div class="form-group">
+                <label for="ComboIDs">Select Combos</label>
+                <select multiple class="form-control" asp-for="ComboIDs">
+                    @foreach (var combo in ViewBag.Combos)
+                    {
+                        <option value="@combo.Id">@combo.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="ComboIDs" class="text-danger"></span>
+            </div>
+
+            <!-- Service Selection -->
+            <div class="form-group">
+                <label for="ServiceIDs">Select Services</label>
+                <select multiple class="form-control" asp-for="ServiceIDs">
+                    @foreach (var service in ViewBag.Services)
+                    {
+                        <option value="@service.Id">@service.ServiceName</option>
+                    }
+                </select>
+                <span asp-validation-for="ServiceIDs" class="text-danger"></span>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" id="submitAppointment">Submit</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </form>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(document).on('submit', '#appointmentForm', function (e) {
+            e.preventDefault(); // Prevent normal form submission
+
+            var form = $(this);
+            $.ajax({
+                type: form.attr('method'),
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        // Close modal and show success message or update the UI
+                        $('#myModal').modal('hide');
+                        alert('Appointment created successfully');
+                    } else {
+                        // Handle validation errors, etc.
+                        $('#createAppointmentContent').html(response);
+                    }
+                },
+                error: function () {
+                    alert('An error occurred while submitting the form.');
+                }
+            });
+        });
+    </script>
+}

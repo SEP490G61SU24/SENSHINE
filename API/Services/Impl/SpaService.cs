@@ -71,7 +71,7 @@ namespace API.Services.Impl
 
         public async Task<bool> ValidateServicesAsync(AppointmentDTO appointmentDTO)
         {
-            var serviceIds = appointmentDTO.Services.Select(s => s.Id).ToList();
+            var serviceIds = appointmentDTO.ServiceIDs.ToList();
 
             var existingServices = await _dbContext.Services
                                                    .Where(s => serviceIds.Contains(s.Id))
