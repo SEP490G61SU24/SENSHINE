@@ -121,7 +121,7 @@
         @foreach (var bed in beds)
         {
             <tr>
-                <td>@bed.BedNumber/@bed.RoomName</td>
+                <td>@bed.BedNumber<br>@bed.RoomName</td>
                 @foreach (var slot in slots)
                 {
                     <td>

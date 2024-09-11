@@ -58,6 +58,10 @@ namespace Web.Controllers
             ViewBag.Combos = combos;
 
             var customers = await GetAvailableCustomersInSlot(DateTime.Parse(date), slotId);
+            foreach (var customer in customers)
+            {
+                customer.FullName = string.Join(", ", customer.FullName ?? "", customer.Phone ?? "").Trim();
+            }
             var employees = await GetAvailableEmployeesInSlot(DateTime.Parse(date), slotId);
 
             // Check if no customers or employees are available
@@ -241,6 +245,7 @@ namespace Web.Controllers
             {
                 string jsonString = await response.Content.ReadAsStringAsync();
                 combos = JsonConvert.DeserializeObject<List<ComboViewModel>>(jsonString);
+                combos = combos.Where(c => c.Quantity == 1).ToList();
             }
 
             return combos;

@@ -4,14 +4,12 @@
     <!-- Error Message -->
     @if (ViewData["Error"] != null)
     {
-        <!-- Display the error message and hide other content -->
         <div class="alert alert-danger">
             @ViewData["Error"]
         </div>
     }
     else
     {
-        <!-- Form for creating an appointment, displayed only if there is no error -->
         <form id="appointmentForm" asp-action="CreateAppointment" method="post">
             <input type="hidden" asp-for="BedId" />
             <input type="hidden" asp-for="SlotId" />
@@ -33,40 +31,52 @@
             </div>
 
             <!-- Date Display -->
+            <b>Ngày hẹn</b>
             <div class="form-group">
-                <label for="AppointmentDate">Appointment Date</label>
                 <input type="text" class="form-control" asp-for="AppointmentDate" value="@ViewBag.Date" readonly />
                 <span asp-validation-for="AppointmentDate" class="text-danger"></span>
             </div>
 
-            <!-- Combo Selection -->
-            <div class="form-group">
-                <label for="ComboIDs">Select Combos</label>
-                <select multiple class="form-control" asp-for="ComboIDs">
+            <!-- Combo Selection with Checkboxes (Wrapped in Card with Scrollbar) -->
+            <b>Chọn combo</b>
+            <div class="card">
+                <div class="card-body overflow-auto" style="max-height: 150px; text-align: left; display: block; padding-top: 4px; padding-bottom: 0; padding-left: 8px; padding-right: 8px;">
                     @foreach (var combo in ViewBag.Combos)
                     {
-                        <option value="@combo.Id">@combo.Name</option>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="ComboIDs" value="@combo.Id" />
+                            <label class="form-check-label" style="text-align: left; display: block;">
+                                @combo.Name - @string.Format("{0:N0}", combo.SalePrice) VND
+                            </label>
+                        </div>
                     }
-                </select>
+                </div>
                 <span asp-validation-for="ComboIDs" class="text-danger"></span>
             </div>
 
-            <!-- Service Selection -->
-            <div class="form-group">
-                <label for="ServiceIDs">Select Services</label>
-                <select multiple class="form-control" asp-for="ServiceIDs">
+            <!-- Service Selection with Checkboxes (Wrapped in Card with Scrollbar) -->
+            <b>Chọn dịch vụ</b>
+            <div class="card">
+                <div class="card-body overflow-auto" style="max-height: 150px; text-align: left; display: block; padding-top: 4px; padding-bottom: 0; padding-left: 8px; padding-right: 8px;">
                     @foreach (var service in ViewBag.Services)
                     {
-                        <option value="@service.Id">@service.ServiceName</option>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="ServiceIDs" value="@service.Id" />
+                            <label class="form-check-label" style="text-align: left; display: block;">
+                                @service.ServiceName - @string.Format("{0:N0}", service.Amount) VND
+                            </label>
+                        </div>
                     }
-                </select>
+                </div>
                 <span asp-validation-for="ServiceIDs" class="text-danger"></span>
             </div>
 
+            <br />
+
             <!-- Modal Footer -->
             <div class="modal-footer">
-                <button type="submit" class="btn btn-primary" id="submitAppointment">Submit</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" id="submitAppointment">Tạo</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
             </div>
         </form>
     }
@@ -75,7 +85,7 @@
 @section Scripts {
     <script>
         $(document).on('submit', '#appointmentForm', function (e) {
-            e.preventDefault(); // Prevent normal form submission
+            e.preventDefault();
 
             var form = $(this);
             $.ajax({
@@ -84,11 +94,9 @@
                 data: form.serialize(),
                 success: function (response) {
                     if (response.success) {
-                        // Close modal and show success message or update the UI
                         $('#myModal').modal('hide');
                         alert('Appointment created successfully');
                     } else {
-                        // Handle validation errors, etc.
                         $('#createAppointmentContent').html(response);
                     }
                 },
