@@ -141,7 +141,7 @@
             {
                 <td>
                     <ul id="employee-slot-@slot.Id">
-                        <li>Trống</li>
+                        <li style="color: red;">Trống</li>
                     </ul>
                 </td>
             }
@@ -247,7 +247,7 @@
                     .done(function (employees) {
                         var employeeList = employees.length > 0 ? employees.map(function (employee) {
                             return '<li>' + employee.firstName + ' ' + employee.midName + ' ' + employee.lastName + '</li>';
-                        }).join('') : '<li>No available employees</li>';
+                        }).join('') : '';
                         $('#employee-slot-' + slot.Id).html(employeeList);
                     })
                     .fail(function () {
