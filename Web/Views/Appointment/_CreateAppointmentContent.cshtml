@@ -73,37 +73,79 @@
 
             <br />
 
-            <!-- Modal Footer -->
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-primary" id="submitAppointment">Tạo</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            <!-- Modal Footer with Total Price -->
+            <div class="modal-footer d-flex justify-content-between align-items-center">
+                <!-- Total Price on the Left -->
+                <div>
+                    <b>Tổng giá tiền: </b><span id="totalPrice">0</span> VND
+                </div>
+
+                <!-- Buttons on the Right -->
+                <div>
+                    <button type="submit" class="btn btn-primary" id="submitAppointment">Tạo</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                </div>
             </div>
         </form>
+
+        <script>
+            $(document).ready(function () {
+                // Function to calculate total price
+                function calculateTotalPrice() {
+                    let totalPrice = 0;
+
+                    // Calculate for combos
+                    $('input[name="ComboIDs"]:checked').each(function () {
+                        let priceText = $(this).closest('.form-check').find('label').text();
+                        let price = priceText.split('-')[1]; // Get the text after the dash (-)
+                        if (price) {
+                            price = price.replace(/[^0-9]/g, ''); // Remove non-numeric characters (commas, VND, spaces)
+                            totalPrice += parseFloat(price);
+                        }
+                    });
+
+                    // Calculate for services
+                    $('input[name="ServiceIDs"]:checked').each(function () {
+                        let priceText = $(this).closest('.form-check').find('label').text();
+                        let price = priceText.split('-')[1]; // Get the text after the dash (-)
+                        if (price) {
+                            price = price.replace(/[^0-9]/g, ''); // Remove non-numeric characters (commas, VND, spaces)
+                            totalPrice += parseFloat(price);
+                        }
+                    });
+
+                    // Update the total price in the HTML
+                    $('#totalPrice').text(totalPrice.toLocaleString());
+                }
+
+                // Event listener to trigger total price calculation
+                $('input[name="ComboIDs"], input[name="ServiceIDs"]').on('change', function () {
+                    calculateTotalPrice();
+                });
+
+                // Ajax form submit
+                $(document).on('submit', '#appointmentForm', function (e) {
+                    e.preventDefault();
+
+                    var form = $(this);
+                    $.ajax({
+                        type: form.attr('method'),
+                        url: form.attr('action'),
+                        data: form.serialize(),
+                        success: function (response) {
+                            if (response.success) {
+                                $('#myModal').modal('hide');
+                                alert('Appointment created successfully');
+                            } else {
+                                $('#createAppointmentContent').html(response);
+                            }
+                        },
+                        error: function () {
+                            alert('An error occurred while submitting the form.');
+                        }
+                    });
+                });
+            });
+        </script>
     }
 </div>
-
-@section Scripts {
-    <script>
-        $(document).on('submit', '#appointmentForm', function (e) {
-            e.preventDefault();
-
-            var form = $(this);
-            $.ajax({
-                type: form.attr('method'),
-                url: form.attr('action'),
-                data: form.serialize(),
-                success: function (response) {
-                    if (response.success) {
-                        $('#myModal').modal('hide');
-                        alert('Appointment created successfully');
-                    } else {
-                        $('#createAppointmentContent').html(response);
-                    }
-                },
-                error: function () {
-                    alert('An error occurred while submitting the form.');
-                }
-            });
-        });
-    </script>
-}
