@@ -121,7 +121,7 @@
         @foreach (var bed in beds)
         {
             <tr>
-                <td>@bed.BedNumber</td>
+                <td>@bed.BedNumber/@bed.RoomName</td>
                 @foreach (var slot in slots)
                 {
                     <td>
@@ -154,7 +154,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="myModalLabel">Create Appointment</h5>
+                <h5 class="modal-title" id="myModalLabel">Đặt lịch hẹn</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -226,11 +226,11 @@
                             if (data) {
                                 card.addClass('booked').removeClass('available');
                                 card.data('status', 'booked');
-                                cardBody.html('<h6 class="card-title text-danger">Booked</h6><p class="card-text">Not available</p>');
+                                cardBody.html('<h6 class="card-title text-danger">Booked</h6><p class="card-text">Giường đã đặt</p>');
                             } else {
                                 card.addClass('available').removeClass('booked');
                                 card.data('status', 'available');
-                                cardBody.html('<h6 class="card-title text-success">Available</h6><p class="card-text">Free to book</p>');
+                                cardBody.html('<h6 class="card-title text-success">Available</h6><p class="card-text">Giường trống</p>');
                             }
                         })
                         .fail(function () {

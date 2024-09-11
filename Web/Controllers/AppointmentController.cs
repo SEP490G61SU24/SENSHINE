@@ -203,7 +203,10 @@ namespace Web.Controllers
                     HttpResponseMessage responseBedsInThisRoom = await client.GetAsync($"{apiUrl}/Bed/GetByRoomId/ByRoomId/" + room.Id);
                     string jsonStringBedsInThisRoom = await responseBedsInThisRoom.Content.ReadAsStringAsync();
                     List<BedDTO> bedsInThisRoom = JsonConvert.DeserializeObject<List<BedDTO>>(jsonStringBedsInThisRoom);
-
+                    foreach (var bed in bedsInThisRoom)
+                    {
+                        bed.RoomName = room.RoomName;
+                    }
                     beds.AddRange(bedsInThisRoom);
                 }
             }
