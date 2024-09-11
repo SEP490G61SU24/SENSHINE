@@ -48,19 +48,18 @@ namespace API.Services.Impl
             return _mapper.Map<List<AppointmentDTO>>(appointments);
         }
 
-        public async Task<List<AppointmentDTO>> GetAppointmentsByDateAsync(DateTime appointmentDate)
+        public async Task<AppointmentDTO> GetAppointmentsByBedslotDateAsync(int bedId, int slotId, string date)
         {
-            var appointments = await _dbContext.Appointments
+            var appoint = await _dbContext.Appointments
                 .Include(a => a.Customer)
                 .Include(a => a.Employee)
                 .Include(a => a.Bed)
                 .Include(a => a.Slot)
                 .Include(a => a.Services)
                 .Include(a => a.Combos)
-                .Where(a => a.AppointmentDate.Date == appointmentDate.Date)
-                .ToListAsync();
+                .FirstOrDefaultAsync(a => a.AppointmentDate.Date == DateTime.Parse(date) && a.BedId == bedId && a.SlotId == slotId);
 
-            return _mapper.Map<List<AppointmentDTO>>(appointments);
+            return appoint == null ? null : _mapper.Map<AppointmentDTO>(appoint);
         }
 
         public async Task<AppointmentDTO> GetAppointmentByIdAsync(int id)

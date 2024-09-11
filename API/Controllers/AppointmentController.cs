@@ -87,16 +87,16 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetByDate(DateTime appointmentDate)
+        public async Task<IActionResult> GetByBedSlotDate(int bedId, int slotId, string date)
         {
             return await HandleRequestAsync(async () =>
             {
-                var appointments = await _appointmentService.GetAppointmentsByDateAsync(appointmentDate);
-                if (appointments == null || appointments.Count == 0)
+                var appointment = await _appointmentService.GetAppointmentsByBedslotDateAsync(bedId, slotId, date);
+                if (appointment == null)
                 {
                     return NoContent();
                 }
-                return Ok(appointments);
+                return Ok(appointment);
             });
         }
 
