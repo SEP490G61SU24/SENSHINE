@@ -124,11 +124,6 @@ namespace API.Controllers
 
             return await HandleRequestAsync(async () =>
             {
-                if (appointmentDTO.AppointmentDate < DateTime.UtcNow)
-                {
-                    return BadRequest("Cannot book appointments in the past.");
-                }
-
                 var appointment = await _appointmentService.CreateAppointmentAsync(appointmentDTO);
                 return Ok($"Appointment created successfully with ID: {appointment.Id}");
             });
@@ -145,6 +140,7 @@ namespace API.Controllers
             return await HandleRequestAsync(async () =>
             {
                 var existingAppointment = await _appointmentService.GetAppointmentByIdAsync(appointmentDTO.Id);
+
                 if (existingAppointment == null)
                 {
                     return NotFound(AppointmentNotFound);

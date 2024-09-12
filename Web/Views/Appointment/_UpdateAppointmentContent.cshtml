@@ -10,9 +10,12 @@
     }
     else
     {
-        <form id="appointmentForm" asp-action="UpdateAppointment" method="post">
+        <form id="appointmentForm" action="/Appointment/UpdateAppointment" method="post">
+            <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="BedId" />
             <input type="hidden" asp-for="SlotId" />
+            <input type="hidden" name="oldCusId" value="@ViewBag.OldCusId" />
+            <input type="hidden" name="oldEmpId" value="@ViewBag.OldEmpId" />
             <input type="hidden" asp-for="AppointmentDate" value="@ViewBag.Date" />
             <input type="hidden" asp-for="Status" value="Confirmed" />
 

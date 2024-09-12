@@ -58,7 +58,7 @@ namespace Web.Controllers
             if (thisBed != null && thisSlot != null)
             {
                 ViewBag.BedRoomName = thisBed.BedNumber + " " + thisBed.RoomName;
-                ViewBag.SlotName = thisSlot.SlotName + " (" + thisSlot.TimeFrom +" - "+ thisSlot.TimeTo + ")";
+                ViewBag.SlotName = thisSlot.SlotName + " (" + thisSlot.TimeFrom + " - " + thisSlot.TimeTo + ")";
             }
             ViewBag.Date = date;
             var services = await GetAvailableServices();
@@ -113,14 +113,7 @@ namespace Web.Controllers
 
             if (!ModelState.IsValid)
             {
-                ViewBag.BedId = model.BedId;
-                ViewBag.SlotId = model.SlotId;
-                ViewBag.Date = model.AppointmentDate.ToString("yyyy-MM-dd");
-                var services = await GetAvailableServices();
-                var combos = await GetAvailableCombos();
-                ViewBag.Services = services;
-                ViewBag.Combos = combos;
-                return PartialView("_CreateAppointmentContent", model);
+                return RedirectToAction("ListAppointment");
             }
 
             string jsonString = JsonConvert.SerializeObject(model);
@@ -157,7 +150,7 @@ namespace Web.Controllers
 
                 if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode && response3.IsSuccessStatusCode)
                 {
-                    TempData["SuccessMsg"] = "Appointment created successfully!";
+                    TempData["SuccessMsg"] = "Tạo lịch hẹn thành công!";
                     ViewBag.Date = model.AppointmentDate;
                     return RedirectToAction("ListAppointment");
                 }
@@ -221,6 +214,7 @@ namespace Web.Controllers
             if (responseCus.IsSuccessStatusCode)
             {
                 var cus = await responseCus.Content.ReadFromJsonAsync<UserDTO>();
+                ViewBag.OldCusId = cus.Id;
                 customers.Add(cus);
             }
             else
@@ -240,6 +234,7 @@ namespace Web.Controllers
             if (responseEmp.IsSuccessStatusCode)
             {
                 var emp = await responseEmp.Content.ReadFromJsonAsync<UserDTO>();
+                ViewBag.OldEmpId = emp.Id;
                 employees.Add(emp);
             }
             else
@@ -260,7 +255,7 @@ namespace Web.Controllers
             // Prevent updating past appointments
             if (DateTime.ParseExact(dateBook, "yyyy-MM-dd HH:mm:ss", null) < DateTime.Now)
             {
-                ViewData["Error"] = "Không thể sửa hoặc xóa lịch trong quá khứ.";
+                ViewData["Error"] = "Không thể cập nhật hoặc xóa lịch trong quá khứ.";
             }
 
             // Prepare the select lists for customers and employees
@@ -270,22 +265,15 @@ namespace Web.Controllers
             return PartialView("_UpdateAppointmentContent", model);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> UpdateAppointment(AppointmentDTO model)
+        [HttpPost("/Appointment/UpdateAppointment")]
+        public async Task<IActionResult> UpdateAppointment(AppointmentDTO model, string oldCusId, string oldEmpId)
         {
             var client = _clientFactory.CreateClient();
             var apiUrl = _configuration["ApiUrl"];
 
             if (!ModelState.IsValid)
             {
-                ViewBag.BedId = model.BedId;
-                ViewBag.SlotId = model.SlotId;
-                ViewBag.Date = model.AppointmentDate;
-                var services = await GetAvailableServices();
-                var combos = await GetAvailableCombos();
-                ViewBag.Services = services;
-                ViewBag.Combos = combos;
-                return PartialView("_CreateAppointmentContent", model);
+                return RedirectToAction("ListAppointment");
             }
 
             string jsonString = JsonConvert.SerializeObject(model);
@@ -293,21 +281,28 @@ namespace Web.Controllers
 
             var content1 = new StringContent(JsonConvert.SerializeObject(new
             {
-                userId = model.CustomerId,
+                userId = oldCusId,
                 slotId = model.SlotId,
                 date = model.AppointmentDate
             }), Encoding.UTF8, "application/json");
 
             var content2 = new StringContent(JsonConvert.SerializeObject(new
             {
-                userId = model.EmployeeId,
+                userId = oldEmpId,
                 slotId = model.SlotId,
                 date = model.AppointmentDate
             }), Encoding.UTF8, "application/json");
 
             var content3 = new StringContent(JsonConvert.SerializeObject(new
             {
-                bedId = model.BedId,
+                userId = model.CustomerId,
+                slotId = model.SlotId,
+                date = model.AppointmentDate
+            }), Encoding.UTF8, "application/json");
+
+            var content4 = new StringContent(JsonConvert.SerializeObject(new
+            {
+                userId = model.EmployeeId,
                 slotId = model.SlotId,
                 date = model.AppointmentDate
             }), Encoding.UTF8, "application/json");
@@ -316,20 +311,21 @@ namespace Web.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                HttpResponseMessage response1 = await client.PostAsync($"{apiUrl}/Appointment/BookUser?userId={model.CustomerId}&slotId={model.SlotId}&date={model.AppointmentDate}", content1);
-                HttpResponseMessage response2 = await client.PostAsync($"{apiUrl}/Appointment/BookUser?userId={model.EmployeeId}&slotId={model.SlotId}&date={model.AppointmentDate}", content2);
-                HttpResponseMessage response3 = await client.PostAsync($"{apiUrl}/Appointment/BookBed?bedId={model.BedId}&slotId={model.SlotId}&date={model.AppointmentDate}", content3);
+                HttpResponseMessage response1 = await client.PostAsync($"{apiUrl}/Appointment/BookUser?userId={oldCusId}&slotId={model.SlotId}&date={model.AppointmentDate}", content1);
+                HttpResponseMessage response2 = await client.PostAsync($"{apiUrl}/Appointment/BookUser?userId={oldEmpId}&slotId={model.SlotId}&date={model.AppointmentDate}", content2);
+                HttpResponseMessage response3 = await client.PostAsync($"{apiUrl}/Appointment/BookUser?userId={model.CustomerId}&slotId={model.SlotId}&date={model.AppointmentDate}", content3);
+                HttpResponseMessage response4 = await client.PostAsync($"{apiUrl}/Appointment/BookUser?userId={model.EmployeeId}&slotId={model.SlotId}&date={model.AppointmentDate}", content4);
 
-                if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode && response3.IsSuccessStatusCode)
+                if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode && response3.IsSuccessStatusCode && response4.IsSuccessStatusCode)
                 {
-                    TempData["SuccessMsg"] = "Appointment created successfully!";
+                    TempData["SuccessMsg"] = "Cập nhật lịch hẹn thành công!";
                     return RedirectToAction("ListAppointment");
                 }
                 else
                 {
                     string errorMessage = await response.Content.ReadAsStringAsync();
-                    _logger.LogError("Failed to book a slot: {0}", errorMessage);
-                    ViewData["Error"] = $"An error occurred while booking a slot: {errorMessage}";
+                    _logger.LogError("Failed to update an appointment: {0}", errorMessage);
+                    ViewData["Error"] = $"An error occurred while update an appointment: {errorMessage}";
                     return View("ErrorView");  // You can direct it to an error view or the same view with error handling
                 }
             }
@@ -337,7 +333,7 @@ namespace Web.Controllers
             {
                 string errorMessage = await response.Content.ReadAsStringAsync();
                 _logger.LogError("Failed to create appointment: {0}", errorMessage);
-                ViewData["Error"] = $"An error occurred while creating a new appointment: {errorMessage}";
+                ViewData["Error"] = $"An error occurred while update an appointment: {errorMessage}";
                 return View();  // Return the same view with error
             }
         }

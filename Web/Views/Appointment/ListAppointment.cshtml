@@ -277,6 +277,7 @@
                             $('#createAppointmentContent').html('<div class="alert alert-danger">' + errorMessage + '</div>');
                         });
                 } else if ($(this).data('status') === 'booked') {
+                    $('#myModalLabel').text('Cập nhật lịch hẹn');
                     // Clear modal content and show loading message
                     $('#createAppointmentContent').html('<p>Loading...</p>');
 

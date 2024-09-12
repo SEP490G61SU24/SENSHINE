@@ -2,6 +2,7 @@
 using API.Models;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Transactions;
@@ -133,20 +134,34 @@ namespace API.Services.Impl
 
             _mapper.Map(appointmentDTO, existingAppointment);
 
-            // Update Services
-            existingAppointment.Services.Clear();
-            var existingServices = await GetExistingServicesAsync(appointmentDTO.ServiceIDs.ToList());
-            foreach (var service in existingServices)
+            if (!appointmentDTO.ServiceIDs.IsNullOrEmpty())
             {
-                existingAppointment.Services.Add(service);
+                // Update Services
+                existingAppointment.Services.Clear();
+                var existingServices = await GetExistingServicesAsync(appointmentDTO.ServiceIDs.ToList());
+                foreach (var service in existingServices)
+                {
+                    existingAppointment.Services.Add(service);
+                }
+            }
+            else
+            {
+                existingAppointment.Services.Clear();
             }
 
-            // Update Combos
-            existingAppointment.Combos.Clear();
-            var existingCombos = await GetExistingCombosAsync(appointmentDTO.ComboIDs.ToList());
-            foreach (var combo in existingCombos)
+            if (!appointmentDTO.ComboIDs.IsNullOrEmpty())
             {
-                existingAppointment.Combos.Add(combo);
+                // Update Combos
+                existingAppointment.Combos.Clear();
+                var existingCombos = await GetExistingCombosAsync(appointmentDTO.ComboIDs.ToList());
+                foreach (var combo in existingCombos)
+                {
+                    existingAppointment.Combos.Add(combo);
+                }
+            }
+            else
+            {
+                existingAppointment.Combos.Clear();
             }
 
             using (var transaction = await _dbContext.Database.BeginTransactionAsync())
