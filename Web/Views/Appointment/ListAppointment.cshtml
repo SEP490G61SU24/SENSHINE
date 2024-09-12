@@ -256,35 +256,45 @@
             });
 
             $('.card').click(function () {
-                if ($(this).data('status') === 'available') {
-                    var bedId = $(this).data('bed-id');
-                    var slotId = $(this).data('slot-id');
-                    var selectedDate = $('#appointmentDate').val(); // Get the selected date
+                var bedId = $(this).data('bed-id');
+                var slotId = $(this).data('slot-id');
+                var selectedDate = $('#appointmentDate').val(); // Get the selected date
 
+                if ($(this).data('status') === 'available') {
                     // Clear modal content and show loading message
                     $('#createAppointmentContent').html('<p>Loading...</p>');
-
-                    // Disable the modal to prevent interaction until content is loaded
-                    $('#myModal .modal-footer button').prop('disabled', true);
 
                     // Open the modal immediately
                     $('#myModal').modal('show');
 
                     // Load the content into the modal via AJAX and pass bedId, slotId, and selectedDate
-                    $.get('@Url.Action("CreateAppointmentContent", "Appointment")', { bedId: bedId, slotId: slotId, date: selectedDate }, function (data) {
-                        $('#createAppointmentContent').html(data);
+                    $.get('@Url.Action("CreateAppointmentContent", "Appointment")', { bedId: bedId, slotId: slotId, date: selectedDate })
+                        .done(function (data) {
+                            $('#createAppointmentContent').html(data);
+                        })
+                        .fail(function () {
+                            var errorMessage = "Có lỗi xảy ra.";
+                            $('#createAppointmentContent').html('<div class="alert alert-danger">' + errorMessage + '</div>');
+                        });
+                } else if ($(this).data('status') === 'booked') {
+                    // Clear modal content and show loading message
+                    $('#createAppointmentContent').html('<p>Loading...</p>');
 
-                        // Enable the modal buttons after content is loaded
-                        $('#myModal .modal-footer button').prop('disabled', false);
-                    }).fail(function () {
-                        $('#createAppointmentContent').html('<p class="text-warning">Error loading content.</p>');
+                    // Open the modal immediately
+                    $('#myModal').modal('show');
 
-                        // Enable the modal buttons even if an error occurs
-                        $('#myModal .modal-footer button').prop('disabled', false);
-                    });
+                    // Load the content of UpdateAppointmentContent into the modal via AJAX
+                    $.get('@Url.Action("UpdateAppointmentContent", "Appointment")', { bedId: bedId, slotId: slotId, date: selectedDate })
+                        .done(function (data) {
+                            $('#createAppointmentContent').html(data);
+                        })
+                        .fail(function () {
+                            var errorMessage = "Có lỗi xảy ra.";
+                            $('#createAppointmentContent').html('<div class="alert alert-danger">' + errorMessage + '</div>');
+                        });
                 } else {
                     // You can set the error message here instead of alert:
-                    var errorMessage = "Giường đã được book tại slot này.";
+                    var errorMessage = "Có lỗi xảy ra.";
                     $('#myModal').modal('show');
                     $('#createAppointmentContent').html('<div class="alert alert-danger">' + errorMessage + '</div>');
                 }
