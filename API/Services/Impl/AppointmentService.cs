@@ -192,7 +192,9 @@ namespace API.Services.Impl
             {
                 return null;
             }
-
+            await BookThisUser(existingAppointment.CustomerId, existingAppointment.SlotId, existingAppointment.AppointmentDate);
+            await BookThisUser(existingAppointment.EmployeeId, existingAppointment.SlotId, existingAppointment.AppointmentDate);
+            await BookThisBed(existingAppointment.BedId, existingAppointment.SlotId, existingAppointment.AppointmentDate);
             existingAppointment.Services.Clear();
             existingAppointment.Combos.Clear();
 

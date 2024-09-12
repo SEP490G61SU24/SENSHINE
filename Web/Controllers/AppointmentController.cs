@@ -31,15 +31,23 @@ namespace Web.Controllers
             int? spaId = ViewData["SpaId"]?.ToString() != "ALL"
                 ? int.Parse(ViewData["SpaId"].ToString())
                 : (int?)null;
-            // Use DateTime.Now if no date is provided
-            var selectedDate = date ?? DateTime.Now;
 
+            if (TempData["SelectedDate"] != null)
+            {
+                var tempDate = (DateTime)TempData["SelectedDate"];
+                ViewBag.Date = tempDate.ToString("yyyy-MM-dd");
+            }
+            else
+            {
+                // Use DateTime.Now if no date is provided
+                var selectedDate = date ?? DateTime.Now;
+                ViewBag.Date = selectedDate.ToString("yyyy-MM-dd");
+            }
             var beds = await GetAllBedsInSpa();
             var slots = await GetAllSlots();
             ViewBag.Beds = beds;
             ViewBag.Slots = slots;
             ViewBag.ApiUrl = _configuration["ApiUrl"];
-            ViewBag.Date = selectedDate.ToString("yyyy-MM-dd"); // Format the date for use in the API call
             ViewBag.SpaId = spaId;
             return View();
         }
@@ -151,7 +159,7 @@ namespace Web.Controllers
                 if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode && response3.IsSuccessStatusCode)
                 {
                     TempData["SuccessMsg"] = "Tạo lịch hẹn thành công!";
-                    ViewBag.Date = model.AppointmentDate;
+                    TempData["SelectedDate"] = model.AppointmentDate;
                     return RedirectToAction("ListAppointment");
                 }
                 else
@@ -265,7 +273,7 @@ namespace Web.Controllers
             return PartialView("_UpdateAppointmentContent", model);
         }
 
-        [HttpPost("/Appointment/UpdateAppointment")]
+        [HttpPost]
         public async Task<IActionResult> UpdateAppointment(AppointmentDTO model, string oldCusId, string oldEmpId)
         {
             var client = _clientFactory.CreateClient();
@@ -319,6 +327,7 @@ namespace Web.Controllers
                 if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode && response3.IsSuccessStatusCode && response4.IsSuccessStatusCode)
                 {
                     TempData["SuccessMsg"] = "Cập nhật lịch hẹn thành công!";
+                    TempData["SelectedDate"] = model.AppointmentDate;
                     return RedirectToAction("ListAppointment");
                 }
                 else
@@ -335,6 +344,33 @@ namespace Web.Controllers
                 _logger.LogError("Failed to create appointment: {0}", errorMessage);
                 ViewData["Error"] = $"An error occurred while update an appointment: {errorMessage}";
                 return View();  // Return the same view with error
+            }
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> Delete(string id)
+        {
+            try
+            {
+                var apiUrl = _configuration["ApiUrl"];
+                using var client = _clientFactory.CreateClient();
+                var response = await client.DeleteAsync($"{apiUrl}/Appointment/DeleteAppointment?id={id}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Ok(new { message = "Xóa thành công!" });  // Return 200 OK with a success message
+                }
+                else
+                {
+                    ViewData["Error"] = "Có lỗi xảy ra!";
+                    return View();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
+                ViewData["Error"] = "CÓ LỖI XẢY RA!";
+                return View("Error");
             }
         }
 
