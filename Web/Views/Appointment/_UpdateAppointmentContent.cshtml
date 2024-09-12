@@ -87,19 +87,71 @@
             <br />
 
             <!-- Modal Footer with Total Price -->
-            <div class="modal-footer d-flex justify-content-between align-items-center">
-                <!-- Total Price on the Left -->
-                <div>
-                    <b>Tổng giá tiền: </b><span id="totalPrice">0</span> VND
+            <div class="modal-footer">
+                <!-- Total Price on its own row -->
+                <div class="row w-100">
+                    <div class="col text-left">
+                        <b>Tổng giá tiền: </b><span id="totalPrice">0</span> VND
+                    </div>
                 </div>
 
-                <!-- Buttons on the Right -->
-                <div>
-                    <button type="submit" class="btn btn-primary" id="submitAppointment">Lưu</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <!-- Buttons on a separate row -->
+                <div class="row w-100 mt-3">
+                    <div class="col text-right">
+                        <button type="submit" class="btn btn-primary" id="submitAppointment">Lưu</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                        <button type="button" class="btn btn-danger" style="background-color: red !important;" onclick="confirmDelete(@Model.Id)">Xóa</button>
+                    </div>
                 </div>
             </div>
         </form>
+        <!-- sweet alert -->
+        <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/sweetalert2.css">
+        <script src="~/assets/js/sweet-alert/sweetalert.min.js"></script>
+
+        <script type="text/javascript">
+            function confirmDelete(id) {
+                swal({
+                    title: 'Bạn có chắc chắn muốn xóa?',
+                    text: "Dữ liệu sẽ bị mất khi xác nhận!",
+                    icon: 'warning',
+                    buttons: {
+                        cancel: {
+                            text: 'Không, hủy bỏ!',
+                            value: null,
+                            visible: true,
+                            className: 'btn btn-secondary',
+                            closeModal: true
+                        },
+                        confirm: {
+                            text: 'Xác nhận!',
+                            value: true,
+                            visible: true,
+                            className: 'btn btn-success',
+                            closeModal: true
+                        }
+                    }
+                }).then((result) => {
+                    if (result) {
+                        $.ajax({
+                            url: '/appointment/delete/' + id,
+                            type: 'DELETE',
+                            success: function (response) {
+                                swal("Đã xóa!", "Đã xóa thành công.", "success")
+                                    .then(() => {
+                                        location.reload();  // Perform the reload here after success
+                                    });
+                            },
+                            error: function (xhr, status, error) {
+                                swal("Lỗi!", "Xóa thất bại.", "error");
+                            }
+                        });
+                    } else {
+                        swal("Đã hủy", "Dữ liệu của bạn không thay đổi.", "info");
+                    }
+                });
+            }
+        </script>
 
         <script>
             $(document).ready(function () {
