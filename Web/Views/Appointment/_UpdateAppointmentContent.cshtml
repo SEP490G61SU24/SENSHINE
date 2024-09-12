@@ -10,9 +10,12 @@
     }
     else
     {
-        <form id="appointmentForm" asp-action="CreateAppointment" method="post">
+        <form id="appointmentForm" action="/Appointment/UpdateAppointment" method="post">
+            <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="BedId" />
             <input type="hidden" asp-for="SlotId" />
+            <input type="hidden" name="oldCusId" value="@ViewBag.OldCusId" />
+            <input type="hidden" name="oldEmpId" value="@ViewBag.OldEmpId" />
             <input type="hidden" asp-for="AppointmentDate" value="@ViewBag.Date" />
             <input type="hidden" asp-for="Status" value="Confirmed" />
 
@@ -52,7 +55,8 @@
                     @foreach (var combo in ViewBag.Combos)
                     {
                         <div class="form-check">
-                            <input type="checkbox" class="form-check-input" name="ComboIDs" value="@combo.Id" />
+                            <input type="checkbox" class="form-check-input" name="ComboIDs" value="@combo.Id"
+                            @(Model.ComboIDs != null && Model.ComboIDs.Contains(combo.Id) ? "checked" : "") />
                             <label class="form-check-label" style="text-align: left; display: block;">
                                 @combo.Name - @string.Format("{0:N0}", combo.SalePrice) VND
                             </label>
@@ -62,14 +66,15 @@
                 <span asp-validation-for="ComboIDs" class="text-danger"></span>
             </div>
 
-            <!-- Service Selection with Checkboxes (Wrapped in Card with Scrollbar) -->
+            <!-- Service Selection with Checkboxes -->
             <b>Chọn dịch vụ</b>
             <div class="card">
                 <div class="card-body overflow-auto" style="max-height: 150px; text-align: left; display: block; padding-top: 4px; padding-bottom: 0; padding-left: 8px; padding-right: 8px;">
                     @foreach (var service in ViewBag.Services)
                     {
                         <div class="form-check">
-                            <input type="checkbox" class="form-check-input" name="ServiceIDs" value="@service.Id" />
+                            <input type="checkbox" class="form-check-input" name="ServiceIDs" value="@service.Id"
+                            @(Model.ServiceIDs != null && Model.ServiceIDs.Contains(service.Id) ? "checked" : "") />
                             <label class="form-check-label" style="text-align: left; display: block;">
                                 @service.ServiceName - @string.Format("{0:N0}", service.Amount) VND
                             </label>
@@ -90,7 +95,7 @@
 
                 <!-- Buttons on the Right -->
                 <div>
-                    <button type="submit" class="btn btn-primary" id="submitAppointment">Tạo</button>
+                    <button type="submit" class="btn btn-primary" id="submitAppointment">Lưu</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
                 </div>
             </div>
@@ -126,7 +131,10 @@
                     $('#totalPrice').text(totalPrice.toLocaleString());
                 }
 
-                // Event listener to trigger total price calculation
+                // Trigger total price calculation on page load
+                calculateTotalPrice();
+
+                // Event listener to trigger total price calculation when checkboxes change
                 $('input[name="ComboIDs"], input[name="ServiceIDs"]').on('change', function () {
                     calculateTotalPrice();
                 });

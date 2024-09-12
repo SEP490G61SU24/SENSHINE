@@ -11,7 +11,7 @@ namespace API.Services
         Task<List<AppointmentDTO>> GetAllAppointmentsAsync();
         Task<List<SlotDTO>> GetAllSlotsAsync();
         Task<List<UserDTO>> GetAvailableEmployeesInThisSlotAsync(int slotId, DateTime date, string spaId);
-        Task<List<AppointmentDTO>> GetAppointmentsByDateAsync(DateTime appointmentDate);
+        Task<AppointmentDTO> GetAppointmentsByBedslotDateAsync(int bedId, int slotId, string date);
         Task<AppointmentDTO> GetAppointmentByIdAsync(int id);
         Task<SlotDTO> GetSlotByIdAsync(int id);
         Task<Appointment> CreateAppointmentAsync(AppointmentDTO appointmentDTO);

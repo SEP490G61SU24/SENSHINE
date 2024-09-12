@@ -87,16 +87,16 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetByDate(DateTime appointmentDate)
+        public async Task<IActionResult> GetByBedSlotDate(int bedId, int slotId, string date)
         {
             return await HandleRequestAsync(async () =>
             {
-                var appointments = await _appointmentService.GetAppointmentsByDateAsync(appointmentDate);
-                if (appointments == null || appointments.Count == 0)
+                var appointment = await _appointmentService.GetAppointmentsByBedslotDateAsync(bedId, slotId, date);
+                if (appointment == null)
                 {
                     return NoContent();
                 }
-                return Ok(appointments);
+                return Ok(appointment);
             });
         }
 
@@ -124,11 +124,6 @@ namespace API.Controllers
 
             return await HandleRequestAsync(async () =>
             {
-                if (appointmentDTO.AppointmentDate < DateTime.UtcNow)
-                {
-                    return BadRequest("Cannot book appointments in the past.");
-                }
-
                 var appointment = await _appointmentService.CreateAppointmentAsync(appointmentDTO);
                 return Ok($"Appointment created successfully with ID: {appointment.Id}");
             });
@@ -145,6 +140,7 @@ namespace API.Controllers
             return await HandleRequestAsync(async () =>
             {
                 var existingAppointment = await _appointmentService.GetAppointmentByIdAsync(appointmentDTO.Id);
+
                 if (existingAppointment == null)
                 {
                     return NotFound(AppointmentNotFound);
