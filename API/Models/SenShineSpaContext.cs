@@ -418,9 +418,6 @@ namespace API.Models
                     .HasName("PK__Invoice___2A428F37D0700AD2");
 
                 entity.ToTable("Invoice_Combo");
-                entity.Property(e => e.Price)
-            .HasColumnType("decimal(18, 2)")
-            .HasDefaultValue(0m);
 
                 entity.Property(e => e.Price)
                     .HasColumnType("decimal(18, 0)")
@@ -445,9 +442,6 @@ namespace API.Models
                     .HasName("PK__Invoice___6BC711B54ED84DAE");
 
                 entity.ToTable("Invoice_Service");
-                entity.Property(e => e.Price)
-            .HasColumnType("decimal(18, 2)")
-            .HasDefaultValue(0m);
 
                 entity.Property(e => e.Price)
                     .HasColumnType("decimal(18, 0)")
