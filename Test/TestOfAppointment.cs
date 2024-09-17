@@ -42,14 +42,14 @@ namespace Test_SenShineSpa
             // Arrange
             var newAppointment = new AppointmentDTO
             {
-                CustomerId = 1, // Sử dụng ID hợp lệ cho khách hàng
-                EmployeeId = 1, // Sử dụng ID hợp lệ cho nhân viên
-                AppointmentDate = DateTime.Now,
-                Status = "Pending",
-               /* Services = new List<ServiceDTO>
-                {
-                    new ServiceDTO { Id = 1, ServiceName = "Massage", Amount = 100, Description = "Relaxing massage" }
-                },*/
+                //CustomerId = 1, // Sử dụng ID hợp lệ cho khách hàng
+                //EmployeeId = 1, // Sử dụng ID hợp lệ cho nhân viên
+                //AppointmentDate = DateTime.Now,
+                //Status = "Pending",
+                //Services = new List<ServiceDTO>
+                //{
+                //    new ServiceDTO { Id = 1, ServiceName = "Massage", Amount = 100, Description = "Relaxing massage" }
+                //},
             };
 
             // Act

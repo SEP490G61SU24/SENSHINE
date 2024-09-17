@@ -239,6 +239,8 @@
                                                             data-id="@combo.Id" data-price="@combo.SalePrice">
                                                         @combo.Name
                                                     </button>
+                                                    <span class="service-price mx-2">@combo.SalePrice.ToString("N0") VND</span>
+
                                                     <input type="number"
                                                            name="ComboQuantities[@combo.Id]" value="@quantitycombo"
                                                            min="0" class="form-control form-control-sm ml-2"
@@ -271,6 +273,8 @@
                                                             data-id="@service.Id" data-price="@service.Amount">
                                                         @service.ServiceName
                                                     </button>
+                                                    <span class="service-price mx-2">@service.Amount.ToString("N0") VND</span>
+
                                                     <input type="number"
                                                            name="ServiceQuantities[@service.Id]" value="@quantity"
                                                            min="0" class="form-control form-control-sm ml-2"
@@ -316,42 +320,53 @@
     <script src="~/assets/js/ecommerce.js"></script>
     <script src="~/assets/js/tooltip-init.js"></script>
     <script src="~/assets/js/script.js"></script>
-
     <script>
-        function updatePromotionDiscount() {
-            var selectedPromotion = $('#PromotionSelect').find(":selected").val();
-            $('#PromotionDiscount').val(selectedPromotion);
-        }
         $(document).ready(function () {
-         
             // Function to calculate the total amount
             function calculateTotalAmount() {
                 var totalAmount = 0;
+                var comboSummary = "";
+                var serviceSummary = "";
 
-                // Retrieve selected combo quantities
+                // Retrieve selected combo quantities and names
                 $('#comboSelect').find('button.btn-primary').each(function () {
                     var comboId = $(this).data('id');
+                    var comboName = $(this).data('name');
                     var quantity = $('input[name="ComboQuantities[' + comboId + ']"]').val() || 0;
-                    var price = $(this).data('price') || 0; // Assuming price is stored in the button's data attribute
+                    var price = $(this).data('price') || 0;
                     totalAmount += quantity * price;
+
+                    if (quantity > 0) {
+                        comboSummary += "<p>" + comboName + " (Quantity: " + quantity + ")</p>";
+                    }
                 });
 
-                // Retrieve selected service quantities
+                // Retrieve selected service quantities and names
                 $('#serviceSelect').find('button.btn-primary').each(function () {
                     var serviceId = $(this).data('id');
+                    var serviceName = $(this).data('name');
                     var quantity = $('input[name="ServiceQuantities[' + serviceId + ']"]').val() || 0;
-                    var price = $(this).data('price') || 0; // Assuming price is stored in the button's data attribute
+                    var price = $(this).data('price') || 0;
                     totalAmount += quantity * price;
+
+                    if (quantity > 0) {
+                        serviceSummary += "<p>" + serviceName + " (Quantity: " + quantity + ")</p>";
+                    }
                 });
 
-                // Apply any promotion discount
-                var discountPercentage = parseFloat($('#PromotionDiscount').val()) || 0;
-                if (discountPercentage > 0) {
-                    totalAmount -= (totalAmount * (discountPercentage / 100));
-                }
+                // Get the selected promotion discount
+                var discountPercentage = parseFloat($('#PromotionSelect').val()) || 0;
+
+                // Apply the discount to the total amount
+                var discountAmount = (totalAmount * discountPercentage) / 100;
+                totalAmount -= discountAmount;
 
                 // Update the Amount field
                 $('input[name="Amount"]').val(totalAmount.toFixed(2));
+
+                // Display the summary of selected combos and services
+                $('#comboSummary').html(comboSummary);
+                $('#serviceSummary').html(serviceSummary);
             }
 
             // Handle combo selection
@@ -370,6 +385,13 @@
                 }
 
                 $('#CombosInput').val(selectedComboIds.join(','));
+
+                // Update quantity inputs dynamically
+                var quantityInput = $('input[name="ComboQuantities[' + comboId + ']"]');
+                if (quantityInput.length === 0) {
+                    $('#comboSelect').append('<input type="number" name="ComboQuantities[' + comboId + ']" value="1" min="0" />');
+                }
+
                 calculateTotalAmount();
             });
 
@@ -389,25 +411,25 @@
                 }
 
                 $('#ServicesInput').val(selectedServiceIds.join(','));
+
+                // Update quantity inputs dynamically
+                var quantityInput = $('input[name="ServiceQuantities[' + serviceId + ']"]');
+                if (quantityInput.length === 0) {
+                    $('#serviceSelect').append('<input type="number" name="ServiceQuantities[' + serviceId + ']" value="1" min="0" />');
+                }
+
                 calculateTotalAmount();
             });
 
-            // Handle quantity change
-            $('#comboSelect').on('change', 'input[type="number"]', function () {
+            // Handle quantity change for combos and services
+            $('#comboSelect, #serviceSelect').on('change', 'input[type="number"]', function () {
                 calculateTotalAmount();
             });
 
-            $('#serviceSelect').on('change', 'input[type="number"]', function () {
-                calculateTotalAmount();
-            });
-
-            // Handle promotion change if applicable
-            $('#PromotionDiscount').on('change', function () {
-
+            // Handle promotion change
+            $('#PromotionSelect').on('change', function () {
                 calculateTotalAmount();
             });
         });
     </script>
-   
-    
 }

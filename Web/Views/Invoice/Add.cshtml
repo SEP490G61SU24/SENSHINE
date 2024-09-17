@@ -423,32 +423,7 @@
         });
     </script>
 
-   @*  <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const promotionSelect = document.getElementById('PromotionId');
-            const amountInput = document.getElementById('Amount');
-            const promotionOptions = promotionSelect.options;
 
-            // Handle promotion change
-            promotionSelect.addEventListener('change', function () {
-                const selectedOption = promotionOptions[promotionSelect.selectedIndex];
-                const discountPercentage = parseFloat(selectedOption.getAttribute('data-discount')) || 0;
-                const totalAmount = parseFloat(amountInput.value.replace('₫', '').replace(',', '')) || 0;
-
-                // Calculate discount
-                const discount = (discountPercentage / 100) * totalAmount;
-                const finalAmount = totalAmount - discount;
-
-                // Update amount input with the discounted amount
-                amountInput.value = formatVND(finalAmount);
-            });
-
-            // Format price as VND
-            function formatVND(price) {
-                return price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-            }
-        });
-    </script> *@
    
 
 

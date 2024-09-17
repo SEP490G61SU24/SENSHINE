@@ -1,0 +1,196 @@
+﻿@model API.Dtos.AppointmentDTO
+
+<div>
+    <!-- Error Message -->
+    @if (ViewData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @ViewData["Error"]
+        </div>
+    }
+    else
+    {
+        <form id="appointmentForm" action="/Appointment/UpdateAppointment" method="post">
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="BedId" />
+            <input type="hidden" asp-for="SlotId" />
+            <input type="hidden" name="oldCusId" value="@ViewBag.OldCusId" />
+            <input type="hidden" name="oldEmpId" value="@ViewBag.OldEmpId" />
+            <input type="hidden" asp-for="AppointmentDate" value="@ViewBag.Date" />
+            <input type="hidden" asp-for="Status" value="Confirmed" />
+
+            <!-- Customer Selection -->
+            <b>Chọn khách hàng</b>
+            <div class="d-flex align-items-center">
+                <select id="selectCustomerId" asp-for="CustomerId" class="form-control custom-select" asp-items="@ViewBag.Customers"></select>
+                <span asp-validation-for="CustomerId" class="text-danger custom-span"></span>
+            </div>
+
+            <!-- Employee Selection -->
+            <b>Chọn nhân viên</b>
+            <div class="d-flex align-items-center">
+                <select id="selectEmployeeId" asp-for="EmployeeId" class="form-control custom-select" asp-items="@ViewBag.Employees"></select>
+                <span asp-validation-for="EmployeeId" class="text-danger custom-span"></span>
+            </div>
+
+            <b>Thời gian & địa điểm</b>
+            <div class="card">
+                <div class="card-body overflow-auto" style="text-align: left; display: block; padding-top: 4px; padding-bottom: 4px; padding-left: 8px; padding-right: 8px; font-size: 1rem;">
+                    @ViewBag.BedRoomName
+                    <br />
+                    @ViewBag.SlotName, @ViewBag.Date
+                </div>
+            </div>
+
+            <!-- Hidden input field for AppointmentDate -->
+            <div class="form-group">
+                <input type="hidden" asp-for="AppointmentDate" value="@ViewBag.Date" />
+                <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+            </div>
+
+            <!-- Combo Selection with Checkboxes (Wrapped in Card with Scrollbar) -->
+            <b>Chọn combo</b>
+            <div class="card">
+                <div class="card-body overflow-auto" style="max-height: 150px; text-align: left; display: block; padding-top: 4px; padding-bottom: 0; padding-left: 8px; padding-right: 8px;">
+                    @foreach (var combo in ViewBag.Combos)
+                    {
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="ComboIDs" value="@combo.Id"
+                            @(Model.ComboIDs != null && Model.ComboIDs.Contains(combo.Id) ? "checked" : "") />
+                            <label class="form-check-label" style="text-align: left; display: block;">
+                                @combo.Name - @string.Format("{0:N0}", combo.SalePrice) VND
+                            </label>
+                        </div>
+                    }
+                </div>
+                <span asp-validation-for="ComboIDs" class="text-danger"></span>
+            </div>
+
+            <!-- Service Selection with Checkboxes -->
+            <b>Chọn dịch vụ</b>
+            <div class="card">
+                <div class="card-body overflow-auto" style="max-height: 150px; text-align: left; display: block; padding-top: 4px; padding-bottom: 0; padding-left: 8px; padding-right: 8px;">
+                    @foreach (var service in ViewBag.Services)
+                    {
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="ServiceIDs" value="@service.Id"
+                            @(Model.ServiceIDs != null && Model.ServiceIDs.Contains(service.Id) ? "checked" : "") />
+                            <label class="form-check-label" style="text-align: left; display: block;">
+                                @service.ServiceName - @string.Format("{0:N0}", service.Amount) VND
+                            </label>
+                        </div>
+                    }
+                </div>
+                <span asp-validation-for="ServiceIDs" class="text-danger"></span>
+            </div>
+
+            <br />
+
+            <!-- Modal Footer with Total Price -->
+            <div class="modal-footer">
+                <!-- Total Price on its own row -->
+                <div class="row w-100">
+                    <div class="col text-left">
+                        <b>Tổng giá tiền: </b><span id="totalPrice">0</span> VND
+                    </div>
+                </div>
+
+                <!-- Buttons on a separate row -->
+                <div class="row w-100 mt-3">
+                    <div class="col text-right">
+                        <button type="submit" class="btn btn-primary" id="submitAppointment">Lưu</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                        <button type="button" class="btn btn-danger" style="background-color: red !important;" onclick="confirmDelete(@Model.Id)">Xóa</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <!-- sweet alert -->
+        <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/sweetalert2.css">
+        <script src="~/assets/js/sweet-alert/sweetalert.min.js"></script>
+
+        <script type="text/javascript">
+            function confirmDelete(id) {
+                swal({
+                    title: 'Bạn có chắc chắn muốn xóa?',
+                    text: "Dữ liệu sẽ bị mất khi xác nhận!",
+                    icon: 'warning',
+                    buttons: {
+                        cancel: {
+                            text: 'Không, hủy bỏ!',
+                            value: null,
+                            visible: true,
+                            className: 'btn btn-secondary',
+                            closeModal: true
+                        },
+                        confirm: {
+                            text: 'Xác nhận!',
+                            value: true,
+                            visible: true,
+                            className: 'btn btn-success',
+                            closeModal: true
+                        }
+                    }
+                }).then((result) => {
+                    if (result) {
+                        $.ajax({
+                            url: '/appointment/delete/' + id,
+                            type: 'DELETE',
+                            success: function (response) {
+                                swal("Đã xóa!", "Đã xóa thành công.", "success")
+                                    .then(() => {
+                                        location.reload();  // Perform the reload here after success
+                                    });
+                            },
+                            error: function (xhr, status, error) {
+                                swal("Lỗi!", "Xóa thất bại.", "error");
+                            }
+                        });
+                    } else {
+                        swal("Đã hủy", "Dữ liệu của bạn không thay đổi.", "info");
+                    }
+                });
+            }
+        </script>
+
+        <script>
+            $(document).ready(function () {
+                // Function to calculate total price
+                function calculateTotalPrice() {
+                    let totalPrice = 0;
+
+                    // Calculate for combos
+                    $('input[name="ComboIDs"]:checked').each(function () {
+                        let priceText = $(this).closest('.form-check').find('label').text();
+                        let price = priceText.split('-')[1]; // Get the text after the dash (-)
+                        if (price) {
+                            price = price.replace(/[^0-9]/g, ''); // Remove non-numeric characters (commas, VND, spaces)
+                            totalPrice += parseFloat(price);
+                        }
+                    });
+
+                    // Calculate for services
+                    $('input[name="ServiceIDs"]:checked').each(function () {
+                        let priceText = $(this).closest('.form-check').find('label').text();
+                        let price = priceText.split('-')[1]; // Get the text after the dash (-)
+                        if (price) {
+                            price = price.replace(/[^0-9]/g, ''); // Remove non-numeric characters (commas, VND, spaces)
+                            totalPrice += parseFloat(price);
+                        }
+                    });
+
+                    // Update the total price in the HTML
+                    $('#totalPrice').text(totalPrice.toLocaleString());
+                }
+
+                // Trigger total price calculation on page load
+                calculateTotalPrice();
+
+                // Event listener to trigger total price calculation when checkboxes change
+                $('input[name="ComboIDs"], input[name="ServiceIDs"]').on('change', function () {
+                    calculateTotalPrice();
+                });
+            });
+        </script>
+    }
+</div>

@@ -11,7 +11,7 @@ namespace API.Dtos
         public int SlotId { get; set; }
         public DateTime AppointmentDate { get; set; }
         public string? Status { get; set; }
-        public ICollection<Combo>? Combos { get; set; }
-        public ICollection<Service>? Services { get; set; }
+        public List<int>? ComboIDs { get; set; }
+        public List<int>? ServiceIDs { get; set; }
     }
 }
