@@ -1,4 +1,4 @@
-﻿@model API.Ultils.PaginatedList<API.Dtos.WorkScheduleDTO>
+﻿@model API.Ultils.PaginatedList<API.Models.UserSlot>
 
 @{
     ViewData["Title"] = "Quản Lý Lịch Làm Việc";
@@ -80,9 +80,9 @@
                     <tr>
                     <tr>
                         <th>ID</th>
-                        <th>Nhân viên</th>
-                        <th>Bắt đầu</th>
-                        <th>Kết thúc</th>
+                        <th>Nhân viên Id</th>
+                        <th>Slot Id</th>
+                        <th>Ngày</th>
                         <th>Trạng thái</th>
                         <th>Hành Động</th>
                     </tr>
@@ -92,14 +92,17 @@
                     {
                         <tr>
                             <td>@item.Id</td>
-                            <td>@item.EmployeeName (@item.Phone)</td>
-                            <td>@item.StartDateTime</td>
-                            <td>@item.EndDateTime</td>
-                            <td>@statusMap[item.Status]</td>
+                            <td>@item.UserId</td>
+                            <td>@item.SlotId</td>
+                            <td>@item.SlotDate</td>
+                            <td>@item.Status</td>
                             <td>
                                 <ul class="action">
-                                    <li class="edit"><a href="/workschedule/edit/@item.Id"><i class="icon-pencil-alt"></i></a></li>
-                                    <li class="delete"><a href="#" onclick="confirmDelete(@item.Id)"><i class="icon-trash"></i></a></li>
+                                    <li class="edit">
+                                        <a href="javascript:void(0);" onclick="editWorkSchedule(@item.Id)">
+                                            <i class="icon-trash"></i>
+                                        </a>
+                                    </li>
                                 </ul>
                             </td>
                         </tr>
@@ -161,49 +164,26 @@
     <!-- sweet alert -->
     <script src="~/assets/js/sweet-alert/sweetalert.min.js"></script>
 
-    <script type="text/javascript">
-        function confirmDelete(id) {
-            swal({
-                title: 'Bạn có chắc chắn muốn xóa?',
-                text: "Dữ liệu sẽ bị mất khi xác nhận!",
-                icon: 'warning',
-                buttons: {
-                    cancel: {
-                        text: 'Không, hủy bỏ!',
-                        value: null,
-                        visible: true,
-                        className: 'btn btn-secondary',
-                        closeModal: true
-                    },
-                    confirm: {
-                        text: 'Xác nhận!',
-                        value: true,
-                        visible: true,
-                        className: 'btn btn-success',
-                        closeModal: true
-                    }
-                }
-            }).then((result) => {
-                if (result) {
-                    var token = '@ViewData["Token"]';
-                    $.ajax({
-                        url: '/workschedule/delete/' + id,
-                        type: 'DELETE',
-                        headers: {
-                            'Authorization': 'Bearer ' + token
-                        },
-                        success: function (response) {
-                            swal("Đã xóa!", "Đã xóa thành công.", "success")
-                                .then(() => {
-                                    location.reload();
-                                });
-                        },
-                        error: function (xhr, status, error) {
-                            swal("Lỗi!", "Xóa thất bại.", "error");
-                        }
-                    });
-                } else {
-                    swal("Đã hủy", "Dữ liệu của bạn không thay đổi.", "info");
+    <script>
+        function editWorkSchedule(id) {
+            var token = '@ViewData["Token"]'; // Assuming you have an authorization token if needed
+
+            $.ajax({
+                url: '/workschedule/edit',  // The POST endpoint
+                type: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token // Add token if needed
+                },
+                contentType: 'application/json',
+                data: JSON.stringify({ id: parseInt(id) }), // Pass the ID in the request body
+                success: function (response) {
+                    swal("Thành công!", "Cập nhật thành công!", "success")
+                        .then(() => {
+                            location.reload();  // Reload the page after success
+                        });
+                },
+                error: function (xhr, status, error) {
+                    swal("Lỗi!", "Cập nhật thất bại.", "error");
                 }
             });
         }

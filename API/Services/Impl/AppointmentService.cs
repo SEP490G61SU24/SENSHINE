@@ -243,7 +243,7 @@ namespace API.Services.Impl
             {
                 if (existingUserSlot.Status == "booked")
                 {
-                    existingUserSlot.Status = "empty";
+                    existingUserSlot.Status = "available";
                 }
                 else
                 {
@@ -305,6 +305,20 @@ namespace API.Services.Impl
             }
         }
 
+        public bool IsUserAvailable(int userId, int slotId, DateTime date)
+        {
+            var existingUserSlot = _dbContext.UserSlots.FirstOrDefault(u => u.UserId == userId && u.SlotId == slotId && u.SlotDate == date);
+
+            if (existingUserSlot != null && existingUserSlot.Status == "available")
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public bool IsBedBooked(int bedId, int slotId, DateTime date)
         {
             var existingBedSlot = _dbContext.BedSlots.FirstOrDefault(u => u.BedId == bedId && u.SlotId == slotId && u.SlotDate == date);
@@ -341,11 +355,15 @@ namespace API.Services.Impl
                 query = query.Where(u => u.SpaId == spaIdInt.Value);
             }
 
-            // Filter out users who have been booked for the specified slot and date
-            var availableUsers = await query
-                .Where(u => !_dbContext.UserSlots
-                    .Any(us => us.UserId == u.Id && us.SlotId == slotId && us.SlotDate == date && us.Status == "booked"))
-                .ToListAsync();
+            // Filter users who are available for the specified slot and date
+            var availableUsers = await (from u in query
+                                        join us in _dbContext.UserSlots
+                                        on u.Id equals us.UserId
+                                        where us.SlotId == slotId
+                                              && us.SlotDate == date
+                                              && us.Status.Equals("available")
+                                        select u)
+                                       .ToListAsync();
 
             // Map directly to UserDTO
             var availableEmployees = _mapper.Map<List<UserDTO>>(availableUsers);

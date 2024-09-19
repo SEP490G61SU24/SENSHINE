@@ -16,8 +16,8 @@ namespace API.CronJobs
         {
             try
             {
-                await _workScheduleService.CreateWorkSchedulesForNextTwoMonths();
-                await _workScheduleService.UpdateWorkSchedulesStatus();
+                //await _workScheduleService.CreateWorkSchedulesForNextTwoMonths();
+                //await _workScheduleService.UpdateWorkSchedulesStatus();
 			}
             catch (Exception ex)
             {
