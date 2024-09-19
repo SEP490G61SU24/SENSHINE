@@ -190,6 +190,17 @@ namespace API.Controllers
             });
         }
 
+        [HttpGet]
+        public async Task<IActionResult> UserAvailable(int userId, int slotId, DateTime date)
+        {
+            return await HandleRequestAsync(async () =>
+            {
+                bool isBooked = _appointmentService.IsUserAvailable(userId, slotId, date);
+
+                return Ok(isBooked);
+            });
+        }
+
         [HttpPost]
         public async Task<IActionResult> BookBed(int bedId, int slotId, DateTime date)
         {

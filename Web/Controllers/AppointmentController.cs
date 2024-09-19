@@ -479,10 +479,10 @@ namespace Web.Controllers
 
             foreach (var employee in employees)
             {
-                HttpResponseMessage response2 = await client.GetAsync($"{apiUrl}/Appointment/UserBooked?userId={employee.Id}&slotId={slotId}&date={date}");
-                bool isBooked = JsonConvert.DeserializeObject<bool>(await response2.Content.ReadAsStringAsync());
+                HttpResponseMessage response2 = await client.GetAsync($"{apiUrl}/Appointment/UserAvailable?userId={employee.Id}&slotId={slotId}&date={date}");
+                bool isAvailable = JsonConvert.DeserializeObject<bool>(await response2.Content.ReadAsStringAsync());
 
-                if (!isBooked)
+                if (isAvailable)
                 {
                     availableEmployees.Add(employee);
                 }

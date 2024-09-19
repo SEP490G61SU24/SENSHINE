@@ -21,6 +21,7 @@ namespace API.Services
         Task<UserSlot> BookThisUser(int userId, int slotId, DateTime date);
         Task<BedSlot> BookThisBed(int bedId, int slotId, DateTime date);
         bool IsUserBooked(int userId, int slotId, DateTime date);
+        bool IsUserAvailable(int userId, int slotId, DateTime date);
         bool IsBedBooked(int bedId, int slotId, DateTime date);
     }
 }

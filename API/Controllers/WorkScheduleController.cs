@@ -10,7 +10,7 @@ namespace API.Controllers
     public class WorkScheduleController : ControllerBase
     {
         private readonly IWorkScheduleService _workScheduleService;
-
+        private const string ErrorMessage = "An error occurred: ";
         public WorkScheduleController(IWorkScheduleService workScheduleService)
         {
             _workScheduleService = workScheduleService;
@@ -43,154 +43,8 @@ namespace API.Controllers
             }
         }
 
-		[HttpGet("years")]
-		public async Task<IActionResult> GetAvailableYears([FromQuery] string employeeId)
-		{
-			try
-			{
-				if (string.IsNullOrEmpty(employeeId))
-				{
-					return BadRequest("ID nhân viên bắt buộc!");
-				}
-
-				var years = await _workScheduleService.GetAvailableYears(int.Parse(employeeId));
-				return Ok(years);
-			}
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-			{
-				return BadRequest(ex.Message);
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
-			}
-		}
-
-		[HttpGet("weeks")]
-		public async Task<IActionResult> GetAvailableWeeks([FromQuery] string employeeId, [FromQuery] string year)
-		{
-			try
-			{
-				if (string.IsNullOrEmpty(employeeId))
-				{
-					return BadRequest("ID nhân viên bắt buộc!");
-				}
-
-				var weeks = await _workScheduleService.GetAvailableWeeks(int.Parse(employeeId), int.Parse(year));
-				return Ok(weeks);
-			}
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-			{
-				return BadRequest(ex.Message);
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
-			}
-		}
-
-		[HttpGet("current-user")]
-        public async Task<IActionResult> GetByCurrentUser([FromQuery] string employeeId, [FromQuery] int year, [FromQuery] int weekNumber)
-        {
-			try
-			{
-				if (string.IsNullOrEmpty(employeeId))
-				{
-					return BadRequest("ID nhân viên bắt buộc!");
-				}
-
-				// Xác định múi giờ Việt Nam
-				var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-
-				// Lấy ngày bắt đầu và kết thúc của tuần trong múi giờ UTC
-				var startDateUtc = ISOWeek.ToDateTime(year, weekNumber, DayOfWeek.Monday);
-				var endDateUtc = ISOWeek.ToDateTime(year, weekNumber, DayOfWeek.Sunday);
-
-				// Chuyển đổi từ UTC sang múi giờ Việt Nam
-				var startDate = TimeZoneInfo.ConvertTimeFromUtc(startDateUtc, vietnamTimeZone);
-				var endDate = TimeZoneInfo.ConvertTimeFromUtc(endDateUtc, vietnamTimeZone);
-
-				var workSchedules = await _workScheduleService.GetWorkSchedulesByWeek(int.Parse(employeeId), startDate, endDate);
-				return Ok(workSchedules);
-			}
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-			{
-				return BadRequest(ex.Message);
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
-			}
-		}
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
-        {
-            try
-            {
-                var workScheduleDto = await _workScheduleService.GetWorkScheduleById(id);
-                if (workScheduleDto == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(workScheduleDto);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
-            }
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] WorkScheduleDTO workScheduleDto)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                var workSchedule = await _workScheduleService.AddWorkSchedule(workScheduleDto);
-                return CreatedAtAction(nameof(GetById), new { id = workSchedule.Id }, workSchedule);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
-            }
-        }
-
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] WorkScheduleDTO workScheduleDto)
+        public async Task<IActionResult> Update(int id)
         {
             try
             {
@@ -199,13 +53,9 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var updatedWorkSchedule = await _workScheduleService.UpdateWorkSchedule(id, workScheduleDto);
-                if (updatedWorkSchedule == null)
-                {
-                    return NotFound();
-                }
+                await _workScheduleService.UpdateWorkSchedulesStatus(id);
 
-                return Ok(updatedWorkSchedule);
+                return Ok();
             }
             catch (ArgumentException ex)
             {
@@ -221,18 +71,24 @@ namespace API.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpPost("add-work-employee")]
+        public async Task<IActionResult> AddWorkEmployee(int employeeId, int slotId, DateTime date)
         {
             try
             {
-                var result = await _workScheduleService.DeleteWorkSchedule(id);
-                if (!result)
+                // Ensure all required fields are valid
+                if (employeeId <= 0 || slotId <= 0 || date == default)
                 {
-                    return NotFound();
+                    return BadRequest("Invalid parameters.");
                 }
 
-                return NoContent();
+                var userSlot = await _workScheduleService.AddWorkThisEmployee(employeeId, slotId, date);
+                if (userSlot == null)
+                {
+                    return NotFound("User work could not be added.");
+                }
+
+                return Ok($"Add work for employee {employeeId} successfully for slot ID: {slotId} on {date:yyyy-MM-dd}");
             }
             catch (ArgumentException ex)
             {
@@ -244,8 +100,9 @@ namespace API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ErrorMessage + ex.Message);
             }
         }
+
     }
 }
