@@ -17,6 +17,7 @@ namespace API.Services
         //Task<IEnumerable<int>> GetAvailableYears(int employeeId);
         //Task CreateWorkSchedulesForNextTwoMonths();
         Task UpdateWorkSchedulesStatus(int id);
+        Task<string> GetStatusEmployeeInThisSlot(int employeeId, int slotId, DateTime date);
         //Task UpdateWorkScheduleStatusForAppointment(int empId, DateTime appointmentDate, string slot, string newStatus);
         Task<UserSlot> AddWorkThisEmployee(int employeeId, int slotId, DateTime date);
     }

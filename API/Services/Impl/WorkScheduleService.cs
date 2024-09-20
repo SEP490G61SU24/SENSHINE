@@ -117,5 +117,21 @@ namespace API.Services.Impl
                 return existingUserSlot;
             }
         }
+
+        public async Task<string> GetStatusEmployeeInThisSlot(int employeeId, int slotId, DateTime date)
+        {
+            var thisUserSlot = _context.UserSlots.FirstOrDefault(u => u.UserId == employeeId && u.SlotId == slotId && u.SlotDate == date);
+
+            if (thisUserSlot == null)
+            {
+                return "empty";
+            }
+            else
+            {
+                string status = thisUserSlot.Status;
+
+                return status;
+            }
+        }
     }
 }
