@@ -396,6 +396,27 @@ namespace API.Services.Impl
                                 .SingleOrDefaultAsync(u => u.UserName == username);
             return _mapper.Map<UserDTO>(user);
         }
+        public async Task<UserDTO2> GetByUserNameReturnRole(string username)
+        {
+            var user = await _context.Users
+                             .Include(u => u.Roles)
+                             .SingleOrDefaultAsync(u => u.UserName == username);
+
+            if (user == null)
+            {
+                return null; 
+            }
+
+            var userDTO = new UserDTO2
+            {
+               
+                RoleName = user.Roles.Select(x => x.RoleName).SingleOrDefault()
+            };
+
+
+            return userDTO;
+        }
+
 
         public async Task<string> GetAddress(string wardCode, string districtCode, string provinceCode)
         {

@@ -46,6 +46,9 @@
             </div>
 
             <!-- Combo Selection with Checkboxes (Wrapped in Card with Scrollbar) -->
+            <input type="hidden" name="selectedServiceIds" id="selectedServiceIds" />
+            <input type="hidden" name="selectedComboIds" id="selectedComboIds" />
+            <input type="hidden" name="totalPrice" id="totalPriceInput" />
             <b>Chọn combo</b>
             <div class="card">
                 <div class="card-body overflow-auto" style="max-height: 150px; text-align: left; display: block; padding-top: 4px; padding-bottom: 0; padding-left: 8px; padding-right: 8px;">
@@ -101,6 +104,8 @@
                 // Function to calculate total price
                 function calculateTotalPrice() {
                     let totalPrice = 0;
+                    let selectedServiceIds = [];
+                    let selectedComboIds = [];
 
                     // Calculate for combos
                     $('input[name="ComboIDs"]:checked').each(function () {
@@ -110,6 +115,7 @@
                             price = price.replace(/[^0-9]/g, ''); // Remove non-numeric characters (commas, VND, spaces)
                             totalPrice += parseFloat(price);
                         }
+                        selectedComboIds.push($(this).val());
                     });
 
                     // Calculate for services
@@ -120,10 +126,14 @@
                             price = price.replace(/[^0-9]/g, ''); // Remove non-numeric characters (commas, VND, spaces)
                             totalPrice += parseFloat(price);
                         }
+                        selectedServiceIds.push($(this).val());
                     });
 
                     // Update the total price in the HTML
                     $('#totalPrice').text(totalPrice.toLocaleString());
+                    $('#selectedServiceIds').val(JSON.stringify(selectedServiceIds));
+                    $('#selectedComboIds').val(JSON.stringify(selectedComboIds));
+                    $('#totalPriceInput').val(totalPrice);
                 }
 
                 // Event listener to trigger total price calculation

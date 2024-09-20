@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.Differencing;
 using Newtonsoft.Json;
+using System;
 using System.Text;
 using Web.Models;
 using static System.Reflection.Metadata.BlobBuilder;
@@ -24,7 +25,48 @@ namespace Web.Controllers
             _clientFactory = clientFactory;
             _logger = logger;
         }
+        private async Task<UserViewModel> LoadUserAsync()
+        {
+            var user = new UserViewModel();
+            var token = HttpContext.Session.GetString("Token");
 
+            if (!string.IsNullOrEmpty(token))
+            {
+                var userProfile = await GetUserProfileAsync(token);
+
+                if (userProfile != null)
+                {
+                    user.Id = userProfile.Id;
+                    user.UserName = userProfile.UserName;
+                    user.FirstName = userProfile.FirstName;
+                    user.MidName = userProfile.MidName;
+                    user.LastName = userProfile.LastName;
+                    user.Phone = userProfile.Phone;
+                    user.BirthDate = userProfile.BirthDate;
+                    user.Status = userProfile.Status;
+                    user.StatusWorking = userProfile.StatusWorking;
+                    user.SpaId = userProfile.SpaId;
+                    user.ProvinceCode = userProfile.ProvinceCode;
+                    user.DistrictCode = userProfile.DistrictCode;
+                    user.WardCode = userProfile.WardCode;
+                    user.Address = userProfile.Address;
+                    user.Roles = userProfile.Roles;
+                    user.RoleName = userProfile.RoleName;
+                    user.RoleId = userProfile.RoleId;
+                    user.FullName = $"{userProfile.FirstName} {userProfile.MidName} {userProfile.LastName}";
+                }
+                else
+                {
+                    ViewData["Error"] = "Failed to retrieve user profile.";
+                }
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while fetching the user profile.");
+            }
+
+            return user;
+        }
         [HttpGet]
         public async Task<IActionResult> ListAppointment(DateTime? date)
         {
@@ -114,7 +156,7 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAppointment(AppointmentDTO model)
+        public async Task<IActionResult> CreateAppointment(AppointmentDTO model, string selectedServiceIds, string selectedComboIds,decimal totalPrice)
         {
             var client = _clientFactory.CreateClient();
             var apiUrl = _configuration["ApiUrl"];
@@ -123,9 +165,39 @@ namespace Web.Controllers
             {
                 return RedirectToAction("ListAppointment");
             }
-
+            var use = await LoadUserAsync();
             string jsonString = JsonConvert.SerializeObject(model);
             var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+            List<int> selectedIds2 = JsonConvert.DeserializeObject<List<int>>(selectedServiceIds);
+            List<int> selectedIds3 = JsonConvert.DeserializeObject<List<int>>(selectedComboIds);
+            var invoice = new InvoiceViewModel
+            {
+                ServiceQuantities = selectedIds2
+                            .GroupBy(id => id)
+                            .ToDictionary(group => group.Key, group => (int?)group.Count()),
+                ComboQuantities = selectedIds3
+                            .GroupBy(id => id)
+                            .ToDictionary(group => group.Key, group => (int?)group.Count()),
+                CustomerId = model.CustomerId,
+                ComboIds = JsonConvert.DeserializeObject<List<int>>(selectedComboIds).Distinct().ToList(),
+                ServiceIds = JsonConvert.DeserializeObject<List<int>>(selectedServiceIds).Distinct().ToList(),
+                SpaId = use.SpaId,
+                InvoiceDate = DateTime.Now,
+                Status = "Pending",
+                Amount = totalPrice,
+                Description = "Hóa đơn đặt lịch của anh/chị "+ model.CustomerId
+            };
+
+            var contentInvoice = new StringContent(JsonConvert.SerializeObject(invoice), Encoding.UTF8, "application/json");
+            HttpResponseMessage responseInvoice = await client.PostAsync($"{apiUrl}/AddInvoice", contentInvoice);
+
+            if (!responseInvoice.IsSuccessStatusCode)
+            {
+                string errorMessage = await responseInvoice.Content.ReadAsStringAsync();
+                _logger.LogError("Failed to create invoice: {0}", errorMessage);
+                return Json(new { success = false, error = $"An error occurred while adding the invoice: {errorMessage}" });
+            }
+
 
             var content1 = new StringContent(JsonConvert.SerializeObject(new
             {
