@@ -88,6 +88,11 @@ namespace Web.Controllers
 			if (!string.IsNullOrEmpty(token))
             {
                 UserDTO userProfile = await GetUserProfileAsync(token);
+                var userId = await GetUserIdAsync(token);
+                if (userId.HasValue)
+                {
+                    ViewData["UserId"] = userId.Value;
+                }
                 if (userProfile != null)
                 {
                     ViewData["UserProfile"] = userProfile;
@@ -122,6 +127,12 @@ namespace Web.Controllers
             }
 
             await base.OnActionExecutionAsync(context, next);
+        }
+
+        protected async Task<int?> GetUserIdAsync(string token)
+        {
+            var userProfile = await GetUserProfileAsync(token);
+            return userProfile?.Id; // Assuming 'Id' is the user ID field in UserDTO
         }
     }
 

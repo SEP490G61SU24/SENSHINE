@@ -1,304 +1,129 @@
-﻿@model Web.Models.CurrentWorkScheduleViewModel
+﻿@using API.Dtos
+@using Newtonsoft.Json
 
 @{
-	ViewData["Title"] = "Lịch làm việc của tôi";
+    var slots = ViewBag.Slots as List<SlotDTO>;
+    var id = ViewBag.Id;
+    var currentDate = DateTime.Now;
+    var startOfWeek = currentDate.AddDays(-(int)currentDate.DayOfWeek + (int)DayOfWeek.Monday); // Start of current week
+    var daysOfWeek = Enumerable.Range(0, 7).Select(i => startOfWeek.AddDays(i)).ToList(); // List of all days in the week
+    var selectedWeek = Context.Request.Query["week"].ToString() ?? "0";
+    int weekOffset = int.TryParse(selectedWeek, out var result) ? result : 0;
+    startOfWeek = startOfWeek.AddDays(weekOffset * 7); // Adjust the week based on user selection
+    daysOfWeek = Enumerable.Range(0, 7).Select(i => startOfWeek.AddDays(i)).ToList();
 }
 
 @{
-    var statusMap = new Dictionary<string, string>
-    {
-		{ "AVAILABLE", "Sẵn sàng" },
-		{ "SCHEDULED", "Có khách đặt lịch" },
-		{ "COMPLETED", "Đã làm xong" },
-		{ "CANCELED", "Đã không làm" },
-		{ "INPROGRESS", "Đang làm" }
-    };
-
-	var statusCssMap = new Dictionary<string, string>
-	{
-		{ "AVAILABLE", "color: #006666;" },
-		{ "SCHEDULED", "color: #5d00ff;font-weight: bold;" },
-		{ "COMPLETED", "color: green;" },
-		{ "CANCELED", "color: red;" },
-		{ "INPROGRESS", "color: #0900ff;" },
-	};
-
-	var daysOfWeek = new[]
-	{
-		DayOfWeek.Monday,
-		DayOfWeek.Tuesday,
-		DayOfWeek.Wednesday,
-		DayOfWeek.Thursday,
-		DayOfWeek.Friday,
-		DayOfWeek.Saturday,
-		DayOfWeek.Sunday
-	};
+    ViewData["Title"] = "My Work Schedule";
 }
 
 @section Styles {
-	<link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
-	<!-- ico-font-->
-	<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
-	<!-- Themify icon-->
-	<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/themify.css">
-	<!-- Flag icon-->
-	<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/flag-icon.css">
-	<!-- Feather icon-->
-	<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/feather-icon.css">
-	<!-- Plugins css start-->
-	<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
-	<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
-	<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
-	<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
-	<!-- Plugins css Ends-->
-	<!-- Bootstrap css-->
-	<link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
-	<!-- App css-->
-	<link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
-	<link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
-	<!-- Responsive css-->
-	<link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/themify.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/flag-icon.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/feather-icon.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
+    <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
 }
 
-<div class="card">
-	<div class="card-body">
-		<form asp-action="My" method="get">
-			<div class="mb-2">
-				<label for="yearDropdown">Chọn năm:</label>
-				<select id="yearDropdown" name="SelectedYear" class="form-select btn-square">
-					
-				</select>
-			</div>
-			<div class="mb-2">
-				<label for="weekDropdown">Chọn tuần:</label>
-				<select id="weekDropdown" name="SelectedWeek" class="form-select btn-square">
+<div class="card p-4">
+    <!-- Week Selector -->
+    <div class="week-selector mb-4 text-center">
+        <a class="btn btn-primary" href="?week=@(weekOffset - 1)">Previous Week</a>
+        <a class="btn btn-primary ml-3" href="?week=@(weekOffset + 1)">Next Week</a>
+        <span class="ml-3 font-weight-bold">Week of @startOfWeek.ToString("MMMM dd, yyyy")</span>
+    </div>
 
-				</select>
-			</div>
-        </form>
-
-		<table class="table table-bordered mt-4">
-			<thead>
-				<tr>
-					<th>Khung giờ</th>
-
-				</tr>
-			</thead>
-			<tbody>
-				@foreach (var slot in Model.TimeSlots)
-				{
-					var timeSlot = slot.Value as Web.Models.TimeSlotModel;
-					var slotLabel = $"{slot.Key} ({timeSlot.StartTime.ToString(@"hh\:mm")} - {timeSlot.EndTime.ToString(@"hh\:mm")} {timeSlot.Period})";
-
-					<tr>
-						<td>@slotLabel</td>
-						@for (int i = 0; i < daysOfWeek.Length; i++)
-						{
-							var day = daysOfWeek[i];
-							var schedule = Model.WorkSchedules
-							.FirstOrDefault(ws => ws.StartDateTime.HasValue
-							&& ws.StartDateTime.Value.DayOfWeek == day
-							&& ws.StartDateTime.Value.TimeOfDay <= timeSlot.StartTime
-							&& ws.EndDateTime.HasValue
-							&& ws.EndDateTime.Value.TimeOfDay >= timeSlot.EndTime);
-
-							<td>
-								@if (schedule != null)
-								{
-									statusCssMap.TryGetValue(schedule.Status, out var cssClass);
-
-									var statusText = statusMap.TryGetValue(schedule.Status, out var status) ? status : "";
-
-									<div style="@cssClass">
-										<strong>@statusText</strong>
-									</div>
-								}
-								else
-								{
-									<div>
-										<span>--</span>
-									</div>
-								}
-							</td>
-						}
-					</tr>
-				}
-			</tbody>
-		</table>
-	</div>
+    <!-- Table displaying schedule -->
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered text-center">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Day/Slot</th>
+                    @foreach (var slot in slots)
+                    {
+                        <th>@slot.SlotName <br /> (@slot.TimeFrom.Value.ToString(@"hh\:mm") - @slot.TimeTo.Value.ToString(@"hh\:mm"))</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var day in daysOfWeek)
+                {
+                    <tr>
+                        <td>@day.ToString("dddd, MMMM dd")</td>
+                        @foreach (var slot in slots)
+                        {
+                            <td>
+                                <div id="slot-@slot.Id-@day.ToString("yyyy-MM-dd")">
+                                    Loading...
+                                </div>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
 
 @section Scripts {
-	<script src="~/assets/js/jquery.min.js"></script>
-	<!-- Bootstrap js-->
-	<script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
-	<!-- feather icon js-->
-	<script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
-	<script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
-	<!-- scrollbar js-->
-	<script src="~/assets/js/scrollbar/simplebar.js"></script>
-	<script src="~/assets/js/scrollbar/custom.js"></script>
-	<!-- Sidebar jquery-->
-	<script src="~/assets/js/config.js"></script>
-	<!-- Plugins JS start-->
-	<script src="~/assets/js/sidebar-menu.js"></script>
-	<script src="~/assets/js/sidebar-pin.js"></script>
-	<script src="~/assets/js/slick/slick.min.js"></script>
-	<script src="~/assets/js/slick/slick.js"></script>
-	<script src="~/assets/js/header-slick.js"></script>
-	<!-- calendar js-->
-	<script src="~/assets/js/form-validation-custom.js"></script>
-	<script src="~/assets/js/height-equal.js"></script>
-	<!-- Plugins JS Ends-->
-	<!-- Theme js-->
-	<script src="~/assets/js/script.js"></script>
+    <script src="~/assets/js/jquery.min.js"></script>
+    <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
+    <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
+    <script src="~/assets/js/scrollbar/simplebar.js"></script>
+    <script src="~/assets/js/scrollbar/custom.js"></script>
+    <script src="~/assets/js/sidebar-menu.js"></script>
+    <script src="~/assets/js/sidebar-pin.js"></script>
+    <script src="~/assets/js/slick/slick.min.js"></script>
+    <script src="~/assets/js/slick/slick.js"></script>
+    <script src="~/assets/js/header-slick.js"></script>
+    <script src="~/assets/js/form-validation-custom.js"></script>
+    <script src="~/assets/js/height-equal.js"></script>
+    <script src="~/assets/js/script.js"></script>
 
-	<script>
-		$(document).ready(function () {
-			const formatDateWsBK = (dateStr) => {
-				const date = new Date(dateStr);
+    <!-- Custom Script -->
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var slots = @Html.Raw(JsonConvert.SerializeObject(slots));
+            var daysOfWeek = @Html.Raw(JsonConvert.SerializeObject(daysOfWeek));
 
-				const vietnamOffset = 7 * 60 * 60 * 1000;
-				const vietnamDate = new Date(date.getTime() + vietnamOffset);
+            // Fetch slot statuses directly from the API using hardcoded values
+            daysOfWeek.forEach(function (day) {
+                slots.forEach(function (slot) {
+                    var date = new Date(day).toISOString().split('T')[0]; // Format the date as YYYY-MM-DD
+                    var url = "http://localhost:5297/api/work-schedules/get-status?employeeId=" + @id + "&slotId=" + slot.Id + "&date=" + date;
 
-				const day = String(vietnamDate.getDate()).padStart(2, '0');
-				const month = String(vietnamDate.getMonth() + 1).padStart(2, '0');
-				return `${day}/${month}`;
-			}
+                    $.get(url)
+                        .done(function (data) {
+                            console.log("Response Data:", data); // Log the response data for debugging
 
-			const formatDateWs = (dateStr) => {
-				const date = new Date(dateStr);
-				const day = String(date.getDate()).padStart(2, '0');
-				const month = String(date.getMonth() + 1).padStart(2, '0');
-				return `${day}/${month}`;
-			}
-
-			function getWeekNumber(date) {
-				const startDate = new Date(Date.UTC(date.getFullYear(), 0, 1));
-				const dayOfYear = ((date - startDate + 86400000) / 86400000);
-				return Math.ceil((dayOfYear - (date.getDay() + 1) + 7) / 7);
-			}
-
-			const today = new Date();
-			const currentYear = today.getFullYear();
-			const currentWeek = getWeekNumber(today);
-			const currentDateStr = formatDateWs(today.toISOString());
-
-			const dayNames = {
-				0: "Chủ nhật",
-				1: "Thứ 2",
-				2: "Thứ 3",
-				3: "Thứ 4",
-				4: "Thứ 5",
-				5: "Thứ 6",
-				6: "Thứ 7"
-			};
-
-			const empId = '@ViewData["employeeId"]';
-			const selectedYear = '@Model.SelectedYear';
-			const selectedWeek = '@Model.SelectedWeek';
-
-			$.ajax({
-				url: `http://localhost:5297/api/work-schedules/years?employeeId=${empId}`,
-				type: 'GET',
-				success: function (years) {
-					const yearDropdown = $('#yearDropdown');
-					yearDropdown.empty();
-
-					years.forEach(year => {
-						const label = (year == currentYear) ? `${year} (Năm hiện tại)` : year;
-						yearDropdown.append(new Option(label, year));
-						// yearDropdown.append(new Option(year, year));
-					});
-
-					if (selectedYear) {
-						yearDropdown.val(Number(selectedYear)).change();
-					}
-				},
-				error: function (xhr, status, error) {
-					console.error("Failed to load years:", error);
-				}
-			});
-
-			$('#yearDropdown').change(function () {
-				let selectedYearFe = $(this).val();
-				if (selectedYearFe) {
-					$.ajax({
-						url: `http://localhost:5297/api/work-schedules/weeks?year=${selectedYearFe}&employeeId=${empId}`,
-						type: 'GET',
-						success: function (weeks) {
-							const weekDropdown = $('#weekDropdown');
-							weekDropdown.empty();
-
-							weeks.forEach(week => {
-								const startDate = formatDateWs(week.startDate);
-								const endDate = formatDateWs(week.endDate);
-								const isCurrentWeek = (Number(selectedYearFe) === Number(currentYear) && Number(week.weekNumber) === Number(currentWeek));
-								const label = isCurrentWeek ? `Từ ${startDate} đến ${endDate} (Tuần hiện tại)` : `Từ ${startDate} đến ${endDate}`;
-								weekDropdown.append(new Option(label, week.weekNumber));
-							});
-
-							if (selectedWeek) {
-								weekDropdown.val(Number(selectedWeek)).change();
-							}
-
-							if (Number(selectedYearFe) !== Number(selectedYear)) {
-								$('form').submit();
-							}
-						},
-						error: function (xhr, status, error) {
-							console.error("Failed to load weeks:", error);
-						}
-					});
-				}
-			});
-
-			$('#weekDropdown').change(function () {
-				const selectedWeekFe = $(this).val();
-				if (selectedWeekFe) {
-					$.ajax({
-						url: `http://localhost:5297/api/work-schedules/weeks?year=${$('#yearDropdown').val()}&employeeId=${empId}`,
-						type: 'GET',
-						success: function (weeks) {
-							const week = weeks.find(w => Number(w.weekNumber) === Number(selectedWeekFe));
-							if (week) {
-								const startDate = new Date(week.startDate);
-								const endDate = new Date(week.endDate);
-
-								const dayHeaders = [];
-								for (let i = 0; i < 7; i++) {
-									const date = new Date(startDate);
-									date.setDate(date.getDate() + i);
-									const dayIndex = date.getDay();
-									const dayName = dayNames[dayIndex];
-									const formattedDate = formatDateWs(date.toISOString());
-									const label = (currentDateStr === formattedDate && Number(currentYear) === Number(selectedYear)) ?
-										`${dayName} (${formattedDate}) <b style="color: red;">(Hôm nay)</b>` :
-										`${dayName} (${formattedDate})`;
-
-									dayHeaders.push(label);
-								}
-
-								const tableHead = $('table thead tr');
-								tableHead.find('th').slice(1).remove();
-
-								dayHeaders.forEach((header) => {
-									tableHead.append(`<th>${header}</th>`);
-								});
-
-								if (Number(selectedWeekFe) !== Number(selectedWeek)) {
-									$('form').submit();
-								}
-							}
-						},
-						error: function (xhr, status, error) {
-							console.error("Failed to load weeks:", error);
-						}
-					});
-				}
-			});
-
-			$('#yearDropdown').change();
-		});
-	</script>
+                            var slotCell = $('#slot-' + slot.Id + '-' + date);
+                            if (data.result === "empty") {
+                                // Empty slot
+                                slotCell.html('<span class="badge badge-danger">-</span>');
+                            } else if (data.result === "available") {
+                                // Booked slot, show the ID
+                                slotCell.html('<span class="badge badge-success">Available (ID: ' + data.id + ')</span>');
+                            } else {
+                                // Booked slot, show the ID
+                                slotCell.html('<span class="badge badge-primary">Booked (ID: ' + data.id + ')</span>');
+                            }
+                        })
+                        .fail(function () {
+                            // Handle failed API call
+                            console.log("Failed to fetch data from: " + url); // Log failure
+                            $('#slot-' + slot.Id + '-' + date).html('<span class="badge badge-warning">Error</span>');
+                        });
+                });
+            });
+        });
+    </script>
 }
