@@ -43,6 +43,27 @@ namespace API.Controllers
             }
         }
 
+        [HttpGet("get-status")]
+        public async Task<IActionResult> GetStatus(int employeeId, int slotId, DateTime date)
+        {
+            try
+            {
+                return Ok(_workScheduleService.GetStatusEmployeeInThisSlot(employeeId, slotId, date));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
+        }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id)
         {

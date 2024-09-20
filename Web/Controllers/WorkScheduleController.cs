@@ -55,67 +55,28 @@ namespace Web.Controllers
             }
         }
 
-        public async Task<IActionResult> My(int? selectedWeek = null, int? selectedYear = null)
+        public async Task<IActionResult> My(DateTime? date)
         {
-            try
-            {
-                UserDTO userProfile = ViewData["UserProfile"] as UserDTO;
-                if (userProfile == null)
-                {
-                    return RedirectToAction("Login", "Auth");
-                }
+            //int? spaId = ViewData["SpaId"]?.ToString() != "ALL"
+            //? int.Parse(ViewData["SpaId"].ToString())
+            //: (int?)null;
 
-                var employeeId = userProfile.Id;
-                ViewData["employeeId"] = employeeId;
-
-                var apiUrl = _configuration["ApiUrl"];
-                using var client = _clientFactory.CreateClient();
-
-                // Nếu không có tuần nào được chọn, chọn tuần, năm hiện tại
-                var currentWeek = selectedWeek ?? DateUtils.GetCurrentWeekOfYear();
-                var currentYear = selectedYear ?? DateUtils.GetCurrentYear();
-
-                //// Lấy danh sách năm
-                //var yearsResponse = await client.GetAsync($"{apiUrl}/work-schedules/years?employeeId={employeeId}");
-                //if (!yearsResponse.IsSuccessStatusCode)
-                //{
-                //	return View("Error");
-                //}
-                //var years = await yearsResponse.Content.ReadFromJsonAsync<IEnumerable<int>>();
-
-                //// Lấy danh sách tuần
-                //var weeksResponse = await client.GetAsync($"{apiUrl}/work-schedules/weeks?year={currentYear}&employeeId={employeeId}");
-                //if (!weeksResponse.IsSuccessStatusCode)
-                //{
-                //	return View("Error");
-                //}
-                //var weeks = await weeksResponse.Content.ReadFromJsonAsync<IEnumerable<WeekOptionDTO>>();
-
-                // Lấy lịch làm việc
-                var workScheduleResponse = await client.GetAsync($"{apiUrl}/work-schedules/current-user/?employeeId={employeeId}&weekNumber={currentWeek}&year={currentYear}");
-                if (!workScheduleResponse.IsSuccessStatusCode)
-                {
-                    return View("Error");
-                }
-                var workSchedules = await workScheduleResponse.Content.ReadFromJsonAsync<IEnumerable<WorkScheduleDTO>>();
-
-                var viewData = new CurrentWorkScheduleViewModel
-                {
-                    //AvailableYears = years,
-                    //AvailableWeeks = weeks,
-                    SelectedYear = currentYear,
-                    SelectedWeek = currentWeek,
-                    WorkSchedules = workSchedules,
-                };
-
-                return View(viewData);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "CÓ LỖI XẢY RA!");
-                ViewData["Error"] = "CÓ LỖI XẢY RA!";
-                return View("Error");
-            }
+            //if (TempData["SelectedDate"] != null)
+            //{
+            //    var tempDate = (DateTime)TempData["SelectedDate"];
+            //    ViewBag.Date = tempDate.ToString("yyyy-MM-dd");
+            //}
+            //else
+            //{
+            //    // Use DateTime.Now if no date is provided
+            //    var selectedDate = date ?? DateTime.Now;
+            //    ViewBag.Date = selectedDate.ToString("yyyy-MM-dd");
+            //}
+            var Id = ViewData["UserId"];
+            ViewBag.Id = Id;
+            var slots = await GetAllSlots();
+            ViewBag.Slots = slots;
+            return View();
         }
 
         public async Task<IActionResult> Add()
