@@ -14,6 +14,8 @@ public class UserMapper : Profile
            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FirstName + " " + src.MidName + " " + src.LastName))
            .ForMember(dest => dest.Address, opt => opt.MapFrom<CustomAddressResolver>())
            .ReverseMap();
+       
+
     }
 }
 

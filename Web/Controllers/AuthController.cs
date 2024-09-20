@@ -3,6 +3,8 @@ using System.Text;
 using System.Text.Json;
 using Web.Models;
 using API.Dtos;
+using API.Models;
+
 
 namespace Web.Controllers
 {
@@ -66,7 +68,7 @@ namespace Web.Controllers
                     });
 
                     TempData["SuccessMsg"] = "Đăng nhập thành công!";
-                    return RedirectToAction("My", "WorkSchedule");
+                    return await CheckUserRole(user.UserName);
                 }
                 else
                 {
@@ -82,6 +84,41 @@ namespace Web.Controllers
                 return View("Error");
             }
         }
+
+        private async Task<IActionResult> CheckUserRole(string userName)
+        {
+            var apiUrl = _configuration["ApiUrl"];
+
+            using var client = _clientFactory.CreateClient();
+            var checkRoleResponse = await client.GetAsync($"{apiUrl}/users/GetUserCustomer?name={userName}");
+            
+            if (checkRoleResponse.IsSuccessStatusCode)
+            {
+                var data = await checkRoleResponse.Content.ReadAsStringAsync();
+
+                var jsonData = JsonDocument.Parse(data);
+                var roleToSwitchOn = jsonData.RootElement.GetProperty("roleName").GetString();
+
+                // Perform redirection based on role
+                switch (roleToSwitchOn)
+                {
+                    case "CEO":
+                        return RedirectToAction("Index", "Dashboard");
+                    case "MANAGER":
+                        return RedirectToAction("ReportRevenue", "Report");
+                    case "RECEPTIONIST":
+                        return RedirectToAction("ListAppointment", "Appointment");
+                    default:
+                        return RedirectToAction("My", "WorkSchedule");
+                }
+            }
+            else
+            {
+                ViewData["Error"] = "Unable to retrieve user role.";
+                return View();
+            }
+        }
+
 
         [HttpGet]
         public IActionResult Logout()
