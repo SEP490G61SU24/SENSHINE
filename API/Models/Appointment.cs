@@ -18,6 +18,7 @@ namespace API.Models
         public int SlotId { get; set; }
         public DateTime AppointmentDate { get; set; }
         public string? Status { get; set; }
+        public int? InvoiceId { get; set; }
 
         public virtual Bed Bed { get; set; } = null!;
         public virtual User Customer { get; set; } = null!;

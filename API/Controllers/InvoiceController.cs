@@ -73,6 +73,33 @@ namespace API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
             }
         }
+        [HttpGet("DetailInvoiceByIdUserandDate")]
+        public async Task<ActionResult<InvoiceDTO>> GetInvoiceDetailByIdUseranDate(int iduser, DateTime date)
+        {
+            try
+            {
+                var invoice = await _invoiceService.GetInvoiceDetailbByUserIdandDdate(iduser,date);
+
+                if (invoice == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(invoice);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Có lỗi xảy ra: " + ex.Message);
+            }
+        }
 
 
         [HttpPost("AddInvoice")]

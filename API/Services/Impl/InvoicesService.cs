@@ -286,6 +286,23 @@ namespace API.Services.Impl
             return (labels, values);
         }
 
+        public async Task<InvoiceDTO?> GetInvoiceDetailbByUserIdandDdate(int iduser, DateTime date)
+        {
+            var invoice = await _context.Invoices
+                                         .Include(i => i.Customer)
+                                         .Include(i => i.Promotion)
+                                         .Include(i => i.Spa)
+                                         .Include(i => i.InvoiceCombos).ThenInclude(i => i.Combo)
+                                         .Include(i => i.InvoiceServices).ThenInclude(i => i.Service)
+                                         .FirstOrDefaultAsync(i => i.CustomerId == iduser && i.InvoiceDate.Date == date.Date);
+
+            if (invoice == null)
+            {
+                return null;
+            }
+
+            return _mapper.Map<InvoiceDTO>(invoice);
+        }
     }
 
 }

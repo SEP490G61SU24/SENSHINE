@@ -166,8 +166,8 @@ namespace Web.Controllers
                 return RedirectToAction("ListAppointment");
             }
             var use = await LoadUserAsync();
-            string jsonString = JsonConvert.SerializeObject(model);
-            var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+            
+            
             List<int> selectedIds2 = JsonConvert.DeserializeObject<List<int>>(selectedServiceIds);
             List<int> selectedIds3 = JsonConvert.DeserializeObject<List<int>>(selectedComboIds);
             var invoice = new InvoiceViewModel
@@ -182,10 +182,10 @@ namespace Web.Controllers
                 ComboIds = JsonConvert.DeserializeObject<List<int>>(selectedComboIds).Distinct().ToList(),
                 ServiceIds = JsonConvert.DeserializeObject<List<int>>(selectedServiceIds).Distinct().ToList(),
                 SpaId = use.SpaId,
-                InvoiceDate = DateTime.Now,
+                InvoiceDate = model.AppointmentDate,
                 Status = "Pending",
                 Amount = totalPrice,
-                Description = "Hóa đơn đặt lịch của anh/chị "+ model.CustomerId
+                Description = "Hóa đơn đặt lịch của anh/chị "+ model.CustomerId +"ngaỳ đặt lịch là " + model.AppointmentDate
             };
 
             var contentInvoice = new StringContent(JsonConvert.SerializeObject(invoice), Encoding.UTF8, "application/json");
@@ -197,8 +197,17 @@ namespace Web.Controllers
                 _logger.LogError("Failed to create invoice: {0}", errorMessage);
                 return Json(new { success = false, error = $"An error occurred while adding the invoice: {errorMessage}" });
             }
-
-
+            var invoiceResponse = await responseInvoice.Content.ReadAsStringAsync();
+            var createdInvoice = JsonConvert.DeserializeObject<Invoice>(invoiceResponse);
+            var invoiceId = createdInvoice?.Id;
+            if (invoiceId == null)
+            {
+                _logger.LogError("InvoiceId could not be retrieved after invoice creation.");
+                return Json(new { success = false, error = "Invoice creation failed. No InvoiceId returned." });
+            }
+            model.InvoiceId = invoiceId;
+            string jsonString = JsonConvert.SerializeObject(model);
+            var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
             var content1 = new StringContent(JsonConvert.SerializeObject(new
             {
                 userId = model.CustomerId,
@@ -346,7 +355,7 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateAppointment(AppointmentDTO model, string oldCusId, string oldEmpId)
+        public async Task<IActionResult> UpdateAppointment(AppointmentDTO model, string oldCusId, string oldEmpId, string selectedServiceIds, string selectedComboIds, decimal totalPrice)
         {
             var client = _clientFactory.CreateClient();
             var apiUrl = _configuration["ApiUrl"];
@@ -355,7 +364,54 @@ namespace Web.Controllers
             {
                 return RedirectToAction("ListAppointment");
             }
+            // Retrieve appointment details to get the InvoiceId
+            var responseAppointment = await client.GetAsync($"{apiUrl}/Appointment/GetByAppointmentId?id={model.Id}");
+            if (!responseAppointment.IsSuccessStatusCode)
+            {
+                ViewData["Error"] = "Failed to retrieve appointment details!";
+                return View("Error");
+            }
 
+            // Deserialize appointment data
+            var appointmentData = await responseAppointment.Content.ReadAsStringAsync();
+            var appointment = JsonConvert.DeserializeObject<AppointmentDTO>(appointmentData);
+            var invoiceId = appointment?.InvoiceId;
+
+            // Process invoice if InvoiceId is found
+            if (invoiceId.HasValue)
+            {
+                // Deserialize service and combo ids only once
+                List<int> serviceIds = JsonConvert.DeserializeObject<List<int>>(selectedServiceIds);
+                List<int> comboIds = JsonConvert.DeserializeObject<List<int>>(selectedComboIds);
+
+                // Create invoice model
+                var invoice = new InvoiceViewModel
+                {
+                    Id = invoiceId.Value,
+                    ServiceQuantities = serviceIds.GroupBy(id => id).ToDictionary(group => group.Key, group => (int?)group.Count()),
+                    ComboQuantities = comboIds.GroupBy(id => id).ToDictionary(group => group.Key, group => (int?)group.Count()),
+                    CustomerId = model.CustomerId,
+                    ComboIds = comboIds.Distinct().ToList(),
+                    ServiceIds = serviceIds.Distinct().ToList(),
+                    SpaId = (await LoadUserAsync()).SpaId,
+                    InvoiceDate = model.AppointmentDate,
+                    Status = "Pending",
+                    Amount = totalPrice,
+                    Description = $"Hóa đơn đặt lịch của anh/chị {model.CustomerId} ngày đặt lịch là {model.AppointmentDate}"
+                };
+
+                // Update the invoice
+                var contentInvoice = new StringContent(JsonConvert.SerializeObject(invoice), Encoding.UTF8, "application/json");
+                var responseInvoice = await client.PutAsync($"{apiUrl}/EditInvoice/{invoiceId}", contentInvoice);
+
+                if (!responseInvoice.IsSuccessStatusCode)
+                {
+                    string errorMessage = await responseInvoice.Content.ReadAsStringAsync();
+                    _logger.LogError("Failed to update invoice: {0}", errorMessage);
+                    return Json(new { success = false, error = $"An error occurred while updating the invoice: {errorMessage}" });
+                }
+            }
+            model.InvoiceId = invoiceId;
             string jsonString = JsonConvert.SerializeObject(model);
             var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
 
@@ -398,6 +454,7 @@ namespace Web.Controllers
 
                 if (response1.IsSuccessStatusCode && response2.IsSuccessStatusCode && response3.IsSuccessStatusCode && response4.IsSuccessStatusCode)
                 {
+                    
                     TempData["SuccessMsg"] = "Cập nhật lịch hẹn thành công!";
                     TempData["SelectedDate"] = model.AppointmentDate;
                     return RedirectToAction("ListAppointment");
@@ -426,6 +483,29 @@ namespace Web.Controllers
             {
                 var apiUrl = _configuration["ApiUrl"];
                 using var client = _clientFactory.CreateClient();
+
+                
+                var responseAppointment = await client.GetAsync($"{apiUrl}/Appointment/GetByAppointmentId?id={id}");
+                if (!responseAppointment.IsSuccessStatusCode)
+                {
+                    ViewData["Error"] = "Failed to retrieve appointment details!";
+                    return View("Error");
+                }
+
+                // Parse the response and extract the InvoiceId (assuming the response is in JSON format)
+                var appointmentData = await responseAppointment.Content.ReadAsStringAsync();
+                var appointment = JsonConvert.DeserializeObject<AppointmentDTO>(appointmentData);
+                var invoiceId = appointment?.InvoiceId;
+
+                if (invoiceId.HasValue)
+                {
+                    var responseDeleteInvoice = await client.DeleteAsync($"{apiUrl}/DeleteInvoice/{invoiceId}");
+                    if (!responseDeleteInvoice.IsSuccessStatusCode)
+                    {
+                        ViewData["Error"] = "Failed to delete the invoice!";
+                        return View("Error");
+                    }
+                }
                 var response = await client.DeleteAsync($"{apiUrl}/Appointment/DeleteAppointment?id={id}");
 
                 if (response.IsSuccessStatusCode)

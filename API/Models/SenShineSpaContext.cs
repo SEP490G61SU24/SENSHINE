@@ -143,6 +143,9 @@ namespace API.Models
                     .HasForeignKey(d => d.SlotId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__Appointme__SlotI__3FFB60B2");
+                entity.Property(e => e.InvoiceId)
+                .HasColumnName("InvoiceId")
+                .IsRequired(false);
 
                 entity.HasMany(d => d.Combos)
                     .WithMany(p => p.Appointments)
