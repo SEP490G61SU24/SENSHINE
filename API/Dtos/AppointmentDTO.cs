@@ -13,5 +13,6 @@ namespace API.Dtos
         public string? Status { get; set; }
         public List<int>? ComboIDs { get; set; }
         public List<int>? ServiceIDs { get; set; }
+        public int? InvoiceId {  get; set; }
     }
 }
