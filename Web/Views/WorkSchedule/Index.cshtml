@@ -1,4 +1,4 @@
-﻿@model API.Ultils.PaginatedList<API.Models.UserSlot>
+﻿@model API.Ultils.PaginatedList<Web.Models.UserSlotViewModel>
 
 @{
     ViewData["Title"] = "Quản Lý Lịch Làm Việc";
@@ -80,8 +80,8 @@
                     <tr>
                     <tr>
                         <th>ID</th>
-                        <th>Nhân viên Id</th>
-                        <th>Slot Id</th>
+                        <th>Nhân viên</th>
+                        <th>Slot</th>
                         <th>Ngày</th>
                         <th>Trạng thái</th>
                         <th>Hành Động</th>
@@ -92,8 +92,8 @@
                     {
                         <tr>
                             <td>@item.Id</td>
-                            <td>@item.UserId</td>
-                            <td>@item.SlotId</td>
+                            <td>@item.UserName</td>
+                            <td>@item.SlotName</td>
                             <td>@item.SlotDate</td>
                             <td>@item.Status</td>
                             <td>

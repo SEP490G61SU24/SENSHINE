@@ -29,7 +29,7 @@
 
 <div class="card">
     <div class="card-body">
-        <form method="post" action="/workschedule/add" class="row g-3 needs-validation custom-input" novalidate="">
+        <form id="workScheduleForm" method="post" action="/workschedule/add" class="row g-3 needs-validation custom-input" novalidate="">
             <div class="col-md-6 position-relative">
                 <label class="form-label" for="WorkDate">Ngày</label>
                 <input class="form-control" name="date" id="date" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" required="">
@@ -65,7 +65,7 @@
             </div>
 
             <div class="col-12">
-                <button class="btn btn-primary" type="submit">Thêm mới</button>
+                <button class="btn btn-primary" type="submit" onclick="return validateDate()">Thêm mới</button>
             </div>
         </form>
     </div>
@@ -95,4 +95,20 @@
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
+
+    <script>
+        function validateDate() {
+            var selectedDate = new Date(document.getElementById('date').value);
+            var currentDate = new Date();
+
+            // Reset time for comparison
+            currentDate.setHours(0, 0, 0, 0);
+
+            if (selectedDate < currentDate) {
+                alert('Ngày đã chọn không được nhỏ hơn ngày hiện tại.');
+                return false;
+            }
+            return true;
+        }
+    </script>
 }

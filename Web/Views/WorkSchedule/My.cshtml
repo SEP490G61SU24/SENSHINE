@@ -35,10 +35,10 @@
 
 <div class="card p-4">
     <!-- Week Selector -->
-    <div class="week-selector mb-4 text-center">
-        <a class="btn btn-primary" href="?week=@(weekOffset - 1)">Previous Week</a>
-        <a class="btn btn-primary ml-3" href="?week=@(weekOffset + 1)">Next Week</a>
-        <span class="ml-3 font-weight-bold">Week of @startOfWeek.ToString("MMMM dd, yyyy")</span>
+    <div class="week-selector mb-4 text-left">
+        <a class="btn btn-primary" href="?week=@(weekOffset - 1)">Tuần trước</a>
+        <a class="btn btn-primary ml-3" href="?week=@(weekOffset + 1)">Tuần tới</a>
+        <span class="ml-3 font-weight-bold">Tuần của @startOfWeek.ToString("dd MMMM, yyyy", new System.Globalization.CultureInfo("vi-VN"))</span>
     </div>
 
     <!-- Table displaying schedule -->
@@ -46,7 +46,7 @@
         <table class="table table-striped table-bordered text-center">
             <thead class="thead-dark">
                 <tr>
-                    <th>Day/Slot</th>
+                    <th>Ngày/Slot</th>
                     @foreach (var slot in slots)
                     {
                         <th>@slot.SlotName <br /> (@slot.TimeFrom.Value.ToString(@"hh\:mm") - @slot.TimeTo.Value.ToString(@"hh\:mm"))</th>
@@ -57,7 +57,7 @@
                 @foreach (var day in daysOfWeek)
                 {
                     <tr>
-                        <td>@day.ToString("dddd, MMMM dd")</td>
+                        <td>@day.ToString("dddd, dd MMMM", new System.Globalization.CultureInfo("vi-VN"))</td>
                         @foreach (var slot in slots)
                         {
                             <td>

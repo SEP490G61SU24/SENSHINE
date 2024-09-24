@@ -38,7 +38,12 @@ namespace Web.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<UserSlot>>();
+                    var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<UserSlotViewModel>>();
+                    foreach (var result in paginatedResult.Items)
+                    {
+                        result.UserName = GetUserName(result.UserId).Result; 
+                        result.SlotName = GetSlotName(result.SlotId).Result; 
+                    }
                     paginatedResult.SearchTerm = searchTerm;
                     return View(paginatedResult);
                 }
@@ -57,21 +62,6 @@ namespace Web.Controllers
 
         public async Task<IActionResult> My(DateTime? date)
         {
-            //int? spaId = ViewData["SpaId"]?.ToString() != "ALL"
-            //? int.Parse(ViewData["SpaId"].ToString())
-            //: (int?)null;
-
-            //if (TempData["SelectedDate"] != null)
-            //{
-            //    var tempDate = (DateTime)TempData["SelectedDate"];
-            //    ViewBag.Date = tempDate.ToString("yyyy-MM-dd");
-            //}
-            //else
-            //{
-            //    // Use DateTime.Now if no date is provided
-            //    var selectedDate = date ?? DateTime.Now;
-            //    ViewBag.Date = selectedDate.ToString("yyyy-MM-dd");
-            //}
             var Id = ViewData["UserId"];
             ViewBag.Id = Id;
             var slots = await GetAllSlots();
@@ -227,6 +217,38 @@ namespace Web.Controllers
             }
 
             return slots;
+        }
+
+        private async Task<string> GetUserName(int userId)
+        {
+            var client = _clientFactory.CreateClient();
+            var apiUrl = _configuration["ApiUrl"];
+            string username = null;
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/users/{userId}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                string jsonString = await response.Content.ReadAsStringAsync();
+                username = JsonConvert.DeserializeObject<UserDTO>(jsonString).FullName;
+            }
+
+            return username;
+        }
+
+        private async Task<string> GetSlotName(int slotId)
+        {
+            var client = _clientFactory.CreateClient();
+            var apiUrl = _configuration["ApiUrl"];
+            string slotname = null;
+            HttpResponseMessage response = await client.GetAsync($"{apiUrl}/Appointment/GetSlotById?id={slotId}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                string jsonString = await response.Content.ReadAsStringAsync();
+                slotname = JsonConvert.DeserializeObject<SlotDTO>(jsonString).SlotName;
+            }
+
+            return slotname;
         }
 
         private async Task<List<UserDTO>> GetAvailableEmployeesInSlot(DateTime date, int slotId)
