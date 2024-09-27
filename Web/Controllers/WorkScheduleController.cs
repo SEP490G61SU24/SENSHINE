@@ -41,8 +41,8 @@ namespace Web.Controllers
                     var paginatedResult = await response.Content.ReadFromJsonAsync<PaginatedList<UserSlotViewModel>>();
                     foreach (var result in paginatedResult.Items)
                     {
-                        result.UserName = GetUserName(result.UserId).Result; 
-                        result.SlotName = GetSlotName(result.SlotId).Result; 
+                        result.UserName = GetUserName(result.UserId).Result;
+                        result.SlotName = GetSlotName(result.SlotId).Result;
                     }
                     paginatedResult.SearchTerm = searchTerm;
                     return View(paginatedResult);
@@ -165,6 +165,7 @@ namespace Web.Controllers
                 return View("Error");
             }
         }
+
         public class EditRequest
         {
             public int Id { get; set; }
