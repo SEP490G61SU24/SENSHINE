@@ -65,7 +65,7 @@
             </div>
 
             <div class="col-12">
-                <button class="btn btn-primary" type="submit" onclick="return validateDate()">Thêm mới</button>
+                <button class="btn btn-primary" type="submit" onclick="return validateForm()">Thêm mới</button>
             </div>
         </form>
     </div>
@@ -97,17 +97,26 @@
     <script src="~/assets/js/script.js"></script>
 
     <script>
-        function validateDate() {
+        function validateForm() {
             var selectedDate = new Date(document.getElementById('date').value);
             var currentDate = new Date();
 
             // Reset time for comparison
             currentDate.setHours(0, 0, 0, 0);
 
+            // Validate date
             if (selectedDate < currentDate) {
                 alert('Ngày đã chọn không được nhỏ hơn ngày hiện tại.');
                 return false;
             }
+
+            // Validate slots
+            var slotCheckboxes = document.querySelectorAll('input[name="slotIds"]:checked');
+            if (slotCheckboxes.length === 0) {
+                alert('Bạn phải chọn ít nhất một slot.');
+                return false;
+            }
+
             return true;
         }
     </script>
