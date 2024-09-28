@@ -48,9 +48,10 @@ namespace API.Dtos
             public int InvoiceId { get; set; }
             public int ComboId { get; set; }
             public int? Quantity { get; set; }
+            public decimal? Price { get; set; }
 
-            
-            public ComboDTO2? Combo { get; set; }
+
+        public ComboDTO2? Combo { get; set; }
         }
 
 
@@ -59,9 +60,10 @@ namespace API.Dtos
             public int InvoiceId { get; set; }
             public int ServiceId { get; set; }
             public int? Quantity { get; set; }
+            public decimal? Price { get; set; }
 
-            
-            public ServiceDTO? Service { get; set; }
+
+        public ServiceDTO? Service { get; set; }
         }
     public class UpdateInvoiceStatus
     {
