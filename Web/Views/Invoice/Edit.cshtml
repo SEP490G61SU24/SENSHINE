@@ -178,27 +178,31 @@
                             <!-- Display Promotion Name with Select -->
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label asp-for="PromotionName" class="control-label">Khuyến mãi</label>
-                                    <select asp-for="PromotionName" class="form-control" id="PromotionSelect" onchange="updatePromotionDiscount()">
+                                    <label asp-for="DiscountPercentage" class="control-label">Khuyến mãi</label>
+                                    <select asp-for="DiscountPercentage" class="form-control" id="PromotionSelect" onchange="updatePromotionDiscount()">
                                         <option value="0">-- Chọn khuyến mãi --</option>
                                         @foreach (var promotion in ViewBag.Promotions)
                                         {
                                             if (Model.PromotionName == promotion.PromotionName)
                                             {
-                                                <option value="@promotion.DiscountPercentage" selected>
+                                                <option value="@promotion.DiscountPercentage" selected data-promotion-name="@promotion.PromotionName">
                                                     @promotion.PromotionName
                                                 </option>
+                                                
                                             }
                                             else
                                             {
-                                                <option value="@promotion.DiscountPercentage">
+                                                <option value="@promotion.DiscountPercentage" data-promotion-name="@promotion.PromotionName">
                                                     @promotion.PromotionName
                                                 </option>
+                                                
                                             }
+                                          
                                         }
                                     </select>
-                                    <span asp-validation-for="PromotionName" class="text-danger"></span>
-                                    <input type="hidden" id="PromotionDiscount" value="@Model.DiscountPercentage" />
+                                    <input type="hidden" id="PromotionNameInput" name="PromotionName" value="@Model.PromotionName" />
+                                    <span asp-validation-for="DiscountPercentage" class="text-danger"></span>
+                                    
                                 </div>
                             </div>
 
@@ -327,7 +331,7 @@
                 var totalAmount = 0;
                 var comboSummary = "";
                 var serviceSummary = "";
-
+                
                 // Retrieve selected combo quantities and names
                 $('#comboSelect').find('button.btn-primary').each(function () {
                     var comboId = $(this).data('id');
@@ -431,5 +435,15 @@
                 calculateTotalAmount();
             });
         });
+    </script>
+    <script>
+        function updatePromotionDiscount() {
+            var selectElement = document.getElementById("PromotionSelect");
+            var selectedOption = selectElement.options[selectElement.selectedIndex];
+            var promotionName = selectedOption.getAttribute("data-promotion-name");
+
+            // Update the hidden input with the selected promotion name
+            document.getElementById("PromotionNameInput").value = promotionName;
+        }
     </script>
 }
